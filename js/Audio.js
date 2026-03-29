@@ -124,7 +124,7 @@ export class GameAudio {
 		const currentVol = this.engineSound.getVolume();
 		this.engineSound.setVolume( THREE.MathUtils.lerp( currentVol, targetVol, dt * 5 ) );
 
-		let targetPitch = remap( speedFactor, 0, 1, 0.5, 3 );
+		let targetPitch = remap( speedFactor, 0, 1, 0.25, 3 );
 		if ( throttleFactor > 0.1 ) targetPitch += 0.2;
 		const currentPitch = this.engineSound.getPlaybackRate();
 		this.engineSound.setPlaybackRate( THREE.MathUtils.lerp( currentPitch, targetPitch, dt * 2 ) );

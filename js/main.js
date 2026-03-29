@@ -396,6 +396,8 @@ async function init() {
 		addSlider( debugPanel, 'Underbody', - 2.0, 1.0, 0.01, - 0.5, ( v ) => { vehicle.debug.underbodyOffset = v; } );
 		addSlider( debugPanel, 'Chase cam height', 0, 10.0, 0.1, 2, ( v ) => { cam.chaseHeight = v; } );
 		addSlider( debugPanel, 'Zoom', 0.5, 3.0, 0.05, 1.0, ( v ) => { cam.zoom = v; } );
+		addSlider( debugPanel, 'Acceleration', 1, 20, 0.5, 1, ( v ) => { vehicle.debug.accelerationRate = v; } );
+		addSlider( debugPanel, 'Top speed', 10, 300, 5, 150, ( v ) => { vehicle.debug.topSpeed = v; } );
 
 		// Footer
 		const debugFooter = document.createElement( 'div' );

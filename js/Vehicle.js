@@ -62,6 +62,8 @@ export class Vehicle {
 			wheelHeight: 0,
 			bodyHeight: 0.2,
 			underbodyOffset: - 0.5,
+			accelerationRate: 1,
+			topSpeed: 150,
 		};
 		this.wheelOrigY = [];
 
@@ -166,7 +168,7 @@ export class Vehicle {
 
 			} else {
 
-				this.linearSpeed = THREE.MathUtils.lerp( this.linearSpeed, targetSpeed, dt * 6 );
+				this.linearSpeed = THREE.MathUtils.lerp( this.linearSpeed, targetSpeed, dt * this.debug.accelerationRate );
 
 			}
 
@@ -194,7 +196,7 @@ export class Vehicle {
 			_right.normalize();
 
 			const angvel = this.rigidBody.motionProperties.angularVelocity;
-			const drive = this.linearSpeed * 100 * dt;
+			const drive = this.linearSpeed * this.debug.topSpeed * dt;
 
 			rigidBody.setAngularVelocity( this.physicsWorld, this.rigidBody, [
 				angvel[ 0 ] + _right.x * drive,

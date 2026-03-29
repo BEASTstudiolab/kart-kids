@@ -20,7 +20,7 @@ export class Camera {
 		this.camera.lookAt( 0, 0, 0 );
 
 		// Chase camera state
-		this.mode = 'isometric'; // 'isometric' or 'chase'
+		this.mode = 'chase'; // 'isometric' or 'chase'
 		this.chaseDistance = 6;
 		this.chaseHeight = 2;
 		this.chaseLookAhead = 3;
