@@ -52,6 +52,19 @@ export class Vehicle {
 
 		this.driftIntensity = 0;
 
+		// Set true before init() to force wheel orientation correction regardless of bounding box
+		this.forceWheelCorrection = false;
+
+		this.debug = {
+			lockX: false,
+			lockY: false,
+			lockZ: false,
+			wheelHeight: 0,
+			bodyHeight: 0.2,
+			underbodyOffset: - 0.5,
+		};
+		this.wheelOrigY = [];
+
 	}
 
 	init( model ) {
@@ -60,10 +73,14 @@ export class Vehicle {
 
 		this.container.add( vehicleModel );
 
+		const allNodeNames = [];
+
 		// Find body and wheel nodes
 		vehicleModel.traverse( ( child ) => {
 
 			const name = child.name.toLowerCase();
+
+			allNodeNames.push( child.name );
 
 			if ( name === 'body' ) {
 
@@ -90,6 +107,17 @@ export class Vehicle {
 			}
 
 		} );
+
+		if ( ! this.bodyNode ) {
+
+			console.warn(
+				'Vehicle.init: no node named "body" found — body animations disabled. ' +
+				'Nodes found: ' + allNodeNames.filter( n => n !== '' ).join( ', ' )
+			);
+
+		}
+
+		this.wheelOrigY = this.wheels.map( ( w ) => w.position.y );
 
 		return this.container;
 
@@ -210,7 +238,7 @@ export class Vehicle {
 
 		this.container.position.set(
 			this.spherePos.x,
-			this.spherePos.y - 0.5,
+			this.spherePos.y + this.debug.underbodyOffset,
 			this.spherePos.z
 		);
 
@@ -256,27 +284,31 @@ export class Vehicle {
 			dt * 5
 		);
 
-		this.bodyNode.position.y = THREE.MathUtils.lerp( this.bodyNode.position.y, 0.2, dt * 5 );
+		this.bodyNode.position.y = THREE.MathUtils.lerp( this.bodyNode.position.y, 0.2 + this.debug.bodyHeight, dt * 5 );
 
 	}
 
 	updateWheels( dt ) {
 
-		for ( const wheel of this.wheels ) {
+		for ( let i = 0; i < this.wheels.length; i ++ ) {
+
+			const wheel = this.wheels[ i ];
 
 			wheel.rotation.x += this.acceleration;
+
+			wheel.position.y = ( this.wheelOrigY[ i ] || 0 ) + this.debug.wheelHeight;
 
 		}
 
 		if ( this.wheelFL ) {
 
-			this.wheelFL.rotation.y = lerpAngle( this.wheelFL.rotation.y, -this.inputX / 1.5, dt * 10 );
+			this.wheelFL.rotation.y = lerpAngle( this.wheelFL.rotation.y, - this.inputX / 1.5, dt * 10 );
 
 		}
 
 		if ( this.wheelFR ) {
 
-			this.wheelFR.rotation.y = lerpAngle( this.wheelFR.rotation.y, -this.inputX / 1.5, dt * 10 );
+			this.wheelFR.rotation.y = lerpAngle( this.wheelFR.rotation.y, - this.inputX / 1.5, dt * 10 );
 
 		}
 
