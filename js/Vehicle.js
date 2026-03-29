@@ -87,7 +87,7 @@ export class Vehicle {
 				child.rotation.order = 'YXZ';
 				this.bodyNode = child;
 
-			} else if ( name.includes( 'wheel' ) ) {
+			} else if ( name.includes( 'wheel' ) && ! name.includes( 'steering' ) ) {
 
 				child.rotation.order = 'YXZ';
 				this.wheels.push( child );
