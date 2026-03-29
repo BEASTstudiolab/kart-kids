@@ -184,222 +184,238 @@ async function init() {
 	const vehicleGroup = vehicle.init( models[ 'vehicle-truck-yellow' ] );
 	scene.add( vehicleGroup );
 
-	// ─── DEBUG OVERLAY ────────────────────────────────────────────────────────
+	const isMobile = 'ontouchstart' in window;
+	let debugSphere = null;
+	let wheelDebug = null;
+	let hudVisible = false;
 
-	// Helper: sprite label for axis ends
-	function makeAxisLabel( text, color ) {
+	if ( ! isMobile ) {
 
-		const canvas = document.createElement( 'canvas' );
-		canvas.width = 64; canvas.height = 32;
-		const ctx = canvas.getContext( '2d' );
-		ctx.font = 'bold 20px Arial';
-		ctx.fillStyle = color;
-		ctx.fillText( text, 14, 22 );
-		const tex = new THREE.CanvasTexture( canvas );
-		const mat = new THREE.SpriteMaterial( { map: tex, depthTest: false } );
-		const sprite = new THREE.Sprite( mat );
-		sprite.scale.set( 0.3, 0.15, 1 );
-		return sprite;
+		// ─── DEBUG OVERLAY ────────────────────────────────────────────────────────
 
-	}
+		// Helper: sprite label for axis ends
+		function makeAxisLabel( text, color ) {
 
-	// Physics body sphere — sized to encapsulate the whole vehicle frame
-	const vehicleBBox = new THREE.Box3().setFromObject( vehicleGroup );
-	const vehicleSize = vehicleBBox.getSize( new THREE.Vector3() );
-	const debugRadius = vehicleSize.length() * 0.5;
-
-	const debugSphere = new THREE.Mesh(
-		new THREE.SphereGeometry( debugRadius, 16, 10 ),
-		new THREE.MeshBasicMaterial( { color: 0x00ff00, wireframe: true } )
-	);
-	scene.add( debugSphere );
-
-	// Per-wheel: yellow box + local axes (Red=X roll, Green=Y steer, Blue=Z) + labels
-	const wheelDebug = vehicle.wheels.map( ( w ) => {
-
-		const boxH = new THREE.BoxHelper( w, 0xffff00 );
-		scene.add( boxH );
-
-		const axes = new THREE.AxesHelper( 0.5 );
-		w.add( axes );
-
-		const xLabel = makeAxisLabel( 'X', '#ff4444' );
-		xLabel.position.set( 0.65, 0, 0 );
-		w.add( xLabel );
-
-		const yLabel = makeAxisLabel( 'Y', '#44ff44' );
-		yLabel.position.set( 0, 0.65, 0 );
-		w.add( yLabel );
-
-		const zLabel = makeAxisLabel( 'Z', '#4488ff' );
-		zLabel.position.set( 0, 0, 0.65 );
-		w.add( zLabel );
-
-		return { boxH, axes, labels: [ xLabel, yLabel, zLabel ] };
-
-	} );
-
-	// ─── HUD PANEL (toggle with H key) ────────────────────────────────────────
-	const hud = document.createElement( 'div' );
-	hud.style.cssText = [
-		'position:fixed', 'top:12px', 'right:12px',
-		'background:rgba(0,0,0,0.72)', 'color:#0f0', 'font:13px/1.6 monospace',
-		'padding:10px 14px', 'border-radius:6px', 'pointer-events:none',
-		'min-width:260px', 'white-space:pre', 'z-index:999',
-	].join( ';' );
-	document.body.appendChild( hud );
-
-	let hudVisible = true;
-	window.addEventListener( 'keydown', ( e ) => {
-
-		if ( e.key === 'h' || e.key === 'H' ) {
-
-			hudVisible = ! hudVisible;
-			hud.style.display = hudVisible ? 'block' : 'none';
+			const canvas = document.createElement( 'canvas' );
+			canvas.width = 64; canvas.height = 32;
+			const ctx = canvas.getContext( '2d' );
+			ctx.font = 'bold 20px Arial';
+			ctx.fillStyle = color;
+			ctx.fillText( text, 14, 22 );
+			const tex = new THREE.CanvasTexture( canvas );
+			const mat = new THREE.SpriteMaterial( { map: tex, depthTest: false } );
+			const sprite = new THREE.Sprite( mat );
+			sprite.scale.set( 0.3, 0.15, 1 );
+			return sprite;
 
 		}
 
-	} );
+		// Physics body sphere — sized to encapsulate the whole vehicle frame
+		const vehicleBBox = new THREE.Box3().setFromObject( vehicleGroup );
+		const vehicleSize = vehicleBBox.getSize( new THREE.Vector3() );
+		const debugRadius = vehicleSize.length() * 0.5;
 
-	// ─── DEBUG CONTROLS PANEL (top-left, toggle with D) ──────────────────────
+		debugSphere = new THREE.Mesh(
+			new THREE.SphereGeometry( debugRadius, 16, 10 ),
+			new THREE.MeshBasicMaterial( { color: 0x00ff00, wireframe: true } )
+		);
+		debugSphere.visible = false;
+		scene.add( debugSphere );
 
-	const debugPanel = document.createElement( 'div' );
-	debugPanel.style.cssText = [
-		'position:fixed', 'top:12px', 'left:12px',
-		'background:rgba(0,0,0,0.72)', 'color:#0f0', 'font:13px/1.6 monospace',
-		'padding:10px 14px', 'border-radius:6px', 'pointer-events:auto',
-		'min-width:260px', 'z-index:999', 'user-select:none',
-	].join( ';' );
-	document.body.appendChild( debugPanel );
+		// Per-wheel: yellow box + local axes (Red=X roll, Green=Y steer, Blue=Z) + labels
+		wheelDebug = vehicle.wheels.map( ( w ) => {
 
-	debugPanel.addEventListener( 'keydown', ( e ) => e.stopPropagation() );
-	debugPanel.addEventListener( 'keyup', ( e ) => e.stopPropagation() );
+			const boxH = new THREE.BoxHelper( w, 0xffff00 );
+			boxH.visible = false;
+			scene.add( boxH );
 
-	function addCheckbox( parent, label, defaultVal, onChange ) {
+			const axes = new THREE.AxesHelper( 0.5 );
+			axes.visible = false;
+			w.add( axes );
 
-		const row = document.createElement( 'div' );
-		row.style.cssText = 'margin:4px 0;display:flex;align-items:center;gap:6px';
+			const xLabel = makeAxisLabel( 'X', '#ff4444' );
+			xLabel.position.set( 0.65, 0, 0 );
+			xLabel.visible = false;
+			w.add( xLabel );
 
-		const input = document.createElement( 'input' );
-		input.type = 'checkbox';
-		input.checked = defaultVal;
-		input.style.cssText = 'accent-color:#0f0';
+			const yLabel = makeAxisLabel( 'Y', '#44ff44' );
+			yLabel.position.set( 0, 0.65, 0 );
+			yLabel.visible = false;
+			w.add( yLabel );
 
-		const lbl = document.createElement( 'span' );
-		lbl.textContent = label;
+			const zLabel = makeAxisLabel( 'Z', '#4488ff' );
+			zLabel.position.set( 0, 0, 0.65 );
+			zLabel.visible = false;
+			w.add( zLabel );
 
-		input.addEventListener( 'change', () => onChange( input.checked ) );
-
-		row.appendChild( input );
-		row.appendChild( lbl );
-		parent.appendChild( row );
-
-	}
-
-	function addSlider( parent, label, min, max, step, defaultVal, onChange ) {
-
-		const row = document.createElement( 'div' );
-		row.style.cssText = 'margin:4px 0;display:flex;align-items:center;gap:6px';
-
-		const lbl = document.createElement( 'span' );
-		lbl.style.cssText = 'min-width:100px';
-		lbl.textContent = label;
-
-		const input = document.createElement( 'input' );
-		input.type = 'range';
-		input.min = min;
-		input.max = max;
-		input.step = step;
-		input.value = defaultVal;
-		input.style.cssText = 'flex:1;accent-color:#0f0';
-
-		const val = document.createElement( 'span' );
-		val.style.cssText = 'min-width:50px;text-align:right';
-		val.textContent = Number( defaultVal ).toFixed( 2 );
-
-		input.addEventListener( 'input', () => {
-
-			const v = parseFloat( input.value );
-			val.textContent = v.toFixed( 2 );
-			onChange( v );
+			return { boxH, axes, labels: [ xLabel, yLabel, zLabel ] };
 
 		} );
 
-		row.appendChild( lbl );
-		row.appendChild( input );
-		row.appendChild( val );
-		parent.appendChild( row );
+		// ─── HUD PANEL (toggle with H key) ────────────────────────────────────────
+		const hud = document.createElement( 'div' );
+		hud.style.cssText = [
+			'position:fixed', 'top:12px', 'right:12px',
+			'background:rgba(0,0,0,0.72)', 'color:#0f0', 'font:13px/1.6 monospace',
+			'padding:10px 14px', 'border-radius:6px', 'pointer-events:none',
+			'min-width:260px', 'white-space:pre', 'z-index:999',
+		].join( ';' );
+		document.body.appendChild( hud );
+
+		hudVisible = true;
+		window.addEventListener( 'keydown', ( e ) => {
+
+			if ( e.key === 'h' || e.key === 'H' ) {
+
+				hudVisible = ! hudVisible;
+				hud.style.display = hudVisible ? 'block' : 'none';
+
+			}
+
+		} );
+
+		// ─── DEBUG CONTROLS PANEL (top-left, toggle with Z) ──────────────────────
+
+		const debugPanel = document.createElement( 'div' );
+		debugPanel.style.cssText = [
+			'position:fixed', 'top:12px', 'left:12px',
+			'background:rgba(0,0,0,0.72)', 'color:#0f0', 'font:13px/1.6 monospace',
+			'padding:10px 14px', 'border-radius:6px', 'pointer-events:auto',
+			'min-width:260px', 'z-index:999', 'user-select:none',
+		].join( ';' );
+		document.body.appendChild( debugPanel );
+
+		debugPanel.addEventListener( 'keydown', ( e ) => e.stopPropagation() );
+		debugPanel.addEventListener( 'keyup', ( e ) => e.stopPropagation() );
+
+		function addCheckbox( parent, label, defaultVal, onChange ) {
+
+			const row = document.createElement( 'div' );
+			row.style.cssText = 'margin:4px 0;display:flex;align-items:center;gap:6px';
+
+			const input = document.createElement( 'input' );
+			input.type = 'checkbox';
+			input.checked = defaultVal;
+			input.style.cssText = 'accent-color:#0f0';
+
+			const lbl = document.createElement( 'span' );
+			lbl.textContent = label;
+
+			input.addEventListener( 'change', () => onChange( input.checked ) );
+
+			row.appendChild( input );
+			row.appendChild( lbl );
+			parent.appendChild( row );
+
+		}
+
+		function addSlider( parent, label, min, max, step, defaultVal, onChange ) {
+
+			const row = document.createElement( 'div' );
+			row.style.cssText = 'margin:4px 0;display:flex;align-items:center;gap:6px';
+
+			const lbl = document.createElement( 'span' );
+			lbl.style.cssText = 'min-width:100px';
+			lbl.textContent = label;
+
+			const input = document.createElement( 'input' );
+			input.type = 'range';
+			input.min = min;
+			input.max = max;
+			input.step = step;
+			input.value = defaultVal;
+			input.style.cssText = 'flex:1;accent-color:#0f0';
+
+			const val = document.createElement( 'span' );
+			val.style.cssText = 'min-width:50px;text-align:right';
+			val.textContent = Number( defaultVal ).toFixed( 2 );
+
+			input.addEventListener( 'input', () => {
+
+				const v = parseFloat( input.value );
+				val.textContent = v.toFixed( 2 );
+				onChange( v );
+
+			} );
+
+			row.appendChild( lbl );
+			row.appendChild( input );
+			row.appendChild( val );
+			parent.appendChild( row );
+
+		}
+
+		// Title
+		const debugTitle = document.createElement( 'div' );
+		debugTitle.textContent = '─── DEBUG CONTROLS ─────────';
+		debugTitle.style.marginBottom = '6px';
+		debugPanel.appendChild( debugTitle );
+
+		// Wheel axis locks
+		const axisHeader = document.createElement( 'div' );
+		axisHeader.textContent = 'Wheel rotation locks:';
+		axisHeader.style.cssText = 'margin:6px 0 2px';
+		debugPanel.appendChild( axisHeader );
+
+		addCheckbox( debugPanel, 'Lock X', false, ( v ) => { vehicle.debug.lockX = v; } );
+		addCheckbox( debugPanel, 'Lock Y (roll)', false, ( v ) => { vehicle.debug.lockY = v; } );
+		addCheckbox( debugPanel, 'Lock Z (steer)', false, ( v ) => { vehicle.debug.lockZ = v; } );
+
+		// Visibility toggles
+		const visHeader = document.createElement( 'div' );
+		visHeader.textContent = 'Debug visuals:';
+		visHeader.style.cssText = 'margin:8px 0 2px';
+		debugPanel.appendChild( visHeader );
+
+		addCheckbox( debugPanel, 'Show physics sphere', false, ( v ) => {
+
+			debugSphere.visible = v;
+
+		} );
+
+		addCheckbox( debugPanel, 'Show wheel debug', false, ( v ) => {
+
+			for ( const wd of wheelDebug ) {
+
+				wd.boxH.visible = v;
+				wd.axes.visible = v;
+				for ( const l of wd.labels ) l.visible = v;
+
+			}
+
+		} );
+
+		// Height sliders
+		const heightHeader = document.createElement( 'div' );
+		heightHeader.textContent = 'Height offsets (Y axis):';
+		heightHeader.style.cssText = 'margin:8px 0 2px';
+		debugPanel.appendChild( heightHeader );
+
+		addSlider( debugPanel, 'Wheel height', - 1.0, 1.0, 0.01, 0, ( v ) => { vehicle.debug.wheelHeight = v; } );
+		addSlider( debugPanel, 'Body height', - 1.0, 1.0, 0.01, 0.2, ( v ) => { vehicle.debug.bodyHeight = v; } );
+		addSlider( debugPanel, 'Underbody', - 2.0, 1.0, 0.01, - 0.5, ( v ) => { vehicle.debug.underbodyOffset = v; } );
+
+		// Footer
+		const debugFooter = document.createElement( 'div' );
+		debugFooter.textContent = '─── Press Z to toggle ──────';
+		debugFooter.style.cssText = 'margin-top:6px;opacity:0.5';
+		debugPanel.appendChild( debugFooter );
+
+		let debugPanelVisible = false;
+		debugPanel.style.display = 'none';
+		window.addEventListener( 'keydown', ( e ) => {
+
+			if ( ( e.key === 'z' || e.key === 'Z' ) &&
+				! ( document.activeElement && debugPanel.contains( document.activeElement ) ) ) {
+
+				debugPanelVisible = ! debugPanelVisible;
+				debugPanel.style.display = debugPanelVisible ? 'block' : 'none';
+
+			}
+
+		} );
 
 	}
-
-	// Title
-	const debugTitle = document.createElement( 'div' );
-	debugTitle.textContent = '─── DEBUG CONTROLS ─────────';
-	debugTitle.style.marginBottom = '6px';
-	debugPanel.appendChild( debugTitle );
-
-	// Wheel axis locks
-	const axisHeader = document.createElement( 'div' );
-	axisHeader.textContent = 'Wheel rotation locks:';
-	axisHeader.style.cssText = 'margin:6px 0 2px';
-	debugPanel.appendChild( axisHeader );
-
-	addCheckbox( debugPanel, 'Lock X', false, ( v ) => { vehicle.debug.lockX = v; } );
-	addCheckbox( debugPanel, 'Lock Y (roll)', false, ( v ) => { vehicle.debug.lockY = v; } );
-	addCheckbox( debugPanel, 'Lock Z (steer)', false, ( v ) => { vehicle.debug.lockZ = v; } );
-
-	// Visibility toggles
-	const visHeader = document.createElement( 'div' );
-	visHeader.textContent = 'Debug visuals:';
-	visHeader.style.cssText = 'margin:8px 0 2px';
-	debugPanel.appendChild( visHeader );
-
-	addCheckbox( debugPanel, 'Show physics sphere', true, ( v ) => {
-
-		debugSphere.visible = v;
-
-	} );
-
-	addCheckbox( debugPanel, 'Show wheel debug', true, ( v ) => {
-
-		for ( const wd of wheelDebug ) {
-
-			wd.boxH.visible = v;
-			wd.axes.visible = v;
-			for ( const l of wd.labels ) l.visible = v;
-
-		}
-
-	} );
-
-	// Height sliders
-	const heightHeader = document.createElement( 'div' );
-	heightHeader.textContent = 'Height offsets (Y axis):';
-	heightHeader.style.cssText = 'margin:8px 0 2px';
-	debugPanel.appendChild( heightHeader );
-
-	addSlider( debugPanel, 'Wheel height', - 1.0, 1.0, 0.01, 0, ( v ) => { vehicle.debug.wheelHeight = v; } );
-	addSlider( debugPanel, 'Body height', - 1.0, 1.0, 0.01, 0.2, ( v ) => { vehicle.debug.bodyHeight = v; } );
-	addSlider( debugPanel, 'Underbody', - 2.0, 1.0, 0.01, - 0.5, ( v ) => { vehicle.debug.underbodyOffset = v; } );
-
-	// Footer
-	const debugFooter = document.createElement( 'div' );
-	debugFooter.textContent = '─── Press Z to toggle ──────';
-	debugFooter.style.cssText = 'margin-top:6px;opacity:0.5';
-	debugPanel.appendChild( debugFooter );
-
-	let debugPanelVisible = true;
-	window.addEventListener( 'keydown', ( e ) => {
-
-		if ( ( e.key === 'z' || e.key === 'Z' ) &&
-			! ( document.activeElement && debugPanel.contains( document.activeElement ) ) ) {
-
-			debugPanelVisible = ! debugPanelVisible;
-			debugPanel.style.display = debugPanelVisible ? 'block' : 'none';
-
-		}
-
-	} );
 
 	// ─────────────────────────────────────────────────────────────────────────
 	dirLight.target = vehicleGroup;
@@ -446,39 +462,11 @@ async function init() {
 
 		vehicle.update( dt, input );
 
-		// ─── DEBUG updates ─────────────────────────────────────────────────────
-		debugSphere.position.copy( vehicle.spherePos );
-		for ( const wd of wheelDebug ) wd.boxH.update();
+		// ─── DEBUG updates (desktop only) ─────────────────────────────────────
+		if ( debugSphere ) {
 
-		if ( hudVisible ) {
-
-			const sp = vehicle.spherePos;
-			const sv = vehicle.sphereVel;
-			const wNames = [ 'FL', 'FR', 'BL', 'BR' ];
-			const wRefs  = [ vehicle.wheelFL, vehicle.wheelFR, vehicle.wheelBL, vehicle.wheelBR ];
-
-			const wheelLines = wNames.map( ( label, i ) => {
-
-				const w = wRefs[ i ];
-				if ( ! w ) return `  ${ label }: —`;
-				const r = w.rotation;
-				return `  ${ label }: x=${ r.x.toFixed( 2 ) } y=${ r.y.toFixed( 2 ) } z=${ r.z.toFixed( 2 ) }  [${ w.type }]`;
-
-			} ).join( '\n' );
-
-			hud.textContent = [
-				`─── VEHICLE ───────────────────`,
-				`  pos:  ${ sp.x.toFixed( 2 ) }  ${ sp.y.toFixed( 2 ) }  ${ sp.z.toFixed( 2 ) }`,
-				`  vel:  ${ sv.x.toFixed( 2 ) }  ${ sv.y.toFixed( 2 ) }  ${ sv.z.toFixed( 2 ) }`,
-				`  speed:     ${ vehicle.linearSpeed.toFixed( 3 ) }`,
-				`  accel:     ${ vehicle.acceleration.toFixed( 3 ) }`,
-				`  drift:     ${ vehicle.driftIntensity.toFixed( 3 ) }`,
-				`  inputX:    ${ vehicle.inputX.toFixed( 2 ) }`,
-				`  physR:     ${ debugRadius.toFixed( 3 ) } (debug)`,
-				`─── WHEELS (rot / type) ────────`,
-				wheelLines,
-				`─── Press H to toggle ──────────`,
-			].join( '\n' );
+			debugSphere.position.copy( vehicle.spherePos );
+			for ( const wd of wheelDebug ) wd.boxH.update();
 
 		}
 		// ───────────────────────────────────────────────────────────────────────
