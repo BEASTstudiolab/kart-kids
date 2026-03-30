@@ -399,7 +399,6 @@ export class Vehicle {
 		if ( this.boostActive ) {
 
 			this.boostTimer -= dt;
-			this.debug.topSpeed = this.boostTopSpeed;
 
 			if ( this.boostTimer <= 0 ) {
 
