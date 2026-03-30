@@ -12,6 +12,7 @@ import { PlayerManager } from './PlayerManager.js';
 import { RaceMode } from './RaceMode.js';
 import { HUD } from './HUD.js';
 import { Minimap } from './Minimap.js';
+import { TrackIntel } from './TrackIntel.js';
 
 
 const renderer = new THREE.WebGLRenderer( { antialias: true, outputBufferType: THREE.HalfFloatType } );
@@ -334,6 +335,9 @@ async function init() {
 		raceMode.start();
 
 	} );
+
+	const trackIntel = new TrackIntel( activeCells );
+	raceMode.trackIntel = trackIntel;
 
 	const minimap = new Minimap( activeCells, bounds );
 
@@ -903,7 +907,7 @@ async function init() {
 
 		playerManager.update( dt, spectating ? { x: 0, z: 0, touchActive: false } : input );
 
-		raceMode.update( dt, vehicle );
+		raceMode.update( dt, vehicle, playerManager.getActiveVehicles() );
 		hud.update( raceMode.getDisplayState() );
 		minimap.update( playerManager.getActiveVehicles(), raceMode.getDisplayState().state );
 

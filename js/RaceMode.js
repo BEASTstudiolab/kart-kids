@@ -28,6 +28,11 @@ export class RaceMode extends GameMode {
 		// Whether countdown is driven by network (multiplayer) or local timer
 		this.networkDriven = false;
 
+		// Track intelligence for position ranking (set externally after construction)
+		this.trackIntel = null;
+		this._lastSegmentHint = null;
+		this._position = 1;
+
 		this._state = STATE_IDLE;
 		this._countdownTime = 0;
 		this._countdownNumber = COUNTDOWN_DURATION;
@@ -70,7 +75,7 @@ export class RaceMode extends GameMode {
 
 	}
 
-	update( dt, vehicle ) {
+	update( dt, vehicle, activeVehicles ) {
 
 		if ( this._state === STATE_COUNTDOWN && ! this.networkDriven ) {
 
@@ -97,6 +102,7 @@ export class RaceMode extends GameMode {
 
 			this._elapsedTime += dt;
 			this._checkFinishLine( vehicle );
+			this._updatePosition( vehicle, activeVehicles );
 
 		}
 
@@ -158,6 +164,7 @@ export class RaceMode extends GameMode {
 			elapsedTime: this._elapsedTime,
 			bestLap: this._bestLap === Infinity ? 0 : this._bestLap,
 			totalTime: this._totalTime,
+			position: this._position,
 		};
 
 	}
@@ -193,6 +200,8 @@ export class RaceMode extends GameMode {
 		this._bestLap = Infinity;
 		this._totalTime = 0;
 		this._prevPos = null;
+		this._lastSegmentHint = null;
+		this._position = 1;
 
 		if ( this._finishLine ) this._finishLine.resetCooldown();
 
@@ -209,6 +218,44 @@ export class RaceMode extends GameMode {
 		this._lapStartTime = 0;
 		this._lap = 0;
 		this._prevPos = null;
+
+	}
+
+	_updatePosition( vehicle, activeVehicles ) {
+
+		if ( ! this.trackIntel || ! vehicle || ! activeVehicles ) {
+
+			this._position = 1;
+			return;
+
+		}
+
+		const pos = vehicle.spherePos;
+		const myProgress = this._lap + this.trackIntel.getProgress(
+			pos.x, pos.z, this._lastSegmentHint
+		);
+
+		// Update segment hint for windowed search next frame
+		this._lastSegmentHint = this.trackIntel.getNearestWaypoint( pos.x, pos.z );
+
+		// Note: remote vehicles' lap counts are not available via network,
+		// so we use intra-lap progress (0-1) for relative ordering.
+		// Cross-lap ranking requires network protocol changes (future work).
+		let ahead = 0;
+
+		for ( const entry of activeVehicles ) {
+
+			const v = entry.vehicle;
+			if ( v === vehicle ) continue;
+
+			const vPos = v.spherePos;
+			const vProgress = this.trackIntel.getProgress( vPos.x, vPos.z );
+
+			if ( vProgress > myProgress ) ahead ++;
+
+		}
+
+		this._position = ahead + 1;
 
 	}
 
