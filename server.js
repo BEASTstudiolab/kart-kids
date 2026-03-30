@@ -153,7 +153,7 @@ wss.on( 'connection', ( ws ) => {
 		let msg;
 		try {
 
-			msg = JSON.parse( raw );
+			msg = JSON.parse( raw.toString() );
 
 		} catch {
 

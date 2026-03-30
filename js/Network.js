@@ -40,15 +40,20 @@ class WebSocketTransport {
 
 			ws.addEventListener( 'message', ( e ) => {
 
-				if ( this._onMessage ) {
+				if ( ! this._onMessage ) return;
 
-					try {
+				let msg;
+				try {
 
-						this._onMessage( JSON.parse( e.data ) );
+					msg = JSON.parse( e.data );
 
-					} catch { /* ignore parse errors */ }
+				} catch {
+
+					return; // ignore parse errors only
 
 				}
+
+				this._onMessage( msg );
 
 			} );
 
@@ -112,7 +117,8 @@ export class NetworkClient {
 
 			const params = new URLSearchParams( location.search );
 			const override = params.get( 'server' );
-			url = override || `ws://${ location.host }`;
+			const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+			url = override || `${ protocol }//${ location.host }`;
 
 		}
 

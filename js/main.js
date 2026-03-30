@@ -261,13 +261,21 @@ async function init() {
 		multiplayer = true;
 
 		// Wait for welcome message before continuing
-		await new Promise( ( resolve ) => {
+		await new Promise( ( resolve, reject ) => {
 
 			network.onWelcome = ( data ) => {
 
-				playerManager.initLocalPlayer( data );
-				if ( spectateBtn ) spectateBtn.style.display = 'block';
-				resolve();
+				try {
+
+					playerManager.initLocalPlayer( data );
+					if ( spectateBtn ) spectateBtn.style.display = 'block';
+					resolve();
+
+				} catch ( err ) {
+
+					reject( err );
+
+				}
 
 			};
 
@@ -288,7 +296,7 @@ async function init() {
 
 	} catch ( e ) {
 
-		console.log( 'No server available, single-player mode' );
+		console.warn( 'Multiplayer failed, single-player mode:', e );
 		playerManager.initSinglePlayer();
 
 	}
