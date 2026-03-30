@@ -11,6 +11,7 @@ import { NetworkClient } from './Network.js';
 import { PlayerManager } from './PlayerManager.js';
 import { RaceMode } from './RaceMode.js';
 import { HUD } from './HUD.js';
+import { Minimap } from './Minimap.js';
 
 
 const renderer = new THREE.WebGLRenderer( { antialias: true, outputBufferType: THREE.HalfFloatType } );
@@ -334,16 +335,17 @@ async function init() {
 
 	} );
 
+	const minimap = new Minimap( activeCells, bounds );
+
 	// ── Multiplayer race sync ────────────────────────────────────────────────
 	// Always start race locally — server will override with synced countdown if 2+ players
 	raceMode.start();
 
 	if ( multiplayer ) {
 
-		raceMode.networkDriven = true;
-
 		network.onRaceCountdown = ( msg ) => {
 
+			raceMode.networkDriven = true;
 			raceMode.setCountdown( msg.count );
 
 		};
@@ -903,6 +905,7 @@ async function init() {
 
 		raceMode.update( dt, vehicle );
 		hud.update( raceMode.getDisplayState() );
+		minimap.update( playerManager.getActiveVehicles(), raceMode.getDisplayState().state );
 
 		// Send local state to server (throttled internally at 20Hz)
 		if ( multiplayer && network.connected && ! spectating ) {

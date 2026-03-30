@@ -183,6 +183,7 @@ export class RaceMode extends GameMode {
 	reset() {
 
 		this._state = STATE_IDLE;
+		this.networkDriven = false;
 		this._countdownTime = 0;
 		this._countdownNumber = COUNTDOWN_DURATION;
 		this._lastCountdownTick = - 1;
