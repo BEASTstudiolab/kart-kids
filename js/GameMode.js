@@ -7,7 +7,7 @@ export class GameMode {
 
 	start() {}
 
-	update( /* dt, vehicle */ ) {}
+	update( /* dt, vehicle, activeVehicles */ ) {}
 
 	filterInput( input ) { return input; }
 
