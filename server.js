@@ -52,6 +52,68 @@ const httpServer = createServer( async ( req, res ) => {
 const players = new Map();
 let joinCounter = 0;
 
+// ── Race state ──────────────────────────────────────────────────────────────
+
+let raceState = 'idle'; // idle | countdown | racing
+let countdownTimer = null;
+let countdownCount = 0;
+
+let pendingCountdownTimeout = null;
+
+function startRaceCountdown() {
+
+	pendingCountdownTimeout = null;
+
+	if ( raceState !== 'idle' ) return;
+	if ( players.size < 2 ) return;
+
+	raceState = 'countdown';
+	countdownCount = 3;
+
+	broadcast( { type: 'raceCountdown', count: countdownCount } );
+
+	countdownTimer = setInterval( () => {
+
+		countdownCount --;
+
+		if ( countdownCount > 0 ) {
+
+			broadcast( { type: 'raceCountdown', count: countdownCount } );
+
+		} else {
+
+			clearInterval( countdownTimer );
+			countdownTimer = null;
+			raceState = 'racing';
+			broadcast( { type: 'raceStart' } );
+
+		}
+
+	}, 1000 );
+
+}
+
+function resetRace() {
+
+	if ( countdownTimer ) {
+
+		clearInterval( countdownTimer );
+		countdownTimer = null;
+
+	}
+
+	if ( pendingCountdownTimeout ) {
+
+		clearTimeout( pendingCountdownTimeout );
+		pendingCountdownTimeout = null;
+
+	}
+
+	raceState = 'idle';
+	countdownCount = 0;
+
+}
+
 const VEHICLE_NAMES = [
 	'vehicle-truck-yellow',
 	'vehicle-truck-green',
@@ -174,6 +236,15 @@ wss.on( 'connection', ( ws ) => {
 				active: msg.active,
 			} );
 
+		} else if ( msg.type === 'lapComplete' ) {
+
+			broadcast( {
+				type: 'playerLap',
+				id,
+				lap: msg.lap,
+				time: msg.time,
+			} );
+
 		}
 
 	} );
@@ -183,9 +254,23 @@ wss.on( 'connection', ( ws ) => {
 		players.delete( id );
 		broadcast( { type: 'playerLeave', id } );
 
+		// Reset race if not enough players
+		if ( players.size < 2 && raceState !== 'idle' ) {
+
+			resetRace();
+
+		}
+
 	} );
 
 	console.log( `Player joined: ${ id } (vehicle ${ vehicleIndex }, tint ${ tint || 'none' })` );
+
+	// Start race countdown when 2+ players are connected and race is idle
+	if ( players.size >= 2 && raceState === 'idle' && ! pendingCountdownTimeout ) {
+
+		pendingCountdownTimeout = setTimeout( () => startRaceCountdown(), 500 );
+
+	}
 
 } );
 

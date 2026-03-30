@@ -107,6 +107,11 @@ export class NetworkClient {
 		this.onPlayerSpectate = null;
 		this.onDisconnect = null;
 
+		// Race sync callbacks
+		this.onRaceCountdown = null;
+		this.onRaceStart = null;
+		this.onPlayerLap = null;
+
 	}
 
 	get connected() { return this._connected; }
@@ -134,6 +139,9 @@ export class NetworkClient {
 				case 'playerLeave': if ( this.onPlayerLeave ) this.onPlayerLeave( msg ); break;
 				case 'world': if ( this.onWorldUpdate ) this.onWorldUpdate( msg ); break;
 				case 'playerSpectate': if ( this.onPlayerSpectate ) this.onPlayerSpectate( msg ); break;
+				case 'raceCountdown': if ( this.onRaceCountdown ) this.onRaceCountdown( msg ); break;
+				case 'raceStart': if ( this.onRaceStart ) this.onRaceStart( msg ); break;
+				case 'playerLap': if ( this.onPlayerLap ) this.onPlayerLap( msg ); break;
 
 			}
 
@@ -170,6 +178,12 @@ export class NetworkClient {
 	sendSpectate( active ) {
 
 		this._transport.send( { type: 'spectate', active } );
+
+	}
+
+	sendLapComplete( lap, time ) {
+
+		this._transport.send( { type: 'lapComplete', lap, time } );
 
 	}
 

@@ -151,6 +151,37 @@ export class GameAudio {
 
 	}
 
+	playBeep( frequency = 440, duration = 0.15 ) {
+
+		if ( ! this.listener ) return;
+
+		const ctx = this.listener.context;
+		if ( ! ctx || ctx.state === 'suspended' ) return;
+
+		try {
+
+			const osc = ctx.createOscillator();
+			const gain = ctx.createGain();
+
+			osc.type = 'square';
+			osc.frequency.value = frequency;
+			gain.gain.setValueAtTime( 0.3, ctx.currentTime );
+			gain.gain.exponentialRampToValueAtTime( 0.001, ctx.currentTime + duration );
+
+			osc.connect( gain );
+			gain.connect( ctx.destination );
+
+			osc.start( ctx.currentTime );
+			osc.stop( ctx.currentTime + duration );
+
+		} catch {
+
+			// Silently fail if audio context not ready
+
+		}
+
+	}
+
 	playImpact( impactVelocity ) {
 
 		if ( ! this.unlocked || this.impactPool.length === 0 ) return;

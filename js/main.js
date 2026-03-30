@@ -4,11 +4,13 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { createWorldSettings, createWorld, addBroadphaseLayer, addObjectLayer, enableCollision, registerAll, updateWorld, rigidBody, box, MotionType } from 'crashcat';
 import { Camera } from './Camera.js';
 import { Controls } from './Controls.js';
-import { buildTrack, decodeCells, computeSpawnPosition, computeTrackBounds } from './Track.js';
+import { buildTrack, decodeCells, computeSpawnPosition, computeTrackBounds, TRACK_CELLS } from './Track.js';
 import { buildWallColliders } from './Physics.js';
 import { GameAudio } from './Audio.js';
 import { NetworkClient } from './Network.js';
 import { PlayerManager } from './PlayerManager.js';
+import { RaceMode } from './RaceMode.js';
+import { HUD } from './HUD.js';
 
 
 const renderer = new THREE.WebGLRenderer( { antialias: true, outputBufferType: THREE.HalfFloatType } );
@@ -307,6 +309,76 @@ async function init() {
 
 	const dirLightOffset = { x: 11.4, y: 15, z: - 5.3 };
 	const isMobile = 'ontouchstart' in window;
+
+	// ── Race mode setup ──────────────────────────────────────────────────────
+	const raceMode = new RaceMode( {
+		totalLaps: 3,
+		spawnPosition: spawnPosition,
+		spawnAngle: spawnAngle,
+		onCountdownTick: ( count ) => {
+
+			if ( count > 0 ) audio.playBeep( 440, 0.15 );
+			else audio.playBeep( 880, 0.3 );
+
+		},
+	} );
+
+	// Init finish line from spawn/finish cell position
+	const activeCells = customCells || TRACK_CELLS;
+	const finishSpawn = computeSpawnPosition( activeCells );
+	raceMode.initFinishLine( finishSpawn.position, finishSpawn.angle );
+
+	const hud = new HUD( () => {
+
+		// In multiplayer, only reset to idle — server owns the countdown
+		if ( multiplayer ) {
+
+			raceMode.reset();
+
+		} else {
+
+			raceMode.reset();
+			raceMode.start();
+
+		}
+
+	} );
+
+	// ── Multiplayer race sync ────────────────────────────────────────────────
+	if ( multiplayer ) {
+
+		raceMode.networkDriven = true;
+
+		network.onRaceCountdown = ( msg ) => {
+
+			raceMode.setCountdown( msg.count );
+
+		};
+
+		network.onRaceStart = () => {
+
+			raceMode.setCountdown( 0 );
+
+		};
+
+		network.onPlayerLap = () => {
+
+			// Future: display other players' lap progress
+
+		};
+
+		raceMode.onLapComplete = ( lap, time ) => {
+
+			network.sendLapComplete( lap, time );
+
+		};
+
+	} else {
+
+		raceMode.start();
+
+	}
+
 	let debugSphere = null;
 	let wheelDebug = null;
 	let hudVisible = false;
@@ -375,14 +447,14 @@ async function init() {
 		} );
 
 		// ─── HUD PANEL (toggle with H key) ────────────────────────────────────────
-		const hud = document.createElement( 'div' );
-		hud.style.cssText = [
+		const debugHud = document.createElement( 'div' );
+		debugHud.style.cssText = [
 			'position:fixed', 'top:12px', 'right:12px',
 			'background:rgba(0,0,0,0.72)', 'color:#0f0', 'font:13px/1.6 monospace',
 			'padding:10px 14px', 'border-radius:6px', 'pointer-events:none',
 			'min-width:260px', 'white-space:pre', 'z-index:999',
 		].join( ';' );
-		document.body.appendChild( hud );
+		document.body.appendChild( debugHud );
 
 		hudVisible = true;
 		window.addEventListener( 'keydown', ( e ) => {
@@ -390,7 +462,7 @@ async function init() {
 			if ( e.key === 'h' || e.key === 'H' ) {
 
 				hudVisible = ! hudVisible;
-				hud.style.display = hudVisible ? 'block' : 'none';
+				debugHud.style.display = hudVisible ? 'block' : 'none';
 
 			}
 
@@ -833,11 +905,15 @@ async function init() {
 		timer.update();
 		const dt = Math.min( timer.getDelta(), 1 / 30 );
 
-		const input = controls.update();
+		const rawInput = controls.update();
+		const input = raceMode.filterInput( rawInput );
 
 		updateWorld( world, contactListener, dt );
 
 		playerManager.update( dt, spectating ? { x: 0, z: 0, touchActive: false } : input );
+
+		raceMode.update( dt, vehicle );
+		hud.update( raceMode.getDisplayState() );
 
 		// Send local state to server (throttled internally at 20Hz)
 		if ( multiplayer && network.connected && ! spectating ) {
