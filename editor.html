@@ -128,22 +128,22 @@
 	const ORIENT_FLIP = { 0: 10, 10: 0, 16: 22, 22: 16 };
 
 	const AUTOTILE = [
-		[ 'track-straight', 0 ],    //  0: isolated
-		[ 'track-straight', 16 ],   //  1: W
-		[ 'track-straight', 16 ],   //  2: E
-		[ 'track-straight', 16 ],   //  3: E+W
-		[ 'track-straight', 0 ],    //  4: S
-		[ 'track-corner',   0 ],    //  5: S+W
-		[ 'track-corner',   16 ],   //  6: S+E
-		[ 'track-straight', 16 ],   //  7: S+E+W
-		[ 'track-straight', 0 ],    //  8: N
-		[ 'track-corner',   22 ],   //  9: N+W
-		[ 'track-corner',   10 ],   // 10: N+E
-		[ 'track-straight', 16 ],   // 11: N+E+W
-		[ 'track-straight', 0 ],    // 12: N+S
-		[ 'track-straight', 0 ],    // 13: N+S+W
-		[ 'track-straight', 0 ],    // 14: N+S+E
-		[ 'track-straight', 0 ],    // 15: N+S+E+W
+		[ 'track-straight-night', 0 ],    //  0: isolated
+		[ 'track-straight-night', 16 ],   //  1: W
+		[ 'track-straight-night', 16 ],   //  2: E
+		[ 'track-straight-night', 16 ],   //  3: E+W
+		[ 'track-straight-night', 0 ],    //  4: S
+		[ 'track-corner-night',   0 ],    //  5: S+W
+		[ 'track-corner-night',   16 ],   //  6: S+E
+		[ 'track-straight-night', 16 ],   //  7: S+E+W
+		[ 'track-straight-night', 0 ],    //  8: N
+		[ 'track-corner-night',   22 ],   //  9: N+W
+		[ 'track-corner-night',   10 ],   // 10: N+E
+		[ 'track-straight-night', 16 ],   // 11: N+E+W
+		[ 'track-straight-night', 0 ],    // 12: N+S
+		[ 'track-straight-night', 0 ],    // 13: N+S+W
+		[ 'track-straight-night', 0 ],    // 14: N+S+E
+		[ 'track-straight-night', 0 ],    // 15: N+S+E+W
 	];
 
 	// ─── State ────────────────────────────────────────────────
@@ -242,7 +242,7 @@
 	// ─── Load models ──────────────────────────────────────────
 
 	const loader = new GLTFLoader();
-	const modelNames = [ 'track-straight', 'track-corner', 'track-bump', 'track-finish' ];
+	const modelNames = [ 'track-straight-night-night', 'track-corner-night-night', 'track-bump', 'track-finish' ];
 	const models = {};
 
 	async function loadModels() {
@@ -279,7 +279,7 @@
 		const t = cell.type;
 		const o = cell.orient;
 
-		if ( t === 'track-corner' ) {
+		if ( t === 'track-corner-night' ) {
 
 			if ( o === 0 ) return 5;    // S+W
 			if ( o === 16 ) return 6;   // S+E
@@ -461,8 +461,8 @@
 
 				const exits = getCellExits( neighbor );
 				// Match the neighbor's running direction
-				if ( exits & 12 ) return [ 'track-straight', 0 ];  // neighbor runs N-S
-				if ( exits & 3 ) return [ 'track-straight', 16 ];  // neighbor runs E-W
+				if ( exits & 12 ) return [ 'track-straight-night', 0 ];  // neighbor runs N-S
+				if ( exits & 3 ) return [ 'track-straight-night', 16 ];  // neighbor runs E-W
 
 			}
 
@@ -532,7 +532,7 @@
 		}
 
 		// Finish cells use track-finish but only when resolved as straight
-		const type = ( cell.isFinish && baseType === 'track-straight' ) ? 'track-finish' : baseType;
+		const type = ( cell.isFinish && baseType === 'track-straight-night' ) ? 'track-finish' : baseType;
 
 		// Skip if nothing changed and mesh already exists
 		if ( cell.type === type && cell.orient === orient && cell.mesh ) return;
@@ -577,7 +577,7 @@
 
 		}
 
-		grid.set( key, { type: 'track-straight', orient: 0, isFinish: false, mesh: null } );
+		grid.set( key, { type: 'track-straight-night', orient: 0, isFinish: false, mesh: null } );
 		resolveCellAndNeighbors( gx, gz );
 		save();
 
@@ -669,7 +669,7 @@
 		if ( grid.has( key ) ) return; // already occupied
 
 		// Temporarily insert ghost cell into grid
-		const ghostCell = { type: 'track-straight', orient: 0, isFinish: false, mesh: null };
+		const ghostCell = { type: 'track-straight-night', orient: 0, isFinish: false, mesh: null };
 		grid.set( key, ghostCell );
 
 		// Resolve ghost: connect to neighbors, pick best pair if 3+
@@ -700,7 +700,7 @@
 			const proposedExits = getCellExits( { type: newType, orient: newOrient } );
 			if ( ( proposedExits & nConnected ) !== nConnected ) continue;
 
-			const finalType = ( nCell.isFinish && newType === 'track-straight' ) ? 'track-finish' : newType;
+			const finalType = ( nCell.isFinish && newType === 'track-straight-night' ) ? 'track-finish' : newType;
 
 			if ( finalType !== nCell.type || newOrient !== nCell.orient ) {
 
