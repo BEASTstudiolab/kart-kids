@@ -80,7 +80,7 @@ export function buildWallColliders( world, debugGroup, customCells ) {
 		const rad = deg * Math.PI / 180;
 		const cr = Math.cos( rad ), sr = Math.sin( rad );
 
-		if ( key === 'track-straight' || key === 'track-finish' ) {
+		if ( key === 'track-straight-night' || key === 'track-straight' || key === 'track-finish' ) {
 
 			for ( const side of [ - 1, 1 ] ) {
 
@@ -105,7 +105,7 @@ export function buildWallColliders( world, debugGroup, customCells ) {
 
 			}
 
-		} else if ( key === 'track-corner' ) {
+		} else if ( key === 'track-corner-night' ) {
 
 			const wcx = cx + ( ARC_CENTER_X * cr + ARC_CENTER_Z * sr ) * S;
 			const wcz = cz + ( - ARC_CENTER_X * sr + ARC_CENTER_Z * cr ) * S;

@@ -55,6 +55,9 @@ export class Vehicle {
 		// Set true before init() to force wheel orientation correction regardless of bounding box
 		this.forceWheelCorrection = false;
 
+		this.underglowLight = null;
+		this.headlights = [];
+
 		this.debug = {
 			lockX: false,
 			lockY: false,
@@ -120,6 +123,31 @@ export class Vehicle {
 		}
 
 		this.wheelOrigY = this.wheels.map( ( w ) => w.position.y );
+
+		// ─── Underglow ────────────────────────────────────────────────────────
+		this.underglowLight = new THREE.PointLight( 0x00ffff, 1, 3 );
+		this.underglowLight.position.set( 0, - 0.1, 0 );
+		this.underglowLight.visible = false;
+		this.container.add( this.underglowLight );
+
+		// ─── Headlights ──────────────────────────────────────────────────────
+		const hlOffsets = [ - 0.25, 0.25 ];
+
+		for ( const xOff of hlOffsets ) {
+
+			const spot = new THREE.SpotLight( 0xffe0b0, 8, 54, Math.PI / 8, 0.3 );
+			spot.position.set( xOff, 0.25, 0.5 );
+			spot.visible = false;
+
+			const target = new THREE.Object3D();
+			target.position.set( xOff, - 0.2, 2.5 );
+			this.container.add( target );
+			spot.target = target;
+
+			this.container.add( spot );
+			this.headlights.push( spot );
+
+		}
 
 		return this.container;
 

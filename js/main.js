@@ -42,6 +42,81 @@ scene.add( dirLight );
 const hemiLight = new THREE.HemisphereLight( 0xc8d8e8, 0x7a8a5a, 1.5 );
 scene.add( hemiLight );
 
+const LIGHTING_DAY = {
+	background: 0xadb2ba,
+	hemiSky: 0xc8d8e8,
+	hemiGround: 0x7a8a5a,
+	hemiIntensity: 1.5,
+	dirColor: 0xffffff,
+	dirIntensity: 5,
+	bloomStrength: 0.02,
+	bloomRadius: 0.02,
+	bloomThreshold: 0.5,
+	exposure: 1.0,
+};
+
+const LIGHTING_NIGHT = {
+	background: 0x1a0a2e,
+	hemiSky: 0x1a0a2e,
+	hemiGround: 0x2a1a3a,
+	hemiIntensity: 1.5,
+	dirColor: 0xe8d0f8,
+	dirIntensity: 3,
+	bloomStrength: 0.03,
+	bloomRadius: 0.05,
+	bloomThreshold: 0.9,
+	exposure: 1.0,
+};
+
+const _originalMaterials = new WeakMap();
+
+function applyLighting( preset ) {
+
+	scene.background.setHex( preset.background );
+	if ( scene.fog ) scene.fog.color.setHex( preset.background );
+	hemiLight.color.setHex( preset.hemiSky );
+	hemiLight.groundColor.setHex( preset.hemiGround );
+	hemiLight.intensity = preset.hemiIntensity;
+	dirLight.color.setHex( preset.dirColor );
+	dirLight.intensity = preset.dirIntensity;
+
+	bloomPass.strength = preset.bloomStrength;
+	bloomPass.radius = preset.bloomRadius;
+	bloomPass.threshold = preset.bloomThreshold;
+	renderer.toneMappingExposure = preset.exposure;
+
+	const isNight = preset === LIGHTING_NIGHT;
+
+	scene.traverse( ( child ) => {
+
+		if ( ! child.isMesh || ! child.material.isMeshStandardMaterial ) return;
+
+		if ( ! _originalMaterials.has( child.material ) ) {
+
+			_originalMaterials.set( child.material, {
+				metalness: child.material.metalness,
+				roughness: child.material.roughness,
+			} );
+
+		}
+
+		if ( isNight ) {
+
+			child.material.metalness = 0.3;
+			child.material.roughness = 0.4;
+
+		} else {
+
+			const orig = _originalMaterials.get( child.material );
+			child.material.metalness = orig.metalness;
+			child.material.roughness = orig.roughness;
+
+		}
+
+	} );
+
+}
+
 
 window.addEventListener( 'resize', () => {
 
@@ -52,8 +127,8 @@ window.addEventListener( 'resize', () => {
 const loader = new GLTFLoader();
 const modelNames = [
 	'vehicle-truck-yellow', 'vehicle-truck-green', 'vehicle-truck-purple', 'vehicle-truck-red',
-	'track-straight', 'track-corner', 'track-bump', 'track-finish',
-	'decoration-empty', 'decoration-forest', 'decoration-tents',
+	'track-straight-night', 'track-corner-night', 'track-bump', 'track-finish',
+	'decoration-empty-night', 'decoration-buildings-1', 'decoration-buildings-2', // 'decoration-tents',
 ];
 
 const models = {};
@@ -131,8 +206,12 @@ async function init() {
 	dirLight.shadow.camera.bottom = - shadowExtent;
 	dirLight.shadow.camera.updateProjectionMatrix();
 
-	scene.fog.near = groundSize * 0.4;
-	scene.fog.far = groundSize * 0.8;
+	if ( scene.fog ) {
+
+		scene.fog.near = groundSize * 1.2;
+		scene.fog.far = groundSize * 2.5;
+
+	}
 
 	buildTrack( scene, models, customCells );
 
@@ -184,6 +263,7 @@ async function init() {
 	const vehicleGroup = vehicle.init( models[ 'vehicle-truck-yellow' ] );
 	scene.add( vehicleGroup );
 
+	const dirLightOffset = { x: 11.4, y: 15, z: - 5.3 };
 	const isMobile = 'ontouchstart' in window;
 	let debugSphere = null;
 	let wheelDebug = null;
@@ -278,10 +358,10 @@ async function init() {
 
 		const debugPanel = document.createElement( 'div' );
 		debugPanel.style.cssText = [
-			'position:fixed', 'top:12px', 'left:12px',
+			'position:fixed', 'top:12px', 'left:12px', 'bottom:12px',
 			'background:rgba(0,0,0,0.72)', 'color:#0f0', 'font:13px/1.6 monospace',
 			'padding:10px 14px', 'border-radius:6px', 'pointer-events:auto',
-			'min-width:260px', 'z-index:999', 'user-select:none',
+			'min-width:280px', 'z-index:999', 'user-select:none', 'overflow-y:auto',
 		].join( ';' );
 		document.body.appendChild( debugPanel );
 
@@ -326,14 +406,25 @@ async function init() {
 			input.value = defaultVal;
 			input.style.cssText = 'flex:1;accent-color:#0f0';
 
-			const val = document.createElement( 'span' );
-			val.style.cssText = 'min-width:50px;text-align:right';
-			val.textContent = Number( defaultVal ).toFixed( 2 );
+			const val = document.createElement( 'input' );
+			val.type = 'text';
+			val.value = Number( defaultVal ).toFixed( 2 );
+			val.style.cssText = 'width:55px;text-align:right;background:transparent;color:#0f0;border:1px solid #0f044;font:12px monospace;padding:1px 3px';
 
 			input.addEventListener( 'input', () => {
 
 				const v = parseFloat( input.value );
-				val.textContent = v.toFixed( 2 );
+				val.value = v.toFixed( 2 );
+				onChange( v );
+
+			} );
+
+			val.addEventListener( 'change', () => {
+
+				const v = parseFloat( val.value );
+				if ( isNaN( v ) ) return;
+				input.value = v;
+				val.value = v.toFixed( 2 );
 				onChange( v );
 
 			} );
@@ -345,11 +436,153 @@ async function init() {
 
 		}
 
+		function addColorPicker( parent, label, defaultHex, onChange ) {
+
+			const row = document.createElement( 'div' );
+			row.style.cssText = 'margin:4px 0;display:flex;align-items:center;gap:6px';
+
+			const lbl = document.createElement( 'span' );
+			lbl.style.cssText = 'min-width:100px';
+			lbl.textContent = label;
+
+			const input = document.createElement( 'input' );
+			input.type = 'color';
+			input.value = '#' + defaultHex.toString( 16 ).padStart( 6, '0' );
+			input.style.cssText = 'width:40px;height:24px;border:none;background:none;cursor:pointer';
+
+			input.addEventListener( 'input', () => {
+
+				onChange( parseInt( input.value.slice( 1 ), 16 ) );
+
+			} );
+
+			row.appendChild( lbl );
+			row.appendChild( input );
+			parent.appendChild( row );
+
+		}
+
 		// Title
 		const debugTitle = document.createElement( 'div' );
 		debugTitle.textContent = '─── DEBUG CONTROLS ─────────';
 		debugTitle.style.marginBottom = '6px';
 		debugPanel.appendChild( debugTitle );
+
+		// Environment toggle
+		const envHeader = document.createElement( 'div' );
+		envHeader.textContent = 'Environment:';
+		envHeader.style.cssText = 'margin:6px 0 2px';
+		debugPanel.appendChild( envHeader );
+
+		addCheckbox( debugPanel, 'Night mode', true, ( v ) => {
+
+			applyLighting( v ? LIGHTING_NIGHT : LIGHTING_DAY );
+			for ( const hl of vehicle.headlights ) hl.visible = v;
+
+		} );
+
+		{
+
+			const row = document.createElement( 'div' );
+			row.style.cssText = 'margin:4px 0;display:flex;align-items:center;gap:6px';
+
+			const lbl = document.createElement( 'span' );
+			lbl.style.cssText = 'min-width:100px';
+			lbl.textContent = 'Vehicle';
+
+			const select = document.createElement( 'select' );
+			select.style.cssText = 'flex:1;background:#222;color:#0f0;border:1px solid #0f0;font:12px monospace;padding:2px';
+
+			const truckNames = [
+				'vehicle-truck-yellow', 'vehicle-truck-green',
+				'vehicle-truck-purple', 'vehicle-truck-red',
+			];
+
+			for ( const name of truckNames ) {
+
+				const opt = document.createElement( 'option' );
+				opt.value = name;
+				opt.textContent = name.replace( 'vehicle-truck-', '' );
+				select.appendChild( opt );
+
+			}
+
+			select.addEventListener( 'change', () => {
+
+				const newModel = models[ select.value ];
+				if ( ! newModel ) return;
+
+				// Remove old vehicle model (first child of container)
+				while ( vehicle.container.children.length > 0 ) {
+
+					const child = vehicle.container.children[ 0 ];
+					if ( child.isLight || child.isObject3D && child === vehicle.underglowLight ) break;
+					if ( child.isLight ) break;
+					vehicle.container.remove( child );
+
+				}
+
+				// Re-init with new model
+				const oldLights = [ vehicle.underglowLight, ...vehicle.headlights ];
+				const oldTargets = vehicle.headlights.map( ( hl ) => hl.target );
+
+				// Remove all children, re-add
+				vehicle.container.clear();
+				vehicle.wheels = [];
+				vehicle.wheelFL = vehicle.wheelFR = vehicle.wheelBL = vehicle.wheelBR = null;
+				vehicle.bodyNode = null;
+
+				const vehicleModel = newModel.clone();
+				vehicle.container.add( vehicleModel );
+
+				vehicleModel.traverse( ( child ) => {
+
+					const name = child.name.toLowerCase();
+
+					if ( name === 'body' ) {
+
+						child.rotation.order = 'YXZ';
+						vehicle.bodyNode = child;
+
+					} else if ( name.includes( 'wheel' ) && ! name.includes( 'steering' ) ) {
+
+						child.rotation.order = 'YXZ';
+						vehicle.wheels.push( child );
+
+						if ( name.includes( 'front' ) && name.includes( 'left' ) ) vehicle.wheelFL = child;
+						if ( name.includes( 'front' ) && name.includes( 'right' ) ) vehicle.wheelFR = child;
+						if ( name.includes( 'back' ) && name.includes( 'left' ) ) vehicle.wheelBL = child;
+						if ( name.includes( 'back' ) && name.includes( 'right' ) ) vehicle.wheelBR = child;
+
+					}
+
+					if ( child.isMesh ) {
+
+						child.castShadow = true;
+						child.receiveShadow = true;
+
+					}
+
+				} );
+
+				vehicle.wheelOrigY = vehicle.wheels.map( ( w ) => w.position.y );
+
+				// Re-add lights
+				vehicle.container.add( oldLights[ 0 ] );
+				for ( let i = 0; i < vehicle.headlights.length; i ++ ) {
+
+					vehicle.container.add( oldTargets[ i ] );
+					vehicle.container.add( vehicle.headlights[ i ] );
+
+				}
+
+			} );
+
+			row.appendChild( lbl );
+			row.appendChild( select );
+			debugPanel.appendChild( row );
+
+		}
 
 		// Wheel axis locks
 		const axisHeader = document.createElement( 'div' );
@@ -399,6 +632,80 @@ async function init() {
 		addSlider( debugPanel, 'Acceleration', 1, 20, 0.5, 1, ( v ) => { vehicle.debug.accelerationRate = v; } );
 		addSlider( debugPanel, 'Top speed', 10, 300, 5, 150, ( v ) => { vehicle.debug.topSpeed = v; } );
 
+		// Bloom sliders
+		const bloomHeader = document.createElement( 'div' );
+		bloomHeader.textContent = 'Bloom / Glow:';
+		bloomHeader.style.cssText = 'margin:8px 0 2px';
+		debugPanel.appendChild( bloomHeader );
+
+		addSlider( debugPanel, 'Strength', 0, 3.0, 0.01, bloomPass.strength, ( v ) => { bloomPass.strength = v; } );
+		addSlider( debugPanel, 'Radius', 0, 1.0, 0.01, bloomPass.radius, ( v ) => { bloomPass.radius = v; } );
+		addSlider( debugPanel, 'Threshold', 0, 1.0, 0.01, bloomPass.threshold, ( v ) => { bloomPass.threshold = v; } );
+
+		// Exposure
+		const exposureHeader = document.createElement( 'div' );
+		exposureHeader.textContent = 'Exposure:';
+		exposureHeader.style.cssText = 'margin:8px 0 2px';
+		debugPanel.appendChild( exposureHeader );
+
+		addSlider( debugPanel, 'Exposure', 0, 3.0, 0.01, renderer.toneMappingExposure, ( v ) => { renderer.toneMappingExposure = v; } );
+
+		// Directional light
+		const dirHeader = document.createElement( 'div' );
+		dirHeader.textContent = 'Directional light:';
+		dirHeader.style.cssText = 'margin:8px 0 2px';
+		debugPanel.appendChild( dirHeader );
+
+		addSlider( debugPanel, 'Dir X', - 30, 30, 0.1, dirLightOffset.x, ( v ) => { dirLightOffset.x = v; } );
+		addSlider( debugPanel, 'Dir Y', 0, 40, 0.1, dirLightOffset.y, ( v ) => { dirLightOffset.y = v; } );
+		addSlider( debugPanel, 'Dir Z', - 30, 30, 0.1, dirLightOffset.z, ( v ) => { dirLightOffset.z = v; } );
+		addSlider( debugPanel, 'Dir intensity', 0, 10, 0.1, dirLight.intensity, ( v ) => { dirLight.intensity = v; } );
+		addColorPicker( debugPanel, 'Dir color', dirLight.color.getHex(), ( v ) => { dirLight.color.setHex( v ); } );
+
+		// Hemisphere light
+		const hemiHeader = document.createElement( 'div' );
+		hemiHeader.textContent = 'Hemisphere light:';
+		hemiHeader.style.cssText = 'margin:8px 0 2px';
+		debugPanel.appendChild( hemiHeader );
+
+		addSlider( debugPanel, 'Hemi intensity', 0, 5, 0.05, hemiLight.intensity, ( v ) => { hemiLight.intensity = v; } );
+		addColorPicker( debugPanel, 'Sky color', hemiLight.color.getHex(), ( v ) => { hemiLight.color.setHex( v ); } );
+		addColorPicker( debugPanel, 'Ground color', hemiLight.groundColor.getHex(), ( v ) => { hemiLight.groundColor.setHex( v ); } );
+
+		// Fog
+		const fogHeader = document.createElement( 'div' );
+		fogHeader.textContent = 'Fog:';
+		fogHeader.style.cssText = 'margin:8px 0 2px';
+		debugPanel.appendChild( fogHeader );
+
+		addSlider( debugPanel, 'Fog near', 0, 200, 1, scene.fog ? scene.fog.near : 30, ( v ) => { if ( scene.fog ) scene.fog.near = v; } );
+		addSlider( debugPanel, 'Fog far', 0, 400, 1, scene.fog ? scene.fog.far : 55, ( v ) => { if ( scene.fog ) scene.fog.far = v; } );
+		addColorPicker( debugPanel, 'Fog color', scene.fog ? scene.fog.color.getHex() : 0xadb2ba, ( v ) => { if ( scene.fog ) scene.fog.color.setHex( v ); } );
+
+		// Shadows
+		const shadowHeader = document.createElement( 'div' );
+		shadowHeader.textContent = 'Shadows:';
+		shadowHeader.style.cssText = 'margin:8px 0 2px';
+		debugPanel.appendChild( shadowHeader );
+
+		addCheckbox( debugPanel, 'Shadows enabled', true, ( v ) => { renderer.shadowMap.enabled = v; dirLight.castShadow = v; } );
+		addSlider( debugPanel, 'Shadow bias', - 0.01, 0.01, 0.0001, dirLight.shadow.bias, ( v ) => { dirLight.shadow.bias = v; } );
+		addSlider( debugPanel, 'Shadow near', 0, 10, 0.1, dirLight.shadow.camera.near, ( v ) => { dirLight.shadow.camera.near = v; dirLight.shadow.camera.updateProjectionMatrix(); } );
+		addSlider( debugPanel, 'Shadow far', 10, 200, 1, dirLight.shadow.camera.far, ( v ) => { dirLight.shadow.camera.far = v; dirLight.shadow.camera.updateProjectionMatrix(); } );
+		addSlider( debugPanel, 'Shadow darkness', 0, 1.0, 0.01, dirLight.shadow.intensity ?? 1, ( v ) => { dirLight.shadow.intensity = v; } );
+
+		// Headlights
+		const hlHeader = document.createElement( 'div' );
+		hlHeader.textContent = 'Headlights:';
+		hlHeader.style.cssText = 'margin:8px 0 2px';
+		debugPanel.appendChild( hlHeader );
+
+		addSlider( debugPanel, 'HL intensity', 0, 20, 0.5, vehicle.headlights[ 0 ] ? vehicle.headlights[ 0 ].intensity : 8, ( v ) => { for ( const hl of vehicle.headlights ) hl.intensity = v; } );
+		addSlider( debugPanel, 'HL distance', 1, 100, 1, vehicle.headlights[ 0 ] ? vehicle.headlights[ 0 ].distance : 54, ( v ) => { for ( const hl of vehicle.headlights ) hl.distance = v; } );
+		addSlider( debugPanel, 'HL angle', 0.05, 1.57, 0.01, vehicle.headlights[ 0 ] ? vehicle.headlights[ 0 ].angle : Math.PI / 8, ( v ) => { for ( const hl of vehicle.headlights ) hl.angle = v; } );
+		addSlider( debugPanel, 'HL penumbra', 0, 1.0, 0.01, vehicle.headlights[ 0 ] ? vehicle.headlights[ 0 ].penumbra : 0.3, ( v ) => { for ( const hl of vehicle.headlights ) hl.penumbra = v; } );
+		addColorPicker( debugPanel, 'HL color', vehicle.headlights[ 0 ] ? vehicle.headlights[ 0 ].color.getHex() : 0xffe0b0, ( v ) => { for ( const hl of vehicle.headlights ) hl.color.setHex( v ); } );
+
 		// Footer
 		const debugFooter = document.createElement( 'div' );
 		debugFooter.textContent = '─── Press Z to toggle ──────';
@@ -423,6 +730,9 @@ async function init() {
 
 	// ─────────────────────────────────────────────────────────────────────────
 	dirLight.target = vehicleGroup;
+
+	applyLighting( LIGHTING_NIGHT );
+	for ( const hl of vehicle.headlights ) hl.visible = true;
 
 	const cam = new Camera();
 	cam.targetPosition.copy( vehicle.spherePos );
@@ -453,9 +763,31 @@ async function init() {
 
 	const timer = new THREE.Timer();
 
+	// ─── FPS DISPLAY ─────────────────────────────────────────────────────────
+	const fpsDisplay = document.createElement( 'div' );
+	fpsDisplay.style.cssText = [
+		'position:fixed', 'top:12px', 'right:12px',
+		'background:rgba(0,0,0,0.72)', 'color:#0f0', 'font:13px/1.6 monospace',
+		'padding:4px 10px', 'border-radius:6px', 'z-index:999', 'user-select:none',
+	].join( ';' );
+	document.body.appendChild( fpsDisplay );
+
+	let fpsFrames = 0;
+	let fpsTime = performance.now();
+
 	function animate() {
 
 		requestAnimationFrame( animate );
+
+		fpsFrames ++;
+		const now = performance.now();
+		if ( now - fpsTime >= 500 ) {
+
+			fpsDisplay.textContent = ( fpsFrames / ( ( now - fpsTime ) / 1000 ) ).toFixed( 0 ) + ' FPS';
+			fpsFrames = 0;
+			fpsTime = now;
+
+		}
 
 		timer.update();
 		const dt = Math.min( timer.getDelta(), 1 / 30 );
@@ -476,9 +808,9 @@ async function init() {
 		// ───────────────────────────────────────────────────────────────────────
 
 		dirLight.position.set(
-			vehicle.spherePos.x + 11.4,
-			15,
-			vehicle.spherePos.z - 5.3
+			vehicle.spherePos.x + dirLightOffset.x,
+			dirLightOffset.y,
+			vehicle.spherePos.z + dirLightOffset.z
 		);
 
 		cam.update( dt, vehicle.spherePos, vehicle.container.quaternion );
