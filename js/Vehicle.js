@@ -82,6 +82,17 @@ export class Vehicle {
 		};
 		this.wheelOrigY = [];
 
+		// Boost / nitro state
+		this.boostMeter = 0;
+		this.boostActive = false;
+		this.boostTimer = 0;
+		this.boostFillTime = 20;       // seconds to fill passively
+		this.boostDriftMultiplier = 5;  // 5x fill rate while drifting
+		this.boostDuration = 4;        // seconds boost lasts
+		this.boostTopSpeed = 300;      // top speed during boost
+		this.driftThreshold = 1.0;     // driftIntensity threshold for "drifting"
+		this._normalTopSpeed = 150;
+
 	}
 
 	init( model ) {
@@ -383,6 +394,45 @@ export class Vehicle {
 
 		this.driftIntensity = Math.abs( this.linearSpeed - this.acceleration ) +
 			( this.bodyNode ? Math.abs( this.bodyNode.rotation.z ) * 2 : 0 );
+
+		// ── Boost / nitro ────────────────────────────────────────────────────
+		if ( this.boostActive ) {
+
+			this.boostTimer -= dt;
+			this.debug.topSpeed = this.boostTopSpeed;
+
+			if ( this.boostTimer <= 0 ) {
+
+				this.boostActive = false;
+				this.boostTimer = 0;
+				this.debug.topSpeed = this._normalTopSpeed;
+
+			}
+
+		} else {
+
+			// Fill meter
+			let fillRate = dt / this.boostFillTime;
+
+			if ( this.driftIntensity > this.driftThreshold ) {
+
+				fillRate *= this.boostDriftMultiplier;
+
+			}
+
+			this.boostMeter = Math.min( 1, this.boostMeter + fillRate );
+
+			// Activate on boost input when full
+			if ( controlsInput.boost && this.boostMeter >= 1.0 ) {
+
+				this.boostActive = true;
+				this.boostTimer = this.boostDuration;
+				this.boostMeter = 0;
+				this.debug.topSpeed = this.boostTopSpeed;
+
+			}
+
+		}
 
 	}
 

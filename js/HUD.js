@@ -66,7 +66,24 @@ export class HUD {
 		this._resultsEl.appendChild( this._restartBtn );
 		document.body.appendChild( this._resultsEl );
 
-		// Restart is handled by the button on the results overlay
+		// ── Boost meter bar ──────────────────────────────────────────────────
+		this._boostContainer = document.createElement( 'div' );
+		this._boostContainer.style.cssText = [
+			'position:fixed', 'bottom:24px', 'left:50%', 'transform:translateX(-50%)',
+			'width:200px', 'height:12px', 'background:rgba(0,0,0,0.5)',
+			'border-radius:6px', 'overflow:hidden', 'z-index:1000',
+			'pointer-events:none', 'user-select:none', 'display:none',
+			'border:1px solid rgba(255,255,255,0.2)',
+		].join( ';' );
+
+		this._boostFill = document.createElement( 'div' );
+		this._boostFill.style.cssText = [
+			'width:0%', 'height:100%', 'background:#4fc3f7',
+			'border-radius:4px', 'transition:background 0.2s',
+		].join( ';' );
+
+		this._boostContainer.appendChild( this._boostFill );
+		document.body.appendChild( this._boostContainer );
 
 	}
 
@@ -80,11 +97,13 @@ export class HUD {
 				this._countdownEl.style.display = 'none';
 				this._raceHud.style.display = 'none';
 				this._resultsEl.style.display = 'none';
+				this._boostContainer.style.display = 'none';
 				break;
 
 			case 'countdown':
 				this._resultsEl.style.display = 'none';
 				this._raceHud.style.display = 'none';
+				this._boostContainer.style.display = 'none';
 				this._countdownEl.style.display = 'block';
 				this._countdownEl.textContent = displayState.countdown > 0
 					? displayState.countdown.toString()
@@ -95,17 +114,43 @@ export class HUD {
 				this._countdownEl.style.display = 'none';
 				this._resultsEl.style.display = 'none';
 				this._raceHud.style.display = 'block';
+				this._boostContainer.style.display = 'block';
 				this._lapLine.textContent = `Lap ${ displayState.lap + 1 }/${ displayState.totalLaps }`;
 				this._timeLine.textContent = this._formatTime( displayState.elapsedTime );
+				this._updateBoostBar( displayState );
 				break;
 
 			case 'finished':
 				this._countdownEl.style.display = 'none';
 				this._raceHud.style.display = 'none';
+				this._boostContainer.style.display = 'none';
 				this._resultsEl.style.display = 'block';
 				this._resultsTotalLine.textContent = `Total: ${ this._formatTime( displayState.totalTime ) }`;
 				this._resultsBestLine.textContent = `Best Lap: ${ this._formatTime( displayState.bestLap ) }`;
 				break;
+
+		}
+
+	}
+
+	_updateBoostBar( displayState ) {
+
+		const meter = displayState.boostMeter || 0;
+		const active = displayState.boostActive || false;
+
+		this._boostFill.style.width = ( meter * 100 ) + '%';
+
+		if ( active ) {
+
+			this._boostFill.style.background = '#ff6d00';
+
+		} else if ( meter >= 1.0 ) {
+
+			this._boostFill.style.background = '#ffd740';
+
+		} else {
+
+			this._boostFill.style.background = '#4fc3f7';
 
 		}
 
