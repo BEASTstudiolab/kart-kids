@@ -58,6 +58,15 @@ export class Vehicle {
 		this.underglowLight = null;
 		this.headlights = [];
 
+		// Remote player state
+		this.remote = false;
+		this._targetPos = null;
+		this._targetQuat = new THREE.Quaternion();
+		this._targetVel = [ 0, 0, 0 ];
+		this._targetAngVel = [ 0, 0, 0 ];
+		this._targetSpeed = 0;
+		this._targetDrift = 0;
+
 		this.debug = {
 			lockX: false,
 			lockY: false,
@@ -153,7 +162,83 @@ export class Vehicle {
 
 	}
 
+	setTargetState( pos, rot, vel, angVel, speed, drift ) {
+
+		this._targetPos = pos;
+		this._targetQuat.set( rot[ 0 ], rot[ 1 ], rot[ 2 ], rot[ 3 ] );
+		this._targetVel = vel;
+		this._targetAngVel = angVel;
+		this._targetSpeed = speed;
+		this._targetDrift = drift;
+
+	}
+
+	getState() {
+
+		const angVel = this.rigidBody ? [ ...this.rigidBody.motionProperties.angularVelocity ] : [ 0, 0, 0 ];
+
+		return {
+			pos: [ this.spherePos.x, this.spherePos.y, this.spherePos.z ],
+			rot: [ this.container.quaternion.x, this.container.quaternion.y, this.container.quaternion.z, this.container.quaternion.w ],
+			vel: [ this.sphereVel.x, this.sphereVel.y, this.sphereVel.z ],
+			angVel,
+			speed: this.linearSpeed,
+			drift: this.driftIntensity,
+		};
+
+	}
+
+	updateRemote( dt ) {
+
+		if ( ! this._targetPos || ! this.rigidBody ) return;
+
+		const correctionRate = 0.3;
+
+		// Lerp physics body position toward target
+		const pos = this.rigidBody.position;
+		const newPos = [
+			pos[ 0 ] + ( this._targetPos[ 0 ] - pos[ 0 ] ) * correctionRate,
+			pos[ 1 ] + ( this._targetPos[ 1 ] - pos[ 1 ] ) * correctionRate,
+			pos[ 2 ] + ( this._targetPos[ 2 ] - pos[ 2 ] ) * correctionRate,
+		];
+
+		rigidBody.setPosition( this.physicsWorld, this.rigidBody, newPos, false );
+		rigidBody.setLinearVelocity( this.physicsWorld, this.rigidBody, this._targetVel );
+		rigidBody.setAngularVelocity( this.physicsWorld, this.rigidBody, this._targetAngVel );
+
+		// Slerp visual rotation toward target
+		this.container.quaternion.slerp( this._targetQuat, correctionRate );
+
+		// Read back corrected position
+		const p = this.rigidBody.position;
+		this.spherePos.set( p[ 0 ], p[ 1 ], p[ 2 ] );
+
+		const vel = this.rigidBody.motionProperties.linearVelocity;
+		this.sphereVel.set( vel[ 0 ], vel[ 1 ], vel[ 2 ] );
+
+		this.container.position.set(
+			this.spherePos.x,
+			this.spherePos.y + this.debug.underbodyOffset,
+			this.spherePos.z
+		);
+
+		// Drive animations from received state
+		this.linearSpeed = this._targetSpeed;
+		this.driftIntensity = this._targetDrift;
+		this.acceleration = this.linearSpeed;
+		this.updateBody( dt );
+		this.updateWheels( dt );
+
+	}
+
 	update( dt, controlsInput ) {
+
+		if ( this.remote ) {
+
+			this.updateRemote( dt );
+			return;
+
+		}
 
 		this.inputX = controlsInput.x;
 		this.inputZ = controlsInput.z;

@@ -20,11 +20,14 @@ export class Camera {
 		this.camera.lookAt( 0, 0, 0 );
 
 		// Chase camera state
-		this.mode = 'chase'; // 'isometric' or 'chase'
+		this.mode = 'chase'; // 'isometric', 'chase', or 'spectator'
 		this.chaseDistance = 6;
 		this.chaseHeight = 2;
 		this.chaseLookAhead = 3;
 		this.chaseSmooth = new THREE.Vector3();
+
+		// Spectator state
+		this.spectatorTarget = null;
 
 		// Orbit state
 		this.orbitAngle = 0;

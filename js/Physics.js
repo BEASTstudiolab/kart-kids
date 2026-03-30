@@ -120,6 +120,15 @@ export function buildWallColliders( world, debugGroup, customCells ) {
 
 }
 
+export function removeSphereBody( world, body ) {
+
+	// crashcat may not expose destroy — teleport out of play and zero velocity
+	rigidBody.setPosition( world, body, [ 0, - 1000, 0 ], false );
+	rigidBody.setLinearVelocity( world, body, [ 0, 0, 0 ] );
+	rigidBody.setAngularVelocity( world, body, [ 0, 0, 0 ] );
+
+}
+
 export function createSphereBody( world, spawnPos ) {
 
 	const body = rigidBody.create( world, {

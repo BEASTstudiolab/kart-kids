@@ -2,13 +2,13 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { createWorldSettings, createWorld, addBroadphaseLayer, addObjectLayer, enableCollision, registerAll, updateWorld, rigidBody, box, MotionType } from 'crashcat';
-import { Vehicle } from './Vehicle.js';
 import { Camera } from './Camera.js';
 import { Controls } from './Controls.js';
 import { buildTrack, decodeCells, computeSpawnPosition, computeTrackBounds } from './Track.js';
-import { buildWallColliders, createSphereBody } from './Physics.js';
-import { SmokeTrails } from './Particles.js';
+import { buildWallColliders } from './Physics.js';
 import { GameAudio } from './Audio.js';
+import { NetworkClient } from './Network.js';
+import { PlayerManager } from './PlayerManager.js';
 
 
 const renderer = new THREE.WebGLRenderer( { antialias: true, outputBufferType: THREE.HalfFloatType } );
@@ -243,25 +243,59 @@ async function init() {
 		restitution: 0.0,
 	} );
 
-	const sphereBody = createSphereBody( world, spawn ? spawn.position : null );
+	const spawnPosition = spawn ? spawn.position : [ 3.5, 0.5, 5 ];
+	const spawnAngle = spawn ? spawn.angle : 0;
 
-	const vehicle = new Vehicle();
-	vehicle.rigidBody = sphereBody;
-	vehicle.physicsWorld = world;
+	const playerManager = new PlayerManager( scene, world, models, spawnPosition, spawnAngle );
 
-	if ( spawn ) {
+	// ── Multiplayer connection ────────────────────────────────────────────────
+	const network = new NetworkClient();
+	let multiplayer = false;
+	let spectating = false;
 
-		const [ sx, sy, sz ] = spawn.position;
-		vehicle.spherePos.set( sx, sy, sz );
-		vehicle.prevModelPos.set( sx, 0, sz );
-		vehicle.container.rotation.y = spawn.angle;
+	const spectateBtn = document.getElementById( 'spectate-btn' );
+
+	try {
+
+		await network.connect();
+		multiplayer = true;
+
+		// Wait for welcome message before continuing
+		await new Promise( ( resolve ) => {
+
+			network.onWelcome = ( data ) => {
+
+				playerManager.initLocalPlayer( data );
+				if ( spectateBtn ) spectateBtn.style.display = 'block';
+				resolve();
+
+			};
+
+		} );
+
+		network.onPlayerJoin = ( data ) => playerManager.addRemotePlayer( data );
+		network.onPlayerLeave = ( data ) => playerManager.removeRemotePlayer( data.id );
+		network.onWorldUpdate = ( data ) => playerManager.applyWorldUpdate( data );
+		network.onPlayerSpectate = ( data ) => playerManager.setSpectating( data.id, data.active );
+
+		network.onDisconnect = () => {
+
+			console.log( 'Disconnected from server' );
+			multiplayer = false;
+			if ( spectateBtn ) spectateBtn.style.display = 'none';
+
+		};
+
+	} catch ( e ) {
+
+		console.log( 'No server available, single-player mode' );
+		playerManager.initSinglePlayer();
 
 	}
 
-	vehicle.forceWheelCorrection = true; // truck-yellow/green exported with flat wheels from Blender
-
-	const vehicleGroup = vehicle.init( models[ 'vehicle-truck-yellow' ] );
-	scene.add( vehicleGroup );
+	// Direct reference for debug panel compatibility
+	const vehicle = playerManager.localVehicle;
+	const vehicleGroup = vehicle.container;
 
 	const dirLightOffset = { x: 11.4, y: 15, z: - 5.3 };
 	const isMobile = 'ontouchstart' in window;
@@ -739,8 +773,6 @@ async function init() {
 
 	const controls = new Controls();
 
-	const particles = new SmokeTrails( scene );
-
 	const audio = new GameAudio();
 	audio.init( cam.camera );
 
@@ -749,7 +781,8 @@ async function init() {
 	const contactListener = {
 		onContactAdded( bodyA, bodyB ) {
 
-			if ( bodyA !== sphereBody && bodyB !== sphereBody ) return;
+			if ( ! vehicle.rigidBody ) return;
+			if ( bodyA !== vehicle.rigidBody && bodyB !== vehicle.rigidBody ) return;
 
 			_forward.set( 0, 0, 1 ).applyQuaternion( vehicle.container.quaternion );
 			_forward.y = 0;
@@ -796,10 +829,18 @@ async function init() {
 
 		updateWorld( world, contactListener, dt );
 
-		vehicle.update( dt, input );
+		playerManager.update( dt, spectating ? { x: 0, z: 0, touchActive: false } : input );
+
+		// Send local state to server (throttled internally at 20Hz)
+		if ( multiplayer && network.connected && ! spectating ) {
+
+			const state = playerManager.getLocalState();
+			if ( state ) network.sendState( state );
+
+		}
 
 		// ─── DEBUG updates (desktop only) ─────────────────────────────────────
-		if ( debugSphere ) {
+		if ( debugSphere && vehicle ) {
 
 			debugSphere.position.copy( vehicle.spherePos );
 			for ( const wd of wheelDebug ) wd.boxH.update();
@@ -807,17 +848,51 @@ async function init() {
 		}
 		// ───────────────────────────────────────────────────────────────────────
 
-		dirLight.position.set(
-			vehicle.spherePos.x + dirLightOffset.x,
-			dirLightOffset.y,
-			vehicle.spherePos.z + dirLightOffset.z
-		);
+		// Follow local vehicle or spectator target
+		const followVehicle = spectating ? cam.spectatorTarget : vehicle;
 
-		cam.update( dt, vehicle.spherePos, vehicle.container.quaternion );
-		particles.update( dt, vehicle );
-		audio.update( dt, vehicle.linearSpeed, input.z, vehicle.driftIntensity );
+		if ( followVehicle ) {
+
+			dirLight.position.set(
+				followVehicle.spherePos.x + dirLightOffset.x,
+				dirLightOffset.y,
+				followVehicle.spherePos.z + dirLightOffset.z
+			);
+
+			cam.update( dt, followVehicle.spherePos, followVehicle.container.quaternion );
+
+		}
+
+		audio.update( dt, vehicle ? vehicle.linearSpeed : 0, input.z, vehicle ? vehicle.driftIntensity : 0 );
 
 		renderer.render( scene, cam.camera );
+
+	}
+
+	// ─── Spectate button ─────────────────────────────────────────────────────
+	if ( spectateBtn ) {
+
+		spectateBtn.addEventListener( 'click', () => {
+
+			if ( ! multiplayer ) return;
+
+			spectating = ! spectating;
+			spectateBtn.textContent = spectating ? 'Race' : 'Spectate';
+			network.sendSpectate( spectating );
+
+			playerManager.setSpectating( playerManager.localId, spectating );
+
+			if ( spectating ) {
+
+				cam.spectatorTarget = playerManager.getFirstActiveVehicle();
+
+			} else {
+
+				cam.spectatorTarget = null;
+
+			}
+
+		} );
 
 	}
 

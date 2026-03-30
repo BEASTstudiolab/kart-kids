@@ -20,8 +20,24 @@
 			z-index: 10;
 		}
 		#editor-link:hover { background: rgba(0,0,0,0.7); }
+		#spectate-btn {
+			position: absolute;
+			bottom: 52px;
+			right: 16px;
+			color: #fff;
+			font: 14px sans-serif;
+			background: rgba(0,0,0,0.5);
+			padding: 8px 14px;
+			border-radius: 6px;
+			border: 1px solid rgba(255,255,255,0.3);
+			cursor: pointer;
+			z-index: 10;
+			display: none;
+		}
+		#spectate-btn:hover { background: rgba(0,0,0,0.7); }
 		@media (pointer: coarse) {
 			#editor-link { bottom: auto; top: 12px; right: 12px; }
+			#spectate-btn { bottom: 12px; }
 		}
 	</style>
 	<script type="importmap">
@@ -35,6 +51,7 @@
 	</script>
 </head>
 <body>
+	<button id="spectate-btn">Spectate</button>
 	<a id="editor-link" href="editor.html">Create your own track</a>
 	<script>
 		const map = new URLSearchParams( location.search ).get( 'map' );
