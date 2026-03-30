@@ -66,6 +66,9 @@ export class Vehicle {
 		this._targetAngVel = [ 0, 0, 0 ];
 		this._targetSpeed = 0;
 		this._targetDrift = 0;
+		this._renderPos = new THREE.Vector3();
+		this._renderQuat = new THREE.Quaternion();
+		this._remoteInitialized = false;
 
 		this.debug = {
 			lockX: false,
@@ -192,39 +195,50 @@ export class Vehicle {
 
 		if ( ! this._targetPos || ! this.rigidBody ) return;
 
-		const correctionRate = 0.3;
+		// On first target, snap to position instead of interpolating
+		if ( ! this._remoteInitialized ) {
 
-		// Lerp physics body position toward target
-		const pos = this.rigidBody.position;
-		const newPos = [
-			pos[ 0 ] + ( this._targetPos[ 0 ] - pos[ 0 ] ) * correctionRate,
-			pos[ 1 ] + ( this._targetPos[ 1 ] - pos[ 1 ] ) * correctionRate,
-			pos[ 2 ] + ( this._targetPos[ 2 ] - pos[ 2 ] ) * correctionRate,
-		];
+			this._renderPos.set( this._targetPos[ 0 ], this._targetPos[ 1 ], this._targetPos[ 2 ] );
+			this._renderQuat.copy( this._targetQuat );
+			this._remoteInitialized = true;
 
-		rigidBody.setPosition( this.physicsWorld, this.rigidBody, newPos, false );
+		}
+
+		// Dead-reckon: advance render position using target velocity
+		this._renderPos.x += this._targetVel[ 0 ] * dt;
+		this._renderPos.y += this._targetVel[ 1 ] * dt;
+		this._renderPos.z += this._targetVel[ 2 ] * dt;
+
+		// Smooth correction toward latest server position (dt-independent)
+		const correctionSpeed = 8; // higher = snappier, lower = smoother
+		const t = 1 - Math.exp( - correctionSpeed * dt );
+
+		this._renderPos.x += ( this._targetPos[ 0 ] - this._renderPos.x ) * t;
+		this._renderPos.y += ( this._targetPos[ 1 ] - this._renderPos.y ) * t;
+		this._renderPos.z += ( this._targetPos[ 2 ] - this._renderPos.z ) * t;
+
+		this._renderQuat.slerp( this._targetQuat, t );
+
+		// Update physics body for collisions (snap, don't fight the sim)
+		rigidBody.setPosition( this.physicsWorld, this.rigidBody,
+			[ this._renderPos.x, this._renderPos.y, this._renderPos.z ], false );
 		rigidBody.setLinearVelocity( this.physicsWorld, this.rigidBody, this._targetVel );
-		rigidBody.setAngularVelocity( this.physicsWorld, this.rigidBody, this._targetAngVel );
+		rigidBody.setAngularVelocity( this.physicsWorld, this.rigidBody, [ 0, 0, 0 ] );
 
-		// Slerp visual rotation toward target
-		this.container.quaternion.slerp( this._targetQuat, correctionRate );
-
-		// Read back corrected position
-		const p = this.rigidBody.position;
-		this.spherePos.set( p[ 0 ], p[ 1 ], p[ 2 ] );
-
-		const vel = this.rigidBody.motionProperties.linearVelocity;
-		this.sphereVel.set( vel[ 0 ], vel[ 1 ], vel[ 2 ] );
+		// Update visual position (decouple from physics readback)
+		this.spherePos.copy( this._renderPos );
+		this.sphereVel.set( this._targetVel[ 0 ], this._targetVel[ 1 ], this._targetVel[ 2 ] );
 
 		this.container.position.set(
-			this.spherePos.x,
-			this.spherePos.y + this.debug.underbodyOffset,
-			this.spherePos.z
+			this._renderPos.x,
+			this._renderPos.y + this.debug.underbodyOffset,
+			this._renderPos.z
 		);
+		this.container.quaternion.copy( this._renderQuat );
 
 		// Drive animations from received state
-		this.linearSpeed = this._targetSpeed;
-		this.driftIntensity = this._targetDrift;
+		this.linearSpeed = THREE.MathUtils.lerp( this.linearSpeed, this._targetSpeed, t );
+		this.driftIntensity = THREE.MathUtils.lerp( this.driftIntensity, this._targetDrift, t );
 		this.acceleration = this.linearSpeed;
 		this.updateBody( dt );
 		this.updateWheels( dt );
