@@ -436,9 +436,11 @@ export function computeSpawnPosition( cells ) {
 	const z = ( gz + 0.5 ) * CELL_RAW * GRID_SCALE;
 
 	const orient = cell[ 3 ];
-	const angle = THREE.MathUtils.degToRad( ORIENT_DEG[ orient ] || 0 );
+	const trackAngle = THREE.MathUtils.degToRad( ORIENT_DEG[ orient ] || 0 );
 
-	return { position: [ x, 0.5, z ], angle };
+	// spawnAngle: rotated 180° so the vehicle model (forward = +Z) faces the racing direction
+	// finishAngle: the raw track orientation for finish line normal computation
+	return { position: [ x, 0.5, z ], angle: trackAngle + Math.PI, finishAngle: trackAngle };
 
 }
 

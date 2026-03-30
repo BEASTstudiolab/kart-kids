@@ -9,7 +9,7 @@ export class HUD {
 		this._countdownEl = document.createElement( 'div' );
 		this._countdownEl.style.cssText = [
 			'position:fixed', 'top:50%', 'left:50%', 'transform:translate(-50%,-50%)',
-			'font:bold 120px/1 monospace', 'color:#fff',
+			'font:bold 120px/1 monospace', 'color:#fff', 'background:none',
 			'text-shadow:0 0 40px rgba(255,255,255,0.6), 0 4px 12px rgba(0,0,0,0.8)',
 			'z-index:1000', 'pointer-events:none', 'user-select:none', 'display:none',
 		].join( ';' );
@@ -47,30 +47,26 @@ export class HUD {
 		this._resultsTotalLine = document.createElement( 'div' );
 		this._resultsBestLine = document.createElement( 'div' );
 
-		this._resultsPrompt = document.createElement( 'div' );
-		this._resultsPrompt.textContent = 'Press any key to restart';
-		this._resultsPrompt.style.cssText = 'font-size:16px; opacity:0.7; margin-top:16px';
+		this._restartBtn = document.createElement( 'button' );
+		this._restartBtn.textContent = 'RESTART';
+		this._restartBtn.style.cssText = [
+			'font:bold 20px monospace', 'margin-top:20px', 'padding:10px 32px',
+			'background:#fff', 'color:#000', 'border:none', 'border-radius:6px',
+			'cursor:pointer',
+		].join( ';' );
+		this._restartBtn.addEventListener( 'click', () => {
+
+			if ( this._onRestart ) this._onRestart();
+
+		} );
 
 		this._resultsEl.appendChild( this._resultsTitle );
 		this._resultsEl.appendChild( this._resultsTotalLine );
 		this._resultsEl.appendChild( this._resultsBestLine );
-		this._resultsEl.appendChild( this._resultsPrompt );
+		this._resultsEl.appendChild( this._restartBtn );
 		document.body.appendChild( this._resultsEl );
 
-		// ── Restart listener ─────────────────────────────────────────────────
-		this._restartHandler = ( e ) => {
-
-			if ( this._currentState !== 'finished' ) return;
-
-			if ( e.type === 'keydown' && ( e.metaKey || e.ctrlKey || e.altKey || e.key === 'Tab' || e.key === 'Escape' ) ) return;
-
-			e.preventDefault();
-			if ( this._onRestart ) this._onRestart();
-
-		};
-
-		window.addEventListener( 'keydown', this._restartHandler );
-		window.addEventListener( 'touchstart', this._restartHandler );
+		// Restart is handled by the button on the results overlay
 
 	}
 

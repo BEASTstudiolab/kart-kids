@@ -178,14 +178,12 @@ async function init() {
 
 	const mapParam = new URLSearchParams( window.location.search ).get( 'map' );
 	let customCells = null;
-	let spawn = null;
 
 	if ( mapParam ) {
 
 		try {
 
 			customCells = decodeCells( mapParam );
-			spawn = computeSpawnPosition( customCells );
 
 		} catch ( e ) {
 
@@ -195,8 +193,11 @@ async function init() {
 
 	}
 
+	const activeCells = customCells || TRACK_CELLS;
+	const spawn = computeSpawnPosition( activeCells );
+
 	// Compute track bounds and size physics/shadows to fit
-	const bounds = computeTrackBounds( customCells );
+	const bounds = computeTrackBounds( activeCells );
 	const hw = bounds.halfWidth;
 	const hd = bounds.halfDepth;
 	const groundSize = Math.max( hw, hd ) * 2 + 20;
@@ -245,8 +246,8 @@ async function init() {
 		restitution: 0.0,
 	} );
 
-	const spawnPosition = spawn ? spawn.position : [ 3.5, 0.5, 5 ];
-	const spawnAngle = spawn ? spawn.angle : 0;
+	const spawnPosition = spawn.position;
+	const spawnAngle = spawn.angle;
 
 	const playerManager = new PlayerManager( scene, world, models, spawnPosition, spawnAngle );
 
@@ -323,28 +324,20 @@ async function init() {
 		},
 	} );
 
-	// Init finish line from spawn/finish cell position
-	const activeCells = customCells || TRACK_CELLS;
-	const finishSpawn = computeSpawnPosition( activeCells );
-	raceMode.initFinishLine( finishSpawn.position, finishSpawn.angle );
+	// Init finish line from spawn/finish cell position (use finishAngle, not spawn angle)
+	raceMode.initFinishLine( spawn.position, spawn.finishAngle );
 
 	const hud = new HUD( () => {
 
-		// In multiplayer, only reset to idle — server owns the countdown
-		if ( multiplayer ) {
-
-			raceMode.reset();
-
-		} else {
-
-			raceMode.reset();
-			raceMode.start();
-
-		}
+		raceMode.reset();
+		raceMode.start();
 
 	} );
 
 	// ── Multiplayer race sync ────────────────────────────────────────────────
+	// Always start race locally — server will override with synced countdown if 2+ players
+	raceMode.start();
+
 	if ( multiplayer ) {
 
 		raceMode.networkDriven = true;
@@ -372,10 +365,6 @@ async function init() {
 			network.sendLapComplete( lap, time );
 
 		};
-
-	} else {
-
-		raceMode.start();
 
 	}
 

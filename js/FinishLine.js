@@ -42,7 +42,7 @@ export class FinishLine {
 		const dCurr = this._signedDistance( currPos );
 
 		// Crossing occurs when signs differ (one positive, one negative or zero)
-		if ( dPrev * dCurr > 0 ) {
+		if ( dPrev * dCurr >= 0 ) {
 
 			return { crossed: false, direction: null };
 
