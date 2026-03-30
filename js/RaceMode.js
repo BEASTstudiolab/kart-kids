@@ -7,7 +7,7 @@ const STATE_RACING = 'racing';
 const STATE_FINISHED = 'finished';
 
 const COUNTDOWN_DURATION = 3; // seconds
-const ZERO_INPUT = { x: 0, z: 0, touchActive: false };
+const ZERO_INPUT = { x: 0, z: 0, touchActive: false, boost: false };
 
 export class RaceMode extends GameMode {
 
@@ -71,6 +71,8 @@ export class RaceMode extends GameMode {
 	}
 
 	update( dt, vehicle ) {
+
+		this._vehicle = vehicle;
 
 		if ( this._state === STATE_COUNTDOWN && ! this.networkDriven ) {
 
@@ -150,6 +152,8 @@ export class RaceMode extends GameMode {
 
 	getDisplayState() {
 
+		const v = this._vehicle;
+
 		return {
 			state: this._state,
 			countdown: this._countdownNumber,
@@ -158,6 +162,8 @@ export class RaceMode extends GameMode {
 			elapsedTime: this._elapsedTime,
 			bestLap: this._bestLap === Infinity ? 0 : this._bestLap,
 			totalTime: this._totalTime,
+			boostMeter: v ? v.boostMeter : 0,
+			boostActive: v ? v.boostActive : false,
 		};
 
 	}
