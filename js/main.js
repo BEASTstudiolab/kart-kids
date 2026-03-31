@@ -843,6 +843,44 @@ async function init() {
 		addSlider( debugPanel, 'HL penumbra', 0, 1.0, 0.01, vehicle.headlights[ 0 ] ? vehicle.headlights[ 0 ].penumbra : 0.3, ( v ) => { for ( const hl of vehicle.headlights ) hl.penumbra = v; } );
 		addColorPicker( debugPanel, 'HL color', vehicle.headlights[ 0 ] ? vehicle.headlights[ 0 ].color.getHex() : 0xffe0b0, ( v ) => { for ( const hl of vehicle.headlights ) hl.color.setHex( v ); } );
 
+		// Vehicle physics
+		const physHeader = document.createElement( 'div' );
+		physHeader.textContent = 'Vehicle Physics:';
+		physHeader.style.cssText = 'margin:8px 0 2px';
+		debugPanel.appendChild( physHeader );
+
+		addSlider( debugPanel, 'Steering multiplier', 0.5, 10, 0.1, vehicle.debug.steeringMultiplier, ( v ) => { vehicle.debug.steeringMultiplier = v; } );
+		addSlider( debugPanel, 'Steering lerp', 0.5, 15, 0.1, vehicle.debug.steeringLerp, ( v ) => { vehicle.debug.steeringLerp = v; } );
+		addSlider( debugPanel, 'Steering grip min', 0.0, 1.0, 0.01, vehicle.debug.steeringGripMin, ( v ) => { vehicle.debug.steeringGripMin = v; } );
+		addSlider( debugPanel, 'Steering grip max', 0.2, 2.0, 0.01, vehicle.debug.steeringGripMax, ( v ) => { vehicle.debug.steeringGripMax = v; } );
+		addSlider( debugPanel, 'Brake rate', 1, 20, 0.5, vehicle.debug.brakeRate, ( v ) => { vehicle.debug.brakeRate = v; } );
+		addSlider( debugPanel, 'Reverse speed factor', 0.1, 1.0, 0.05, vehicle.debug.reverseSpeedFactor, ( v ) => { vehicle.debug.reverseSpeedFactor = v; } );
+		addSlider( debugPanel, 'Reverse accel rate', 0.5, 10, 0.5, vehicle.debug.reverseAccelRate, ( v ) => { vehicle.debug.reverseAccelRate = v; } );
+		addSlider( debugPanel, 'Linear damp', 0.0, 1.0, 0.01, vehicle.debug.linearDamp, ( v ) => { vehicle.debug.linearDamp = v; } );
+		addSlider( debugPanel, 'Speed scale', 1, 30, 0.5, vehicle.debug.speedScale, ( v ) => { vehicle.debug.speedScale = v; } );
+		addSlider( debugPanel, 'Velocity blend rate', 1, 20, 0.5, vehicle.debug.velocityBlendRate, ( v ) => { vehicle.debug.velocityBlendRate = v; } );
+
+		// Drift & Boost
+		const driftHeader = document.createElement( 'div' );
+		driftHeader.textContent = 'Drift & Boost:';
+		driftHeader.style.cssText = 'margin:8px 0 2px';
+		debugPanel.appendChild( driftHeader );
+
+		addSlider( debugPanel, 'Drift threshold', 0.1, 5.0, 0.1, vehicle.debug.driftThreshold, ( v ) => { vehicle.debug.driftThreshold = v; } );
+		addSlider( debugPanel, 'Boost fill time', 5, 60, 1, vehicle.debug.boostFillTime, ( v ) => { vehicle.debug.boostFillTime = v; } );
+		addSlider( debugPanel, 'Boost drift multiplier', 1, 15, 0.5, vehicle.debug.boostDriftMultiplier, ( v ) => { vehicle.debug.boostDriftMultiplier = v; } );
+		addSlider( debugPanel, 'Boost duration', 1, 15, 0.5, vehicle.debug.boostDuration, ( v ) => { vehicle.debug.boostDuration = v; } );
+		addSlider( debugPanel, 'Boost top speed', 100, 500, 10, vehicle.debug.boostTopSpeed, ( v ) => { vehicle.debug.boostTopSpeed = v; } );
+
+		// Body lean
+		const leanHeader = document.createElement( 'div' );
+		leanHeader.textContent = 'Body Lean:';
+		leanHeader.style.cssText = 'margin:8px 0 2px';
+		debugPanel.appendChild( leanHeader );
+
+		addSlider( debugPanel, 'Body lean pitch', 1, 20, 0.5, vehicle.debug.bodyLeanPitch, ( v ) => { vehicle.debug.bodyLeanPitch = v; } );
+		addSlider( debugPanel, 'Body lean roll', 1, 20, 0.5, vehicle.debug.bodyLeanRoll, ( v ) => { vehicle.debug.bodyLeanRoll = v; } );
+
 		// Footer
 		const debugFooter = document.createElement( 'div' );
 		debugFooter.textContent = '─── Press Tab to toggle ──────';

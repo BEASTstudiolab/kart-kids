@@ -9,8 +9,6 @@ const _mat4 = new THREE.Matrix4();
 const _quat = new THREE.Quaternion();
 const _up = new THREE.Vector3( 0, 1, 0 );
 
-const SPEED_SCALE = 12.5;
-const LINEAR_DAMP = 0.1;
 
 function lerpAngle( a, b, t ) {
 
@@ -78,6 +76,28 @@ export class Vehicle {
 			underbodyOffset: - 0.5,
 			accelerationRate: 1,
 			topSpeed: 250,
+			// Steering
+			steeringMultiplier: 4,
+			steeringLerp: 4,
+			steeringGripMin: 0.2,
+			steeringGripMax: 1.0,
+			// Braking / reverse
+			brakeRate: 8,
+			reverseSpeedFactor: 0.5,
+			reverseAccelRate: 2,
+			// Physics
+			linearDamp: 0.1,
+			speedScale: 12.5,
+			velocityBlendRate: 5,
+			// Boost / nitro
+			boostFillTime: 20,
+			boostDriftMultiplier: 5,
+			boostDuration: 4,
+			boostTopSpeed: 350,
+			driftThreshold: 1.0,
+			// Body lean
+			bodyLeanPitch: 6,
+			bodyLeanRoll: 5,
 		};
 		this.wheelOrigY = [];
 
@@ -104,12 +124,6 @@ export class Vehicle {
 		this.boostMeter = 0;
 		this.boostActive = false;
 		this.boostTimer = 0;
-		this.boostFillTime = 20;       // seconds to fill passively
-		this.boostDriftMultiplier = 5;  // 5x fill rate while drifting
-		this.boostDuration = 4;        // seconds boost lasts
-		this.boostTopSpeed = 350;      // top speed during boost
-		this.driftThreshold = 1.0;     // driftIntensity threshold for "drifting"
-		this._normalTopSpeed = 250;
 
 	}
 
@@ -433,10 +447,10 @@ export class Vehicle {
 			let direction = Math.sign( this.linearSpeed );
 			if ( direction === 0 ) direction = Math.abs( this.inputZ ) > 0.1 ? Math.sign( this.inputZ ) : 1;
 
-			const steeringGrip = THREE.MathUtils.clamp( Math.abs( this.linearSpeed ), 0.2, 1.0 );
+			const steeringGrip = THREE.MathUtils.clamp( Math.abs( this.linearSpeed ), this.debug.steeringGripMin, this.debug.steeringGripMax );
 
-			const targetAngular = - this.inputX * steeringGrip * 4 * direction;
-			this.angularSpeed = THREE.MathUtils.lerp( this.angularSpeed, targetAngular, dt * 4 );
+			const targetAngular = - this.inputX * steeringGrip * this.debug.steeringMultiplier * direction;
+			this.angularSpeed = THREE.MathUtils.lerp( this.angularSpeed, targetAngular, dt * this.debug.steeringLerp );
 
 			this.container.rotateY( this.angularSpeed * dt );
 
@@ -444,11 +458,11 @@ export class Vehicle {
 
 			if ( targetSpeed < 0 && this.linearSpeed > 0.01 ) {
 
-				this.linearSpeed = THREE.MathUtils.lerp( this.linearSpeed, 0.0, dt * 8 );
+				this.linearSpeed = THREE.MathUtils.lerp( this.linearSpeed, 0.0, dt * this.debug.brakeRate );
 
 			} else if ( targetSpeed < 0 ) {
 
-				this.linearSpeed = THREE.MathUtils.lerp( this.linearSpeed, targetSpeed / 2, dt * 2 );
+				this.linearSpeed = THREE.MathUtils.lerp( this.linearSpeed, targetSpeed * this.debug.reverseSpeedFactor, dt * this.debug.reverseAccelRate );
 
 			} else {
 
@@ -458,7 +472,7 @@ export class Vehicle {
 
 		}
 
-		this.linearSpeed *= Math.max( 0, 1 - LINEAR_DAMP * dt );
+		this.linearSpeed *= Math.max( 0, 1 - this.debug.linearDamp * dt );
 
 		// Raycast ground detection
 		this.raycastGround( dt );
@@ -483,10 +497,10 @@ export class Vehicle {
 
 			// topSpeed (150) was an angular accumulation rate in the old system;
 			// divide by SPEED_SCALE to get a sensible linear velocity (~12 units/sec max)
-			const desiredSpeed = this.linearSpeed * this.debug.topSpeed / SPEED_SCALE;
+			const desiredSpeed = this.linearSpeed * this.debug.topSpeed / this.debug.speedScale;
 
 			// Blend desired velocity with physics velocity to preserve wall collision response
-			const blendRate = 1 - Math.exp( - 5 * dt );
+			const blendRate = 1 - Math.exp( - this.debug.velocityBlendRate * dt );
 			const newVelX = vel[ 0 ] + ( _forward.x * desiredSpeed - vel[ 0 ] ) * blendRate;
 			const newVelZ = vel[ 2 ] + ( _forward.z * desiredSpeed - vel[ 2 ] ) * blendRate;
 
@@ -558,18 +572,18 @@ export class Vehicle {
 
 				this.boostActive = false;
 				this.boostTimer = 0;
-				this.debug.topSpeed = this._normalTopSpeed;
+				this.debug.topSpeed = 250;
 
 			}
 
 		} else {
 
 			// Fill meter
-			let fillRate = dt / this.boostFillTime;
+			let fillRate = dt / this.debug.boostFillTime;
 
-			if ( this.driftIntensity > this.driftThreshold ) {
+			if ( this.driftIntensity > this.debug.driftThreshold ) {
 
-				fillRate *= this.boostDriftMultiplier;
+				fillRate *= this.debug.boostDriftMultiplier;
 
 			}
 
@@ -579,9 +593,9 @@ export class Vehicle {
 			if ( controlsInput.boost && this.boostMeter >= 1.0 ) {
 
 				this.boostActive = true;
-				this.boostTimer = this.boostDuration;
+				this.boostTimer = this.debug.boostDuration;
 				this.boostMeter = 0;
-				this.debug.topSpeed = this.boostTopSpeed;
+				this.debug.topSpeed = this.debug.boostTopSpeed;
 
 			}
 
@@ -606,13 +620,13 @@ export class Vehicle {
 
 		this.bodyNode.rotation.x = lerpAngle(
 			this.bodyNode.rotation.x,
-			-( this.linearSpeed - this.acceleration ) / 6,
+			-( this.linearSpeed - this.acceleration ) / this.debug.bodyLeanPitch,
 			dt * 10
 		);
 
 		this.bodyNode.rotation.z = lerpAngle(
 			this.bodyNode.rotation.z,
-			-( this.inputX / 5 ) * this.linearSpeed,
+			-( this.inputX / this.debug.bodyLeanRoll ) * this.linearSpeed,
 			dt * 5
 		);
 
