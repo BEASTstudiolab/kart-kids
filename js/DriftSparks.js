@@ -45,18 +45,31 @@ export class DriftSparks {
 		}
 
 		this.emitIndex = 0;
+		this._emitTimer = 0;
 
 	}
 
 	update( dt, vehicle ) {
 
-		// Only emit while actively drifting
+		// Only emit while actively drifting, rate-limited to ~30 particles/sec
 		if ( vehicle.driftStage > 0 ) {
 
-			const stage = Math.min( vehicle.driftStage, 3 );
+			this._emitTimer += dt;
+			const emitInterval = 1 / 15; // 15 emits/sec (2 wheels = 30 particles/sec)
 
-			if ( vehicle.wheelBL ) this._emitAtWheel( vehicle.wheelBL, vehicle, stage );
-			if ( vehicle.wheelBR ) this._emitAtWheel( vehicle.wheelBR, vehicle, stage );
+			if ( this._emitTimer >= emitInterval ) {
+
+				this._emitTimer -= emitInterval;
+				const stage = Math.min( vehicle.driftStage, 3 );
+
+				if ( vehicle.wheelBL ) this._emitAtWheel( vehicle.wheelBL, vehicle, stage );
+				if ( vehicle.wheelBR ) this._emitAtWheel( vehicle.wheelBR, vehicle, stage );
+
+			}
+
+		} else {
+
+			this._emitTimer = 0;
 
 		}
 

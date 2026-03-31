@@ -1,3 +1,5 @@
+import { SpringAnimator } from './SpringAnimator.js';
+
 export class HUD {
 
 	constructor( onRestart, onReady ) {
@@ -16,6 +18,15 @@ export class HUD {
 
 		// Track last countdown value to detect changes and trigger the punch
 		this._lastCountdownText = '';
+
+		// Spring animators for HUD elements
+		this._countdownSpring = new SpringAnimator( 150, 12 );
+		this._countdownSpring.reset( 1 );
+		this._lapSpring = new SpringAnimator( 150, 12 );
+		this._lapSpring.reset( 1 );
+		this._powerupSpring = new SpringAnimator( 150, 12 );
+		this._powerupSpring.reset( 0 );
+		this._lastLap = - 1;
 
 		// ── Countdown overlay (centered, large text) ─────────────────────────
 		this._countdownEl = document.createElement( 'div' );
@@ -111,6 +122,17 @@ export class HUD {
 		this._boostContainer.appendChild( this._boostTrack );
 		document.body.appendChild( this._boostContainer );
 
+		// ── Powerup indicator ────────────────────────────────────────────────
+		this._powerupEl = document.createElement( 'div' );
+		this._powerupEl.style.cssText = [
+			'position:fixed', 'bottom:44px', 'left:50%', 'transform:translateX(-50%)',
+			'font:bold 12px sans-serif', 'padding:3px 12px',
+			'border-radius:4px', 'z-index:1000',
+			'pointer-events:none', 'user-select:none', 'display:none',
+			'text-align:center',
+		].join( ';' );
+		document.body.appendChild( this._powerupEl );
+
 		// ── Lobby panel (top-center: status + ready button) ──────────────────
 		this._lobbyPanel = document.createElement( 'div' );
 		this._lobbyPanel.style.cssText = [
@@ -142,7 +164,7 @@ export class HUD {
 
 	}
 
-	update( displayState, lobbyState ) {
+	update( dt, displayState, lobbyState ) {
 
 		this._currentState = displayState.state;
 
@@ -153,6 +175,7 @@ export class HUD {
 				this._raceHud.style.display = 'none';
 				this._resultsEl.style.display = 'none';
 				this._boostContainer.style.display = 'none';
+				this._powerupEl.style.display = 'none';
 				this._updateLobby( lobbyState );
 				break;
 
@@ -171,17 +194,19 @@ export class HUD {
 				const COUNT_COLORS = { '3': '#ff4444', '2': '#ffaa00', '1': '#44ff44', 'GO!': '#00ddff' };
 				this._countdownEl.style.color = COUNT_COLORS[ countText ] || '#ffffff';
 
-				// Scale punch on change — restart animation by clearing then reapplying
+				// Spring-driven scale punch on change
 				if ( countText !== this._lastCountdownText ) {
 
 					this._countdownEl.textContent = countText;
 					this._lastCountdownText = countText;
-					this._countdownEl.style.animation = 'none';
-					// Force reflow so the browser registers the reset before re-applying
-					void this._countdownEl.offsetWidth;
-					this._countdownEl.style.animation = 'countPunch 0.2s ease-out forwards';
+					this._countdownSpring.position = 1.5;
+					this._countdownSpring.velocity = 0;
+					this._countdownSpring.setTarget( 1.0 );
 
 				}
+
+				const countScale = this._countdownSpring.update( dt );
+				this._countdownEl.style.transform = `translate(-50%, -50%) scale(${ countScale })`;
 
 				break;
 			}
@@ -194,7 +219,22 @@ export class HUD {
 				this._boostContainer.style.display = 'block';
 				this._lapLine.textContent = `Lap ${ displayState.lap + 1 }/${ displayState.totalLaps }`;
 				this._timeLine.textContent = this._formatTime( displayState.elapsedTime );
+
+				// Spring bounce on lap change
+				if ( displayState.lap !== this._lastLap ) {
+
+					this._lapSpring.position = 1.3;
+					this._lapSpring.velocity = 0;
+					this._lapSpring.setTarget( 1.0 );
+					this._lastLap = displayState.lap;
+
+				}
+
+				const lapScale = this._lapSpring.update( dt );
+				this._lapLine.style.transform = `scale(${ lapScale })`;
+
 				this._updateBoostBar( displayState );
+				this._updatePowerupIndicator( dt, displayState );
 				break;
 
 			case 'finished':
@@ -202,6 +242,7 @@ export class HUD {
 				this._countdownEl.style.display = 'none';
 				this._raceHud.style.display = 'none';
 				this._boostContainer.style.display = 'none';
+				this._powerupEl.style.display = 'none';
 				this._resultsEl.style.display = 'block';
 				this._resultsTotalLine.textContent = `Total: ${ this._formatTime( displayState.totalTime ) }`;
 				this._resultsBestLine.textContent = `Best Lap: ${ this._formatTime( displayState.bestLap ) }`;
@@ -272,6 +313,52 @@ export class HUD {
 
 			this._boostFill.style.background = '#4fc3f7';
 			this._boostFill.style.animation = 'none';
+
+		}
+
+	}
+
+	_updatePowerupIndicator( dt, displayState ) {
+
+		const active = displayState.starActive || displayState.shieldActive;
+		const wasActive = this._powerupSpring.target > 0.5;
+
+		if ( active && ! wasActive ) {
+
+			this._powerupSpring.position = 0;
+			this._powerupSpring.velocity = 0;
+			this._powerupSpring.setTarget( 1.0 );
+
+		} else if ( ! active && wasActive ) {
+
+			this._powerupSpring.setTarget( 0 );
+
+		}
+
+		const pScale = this._powerupSpring.update( dt );
+
+		if ( pScale > 0.01 ) {
+
+			this._powerupEl.style.display = 'block';
+			this._powerupEl.style.transform = `scale(${ pScale })`;
+
+			if ( displayState.starActive ) {
+
+				this._powerupEl.textContent = 'STAR';
+				this._powerupEl.style.background = 'rgba(255,200,0,0.8)';
+				this._powerupEl.style.color = '#000';
+
+			} else {
+
+				this._powerupEl.textContent = 'SHIELD';
+				this._powerupEl.style.background = 'rgba(0,200,80,0.8)';
+				this._powerupEl.style.color = '#fff';
+
+			}
+
+		} else {
+
+			this._powerupEl.style.display = 'none';
 
 		}
 

@@ -174,10 +174,10 @@ export class Camera {
 			// Camera roll depends on default XYZ Euler rotation order where Z = roll.
 			if ( this.gforceEnabled ) {
 
-				const inputX = vehicleState.inputX || 0;
-				const linearSpeed = vehicleState.linearSpeed || 0;
-				const bodyLeanRoll = vehicleState.bodyLeanRoll || 5;
-				const boostActive = vehicleState.boostActive || false;
+				const inputX = vehicleState.inputX ?? 0;
+				const linearSpeed = vehicleState.linearSpeed ?? 0;
+				const bodyLeanRoll = vehicleState.bodyLeanRoll ?? 5;
+				const boostActive = vehicleState.boostActive ?? false;
 
 				// Cornering lean signal: same formula as Vehicle.js updateBody()
 				const rawLean = -( inputX / bodyLeanRoll ) * linearSpeed;

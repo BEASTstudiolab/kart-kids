@@ -296,6 +296,9 @@ setInterval( () => {
 				angVel: p.lastState.angVel,
 				speed: p.lastState.speed,
 				drift: p.lastState.drift,
+				boost: p.lastState.boost,
+				shield: p.lastState.shield,
+				star: p.lastState.star,
 				spectating: p.spectating,
 			} );
 

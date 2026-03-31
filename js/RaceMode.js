@@ -173,6 +173,8 @@ export class RaceMode extends GameMode {
 		s.position = this._position;
 		s.boostMeter = v ? v.boostMeter : 0;
 		s.boostActive = v ? v.boostActive : false;
+		s.shieldActive = v ? v.shieldActive : false;
+		s.starActive = v ? v.starActive : false;
 
 		return s;
 
