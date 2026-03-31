@@ -6,6 +6,17 @@ export class HUD {
 		this._onReady = onReady;
 		this._currentState = 'idle';
 
+		// ── Inject CSS keyframes for animations ──────────────────────────────
+		const styleEl = document.createElement( 'style' );
+		styleEl.textContent = [
+			'@keyframes boostPulse { from { opacity: 0.7; } to { opacity: 1.0; } }',
+			'@keyframes countPunch { from { transform: scale(1.4); } to { transform: scale(1.0); } }',
+		].join( ' ' );
+		document.head.appendChild( styleEl );
+
+		// Track last countdown value to detect changes and trigger the punch
+		this._lastCountdownText = '';
+
 		// ── Countdown overlay (centered, large text) ─────────────────────────
 		this._countdownEl = document.createElement( 'div' );
 		this._countdownEl.style.cssText = [
@@ -71,9 +82,21 @@ export class HUD {
 		this._boostContainer = document.createElement( 'div' );
 		this._boostContainer.style.cssText = [
 			'position:fixed', 'bottom:24px', 'left:50%', 'transform:translateX(-50%)',
-			'width:200px', 'height:12px', 'background:rgba(0,0,0,0.5)',
-			'border-radius:6px', 'overflow:hidden', 'z-index:1000',
+			'width:200px', 'z-index:1000',
 			'pointer-events:none', 'user-select:none', 'display:none',
+		].join( ';' );
+
+		this._boostLabel = document.createElement( 'div' );
+		this._boostLabel.textContent = 'BOOST';
+		this._boostLabel.style.cssText = [
+			'font:bold 10px sans-serif', 'color:rgba(255,255,255,0.6)',
+			'text-align:center', 'margin-bottom:2px',
+		].join( ';' );
+
+		this._boostTrack = document.createElement( 'div' );
+		this._boostTrack.style.cssText = [
+			'width:200px', 'height:12px', 'background:rgba(0,0,0,0.5)',
+			'border-radius:6px', 'overflow:hidden',
 			'border:1px solid rgba(255,255,255,0.2)',
 		].join( ';' );
 
@@ -83,7 +106,9 @@ export class HUD {
 			'border-radius:4px', 'transition:background 0.2s',
 		].join( ';' );
 
-		this._boostContainer.appendChild( this._boostFill );
+		this._boostTrack.appendChild( this._boostFill );
+		this._boostContainer.appendChild( this._boostLabel );
+		this._boostContainer.appendChild( this._boostTrack );
 		document.body.appendChild( this._boostContainer );
 
 		// ── Lobby panel (top-center: status + ready button) ──────────────────
@@ -131,16 +156,35 @@ export class HUD {
 				this._updateLobby( lobbyState );
 				break;
 
-			case 'countdown':
+			case 'countdown': {
 				this._lobbyPanel.style.display = 'none';
 				this._resultsEl.style.display = 'none';
 				this._raceHud.style.display = 'none';
 				this._boostContainer.style.display = 'none';
 				this._countdownEl.style.display = 'block';
-				this._countdownEl.textContent = displayState.countdown > 0
+
+				const countText = displayState.countdown > 0
 					? displayState.countdown.toString()
 					: 'GO!';
+
+				// Per-number color
+				const COUNT_COLORS = { '3': '#ff4444', '2': '#ffaa00', '1': '#44ff44', 'GO!': '#00ddff' };
+				this._countdownEl.style.color = COUNT_COLORS[ countText ] || '#ffffff';
+
+				// Scale punch on change — restart animation by clearing then reapplying
+				if ( countText !== this._lastCountdownText ) {
+
+					this._countdownEl.textContent = countText;
+					this._lastCountdownText = countText;
+					this._countdownEl.style.animation = 'none';
+					// Force reflow so the browser registers the reset before re-applying
+					void this._countdownEl.offsetWidth;
+					this._countdownEl.style.animation = 'countPunch 0.2s ease-out forwards';
+
+				}
+
 				break;
+			}
 
 			case 'racing':
 				this._lobbyPanel.style.display = 'none';
@@ -217,14 +261,17 @@ export class HUD {
 		if ( active ) {
 
 			this._boostFill.style.background = '#ff6d00';
+			this._boostFill.style.animation = 'none';
 
 		} else if ( meter >= 1.0 ) {
 
 			this._boostFill.style.background = '#ffd740';
+			this._boostFill.style.animation = 'boostPulse 0.6s ease-in-out infinite alternate';
 
 		} else {
 
 			this._boostFill.style.background = '#4fc3f7';
+			this._boostFill.style.animation = 'none';
 
 		}
 

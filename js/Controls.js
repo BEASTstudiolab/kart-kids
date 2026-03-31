@@ -14,8 +14,14 @@ export class Controls {
 		this.steerStartX = 0;
 		this.steerStartY = 0;
 
+		this._gamepadConnected = false;
+
 		window.addEventListener( 'keydown', ( e ) => this.keys[ e.code ] = true );
 		window.addEventListener( 'keyup', ( e ) => this.keys[ e.code ] = false );
+		window.addEventListener( 'gamepadconnected', () => { this._gamepadConnected = true; } );
+		window.addEventListener( 'gamepaddisconnected', () => {
+			this._gamepadConnected = navigator.getGamepads().some( ( gp ) => gp !== null );
+		} );
 
 		this.setupTouchUI();
 
@@ -114,6 +120,8 @@ export class Controls {
 
 		// Gamepad
 
+		if ( this._gamepadConnected ) {
+
 		const gamepads = navigator.getGamepads();
 
 		for ( const gp of gamepads ) {
@@ -129,6 +137,8 @@ export class Controls {
 			if ( rt > 0.1 || lt > 0.1 ) z = rt - lt;
 
 			break;
+
+		}
 
 		}
 

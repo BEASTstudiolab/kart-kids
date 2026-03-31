@@ -47,6 +47,8 @@ export class RaceMode extends GameMode {
 		this._finishLine = null;
 		this._prevPos = null;
 
+		this._displayState = {};
+
 	}
 
 	initFinishLine( position, angle ) {
@@ -159,19 +161,20 @@ export class RaceMode extends GameMode {
 	getDisplayState() {
 
 		const v = this._vehicle;
+		const s = this._displayState;
 
-		return {
-			state: this._state,
-			countdown: this._countdownNumber,
-			lap: this._lap,
-			totalLaps: this.totalLaps,
-			elapsedTime: this._elapsedTime,
-			bestLap: this._bestLap === Infinity ? 0 : this._bestLap,
-			totalTime: this._totalTime,
-			position: this._position,
-			boostMeter: v ? v.boostMeter : 0,
-			boostActive: v ? v.boostActive : false,
-		};
+		s.state = this._state;
+		s.countdown = this._countdownNumber;
+		s.lap = this._lap;
+		s.totalLaps = this.totalLaps;
+		s.elapsedTime = this._elapsedTime;
+		s.bestLap = this._bestLap === Infinity ? 0 : this._bestLap;
+		s.totalTime = this._totalTime;
+		s.position = this._position;
+		s.boostMeter = v ? v.boostMeter : 0;
+		s.boostActive = v ? v.boostActive : false;
+
+		return s;
 
 	}
 

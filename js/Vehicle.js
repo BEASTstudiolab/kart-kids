@@ -95,9 +95,20 @@ export class Vehicle {
 			boostDuration: 4,
 			boostTopSpeed: 350,
 			driftThreshold: 1.0,
+			// Drift state machine (implements R10-R15 from gameplay-juice-pass-plan)
+			driftStageThreshold: 0.3,
+			stage0Duration: 0.15,
+			stage1Duration: 1.0,
+			stage2Duration: 1.5,
+			miniBoostStage2Speed: 300,
+			miniBoostStage3Speed: 325,
+			miniBoostStage2Duration: 1.5,
+			miniBoostStage3Duration: 2.0,
 			// Body lean
 			bodyLeanPitch: 6,
 			bodyLeanRoll: 5,
+			// Suspension
+			rideHeight: 0,
 		};
 		this.wheelOrigY = [];
 
@@ -124,6 +135,13 @@ export class Vehicle {
 		this.boostMeter = 0;
 		this.boostActive = false;
 		this.boostTimer = 0;
+
+		// Drift state machine (implements R10-R15 from gameplay-juice-pass-plan)
+		this.driftStage = 0;
+		this.driftStageTimer = 0;
+		this.miniBoostTimer = 0;
+		this.miniBoostTopSpeed = 0;
+		this.effectiveTopSpeed = 250;
 
 	}
 
@@ -182,6 +200,7 @@ export class Vehicle {
 		// ─── Underglow ────────────────────────────────────────────────────────
 		this.underglowLight = new THREE.PointLight( 0x00ffff, 1, 3 );
 		this.underglowLight.position.set( 0, - 0.1, 0 );
+		this.underglowLight.castShadow = false;
 		this.underglowLight.visible = false;
 		this.container.add( this.underglowLight );
 
@@ -192,6 +211,7 @@ export class Vehicle {
 
 			const spot = new THREE.SpotLight( 0xffe0b0, 8, 54, Math.PI / 8, 0.3 );
 			spot.position.set( xOff, 0.25, 0.5 );
+			spot.castShadow = false;
 			spot.visible = false;
 
 			const target = new THREE.Object3D();
@@ -336,7 +356,7 @@ export class Vehicle {
 
 	}
 
-	setTargetState( pos, rot, vel, angVel, speed, drift ) {
+	setTargetState( pos, rot, vel, angVel, speed, drift, boostActive ) {
 
 		this._targetPos = pos;
 		this._targetQuat.set( rot[ 0 ], rot[ 1 ], rot[ 2 ], rot[ 3 ] );
@@ -344,6 +364,7 @@ export class Vehicle {
 		this._targetAngVel = angVel;
 		this._targetSpeed = speed;
 		this._targetDrift = drift;
+		this._targetBoostActive = boostActive;
 
 	}
 
@@ -358,6 +379,7 @@ export class Vehicle {
 			angVel,
 			speed: this.linearSpeed,
 			drift: this.driftIntensity,
+			boost: this.boostActive,
 		};
 
 	}
@@ -411,6 +433,16 @@ export class Vehicle {
 		this.linearSpeed = THREE.MathUtils.lerp( this.linearSpeed, this._targetSpeed, t );
 		this.driftIntensity = THREE.MathUtils.lerp( this.driftIntensity, this._targetDrift, t );
 		this.acceleration = this.linearSpeed;
+
+		// Derive synthetic drift stage from interpolated driftIntensity for remote visuals
+		if ( this.driftIntensity >= 2.5 ) this.driftStage = 3;
+		else if ( this.driftIntensity >= 1.5 ) this.driftStage = 2;
+		else if ( this.driftIntensity >= ( this.debug.driftStageThreshold || 0.5 ) ) this.driftStage = 1;
+		else this.driftStage = 0;
+
+		// Sync remote boost state
+		this.boostActive = this._targetBoostActive || false;
+
 		this.updateBody( dt );
 		this.updateWheels( dt );
 
@@ -490,26 +522,9 @@ export class Vehicle {
 			const vel = this.rigidBody.motionProperties.linearVelocity;
 			this.sphereVel.set( vel[ 0 ], vel[ 1 ], vel[ 2 ] );
 
-			// Compute desired forward velocity
-			_forward.set( 0, 0, 1 ).applyQuaternion( this.container.quaternion );
-			_forward.y = 0;
-			_forward.normalize();
-
-			// topSpeed (150) was an angular accumulation rate in the old system;
-			// divide by SPEED_SCALE to get a sensible linear velocity (~12 units/sec max)
-			const desiredSpeed = this.linearSpeed * this.debug.topSpeed / this.debug.speedScale;
-
-			// Blend desired velocity with physics velocity to preserve wall collision response
-			const blendRate = 1 - Math.exp( - this.debug.velocityBlendRate * dt );
-			const newVelX = vel[ 0 ] + ( _forward.x * desiredSpeed - vel[ 0 ] ) * blendRate;
-			const newVelZ = vel[ 2 ] + ( _forward.z * desiredSpeed - vel[ 2 ] ) * blendRate;
-
-			rigidBody.setLinearVelocity( this.physicsWorld, this.rigidBody, [ newVelX, 0, newVelZ ] );
-			rigidBody.setAngularVelocity( this.physicsWorld, this.rigidBody, [ 0, 0, 0 ] );
-
 			// Keep collider tracking vehicle — Y above ground, rotation matching heading
 			rigidBody.setPosition( this.physicsWorld, this.rigidBody,
-				[ this.spherePos.x, this.groundHeight + 0.5, this.spherePos.z ], false );
+				[ this.spherePos.x, this.groundHeight + this.debug.rideHeight + 0.5, this.spherePos.z ], false );
 			const q = this.container.quaternion;
 			rigidBody.setQuaternion( this.physicsWorld, this.rigidBody,
 				[ q.x, q.y, q.z, q.w ], false );
@@ -546,7 +561,7 @@ export class Vehicle {
 
 		this.container.position.set(
 			this.spherePos.x,
-			this.groundHeight,
+			this.groundHeight + this.debug.rideHeight,
 			this.spherePos.z
 		);
 
@@ -563,6 +578,58 @@ export class Vehicle {
 		this.driftIntensity = Math.abs( this.linearSpeed - this.acceleration ) +
 			( this.bodyNode ? Math.abs( this.bodyNode.rotation.z ) * 2 : 0 );
 
+		// ── Drift state machine (R10-R13 from gameplay-juice-pass-plan) ────────
+		const stageDurations = [
+			this.debug.stage0Duration,
+			this.debug.stage1Duration,
+			this.debug.stage2Duration,
+			Infinity,
+		];
+
+		if ( this.driftIntensity >= this.debug.driftStageThreshold ) {
+
+			this.driftStageTimer += dt;
+
+			if ( this.driftStage < 3 && this.driftStageTimer >= stageDurations[ this.driftStage ] ) {
+
+				this.driftStage ++;
+				this.driftStageTimer = 0;
+
+			}
+
+		} else if ( this.driftStage > 0 ) {
+
+			// Drift release — grant mini-boost if Stage 2+
+			if ( this.driftStage >= 2 ) {
+
+				this.miniBoostTopSpeed = this.driftStage === 3
+					? this.debug.miniBoostStage3Speed
+					: this.debug.miniBoostStage2Speed;
+				this.miniBoostTimer = this.driftStage === 3
+					? this.debug.miniBoostStage3Duration
+					: this.debug.miniBoostStage2Duration;
+
+			}
+
+			this.driftStage = 0;
+			this.driftStageTimer = 0;
+
+		}
+
+		// Mini-boost timer
+		if ( this.miniBoostTimer > 0 ) {
+
+			this.miniBoostTimer -= dt;
+
+			if ( this.miniBoostTimer <= 0 ) {
+
+				this.miniBoostTimer = 0;
+				this.miniBoostTopSpeed = 0;
+
+			}
+
+		}
+
 		// ── Boost / nitro ────────────────────────────────────────────────────
 		if ( this.boostActive ) {
 
@@ -572,7 +639,7 @@ export class Vehicle {
 
 				this.boostActive = false;
 				this.boostTimer = 0;
-				this.debug.topSpeed = 250;
+				// effectiveTopSpeed handles top speed restoration — do not mutate debug.topSpeed
 
 			}
 
@@ -587,6 +654,10 @@ export class Vehicle {
 
 			}
 
+			// R14: faster nitro fill at higher drift stages
+			const stageFillMultiplier = [ 1.0, 1.0, 1.5, 2.0 ];
+			fillRate *= stageFillMultiplier[ this.driftStage ];
+
 			this.boostMeter = Math.min( 1, this.boostMeter + fillRate );
 
 			// Activate on boost input when full
@@ -595,9 +666,38 @@ export class Vehicle {
 				this.boostActive = true;
 				this.boostTimer = this.debug.boostDuration;
 				this.boostMeter = 0;
-				this.debug.topSpeed = this.debug.boostTopSpeed;
+				// effectiveTopSpeed handles the speed increase — do not mutate debug.topSpeed
 
 			}
+
+		}
+
+		// ── Effective top speed (R13) — max of base, nitro, mini-boost ────────
+		this.effectiveTopSpeed = Math.max(
+			this.debug.topSpeed,
+			this.boostActive ? this.debug.boostTopSpeed : 0,
+			this.miniBoostTimer > 0 ? this.miniBoostTopSpeed : 0
+		);
+
+		// ── Drive force — apply velocity toward desired speed ─────────────────
+		if ( this.rigidBody ) {
+
+			// Compute desired forward velocity using effectiveTopSpeed
+			_forward.set( 0, 0, 1 ).applyQuaternion( this.container.quaternion );
+			_forward.y = 0;
+			_forward.normalize();
+
+			// topSpeed was an angular accumulation rate in the old system;
+			// divide by speedScale to get a sensible linear velocity (~12 units/sec max)
+			const desiredSpeed = this.linearSpeed * this.effectiveTopSpeed / this.debug.speedScale;
+
+			// Blend desired velocity with physics velocity to preserve wall collision response
+			const blendRate = 1 - Math.exp( - this.debug.velocityBlendRate * dt );
+			const newVelX = this.sphereVel.x + ( _forward.x * desiredSpeed - this.sphereVel.x ) * blendRate;
+			const newVelZ = this.sphereVel.z + ( _forward.z * desiredSpeed - this.sphereVel.z ) * blendRate;
+
+			rigidBody.setLinearVelocity( this.physicsWorld, this.rigidBody, [ newVelX, 0, newVelZ ] );
+			rigidBody.setAngularVelocity( this.physicsWorld, this.rigidBody, [ 0, 0, 0 ] );
 
 		}
 
@@ -624,9 +724,10 @@ export class Vehicle {
 			dt * 10
 		);
 
+		// R15: body lean roll scales with drift stage for more aggressive cornering feel
 		this.bodyNode.rotation.z = lerpAngle(
 			this.bodyNode.rotation.z,
-			-( this.inputX / this.debug.bodyLeanRoll ) * this.linearSpeed,
+			-( this.inputX / ( this.debug.bodyLeanRoll / ( 1 + this.driftStage * 0.3 ) ) ) * this.linearSpeed,
 			dt * 5
 		);
 

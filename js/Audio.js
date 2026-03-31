@@ -137,7 +137,7 @@ export class GameAudio {
 
 			skidVol = remap(
 				THREE.MathUtils.clamp( driftIntensity, 0.25, 2 ),
-				0.25, 2, 0.1, 0.6
+				0.25, 2, 0.1, 0.4
 			);
 
 		}
@@ -194,6 +194,74 @@ export class GameAudio {
 		const volume = THREE.MathUtils.clamp( remap( impactVelocity, 1.5, 10, 0.05, 1.0 ), 0.05, 1.0 );
 		sound.setVolume( volume );
 		sound.play();
+
+	}
+
+	// Implements: docs/plans/2026-03-31-002-feat-gameplay-juice-pass-plan.md — Unit 5 (R23)
+	// Sawtooth whoosh played on boost activation: 200→600 Hz sweep over 0.3s.
+	playBoostWhoosh() {
+
+		if ( ! this.listener ) return;
+
+		const ctx = this.listener.context;
+		if ( ! ctx || ctx.state === 'suspended' ) return;
+
+		try {
+
+			const osc = ctx.createOscillator();
+			const gain = ctx.createGain();
+
+			osc.type = 'sawtooth';
+			osc.frequency.setValueAtTime( 200, ctx.currentTime );
+			osc.frequency.exponentialRampToValueAtTime( 600, ctx.currentTime + 0.4 );
+
+			gain.gain.setValueAtTime( 0.65, ctx.currentTime );
+			gain.gain.exponentialRampToValueAtTime( 0.001, ctx.currentTime + 0.4 );
+
+			osc.connect( gain );
+			gain.connect( ctx.destination );
+
+			osc.start( ctx.currentTime );
+			osc.stop( ctx.currentTime + 0.4 );
+
+		} catch {
+
+			// Silently fail if audio context not ready
+
+		}
+
+	}
+
+	playLapChime() {
+
+		if ( ! this.listener ) return;
+
+		const ctx = this.listener.context;
+		if ( ! ctx || ctx.state === 'suspended' ) return;
+
+		try {
+
+			const osc = ctx.createOscillator();
+			const gain = ctx.createGain();
+
+			osc.type = 'sine';
+			osc.frequency.setValueAtTime( 800, ctx.currentTime );
+			osc.frequency.linearRampToValueAtTime( 1200, ctx.currentTime + 0.2 );
+
+			gain.gain.setValueAtTime( 0.3, ctx.currentTime );
+			gain.gain.exponentialRampToValueAtTime( 0.001, ctx.currentTime + 0.3 );
+
+			osc.connect( gain );
+			gain.connect( ctx.destination );
+
+			osc.start( ctx.currentTime );
+			osc.stop( ctx.currentTime + 0.3 );
+
+		} catch {
+
+			// Silently fail if audio context not ready
+
+		}
 
 	}
 

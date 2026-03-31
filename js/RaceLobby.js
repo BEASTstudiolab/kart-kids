@@ -26,6 +26,8 @@ export class RaceLobby {
 		// Cached display values for the local player
 		this._localId = null;
 
+		this._displayState = {};
+
 	}
 
 	/**
@@ -152,15 +154,17 @@ export class RaceLobby {
 
 		}
 
-		return {
-			inZone: localState !== STATE_OUTSIDE,
-			dwelling: localState === STATE_DWELLING,
-			dwellComplete: localState === STATE_ELIGIBLE || localState === STATE_READY,
-			isReady: localState === STATE_READY,
-			readyCount,
-			zoneCount,
-			lobbyActive: zoneCount > 0,
-		};
+		const s = this._displayState;
+
+		s.inZone = localState !== STATE_OUTSIDE;
+		s.dwelling = localState === STATE_DWELLING;
+		s.dwellComplete = localState === STATE_ELIGIBLE || localState === STATE_READY;
+		s.isReady = localState === STATE_READY;
+		s.readyCount = readyCount;
+		s.zoneCount = zoneCount;
+		s.lobbyActive = zoneCount > 0;
+
+		return s;
 
 	}
 

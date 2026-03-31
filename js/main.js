@@ -15,11 +15,17 @@ import { RaceMode } from './RaceMode.js';
 import { HUD } from './HUD.js';
 import { Minimap } from './Minimap.js';
 import { TrackIntel } from './TrackIntel.js';
+import { WallSparks } from './WallSparks.js';
+import { BoostBurst } from './BoostBurst.js';
+import { Haptics } from './Haptics.js';
 
+
+const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+window.isMobile = isMobile;
 
 const renderer = new THREE.WebGLRenderer( { antialias: true, outputBufferType: THREE.HalfFloatType } );
 renderer.setSize( window.innerWidth, window.innerHeight );
-renderer.setPixelRatio( window.devicePixelRatio );
+renderer.setPixelRatio( isMobile ? 1.0 : Math.min( window.devicePixelRatio, 2.0 ) );
 renderer.shadowMap.enabled = true;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
@@ -29,7 +35,7 @@ bloomPass.strength = 0.02;
 bloomPass.radius = 0.02;
 bloomPass.threshold = 0.5;
 
-renderer.setEffects( [ bloomPass ] );
+if ( ! isMobile ) renderer.setEffects( [ bloomPass ] );
 
 document.body.appendChild( renderer.domElement );
 
@@ -40,7 +46,7 @@ scene.fog = new THREE.Fog( 0xadb2ba, 30, 55 );
 const dirLight = new THREE.DirectionalLight( 0xffffff, 5 );
 dirLight.position.set( 11.4, 15, -5.3 );
 dirLight.castShadow = true;
-dirLight.shadow.mapSize.setScalar( 4096 );
+dirLight.shadow.mapSize.setScalar( isMobile ? 1024 : 2048 );
 dirLight.shadow.camera.near = 0.5;
 dirLight.shadow.camera.far = 60;
 scene.add( dirLight );
@@ -65,7 +71,7 @@ const LIGHTING_NIGHT = {
 	background: 0x1a0a2e,
 	hemiSky: 0x1a0a2e,
 	hemiGround: 0x2a1a3a,
-	hemiIntensity: 1.5,
+	hemiIntensity: 0.5,
 	dirColor: 0xe8d0f8,
 	dirIntensity: 3,
 	bloomStrength: 0.03,
@@ -75,6 +81,34 @@ const LIGHTING_NIGHT = {
 };
 
 const _originalMaterials = new WeakMap();
+
+// Populated once after scene is fully built; avoids per-call scene.traverse (H-6)
+const _lightingMeshes = [];
+
+function buildLightingCache() {
+
+	_lightingMeshes.length = 0;
+	scene.traverse( ( child ) => {
+
+		if ( child.isMesh && child.material.isMeshStandardMaterial ) {
+
+			// Snapshot original material values on first encounter
+			if ( ! _originalMaterials.has( child.material ) ) {
+
+				_originalMaterials.set( child.material, {
+					metalness: child.material.metalness,
+					roughness: child.material.roughness,
+				} );
+
+			}
+
+			_lightingMeshes.push( child );
+
+		}
+
+	} );
+
+}
 
 function applyLighting( preset ) {
 
@@ -93,18 +127,7 @@ function applyLighting( preset ) {
 
 	const isNight = preset === LIGHTING_NIGHT;
 
-	scene.traverse( ( child ) => {
-
-		if ( ! child.isMesh || ! child.material.isMeshStandardMaterial ) return;
-
-		if ( ! _originalMaterials.has( child.material ) ) {
-
-			_originalMaterials.set( child.material, {
-				metalness: child.material.metalness,
-				roughness: child.material.roughness,
-			} );
-
-		}
+	for ( const child of _lightingMeshes ) {
 
 		if ( isNight ) {
 
@@ -119,7 +142,7 @@ function applyLighting( preset ) {
 
 		}
 
-	} );
+	}
 
 }
 
@@ -134,7 +157,7 @@ const loader = new GLTFLoader();
 const modelNames = [
 	'vehicle-truck-yellow', 'vehicle-truck-green', 'vehicle-truck-purple', 'vehicle-truck-red',
 	'track-straight-night', 'track-corner-night', 'track-bump', 'track-finish',
-	'decoration-empty-night', 'decoration-buildings-1', 'decoration-buildings-2', // 'decoration-tents',
+	'decoration-empty-night', 'decoration-buildings-1', 'decoration-buildings-2', 'decoration-tents',
 ];
 
 const models = {};
@@ -315,7 +338,7 @@ async function init() {
 	const vehicleGroup = vehicle.container;
 
 	const dirLightOffset = { x: 11.4, y: 15, z: - 5.3 };
-	const isMobile = 'ontouchstart' in window;
+	let lastShadowX = 0, lastShadowZ = 0;
 
 	// ── Race mode setup ──────────────────────────────────────────────────────
 	const raceMode = new RaceMode( {
@@ -396,6 +419,7 @@ async function init() {
 
 		raceMode.onLapComplete = ( lap, time ) => {
 
+			audio.playLapChime();
 			network.sendLapComplete( lap, time );
 
 		};
@@ -703,7 +727,6 @@ async function init() {
 				} );
 
 				vehicle.wheelOrigY = vehicle.wheels.map( ( w ) => w.position.y );
-
 				// Re-add lights
 				vehicle.container.add( oldLights[ 0 ] );
 				for ( let i = 0; i < vehicle.headlights.length; i ++ ) {
@@ -764,10 +787,22 @@ async function init() {
 		addSlider( debugPanel, 'Wheel height', - 1.0, 1.0, 0.01, 0, ( v ) => { vehicle.debug.wheelHeight = v; } );
 		addSlider( debugPanel, 'Body height', - 1.0, 1.0, 0.01, 0.2, ( v ) => { vehicle.debug.bodyHeight = v; } );
 		addSlider( debugPanel, 'Underbody', - 2.0, 1.0, 0.01, - 0.5, ( v ) => { vehicle.debug.underbodyOffset = v; } );
+		addSlider( debugPanel, 'Ride height', 0, 0.5, 0.01, 0, ( v ) => { vehicle.debug.rideHeight = v; } );
 		addSlider( debugPanel, 'Chase cam height', 0, 10.0, 0.1, 2, ( v ) => { cam.chaseHeight = v; } );
 		addSlider( debugPanel, 'Zoom', 0.5, 3.0, 0.05, 1.0, ( v ) => { cam.zoom = v; } );
 		addSlider( debugPanel, 'Acceleration', 1, 20, 0.5, 1, ( v ) => { vehicle.debug.accelerationRate = v; } );
-		addSlider( debugPanel, 'Top speed', 10, 300, 5, 150, ( v ) => { vehicle.debug.topSpeed = v; } );
+		addSlider( debugPanel, 'Top speed', 10, 300, 5, 250, ( v ) => { vehicle.debug.topSpeed = v; } );
+
+		// Camera G-Force
+		const gforceHeader = document.createElement( 'div' );
+		gforceHeader.textContent = 'Camera G-Force:';
+		gforceHeader.style.cssText = 'margin:8px 0 2px';
+		debugPanel.appendChild( gforceHeader );
+
+		addCheckbox( debugPanel, 'G-Force Effects', true, ( v ) => { cam.gforceEnabled = v; } );
+		addSlider( debugPanel, 'Roll intensity', 0, 1.0, 0.01, 0.35, ( v ) => { cam.rollIntensity = v; } );
+		addSlider( debugPanel, 'FOV narrow', 0, 16, 0.5, 8, ( v ) => { cam.fovNarrowMax = v; } );
+		addSlider( debugPanel, 'Boost punch', 0, 20, 0.5, 8, ( v ) => { cam.boostPunchAmount = v; } );
 
 		// Bloom sliders
 		const bloomHeader = document.createElement( 'div' );
@@ -907,6 +942,7 @@ async function init() {
 	// ─────────────────────────────────────────────────────────────────────────
 	dirLight.target = vehicleGroup;
 
+	buildLightingCache();
 	applyLighting( LIGHTING_NIGHT );
 	for ( const hl of vehicle.headlights ) hl.visible = true;
 
@@ -919,6 +955,13 @@ async function init() {
 	audio.init( cam.camera );
 
 	let lastImpactTime = 0;
+	let wasBoostActive = false;
+	let prevDriftStage = 0;
+
+	// ─── Juice particles (local player only) ─────────────────────────────────
+	const wallSparks = new WallSparks( scene );
+	const boostBurst = new BoostBurst( scene );
+	const haptics = new Haptics();
 
 	const contactListener = {
 		onContactAdded( bodyA, bodyB, manifold ) {
@@ -926,13 +969,12 @@ async function init() {
 			if ( ! vehicle.rigidBody ) return;
 			if ( bodyA !== vehicle.rigidBody && bodyB !== vehicle.rigidBody ) return;
 
-			// Use contact normal to filter — skip ground-like contacts (normal mostly vertical)
-			if ( manifold && manifold.worldSpaceNormal ) {
+			// Need a valid contact normal for direction-dependent effects
+			const wn = manifold && manifold.worldSpaceNormal;
+			if ( ! wn ) return;
 
-				const n = manifold.worldSpaceNormal;
-				if ( Math.abs( n[ 1 ] ) > 0.5 ) return;
-
-			}
+			// Skip ground-like contacts (normal mostly vertical)
+			if ( Math.abs( wn[ 1 ] ) > 0.5 ) return;
 
 			// Velocity into the contact surface
 			const sv = vehicle.sphereVel;
@@ -946,6 +988,12 @@ async function init() {
 			lastImpactTime = now;
 
 			audio.playImpact( speed );
+
+			// Screen shake + wall sparks (directional)
+			const sign = ( bodyA === vehicle.rigidBody ) ? - 1 : 1;
+			cam.applyShake( wn[ 0 ] * sign, wn[ 2 ] * sign, speed );
+			wallSparks.emit( vehicle.spherePos, wn[ 0 ] * sign, wn[ 2 ] * sign, speed );
+			haptics.impulse( speed / 10 );
 
 		}
 	};
@@ -988,6 +1036,49 @@ async function init() {
 
 		playerManager.update( dt, spectating ? { x: 0, z: 0, touchActive: false } : input );
 
+		// ─── Boost activation feedback ───────────────────────────────────────
+		if ( ! spectating && vehicle ) {
+
+			const boostJustActivated = vehicle.boostActive && ! wasBoostActive;
+			const boostJustEnded = ! vehicle.boostActive && wasBoostActive;
+
+			if ( boostJustActivated ) {
+
+				if ( ! window.isMobile ) vehicle.underglowLight.visible = true;
+				vehicle.underglowLight.color.setHex( 0xff8800 );
+				audio.playBoostWhoosh();
+
+				const fwd = new THREE.Vector3( 0, 0, 1 ).applyQuaternion( vehicle.container.quaternion );
+				boostBurst.emit( vehicle.spherePos, fwd.x, fwd.z );
+
+			}
+
+			if ( boostJustEnded ) {
+
+				vehicle.underglowLight.visible = false;
+				vehicle.underglowLight.color.setHex( 0x00ffff );
+
+			}
+
+			wasBoostActive = vehicle.boostActive;
+
+			// Drift stage transition haptic pulse
+			if ( vehicle.driftStage !== prevDriftStage && vehicle.driftStage > prevDriftStage ) {
+
+				haptics.pulse();
+
+			}
+
+			prevDriftStage = vehicle.driftStage;
+
+		}
+
+		// ─── Juice updates ───────────────────────────────────────────────────
+		haptics.update( dt );
+		if ( ! spectating && vehicle ) haptics.setRumble( Math.abs( vehicle.linearSpeed ) );
+		wallSparks.update( dt );
+		boostBurst.update( dt );
+
 		raceMode.update( dt, vehicle, playerManager.getActiveVehicles() );
 
 		if ( raceMode.state === 'idle' ) {
@@ -1027,13 +1118,28 @@ async function init() {
 
 		if ( followVehicle ) {
 
-			dirLight.position.set(
-				followVehicle.spherePos.x + dirLightOffset.x,
-				dirLightOffset.y,
-				followVehicle.spherePos.z + dirLightOffset.z
-			);
+			const vehPos = followVehicle.spherePos;
+			const dsx = vehPos.x - lastShadowX;
+			const dsz = vehPos.z - lastShadowZ;
+			if ( dsx * dsx + dsz * dsz > 0.25 ) {
 
-			cam.update( dt, followVehicle.spherePos, followVehicle.container.quaternion );
+				dirLight.position.set(
+					vehPos.x + dirLightOffset.x,
+					dirLightOffset.y,
+					vehPos.z + dirLightOffset.z
+				);
+				dirLight.target.position.set( vehPos.x, 0, vehPos.z );
+				lastShadowX = vehPos.x;
+				lastShadowZ = vehPos.z;
+
+			}
+
+			cam.update( dt, followVehicle.spherePos, followVehicle.container.quaternion, {
+				inputX: followVehicle.inputX,
+				linearSpeed: followVehicle.linearSpeed,
+				boostActive: followVehicle.boostActive,
+				bodyLeanRoll: followVehicle.debug.bodyLeanRoll
+			} );
 
 		}
 

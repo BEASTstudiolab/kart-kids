@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { Vehicle } from './Vehicle.js';
 import { createVehicleBody, removeVehicleBody } from './Physics.js';
 import { SmokeTrails } from './Particles.js';
+import { DriftSparks } from './DriftSparks.js';
+import { BoostFlame } from './BoostFlame.js';
 
 const VEHICLE_MODEL_NAMES = [
 	'vehicle-truck-yellow',
@@ -23,6 +25,7 @@ export class PlayerManager {
 		this.localId = null;
 		this.localVehicle = null;
 		this.players = new Map(); // id → { vehicle, smokeTrails, spectating }
+		this._activeVehiclesCache = [];
 
 	}
 
@@ -33,7 +36,13 @@ export class PlayerManager {
 		const vehicle = this._createVehicle( 0, null, this.spawnPosition, this.spawnAngle );
 		this.localVehicle = vehicle;
 		this.localId = '_local';
-		this.players.set( this.localId, { vehicle, smokeTrails: new SmokeTrails( this.scene ), spectating: false } );
+		this.players.set( this.localId, {
+			vehicle,
+			smokeTrails: new SmokeTrails( this.scene ),
+			driftSparks: new DriftSparks( this.scene ),
+			boostFlame: new BoostFlame( this.scene ),
+			spectating: false,
+		} );
 
 	}
 
@@ -44,7 +53,13 @@ export class PlayerManager {
 		this.localId = welcomeData.id;
 		const vehicle = this._createVehicle( welcomeData.vehicleIndex, welcomeData.tint, this.spawnPosition, this.spawnAngle );
 		this.localVehicle = vehicle;
-		this.players.set( this.localId, { vehicle, smokeTrails: new SmokeTrails( this.scene ), spectating: false } );
+		this.players.set( this.localId, {
+			vehicle,
+			smokeTrails: new SmokeTrails( this.scene ),
+			driftSparks: new DriftSparks( this.scene ),
+			boostFlame: new BoostFlame( this.scene ),
+			spectating: false,
+		} );
 
 		// Add existing players
 		if ( welcomeData.existingPlayers ) {
@@ -84,6 +99,8 @@ export class PlayerManager {
 		this.players.set( joinData.id, {
 			vehicle,
 			smokeTrails: new SmokeTrails( this.scene ),
+			driftSparks: new DriftSparks( this.scene ),
+			boostFlame: new BoostFlame( this.scene ),
 			spectating: joinData.spectating || false,
 		} );
 
@@ -93,6 +110,9 @@ export class PlayerManager {
 
 		const entry = this.players.get( id );
 		if ( ! entry ) return;
+
+		entry.driftSparks.dispose();
+		entry.boostFlame.dispose();
 
 		this.scene.remove( entry.vehicle.container );
 
@@ -129,7 +149,7 @@ export class PlayerManager {
 
 				entry.vehicle.setTargetState(
 					pState.pos, pState.rot, pState.vel, pState.angVel,
-					pState.speed, pState.drift
+					pState.speed, pState.drift, pState.boost
 				);
 
 			}
@@ -196,6 +216,8 @@ export class PlayerManager {
 			}
 
 			entry.smokeTrails.update( dt, entry.vehicle );
+			entry.driftSparks.update( dt, entry.vehicle );
+			entry.boostFlame.update( dt, entry.vehicle );
 
 		}
 
@@ -230,14 +252,14 @@ export class PlayerManager {
 
 	getActiveVehicles() {
 
-		const result = [];
+		this._activeVehiclesCache.length = 0;
 		for ( const [ id, entry ] of this.players ) {
 
-			if ( ! entry.spectating ) result.push( { id, vehicle: entry.vehicle } );
+			if ( ! entry.spectating ) this._activeVehiclesCache.push( { id, vehicle: entry.vehicle } );
 
 		}
 
-		return result;
+		return this._activeVehiclesCache;
 
 	}
 

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-const POOL_SIZE = 64;
+const POOL_SIZE = 32;
 const _worldPos = new THREE.Vector3();
 
 export class SmokeTrails {
@@ -107,6 +107,11 @@ export class SmokeTrails {
 		p.sprite.position.copy( _worldPos );
 		p.sprite.visible = true;
 		p.sprite.material.opacity = 0;
+
+		// Smoke color by drift stage
+		const DRIFT_STAGE_COLORS = [ 0x888899, 0xbbaa77, 0xffaa33, 0xff4499 ];
+		const stage = vehicle.driftStage || 0;
+		p.sprite.material.color.setHex( DRIFT_STAGE_COLORS[ stage ] );
 
 		// Godot: scale_min = 0.25, scale_max = 0.5
 		p.initialScale = 0.25 + Math.random() * 0.25;
