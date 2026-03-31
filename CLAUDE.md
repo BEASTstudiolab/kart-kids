@@ -21,7 +21,7 @@ Port of the Kenney "Starter Kit Racing" Godot 4.6 project (in `_godot/`) to plai
 
 ## Key conventions
 
-- GridMap cell size: 9.99 units, scale: 0.75 (`CELL_RAW` and `GRID_SCALE` in `Track.js`)
+- GridMap cell size: 9.99 units, scale: 1.0 (`CELL_RAW` and `GRID_SCALE` in `Track.js`)
 - Track group has `position.y = -0.5` offset
 - Godot vehicle models use `root_scale = 0.5`
 - Wall colliders: friction 0.0, restitution 0.1

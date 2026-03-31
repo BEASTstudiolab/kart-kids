@@ -18,6 +18,8 @@ import { TrackIntel } from './TrackIntel.js';
 import { WallSparks } from './WallSparks.js';
 import { BoostBurst } from './BoostBurst.js';
 import { Haptics } from './Haptics.js';
+import { ItemBoxManager } from './ItemBoxManager.js';
+import { ItemPickupVFX } from './ItemPickupVFX.js';
 
 
 const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -393,6 +395,9 @@ async function init() {
 	raceMode.trackIntel = trackIntel;
 
 	const minimap = new Minimap( activeCells, bounds );
+
+	// ── Item boxes ───────────────────────────────────────────────────────────
+	const itemBoxManager = new ItemBoxManager( scene, trackIntel );
 
 	// ── Multiplayer race sync ────────────────────────────────────────────────
 
@@ -961,7 +966,16 @@ async function init() {
 	// ─── Juice particles (local player only) ─────────────────────────────────
 	const wallSparks = new WallSparks( scene );
 	const boostBurst = new BoostBurst( scene );
+	const itemPickupVFX = new ItemPickupVFX( scene );
 	const haptics = new Haptics();
+
+	// Wire item pickup feedback
+	itemBoxManager.onPickup = ( x, z, powerupType ) => {
+
+		itemPickupVFX.emit( x, z, powerupType );
+		audio.playItemPickup();
+
+	};
 
 	const contactListener = {
 		onContactAdded( bodyA, bodyB, manifold ) {
@@ -975,6 +989,19 @@ async function init() {
 
 			// Skip ground-like contacts (normal mostly vertical)
 			if ( Math.abs( wn[ 1 ] ) > 0.5 ) return;
+
+			// Star: ignore all wall impacts
+			if ( vehicle.starActive ) return;
+
+			// Shield: absorb one wall hit
+			if ( vehicle.shieldActive ) {
+
+				vehicle.shieldActive = false;
+				vehicle.shieldTimer = 0;
+				audio.playShieldBreak();
+				return;
+
+			}
 
 			// Velocity into the contact surface
 			const sv = vehicle.sphereVel;
@@ -992,7 +1019,7 @@ async function init() {
 			// Screen shake + wall sparks (directional)
 			const sign = ( bodyA === vehicle.rigidBody ) ? - 1 : 1;
 			cam.applyShake( wn[ 0 ] * sign, wn[ 2 ] * sign, speed );
-			wallSparks.emit( vehicle.spherePos, wn[ 0 ] * sign, wn[ 2 ] * sign, speed );
+			wallSparks.emit( vehicle.container.position, wn[ 0 ] * sign, wn[ 2 ] * sign, speed );
 			haptics.impulse( speed / 10 );
 
 		}
@@ -1036,6 +1063,9 @@ async function init() {
 
 		playerManager.update( dt, spectating ? { x: 0, z: 0, touchActive: false } : input );
 
+		// ─── Item box pickups ─────────────────────────────────────────────────
+		if ( ! spectating ) itemBoxManager.update( dt, vehicle );
+
 		// ─── Boost activation feedback ───────────────────────────────────────
 		if ( ! spectating && vehicle ) {
 
@@ -1049,7 +1079,7 @@ async function init() {
 				audio.playBoostWhoosh();
 
 				const fwd = new THREE.Vector3( 0, 0, 1 ).applyQuaternion( vehicle.container.quaternion );
-				boostBurst.emit( vehicle.spherePos, fwd.x, fwd.z );
+				boostBurst.emit( vehicle.container.position, fwd.x, fwd.z );
 
 			}
 
@@ -1078,6 +1108,7 @@ async function init() {
 		if ( ! spectating && vehicle ) haptics.setRumble( Math.abs( vehicle.linearSpeed ) );
 		wallSparks.update( dt );
 		boostBurst.update( dt );
+		itemPickupVFX.update( dt );
 
 		raceMode.update( dt, vehicle, playerManager.getActiveVehicles() );
 
@@ -1093,7 +1124,7 @@ async function init() {
 
 		}
 
-		hud.update( raceMode.getDisplayState(), raceLobby.getDisplayState() );
+		hud.update( dt, raceMode.getDisplayState(), raceLobby.getDisplayState() );
 		minimap.update( playerManager.getActiveVehicles(), raceMode.getDisplayState().state );
 
 		// Send local state to server (throttled internally at 20Hz)

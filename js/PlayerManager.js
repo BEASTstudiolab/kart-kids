@@ -4,6 +4,7 @@ import { createVehicleBody, removeVehicleBody } from './Physics.js';
 import { SmokeTrails } from './Particles.js';
 import { DriftSparks } from './DriftSparks.js';
 import { BoostFlame } from './BoostFlame.js';
+import { TireMarks } from './TireMarks.js';
 
 const VEHICLE_MODEL_NAMES = [
 	'vehicle-truck-yellow',
@@ -41,6 +42,7 @@ export class PlayerManager {
 			smokeTrails: new SmokeTrails( this.scene ),
 			driftSparks: new DriftSparks( this.scene ),
 			boostFlame: new BoostFlame( this.scene ),
+			tireMarks: new TireMarks( this.scene ),
 			spectating: false,
 		} );
 
@@ -58,6 +60,7 @@ export class PlayerManager {
 			smokeTrails: new SmokeTrails( this.scene ),
 			driftSparks: new DriftSparks( this.scene ),
 			boostFlame: new BoostFlame( this.scene ),
+			tireMarks: new TireMarks( this.scene ),
 			spectating: false,
 		} );
 
@@ -101,6 +104,7 @@ export class PlayerManager {
 			smokeTrails: new SmokeTrails( this.scene ),
 			driftSparks: new DriftSparks( this.scene ),
 			boostFlame: new BoostFlame( this.scene ),
+			tireMarks: new TireMarks( this.scene ),
 			spectating: joinData.spectating || false,
 		} );
 
@@ -113,6 +117,7 @@ export class PlayerManager {
 
 		entry.driftSparks.dispose();
 		entry.boostFlame.dispose();
+		entry.tireMarks.dispose();
 
 		this.scene.remove( entry.vehicle.container );
 
@@ -149,7 +154,8 @@ export class PlayerManager {
 
 				entry.vehicle.setTargetState(
 					pState.pos, pState.rot, pState.vel, pState.angVel,
-					pState.speed, pState.drift, pState.boost
+					pState.speed, pState.drift, pState.boost,
+					pState.shield, pState.star
 				);
 
 			}
@@ -192,6 +198,11 @@ export class PlayerManager {
 			entry.vehicle.groundHeight = sy;
 			entry.vehicle.linearSpeed = 0;
 			entry.vehicle.angularSpeed = 0;
+			entry.vehicle.shieldActive = false;
+			entry.vehicle.shieldTimer = 0;
+			entry.vehicle.starActive = false;
+			entry.vehicle.starTimer = 0;
+			entry.tireMarks.clear();
 
 		}
 
@@ -218,6 +229,7 @@ export class PlayerManager {
 			entry.smokeTrails.update( dt, entry.vehicle );
 			entry.driftSparks.update( dt, entry.vehicle );
 			entry.boostFlame.update( dt, entry.vehicle );
+			entry.tireMarks.update( dt, entry.vehicle );
 
 		}
 

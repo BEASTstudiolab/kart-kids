@@ -143,6 +143,12 @@ export class Vehicle {
 		this.miniBoostTopSpeed = 0;
 		this.effectiveTopSpeed = 250;
 
+		// Powerup state
+		this.shieldActive = false;
+		this.shieldTimer = 0;
+		this.starActive = false;
+		this.starTimer = 0;
+
 	}
 
 	init( model ) {
@@ -274,9 +280,8 @@ export class Vehicle {
 			_forward.copy( localOff ).applyQuaternion( this.container.quaternion );
 
 			origin[ 0 ] = this.spherePos.x + _forward.x;
-			// Cast from a fixed height above the sphere — spherePos.y is set by physics
-			// and is always above ground, so this is stable regardless of groundHeight
-			origin[ 1 ] = this.spherePos.y + 2.0;
+			// Cast from above the current ground height — adapts to elevation changes
+			origin[ 1 ] = Math.max( this.spherePos.y, this.groundHeight ) + 3.0;
 			origin[ 2 ] = this.spherePos.z + _forward.z;
 
 			// Reset collector fully for reuse
@@ -356,7 +361,7 @@ export class Vehicle {
 
 	}
 
-	setTargetState( pos, rot, vel, angVel, speed, drift, boostActive ) {
+	setTargetState( pos, rot, vel, angVel, speed, drift, boostActive, shield, star ) {
 
 		this._targetPos = pos;
 		this._targetQuat.set( rot[ 0 ], rot[ 1 ], rot[ 2 ], rot[ 3 ] );
@@ -365,6 +370,8 @@ export class Vehicle {
 		this._targetSpeed = speed;
 		this._targetDrift = drift;
 		this._targetBoostActive = boostActive;
+		this._targetShieldActive = shield;
+		this._targetStarActive = star;
 
 	}
 
@@ -380,6 +387,8 @@ export class Vehicle {
 			speed: this.linearSpeed,
 			drift: this.driftIntensity,
 			boost: this.boostActive,
+			shield: this.shieldActive,
+			star: this.starActive,
 		};
 
 	}
@@ -440,8 +449,10 @@ export class Vehicle {
 		else if ( this.driftIntensity >= ( this.debug.driftStageThreshold || 0.5 ) ) this.driftStage = 1;
 		else this.driftStage = 0;
 
-		// Sync remote boost state
+		// Sync remote boost and powerup state
 		this.boostActive = this._targetBoostActive || false;
+		this.shieldActive = this._targetShieldActive || false;
+		this.starActive = this._targetStarActive || false;
 
 		this.updateBody( dt );
 		this.updateWheels( dt );
@@ -491,6 +502,7 @@ export class Vehicle {
 			if ( targetSpeed < 0 && this.linearSpeed > 0.01 ) {
 
 				this.linearSpeed = THREE.MathUtils.lerp( this.linearSpeed, 0.0, dt * this.debug.brakeRate );
+				if ( this.linearSpeed < 0.001 ) this.linearSpeed = 0;
 
 			} else if ( targetSpeed < 0 ) {
 
@@ -554,6 +566,10 @@ export class Vehicle {
 			this.linearSpeed = 0;
 			this.angularSpeed = 0;
 			this.acceleration = 0;
+			this.shieldActive = false;
+			this.shieldTimer = 0;
+			this.starActive = false;
+			this.starTimer = 0;
 			this.container.rotation.set( 0, 0, 0 );
 			this.container.quaternion.identity();
 
@@ -630,6 +646,33 @@ export class Vehicle {
 
 		}
 
+		// ── Powerup timers ───────────────────────────────────────────────────
+		if ( this.shieldTimer > 0 ) {
+
+			this.shieldTimer -= dt;
+
+			if ( this.shieldTimer <= 0 ) {
+
+				this.shieldActive = false;
+				this.shieldTimer = 0;
+
+			}
+
+		}
+
+		if ( this.starTimer > 0 ) {
+
+			this.starTimer -= dt;
+
+			if ( this.starTimer <= 0 ) {
+
+				this.starActive = false;
+				this.starTimer = 0;
+
+			}
+
+		}
+
 		// ── Boost / nitro ────────────────────────────────────────────────────
 		if ( this.boostActive ) {
 
@@ -676,7 +719,8 @@ export class Vehicle {
 		this.effectiveTopSpeed = Math.max(
 			this.debug.topSpeed,
 			this.boostActive ? this.debug.boostTopSpeed : 0,
-			this.miniBoostTimer > 0 ? this.miniBoostTopSpeed : 0
+			this.miniBoostTimer > 0 ? this.miniBoostTopSpeed : 0,
+			this.starActive ? this.debug.boostTopSpeed : 0
 		);
 
 		// ── Drive force — apply velocity toward desired speed ─────────────────
@@ -696,7 +740,7 @@ export class Vehicle {
 			const newVelX = this.sphereVel.x + ( _forward.x * desiredSpeed - this.sphereVel.x ) * blendRate;
 			const newVelZ = this.sphereVel.z + ( _forward.z * desiredSpeed - this.sphereVel.z ) * blendRate;
 
-			rigidBody.setLinearVelocity( this.physicsWorld, this.rigidBody, [ newVelX, 0, newVelZ ] );
+			rigidBody.setLinearVelocity( this.physicsWorld, this.rigidBody, [ newVelX, this.sphereVel.y, newVelZ ] );
 			rigidBody.setAngularVelocity( this.physicsWorld, this.rigidBody, [ 0, 0, 0 ] );
 
 		}
