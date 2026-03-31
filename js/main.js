@@ -4,8 +4,10 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { createWorldSettings, createWorld, addBroadphaseLayer, addObjectLayer, enableCollision, registerAll, updateWorld, rigidBody, box, MotionType } from 'crashcat';
 import { Camera } from './Camera.js';
 import { Controls } from './Controls.js';
-import { buildTrack, decodeCells, computeSpawnPosition, computeTrackBounds, TRACK_CELLS } from './Track.js';
-import { buildWallColliders } from './Physics.js';
+import { buildTrack, decodeCells, computeSpawnPosition, computeTrackBounds, TRACK_CELLS, CELL_RAW, GRID_SCALE } from './Track.js';
+import { RaceLobby } from './RaceLobby.js';
+import { AFKDetector } from './AFKDetector.js';
+import { buildWallColliders, buildTrackColliders } from './Physics.js';
 import { GameAudio } from './Audio.js';
 import { NetworkClient } from './Network.js';
 import { PlayerManager } from './PlayerManager.js';
@@ -237,13 +239,15 @@ async function init() {
 	world._OL_STATIC = OL_STATIC;
 
 	buildWallColliders( world, null, customCells );
+	buildTrackColliders( world, models, customCells );
 
+	// Safety-net ground far below the track — catches the vehicle if it falls off-track
 	const roadHalf = groundSize / 2;
 	rigidBody.create( world, {
 		shape: box.create( { halfExtents: [ roadHalf, 0.01, roadHalf ] } ),
 		motionType: MotionType.STATIC,
 		objectLayer: OL_STATIC,
-		position: [ bounds.centerX, - 0.125, bounds.centerZ ],
+		position: [ bounds.centerX, - 5, bounds.centerZ ],
 		friction: 5.0,
 		restitution: 0.0,
 	} );
@@ -329,12 +333,38 @@ async function init() {
 	// Init finish line from spawn/finish cell position (use finishAngle, not spawn angle)
 	raceMode.initFinishLine( spawn.position, spawn.finishAngle );
 
-	const hud = new HUD( () => {
+	// ── Race lobby (zone-based start) ───────────────────────────────────────
+	const raceLobby = new RaceLobby( {
+		zoneCenter: [ spawn.position[ 0 ], spawn.position[ 2 ] ],
+		zoneHalfExtent: CELL_RAW * GRID_SCALE / 2,
+		dwellTime: 5,
+		onAllReady: () => {
 
-		raceMode.reset();
-		raceMode.start();
+			raceLobby.reset();
+			raceMode.start();
 
+		},
 	} );
+
+	// ── AFK detector ────────────────────────────────────────────────────────
+	const afkDetector = new AFKDetector( {
+		timeout: 60,
+		movementThreshold: 0.1,
+		onAFK: () => {
+
+			spectating = true;
+			if ( spectateBtn ) spectateBtn.textContent = 'Race';
+			if ( multiplayer ) network.sendSpectate( true );
+			playerManager.setSpectating( playerManager.localId, true );
+			cam.spectatorTarget = playerManager.getFirstActiveVehicle();
+
+		},
+	} );
+
+	const hud = new HUD(
+		() => { raceMode.reset(); raceLobby.reset(); },
+		() => raceLobby.setReady( playerManager.localId )
+	);
 
 	const trackIntel = new TrackIntel( activeCells );
 	raceMode.trackIntel = trackIntel;
@@ -342,8 +372,6 @@ async function init() {
 	const minimap = new Minimap( activeCells, bounds );
 
 	// ── Multiplayer race sync ────────────────────────────────────────────────
-	// Always start race locally — server will override with synced countdown if 2+ players
-	raceMode.start();
 
 	if ( multiplayer ) {
 
@@ -817,7 +845,7 @@ async function init() {
 
 		// Footer
 		const debugFooter = document.createElement( 'div' );
-		debugFooter.textContent = '─── Press Z to toggle ──────';
+		debugFooter.textContent = '─── Press Tab to toggle ──────';
 		debugFooter.style.cssText = 'margin-top:6px;opacity:0.5';
 		debugPanel.appendChild( debugFooter );
 
@@ -825,8 +853,9 @@ async function init() {
 		debugPanel.style.display = 'none';
 		window.addEventListener( 'keydown', ( e ) => {
 
-			if ( ( e.key === 'z' || e.key === 'Z' ) &&
-				! ( document.activeElement && debugPanel.contains( document.activeElement ) ) ) {
+			if ( e.key === 'Tab' ) {
+
+				e.preventDefault();
 
 				debugPanelVisible = ! debugPanelVisible;
 				debugPanel.style.display = debugPanelVisible ? 'block' : 'none';
@@ -851,20 +880,34 @@ async function init() {
 	const audio = new GameAudio();
 	audio.init( cam.camera );
 
-	const _forward = new THREE.Vector3();
+	let lastImpactTime = 0;
 
 	const contactListener = {
-		onContactAdded( bodyA, bodyB ) {
+		onContactAdded( bodyA, bodyB, manifold ) {
 
 			if ( ! vehicle.rigidBody ) return;
 			if ( bodyA !== vehicle.rigidBody && bodyB !== vehicle.rigidBody ) return;
 
-			_forward.set( 0, 0, 1 ).applyQuaternion( vehicle.container.quaternion );
-			_forward.y = 0;
-			_forward.normalize();
+			// Use contact normal to filter — skip ground-like contacts (normal mostly vertical)
+			if ( manifold && manifold.worldSpaceNormal ) {
 
-			const impactVelocity = Math.abs( vehicle.modelVelocity.dot( _forward ) );
-			audio.playImpact( impactVelocity );
+				const n = manifold.worldSpaceNormal;
+				if ( Math.abs( n[ 1 ] ) > 0.5 ) return;
+
+			}
+
+			// Velocity into the contact surface
+			const sv = vehicle.sphereVel;
+			const speed = Math.sqrt( sv.x * sv.x + sv.z * sv.z );
+
+			if ( speed < 1.5 ) return;
+
+			// Cooldown
+			const now = performance.now() / 1000;
+			if ( now - lastImpactTime < 0.3 ) return;
+			lastImpactTime = now;
+
+			audio.playImpact( speed );
 
 		}
 	};
@@ -908,7 +951,20 @@ async function init() {
 		playerManager.update( dt, spectating ? { x: 0, z: 0, touchActive: false } : input );
 
 		raceMode.update( dt, vehicle, playerManager.getActiveVehicles() );
-		hud.update( raceMode.getDisplayState() );
+
+		if ( raceMode.state === 'idle' ) {
+
+			raceLobby.update( dt, playerManager.players, playerManager.localId );
+
+		}
+
+		if ( ! spectating ) {
+
+			afkDetector.update( dt, vehicle );
+
+		}
+
+		hud.update( raceMode.getDisplayState(), raceLobby.getDisplayState() );
 		minimap.update( playerManager.getActiveVehicles(), raceMode.getDisplayState().state );
 
 		// Send local state to server (throttled internally at 20Hz)
@@ -969,6 +1025,7 @@ async function init() {
 			} else {
 
 				cam.spectatorTarget = null;
+				afkDetector.reset();
 
 			}
 

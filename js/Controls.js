@@ -152,7 +152,7 @@ export class Controls {
 		this.x = x;
 		this.z = z;
 
-		return { x, z, touchActive: this.touchActive, boost: !! this.keys[ 'Space' ] };
+		return { x, z, touchActive: this.touchActive, boost: !! this.keys[ 'ShiftLeft' ] || !! this.keys[ 'ShiftRight' ] };
 
 	}
 

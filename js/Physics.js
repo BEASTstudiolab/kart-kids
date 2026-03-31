@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { rigidBody, box, sphere, MotionType, MotionQuality } from 'crashcat';
+import { rigidBody, box, triangleMesh, MotionType, MotionQuality } from 'crashcat';
 import { TRACK_CELLS, CELL_RAW, ORIENT_DEG, GRID_SCALE } from './Track.js';
 
 const _debugMat = new THREE.MeshBasicMaterial( { color: 0x00ff00, wireframe: true } );
@@ -120,7 +120,90 @@ export function buildWallColliders( world, debugGroup, customCells ) {
 
 }
 
-export function removeSphereBody( world, body ) {
+const _vec3 = new THREE.Vector3();
+
+export function buildTrackColliders( world, models, customCells ) {
+
+	const cells = customCells || TRACK_CELLS;
+	const S = GRID_SCALE;
+
+	// trackGroup has position.y = -0.5, scale = S
+	const groupMatrix = new THREE.Matrix4()
+		.makeTranslation( 0, - 0.5, 0 )
+		.scale( new THREE.Vector3( S, S, S ) );
+
+	for ( const [ gx, gz, key, orient ] of cells ) {
+
+		const src = models[ key ];
+		if ( ! src ) continue;
+
+		const deg = ORIENT_DEG[ orient ] ?? 0;
+		const rad = deg * Math.PI / 180;
+
+		// Tile local transform (matches placePiece)
+		const tileMatrix = new THREE.Matrix4().compose(
+			new THREE.Vector3( ( gx + 0.5 ) * CELL_RAW, 0.5, ( gz + 0.5 ) * CELL_RAW ),
+			new THREE.Quaternion().setFromAxisAngle( new THREE.Vector3( 0, 1, 0 ), rad ),
+			new THREE.Vector3( 1, 1, 1 )
+		);
+
+		// Full transform: group * tile
+		const worldMatrix = new THREE.Matrix4().multiplyMatrices( groupMatrix, tileMatrix );
+
+		src.traverse( ( child ) => {
+
+			if ( ! child.isMesh ) return;
+
+			const geo = child.geometry;
+			const posAttr = geo.getAttribute( 'position' );
+			const index = geo.index;
+
+			// Build the mesh-to-world matrix (include any local transforms on the mesh node)
+			const meshWorld = new THREE.Matrix4().multiplyMatrices( worldMatrix, child.matrix );
+
+			// Extract transformed positions
+			const positions = new Float32Array( posAttr.count * 3 );
+
+			for ( let i = 0; i < posAttr.count; i ++ ) {
+
+				_vec3.fromBufferAttribute( posAttr, i );
+				_vec3.applyMatrix4( meshWorld );
+				positions[ i * 3 ] = _vec3.x;
+				positions[ i * 3 + 1 ] = _vec3.y;
+				positions[ i * 3 + 2 ] = _vec3.z;
+
+			}
+
+			// Build indices — use existing index buffer or generate sequential
+			let indices;
+
+			if ( index ) {
+
+				indices = new Uint32Array( index.count );
+				for ( let i = 0; i < index.count; i ++ ) indices[ i ] = index.array[ i ];
+
+			} else {
+
+				indices = new Uint32Array( posAttr.count );
+				for ( let i = 0; i < posAttr.count; i ++ ) indices[ i ] = i;
+
+			}
+
+			rigidBody.create( world, {
+				shape: triangleMesh.create( { positions, indices } ),
+				motionType: MotionType.STATIC,
+				objectLayer: world._OL_STATIC,
+				friction: 5.0,
+				restitution: 0.0,
+			} );
+
+		} );
+
+	}
+
+}
+
+export function removeVehicleBody( world, body ) {
 
 	// crashcat may not expose destroy — teleport out of play and zero velocity
 	rigidBody.setPosition( world, body, [ 0, - 1000, 0 ], false );
@@ -129,19 +212,21 @@ export function removeSphereBody( world, body ) {
 
 }
 
-export function createSphereBody( world, spawnPos ) {
+export function createVehicleBody( world, spawnPos ) {
 
+	// Box collider for wall/barrier collisions only — gravity is zero
+	// because ground contact is handled by raycasts in Vehicle.js
 	const body = rigidBody.create( world, {
-		shape: sphere.create( { radius: 0.5 } ),
+		shape: box.create( { halfExtents: [ 0.4, 0.3, 0.7 ] } ),
 		motionType: MotionType.DYNAMIC,
 		objectLayer: world._OL_MOVING,
-		position: spawnPos || [ 3.5, 0.5, 5 ],
-		mass: 1000.0,
-		friction: 5.0,
-		restitution: 0.1,
-		linearDamping: 0.1,
-		angularDamping: 4.0,
-		gravityFactor: 1.5,
+		position: spawnPos || [ 3.5, 0.8, 5 ],
+		mass: 800.0,
+		friction: 1.5,
+		restitution: 0.05,
+		linearDamping: 0.5,
+		angularDamping: 100.0,
+		gravityFactor: 0,
 		motionQuality: MotionQuality.LINEAR_CAST,
 	} );
 

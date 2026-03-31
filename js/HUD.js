@@ -1,8 +1,9 @@
 export class HUD {
 
-	constructor( onRestart ) {
+	constructor( onRestart, onReady ) {
 
 		this._onRestart = onRestart;
+		this._onReady = onReady;
 		this._currentState = 'idle';
 
 		// ── Countdown overlay (centered, large text) ─────────────────────────
@@ -85,9 +86,38 @@ export class HUD {
 		this._boostContainer.appendChild( this._boostFill );
 		document.body.appendChild( this._boostContainer );
 
+		// ── Lobby panel (top-center: status + ready button) ──────────────────
+		this._lobbyPanel = document.createElement( 'div' );
+		this._lobbyPanel.style.cssText = [
+			'position:fixed', 'top:16px', 'left:50%', 'transform:translateX(-50%)',
+			'background:rgba(0,0,0,0.65)', 'color:#fff', 'font:bold 18px/1.4 monospace',
+			'padding:12px 24px', 'border-radius:8px', 'z-index:1000',
+			'user-select:none', 'display:none', 'text-align:center', 'min-width:220px',
+		].join( ';' );
+
+		this._lobbyStatusLine = document.createElement( 'div' );
+		this._lobbyStatusLine.style.cssText = 'margin-bottom:8px';
+
+		this._readyBtn = document.createElement( 'button' );
+		this._readyBtn.textContent = 'READY';
+		this._readyBtn.style.cssText = [
+			'font:bold 18px monospace', 'padding:8px 28px',
+			'background:#4caf50', 'color:#fff', 'border:none', 'border-radius:6px',
+			'cursor:pointer', 'display:none',
+		].join( ';' );
+		this._readyBtn.addEventListener( 'click', () => {
+
+			if ( this._onReady ) this._onReady();
+
+		} );
+
+		this._lobbyPanel.appendChild( this._lobbyStatusLine );
+		this._lobbyPanel.appendChild( this._readyBtn );
+		document.body.appendChild( this._lobbyPanel );
+
 	}
 
-	update( displayState ) {
+	update( displayState, lobbyState ) {
 
 		this._currentState = displayState.state;
 
@@ -98,9 +128,11 @@ export class HUD {
 				this._raceHud.style.display = 'none';
 				this._resultsEl.style.display = 'none';
 				this._boostContainer.style.display = 'none';
+				this._updateLobby( lobbyState );
 				break;
 
 			case 'countdown':
+				this._lobbyPanel.style.display = 'none';
 				this._resultsEl.style.display = 'none';
 				this._raceHud.style.display = 'none';
 				this._boostContainer.style.display = 'none';
@@ -111,6 +143,7 @@ export class HUD {
 				break;
 
 			case 'racing':
+				this._lobbyPanel.style.display = 'none';
 				this._countdownEl.style.display = 'none';
 				this._resultsEl.style.display = 'none';
 				this._raceHud.style.display = 'block';
@@ -121,6 +154,7 @@ export class HUD {
 				break;
 
 			case 'finished':
+				this._lobbyPanel.style.display = 'none';
 				this._countdownEl.style.display = 'none';
 				this._raceHud.style.display = 'none';
 				this._boostContainer.style.display = 'none';
@@ -128,6 +162,46 @@ export class HUD {
 				this._resultsTotalLine.textContent = `Total: ${ this._formatTime( displayState.totalTime ) }`;
 				this._resultsBestLine.textContent = `Best Lap: ${ this._formatTime( displayState.bestLap ) }`;
 				break;
+
+		}
+
+	}
+
+	_updateLobby( lobbyState ) {
+
+		if ( ! lobbyState || ! lobbyState.inZone ) {
+
+			this._lobbyPanel.style.display = 'none';
+			return;
+
+		}
+
+		this._lobbyPanel.style.display = 'block';
+
+		if ( lobbyState.dwelling ) {
+
+			this._lobbyStatusLine.textContent = 'Entering lobby...';
+			this._readyBtn.style.display = 'none';
+
+		} else if ( lobbyState.dwellComplete ) {
+
+			this._lobbyStatusLine.textContent = `Players ready ${ lobbyState.readyCount }/${ lobbyState.zoneCount }`;
+
+			if ( lobbyState.isReady ) {
+
+				this._readyBtn.textContent = 'READY!';
+				this._readyBtn.style.background = '#888';
+				this._readyBtn.style.cursor = 'default';
+				this._readyBtn.style.display = 'block';
+
+			} else {
+
+				this._readyBtn.textContent = 'READY';
+				this._readyBtn.style.background = '#4caf50';
+				this._readyBtn.style.cursor = 'pointer';
+				this._readyBtn.style.display = 'block';
+
+			}
 
 		}
 

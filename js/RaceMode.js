@@ -151,7 +151,7 @@ export class RaceMode extends GameMode {
 
 	filterInput( input ) {
 
-		if ( this._state === STATE_RACING ) return input;
+		if ( this._state === STATE_RACING || this._state === STATE_IDLE ) return input;
 		return ZERO_INPUT;
 
 	}

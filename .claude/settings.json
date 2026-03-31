@@ -13,7 +13,8 @@
       "Bash(python -m pytest*)",
       "Bash(py -m pytest*)",
       "Bash(node -e \":*)",
-      "Bash(timeout 3 node server.js)"
+      "Bash(timeout 3 node server.js)",
+      "Bash(npx --yes @gltf-transform/cli inspect models/decoration-empty.glb)"
     ],
     "deny": [
       "Bash(rm -rf *)",

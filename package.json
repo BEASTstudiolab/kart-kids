@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "crashcat": "^0.0.3",
     "ws": "^8.0.0"
   },
   "scripts": {

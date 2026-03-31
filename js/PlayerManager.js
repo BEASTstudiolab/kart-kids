@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { Vehicle } from './Vehicle.js';
-import { createSphereBody, removeSphereBody } from './Physics.js';
+import { createVehicleBody, removeVehicleBody } from './Physics.js';
 import { SmokeTrails } from './Particles.js';
 
 const VEHICLE_MODEL_NAMES = [
@@ -98,7 +98,7 @@ export class PlayerManager {
 
 		if ( entry.vehicle.rigidBody ) {
 
-			removeSphereBody( this.world, entry.vehicle.rigidBody );
+			removeVehicleBody( this.world, entry.vehicle.rigidBody );
 
 		}
 
@@ -153,7 +153,7 @@ export class PlayerManager {
 
 			if ( entry.vehicle.rigidBody ) {
 
-				removeSphereBody( this.world, entry.vehicle.rigidBody );
+				removeVehicleBody( this.world, entry.vehicle.rigidBody );
 
 			}
 
@@ -163,11 +163,13 @@ export class PlayerManager {
 
 			// Restore physics body at spawn position
 			const pos = this.spawnPosition;
-			entry.vehicle.rigidBody = createSphereBody( this.world, pos );
+			entry.vehicle.rigidBody = createVehicleBody( this.world, pos );
 			entry.vehicle.physicsWorld = this.world;
+			entry.vehicle.initRaycast( this.world );
 
 			const [ sx, sy, sz ] = pos;
 			entry.vehicle.spherePos.set( sx, sy, sz );
+			entry.vehicle.groundHeight = sy;
 			entry.vehicle.linearSpeed = 0;
 			entry.vehicle.angularSpeed = 0;
 
@@ -244,7 +246,7 @@ export class PlayerManager {
 		const modelName = VEHICLE_MODEL_NAMES[ vehicleIndex % 4 ];
 		const model = this.models[ modelName ];
 
-		const sphereBody = createSphereBody( this.world, position );
+		const sphereBody = createVehicleBody( this.world, position );
 
 		const vehicle = new Vehicle();
 		vehicle.rigidBody = sphereBody;
@@ -253,10 +255,12 @@ export class PlayerManager {
 
 		const [ sx, sy, sz ] = position;
 		vehicle.spherePos.set( sx, sy, sz );
-		vehicle.prevModelPos.set( sx, 0, sz );
+		vehicle.groundHeight = sy;
+		vehicle.prevModelPos.set( sx, sy, sz );
 		vehicle.container.rotation.y = angle;
 
 		const group = vehicle.init( model );
+		vehicle.initRaycast( this.world );
 
 		// Apply tint to body mesh for players 5+
 		if ( tint ) {

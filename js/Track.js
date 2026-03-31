@@ -3,7 +3,7 @@ import * as THREE from 'three';
 export const ORIENT_DEG = { 0: 0, 10: 180, 16: 90, 22: 270 };
 
 export const CELL_RAW = 9.99;
-export const GRID_SCALE = 0.75;
+export const GRID_SCALE = 1.0; // was 0.75 — temporarily disabled for testing
 
 const _dummy = new THREE.Object3D();
 
@@ -109,11 +109,6 @@ const DECO_CELLS = [
 	[  2,  4, 'decoration-buildings-1', 0 ],
 ];
 
-const NPC_TRUCKS = [
-	[ 'vehicle-truck-green',  -3.51, -0.01,  12.70,  98.0 ],
-	[ 'vehicle-truck-purple', -23.78, -0.14, -13.56,   0.0 ],
-	[ 'vehicle-truck-red',    -1.36, -0.15, -23.80, 155.9 ],
-];
 
 export function buildTrack( scene, models, customCells ) {
 
@@ -125,10 +120,47 @@ export function buildTrack( scene, models, customCells ) {
 
 	const cells = customCells || TRACK_CELLS;
 
+	// Group track cells by tile type for instancing
+	const cellsByType = {};
+
 	for ( const [ gx, gz, key, orient ] of cells ) {
 
-		const piece = placePiece( models, key, gx, gz, orient );
-		if ( piece ) trackPieceGroup.add( piece );
+		if ( ! cellsByType[ key ] ) cellsByType[ key ] = [];
+		cellsByType[ key ].push( [ gx, gz, orient ] );
+
+	}
+
+	for ( const key in cellsByType ) {
+
+		const src = models[ key ];
+		if ( ! src ) continue;
+
+		const entries = cellsByType[ key ];
+		const count = entries.length;
+
+		src.traverse( ( child ) => {
+
+			if ( ! child.isMesh ) return;
+
+			const inst = new THREE.InstancedMesh( child.geometry, child.material, count );
+			inst.castShadow = true;
+			inst.receiveShadow = true;
+
+			for ( let i = 0; i < count; i ++ ) {
+
+				const [ gx, gz, orient ] = entries[ i ];
+				const deg = ORIENT_DEG[ orient ] ?? 0;
+
+				_dummy.position.set( ( gx + 0.5 ) * CELL_RAW, 0.5, ( gz + 0.5 ) * CELL_RAW );
+				_dummy.rotation.set( 0, THREE.MathUtils.degToRad( deg ), 0 );
+				_dummy.updateMatrix();
+				inst.setMatrixAt( i, _dummy.matrix );
+
+			}
+
+			trackPieceGroup.add( inst );
+
+		} );
 
 	}
 
@@ -252,6 +284,7 @@ export function buildTrack( scene, models, customCells ) {
 				for ( let i = 0; i < count; i ++ ) {
 
 					_dummy.position.set( positions[ i * 2 ], 0.5, positions[ i * 2 + 1 ] );
+					_dummy.rotation.set( 0, 0, 0 );
 					_dummy.updateMatrix();
 					inst.setMatrixAt( i, _dummy.matrix );
 
@@ -302,7 +335,7 @@ export function buildTrack( scene, models, customCells ) {
 	trackGroup.add( trackPieceGroup );
 	trackGroup.add( decoGroup );
 
-	trackGroup.scale.setScalar( 0.75 );
+	trackGroup.scale.setScalar( 1.0 ); // was 0.75 — temporarily disabled for testing
 	scene.add( trackGroup );
 
 	trackGroup.updateMatrixWorld( true );
@@ -318,31 +351,6 @@ export function buildTrack( scene, models, customCells ) {
 
 	} );
 
-	if ( ! customCells ) {
-
-		for ( const [ key, x, y, z, rotDeg ] of NPC_TRUCKS ) {
-
-			const src = models[ key ];
-			if ( ! src ) continue;
-
-			const npc = src.clone();
-			npc.position.set( x, y, z );
-			npc.rotation.y = THREE.MathUtils.degToRad( rotDeg + 180 );
-			npc.traverse( ( c ) => {
-
-				if ( c.isMesh ) {
-
-					c.castShadow = true;
-					c.receiveShadow = true;
-
-				}
-
-			} );
-			scene.add( npc );
-
-		}
-
-	}
 
 }
 

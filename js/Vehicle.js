@@ -1,9 +1,8 @@
 import * as THREE from 'three';
-import { rigidBody } from 'crashcat';
+import { rigidBody, castRay, createClosestCastRayCollector, createDefaultCastRaySettings, CastRayStatus, filter } from 'crashcat';
 
 const _tmpVec = new THREE.Vector3();
 const _forward = new THREE.Vector3();
-const _right = new THREE.Vector3();
 const _zAxis = new THREE.Vector3();
 const _newZ = new THREE.Vector3();
 const _mat4 = new THREE.Matrix4();
@@ -81,6 +80,25 @@ export class Vehicle {
 			topSpeed: 150,
 		};
 		this.wheelOrigY = [];
+
+		// Raycast ground detection
+		this.groundHeight = 0;
+		this.groundNormal = new THREE.Vector3( 0, 1, 0 );
+		this._targetNormal = new THREE.Vector3( 0, 1, 0 );
+		this._prevGroundHeight = 0;
+		this._rayCollector = null;
+		this._raySettings = null;
+		this._rayFilter = null;
+		this._grounded = false;
+
+		// Wheel ray offsets in local space (read from model in init, fallback defaults)
+		this._wheelOffsets = [
+			new THREE.Vector3( - 0.35, 0, 0.55 ),  // FL
+			new THREE.Vector3( 0.35, 0, 0.55 ),     // FR
+			new THREE.Vector3( - 0.35, 0, - 0.55 ), // BL
+			new THREE.Vector3( 0.35, 0, - 0.55 ),   // BR
+		];
+		this._wheelGroundHeights = [ 0, 0, 0, 0 ];
 
 		// Boost / nitro state
 		this.boostMeter = 0;
@@ -173,6 +191,134 @@ export class Vehicle {
 		}
 
 		return this.container;
+
+	}
+
+	initRaycast( world ) {
+
+		this._rayCollector = createClosestCastRayCollector();
+		this._raySettings = createDefaultCastRaySettings();
+
+		// Only ray against static bodies (track surface, walls, ground plane)
+		// Exclude OL_MOVING so the ray doesn't hit the vehicle's own sphere
+		this._rayFilter = filter.forWorld( world );
+		filter.disableObjectLayer( this._rayFilter, world.settings.layers, world._OL_MOVING );
+
+		this._prevGroundHeight = this.groundHeight;
+
+		// Read actual wheel X/Z offsets from model nodes if available
+		const wheelNodes = [ this.wheelFL, this.wheelFR, this.wheelBL, this.wheelBR ];
+
+		for ( let i = 0; i < 4; i ++ ) {
+
+			if ( wheelNodes[ i ] ) {
+
+				this._wheelOffsets[ i ].x = wheelNodes[ i ].position.x;
+				this._wheelOffsets[ i ].z = wheelNodes[ i ].position.z;
+
+			}
+
+		}
+
+	}
+
+	raycastGround( dt ) {
+
+		if ( ! this._rayCollector || ! this.physicsWorld ) return;
+
+		const RAY_LENGTH = 5.0;
+		const origin = [ 0, 0, 0 ];
+		const direction = [ 0, - 1, 0 ];
+
+		let totalHeight = 0;
+		let hitCount = 0;
+
+		for ( let i = 0; i < 4; i ++ ) {
+
+			// Transform wheel offset to world space
+			const localOff = this._wheelOffsets[ i ];
+			_forward.copy( localOff ).applyQuaternion( this.container.quaternion );
+
+			origin[ 0 ] = this.spherePos.x + _forward.x;
+			// Cast from a fixed height above the sphere — spherePos.y is set by physics
+			// and is always above ground, so this is stable regardless of groundHeight
+			origin[ 1 ] = this.spherePos.y + 2.0;
+			origin[ 2 ] = this.spherePos.z + _forward.z;
+
+			// Reset collector fully for reuse
+			this._rayCollector.hit.status = CastRayStatus.NOT_COLLIDING;
+			this._rayCollector.hit.fraction = 1;
+			this._rayCollector.earlyOutFraction = 1;
+
+			castRay( this.physicsWorld, this._rayCollector, this._raySettings, origin, direction, RAY_LENGTH, this._rayFilter );
+
+			if ( this._rayCollector.hit.status === CastRayStatus.COLLIDING ) {
+
+				const hitDist = this._rayCollector.hit.fraction * RAY_LENGTH;
+				const hitY = origin[ 1 ] - hitDist;
+
+				this._wheelGroundHeights[ i ] = hitY;
+				totalHeight += hitY;
+				hitCount ++;
+
+			} else {
+
+				// No ground hit — use previous height
+				this._wheelGroundHeights[ i ] = this.groundHeight;
+
+			}
+
+		}
+
+		if ( hitCount > 0 ) {
+
+			this._grounded = true;
+			this._missedFrames = 0;
+
+			const targetHeight = totalHeight / hitCount;
+
+			// Simple lerp — stable, no oscillation
+			this.groundHeight = THREE.MathUtils.lerp( this.groundHeight, targetHeight, 1 - Math.exp( - 15 * dt ) );
+
+			// Compute surface normal from wheel contact points
+			const fl = this._wheelGroundHeights[ 0 ];
+			const fr = this._wheelGroundHeights[ 1 ];
+			const bl = this._wheelGroundHeights[ 2 ];
+			const br = this._wheelGroundHeights[ 3 ];
+
+			const frontAvg = ( fl + fr ) / 2;
+			const backAvg = ( bl + br ) / 2;
+			const wheelbase = Math.abs( this._wheelOffsets[ 0 ].z - this._wheelOffsets[ 2 ].z ) || 1;
+
+			const leftAvg = ( fl + bl ) / 2;
+			const rightAvg = ( fr + br ) / 2;
+			const track = Math.abs( this._wheelOffsets[ 0 ].x - this._wheelOffsets[ 1 ].x ) || 1;
+
+			const slopeForward = ( frontAvg - backAvg ) / wheelbase;
+			const slopeLateral = ( rightAvg - leftAvg ) / track;
+
+			this._targetNormal.set( - slopeLateral, 1, - slopeForward ).normalize();
+
+		} else {
+
+			// Hold ground height for a few frames before entering airborne
+			// This prevents single-frame ray misses from causing stuttering
+			this._missedFrames = ( this._missedFrames || 0 ) + 1;
+
+			if ( this._missedFrames > 5 ) {
+
+				this._grounded = false;
+				this._targetNormal.set( 0, 1, 0 );
+				this.groundHeight -= 5.0 * dt;
+
+			}
+			// Otherwise keep _grounded true and hold last groundHeight
+
+		}
+
+		// Smooth normal blending
+		this.groundNormal.lerp( this._targetNormal, 1 - Math.exp( - 8 * dt ) );
+		this.groundNormal.normalize();
 
 	}
 
@@ -312,41 +458,47 @@ export class Vehicle {
 
 		}
 
-		_tmpVec.set( 0, 1, 0 ).applyQuaternion( this.container.quaternion );
-
-		if ( _tmpVec.y > 0.5 ) {
-
-			const targetQuat = this.alignWithY( this.container.quaternion, _up );
-			this.container.quaternion.slerp( targetQuat, 0.2 );
-
-		}
-
 		this.linearSpeed *= Math.max( 0, 1 - LINEAR_DAMP * dt );
+
+		// Raycast ground detection
+		this.raycastGround( dt );
+
+		// Align vehicle orientation to surface normal
+		const targetQuat = this.alignWithY( this.container.quaternion, this.groundNormal );
+		this.container.quaternion.slerp( targetQuat, 1 - Math.exp( - 8 * dt ) );
 
 		if ( this.rigidBody ) {
 
-			_forward.set( 0, 0, 1 ).applyQuaternion( this.container.quaternion );
-			_forward.y = 0;
-			_forward.normalize();
-
-			_right.set( 1, 0, 0 ).applyQuaternion( this.container.quaternion );
-			_right.y = 0;
-			_right.normalize();
-
-			const angvel = this.rigidBody.motionProperties.angularVelocity;
-			const drive = this.linearSpeed * this.debug.topSpeed * dt;
-
-			rigidBody.setAngularVelocity( this.physicsWorld, this.rigidBody, [
-				angvel[ 0 ] + _right.x * drive,
-				angvel[ 1 ],
-				angvel[ 2 ] + _right.z * drive
-			] );
-
+			// Read position after last physics step (walls may have pushed it)
 			const pos = this.rigidBody.position;
 			this.spherePos.set( pos[ 0 ], pos[ 1 ], pos[ 2 ] );
 
 			const vel = this.rigidBody.motionProperties.linearVelocity;
 			this.sphereVel.set( vel[ 0 ], vel[ 1 ], vel[ 2 ] );
+
+			// Compute desired forward velocity
+			_forward.set( 0, 0, 1 ).applyQuaternion( this.container.quaternion );
+			_forward.y = 0;
+			_forward.normalize();
+
+			// topSpeed (150) was an angular accumulation rate in the old system;
+			// divide by SPEED_SCALE to get a sensible linear velocity (~12 units/sec max)
+			const desiredSpeed = this.linearSpeed * this.debug.topSpeed / SPEED_SCALE;
+
+			// Blend desired velocity with physics velocity to preserve wall collision response
+			const blendRate = 1 - Math.exp( - 5 * dt );
+			const newVelX = vel[ 0 ] + ( _forward.x * desiredSpeed - vel[ 0 ] ) * blendRate;
+			const newVelZ = vel[ 2 ] + ( _forward.z * desiredSpeed - vel[ 2 ] ) * blendRate;
+
+			rigidBody.setLinearVelocity( this.physicsWorld, this.rigidBody, [ newVelX, 0, newVelZ ] );
+			rigidBody.setAngularVelocity( this.physicsWorld, this.rigidBody, [ 0, 0, 0 ] );
+
+			// Keep collider tracking vehicle — Y above ground, rotation matching heading
+			rigidBody.setPosition( this.physicsWorld, this.rigidBody,
+				[ this.spherePos.x, this.groundHeight + 0.5, this.spherePos.z ], false );
+			const q = this.container.quaternion;
+			rigidBody.setQuaternion( this.physicsWorld, this.rigidBody,
+				[ q.x, q.y, q.z, q.w ], false );
 
 		}
 
@@ -356,7 +508,7 @@ export class Vehicle {
 			dt
 		);
 
-		if ( this.spherePos.y < - 10 ) {
+		if ( this.groundHeight < - 10 ) {
 
 			if ( this.rigidBody ) {
 
@@ -368,6 +520,8 @@ export class Vehicle {
 
 			this.spherePos.set( 3.5, 0.5, 5 );
 			this.sphereVel.set( 0, 0, 0 );
+			this.groundHeight = 0.5;
+			this._groundVelocity = 0;
 			this.linearSpeed = 0;
 			this.angularSpeed = 0;
 			this.acceleration = 0;
@@ -378,7 +532,7 @@ export class Vehicle {
 
 		this.container.position.set(
 			this.spherePos.x,
-			this.spherePos.y + this.debug.underbodyOffset,
+			this.groundHeight,
 			this.spherePos.z
 		);
 

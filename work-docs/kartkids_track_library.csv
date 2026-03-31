@@ -1,0 +1,53 @@
+seq,filename,group,display_name,phase,footprint,elevation_profile,lr_variant,edge_variants,notes,priority
+000,kartkids_base_trk_000_master_spec,spec,Master Spec,Phase 1 - Foundation,n/a,n/a,n/a,none,"Defines grid, road width, snap rules, pivots, forward axis, elevation steps, collision, and poly budget rules.",P0
+010,kartkids_base_trk_010_rd_straight_1x1,rd,Straight Road,Phase 1 - Foundation,1x1,flat_z0,n/a,opendrop|guardrail|wall|shoulder,"Base reference tile for width, lane surface, UVs, and collision.",P1
+020,kartkids_base_trk_020_trn_90_l_1x1,trn,90 Turn Left,Phase 1 - Foundation,1x1,flat_z0,left,opendrop|guardrail|wall|shoulder,Standard quarter-turn tile.,P1
+030,kartkids_base_trk_030_trn_90_r_1x1,trn,90 Turn Right,Phase 1 - Foundation,1x1,flat_z0,right,opendrop|guardrail|wall|shoulder,Standard quarter-turn tile.,P1
+040,kartkids_base_trk_040_trn_180_l_2x2,trn,180 Turn Left,Phase 1 - Foundation,2x2,flat_z0,left,opendrop|guardrail|wall|shoulder,Hairpin / turnaround tile.,P1
+050,kartkids_base_trk_050_trn_180_r_2x2,trn,180 Turn Right,Phase 1 - Foundation,2x2,flat_z0,right,opendrop|guardrail|wall|shoulder,Hairpin / turnaround tile.,P1
+060,kartkids_base_trk_060_trn_slight_l_1x1,trn,Slight Turn Left,Phase 1 - Foundation,1x1,flat_z0,left,opendrop|guardrail|wall|shoulder,Gentle directional bend.,P1
+070,kartkids_base_trk_070_trn_slight_r_1x1,trn,Slight Turn Right,Phase 1 - Foundation,1x1,flat_z0,right,opendrop|guardrail|wall|shoulder,Gentle directional bend.,P1
+080,kartkids_base_trk_080_trn_wide_l_2x2,trn,Wide Turn Left,Phase 1 - Foundation,2x2,flat_z0,left,opendrop|guardrail|wall|shoulder,Wide sweep turn using 2x2 footprint.,P1
+090,kartkids_base_trk_090_trn_wide_r_2x2,trn,Wide Turn Right,Phase 1 - Foundation,2x2,flat_z0,right,opendrop|guardrail|wall|shoulder,Wide sweep turn using 2x2 footprint.,P1
+100,kartkids_base_trk_100_trn_widest_l_3x3,trn,Widest Turn Left,Phase 1 - Foundation,3x3,flat_z0,left,opendrop|guardrail|wall|shoulder,Largest sweep turn using 3x3 footprint.,P1
+110,kartkids_base_trk_110_trn_widest_r_3x3,trn,Widest Turn Right,Phase 1 - Foundation,3x3,flat_z0,right,opendrop|guardrail|wall|shoulder,Largest sweep turn using 3x3 footprint.,P1
+120,kartkids_base_trk_120_chn_scurve_l_2x1,chn,S-Curve Left,Phase 1 - Foundation,2x1,flat_z0,left,opendrop|guardrail|wall|shoulder,Chicane / S-bend transition favoring left exit.,P1
+130,kartkids_base_trk_130_chn_scurve_r_2x1,chn,S-Curve Right,Phase 1 - Foundation,2x1,flat_z0,right,opendrop|guardrail|wall|shoulder,Chicane / S-bend transition favoring right exit.,P1
+140,kartkids_base_trk_140_jct_ysplit_3x3,jct,Y Split,Phase 3 - Layout Complexity,3x3,flat_z0,n/a,opendrop|guardrail|wall|shoulder,Fork / split road tile.,P3
+150,kartkids_base_trk_150_jct_tjunction_3x3,jct,T-Junction,Phase 3 - Layout Complexity,3x3,flat_z0,n/a,opendrop|guardrail|wall|shoulder,Three-way city-style junction.,P3
+160,kartkids_base_trk_160_jct_4way_3x3,jct,4-Way Intersection,Phase 3 - Layout Complexity,3x3,flat_z0,n/a,opendrop|guardrail|wall|shoulder,Four-way arena / city intersection.,P3
+170,kartkids_base_trk_170_elv_flat_1x1_z2p5,elv,Flat Elevated Road +2.5m,Phase 2 - Elevation,1x1,flat_z2p5,n/a,opendrop|guardrail|wall|shoulder,Flat hold section at +2.5m elevation.,P2
+180,kartkids_base_trk_180_elv_flat_1x1_z5,elv,Flat Elevated Road +5m,Phase 2 - Elevation,1x1,flat_z5,n/a,opendrop|guardrail|wall|shoulder,Flat hold section at +5m elevation.,P2
+190,kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5,rmp,Up Ramp 1,Phase 2 - Elevation,1x1,z0_to_z2p5,n/a,opendrop|guardrail|wall|shoulder,Main ascent ramp to +2.5m.,P2
+200,kartkids_base_trk_200_rmp_up_1x1_z0_to_z5,rmp,Up Ramp 2,Phase 2 - Elevation,1x1,z0_to_z5,n/a,opendrop|guardrail|wall|shoulder,Main ascent ramp to +5m.,P2
+210,kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0,rmp,Down Ramp 1,Phase 2 - Elevation,1x1,z2p5_to_z0,n/a,opendrop|guardrail|wall|shoulder,Main descent ramp from +2.5m.,P2
+220,kartkids_base_trk_220_rmp_down_1x1_z5_to_z0,rmp,Down Ramp 2,Phase 2 - Elevation,1x1,z5_to_z0,n/a,opendrop|guardrail|wall|shoulder,Main descent ramp from +5m.,P2
+230,kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5,rmp,Transition Flat to Up +2.5m,Phase 2 - Elevation,1x1,transition_z2p5,n/a,opendrop|guardrail|wall|shoulder,Lead-in crest easing flat road into uphill climb toward +2.5m.,P2
+240,kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5,rmp,Transition Up to Flat +2.5m,Phase 2 - Elevation,1x1,transition_z2p5,n/a,opendrop|guardrail|wall|shoulder,Top-out crest easing +2.5m climb into flat elevated road.,P2
+250,kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5,rmp,Transition Flat to Down +2.5m,Phase 2 - Elevation,1x1,transition_z2p5,n/a,opendrop|guardrail|wall|shoulder,Lead-in crest easing flat road into downhill section from +2.5m system.,P2
+260,kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5,rmp,Transition Down to Flat +2.5m,Phase 2 - Elevation,1x1,transition_z2p5,n/a,opendrop|guardrail|wall|shoulder,Bottom-out crest easing downhill back into flat road.,P2
+270,kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5,rmp,Transition Flat to Up +5m,Phase 2 - Elevation,1x1,transition_z5,n/a,opendrop|guardrail|wall|shoulder,Lead-in crest easing flat road into uphill climb toward +5m.,P2
+280,kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5,rmp,Transition Up to Flat +5m,Phase 2 - Elevation,1x1,transition_z5,n/a,opendrop|guardrail|wall|shoulder,Top-out crest easing +5m climb into flat elevated road.,P2
+290,kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5,rmp,Transition Flat to Down +5m,Phase 2 - Elevation,1x1,transition_z5,n/a,opendrop|guardrail|wall|shoulder,Lead-in crest easing flat road into downhill section from +5m system.,P2
+300,kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5,rmp,Transition Down to Flat +5m,Phase 2 - Elevation,1x1,transition_z5,n/a,opendrop|guardrail|wall|shoulder,Bottom-out crest easing downhill back into flat road.,P2
+310,kartkids_base_trk_310_rmp_curved_slight_l_up_1x1_z0_to_z2p5,rmp,Curved Slight Up Left +2.5m,Phase 2 - Elevation,1x1,z0_to_z2p5,left,opendrop|guardrail|wall|shoulder,Slight left climbing ramp to +2.5m.,P2
+320,kartkids_base_trk_320_rmp_curved_slight_r_up_1x1_z0_to_z2p5,rmp,Curved Slight Up Right +2.5m,Phase 2 - Elevation,1x1,z0_to_z2p5,right,opendrop|guardrail|wall|shoulder,Slight right climbing ramp to +2.5m.,P2
+330,kartkids_base_trk_330_rmp_curved_slight_l_down_1x1_z2p5_to_z0,rmp,Curved Slight Down Left +2.5m,Phase 2 - Elevation,1x1,z2p5_to_z0,left,opendrop|guardrail|wall|shoulder,Slight left descending ramp from +2.5m.,P2
+340,kartkids_base_trk_340_rmp_curved_slight_r_down_1x1_z2p5_to_z0,rmp,Curved Slight Down Right +2.5m,Phase 2 - Elevation,1x1,z2p5_to_z0,right,opendrop|guardrail|wall|shoulder,Slight right descending ramp from +2.5m.,P2
+350,kartkids_base_trk_350_rmp_curved_slight_l_up_1x1_z0_to_z5,rmp,Curved Slight Up Left +5m,Phase 2 - Elevation,1x1,z0_to_z5,left,opendrop|guardrail|wall|shoulder,Slight left climbing ramp to +5m.,P2
+360,kartkids_base_trk_360_rmp_curved_slight_r_up_1x1_z0_to_z5,rmp,Curved Slight Up Right +5m,Phase 2 - Elevation,1x1,z0_to_z5,right,opendrop|guardrail|wall|shoulder,Slight right climbing ramp to +5m.,P2
+370,kartkids_base_trk_370_rmp_curved_slight_l_down_1x1_z5_to_z0,rmp,Curved Slight Down Left +5m,Phase 2 - Elevation,1x1,z5_to_z0,left,opendrop|guardrail|wall|shoulder,Slight left descending ramp from +5m.,P2
+380,kartkids_base_trk_380_rmp_curved_slight_r_down_1x1_z5_to_z0,rmp,Curved Slight Down Right +5m,Phase 2 - Elevation,1x1,z5_to_z0,right,opendrop|guardrail|wall|shoulder,Slight right descending ramp from +5m.,P2
+390,kartkids_base_trk_390_brg_entry_1x1,brg,Bridge Entry,Phase 4 - Structures,1x1,flat_z0,n/a,opendrop|guardrail|wall|shoulder,Entry segment for modular bridge kit.,P4
+400,kartkids_base_trk_400_brg_mid_1x1,brg,Bridge Mid,Phase 4 - Structures,1x1,flat_z0,n/a,opendrop|guardrail|wall|shoulder,Repeatable middle segment for bridge length.,P4
+410,kartkids_base_trk_410_brg_exit_1x1,brg,Bridge Exit,Phase 4 - Structures,1x1,flat_z0,n/a,opendrop|guardrail|wall|shoulder,Exit segment for modular bridge kit.,P4
+420,kartkids_base_trk_420_tun_closed_entry_1x1,tun,Closed Tunnel Entry,Phase 4 - Structures,1x1,flat_z0,n/a,none,Entry segment for fully enclosed tunnel.,P4
+430,kartkids_base_trk_430_tun_closed_mid_1x1,tun,Closed Tunnel Mid,Phase 4 - Structures,1x1,flat_z0,n/a,none,Repeatable middle segment for enclosed tunnel length.,P4
+440,kartkids_base_trk_440_tun_closed_exit_1x1,tun,Closed Tunnel Exit,Phase 4 - Structures,1x1,flat_z0,n/a,none,Exit segment for fully enclosed tunnel.,P4
+450,kartkids_base_trk_450_tun_openframe_entry_1x1,tun,Open-Frame Tunnel Entry,Phase 4 - Structures,1x1,flat_z0,n/a,none,Entry segment for framed tunnel with open sides.,P4
+460,kartkids_base_trk_460_tun_openframe_mid_1x1,tun,Open-Frame Tunnel Mid,Phase 4 - Structures,1x1,flat_z0,n/a,none,Repeatable middle segment for framed tunnel length.,P4
+470,kartkids_base_trk_470_tun_openframe_exit_1x1,tun,Open-Frame Tunnel Exit,Phase 4 - Structures,1x1,flat_z0,n/a,none,Exit segment for framed tunnel with open sides.,P4
+480,kartkids_base_trk_480_jmp_01_short_25pct_1x1,jmp,Jump 01 Short 25%,Phase 5 - Gameplay,1x1,flat_z0,n/a,opendrop|guardrail|wall|shoulder,Ramp face occupies about 25% of the tile.,P5
+490,kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1,jmp,Jump 02 Mid 50% Railed,Phase 5 - Gameplay,1x1,flat_z0,n/a,opendrop|guardrail|wall|shoulder,Ramp occupies about 50% of the tile with railings on ground below in front of ramp.,P5
+500,kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1,jmp,Jump 03 Long Midstart to Edge,Phase 5 - Gameplay,1x1,flat_z0,n/a,opendrop|guardrail|wall|shoulder,Ramp starts around tile midpoint and runs to tile end.,P5
+510,kartkids_base_trk_510_srt_startfinish_arch_3x1,srt,Start Finish Arch,Phase 5 - Gameplay,3x1,flat_z0,n/a,opendrop|guardrail|wall|shoulder,Start / finish tile with archway and checkered flags.,P5

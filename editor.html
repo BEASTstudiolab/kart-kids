@@ -73,6 +73,12 @@
 			color: rgba(255, 140, 140, 0.9);
 		}
 
+		#toolbar button:disabled {
+			opacity: 0.3;
+			cursor: default;
+			pointer-events: none;
+		}
+
 		#toast {
 			position: absolute;
 			bottom: 90px;
@@ -93,6 +99,170 @@
 		}
 		#toast.show { opacity: 1; }
 
+		/* ─── Minimap ──────────────────────────────────────────── */
+
+		#minimap {
+			position: absolute;
+			bottom: 80px;
+			right: 16px;
+			width: 180px;
+			height: 180px;
+			background: rgba(20, 20, 30, 0.75);
+			backdrop-filter: blur(8px);
+			-webkit-backdrop-filter: blur(8px);
+			border-radius: 10px;
+			border: 1px solid rgba(255, 255, 255, 0.1);
+			overflow: hidden;
+			z-index: 10;
+		}
+		#minimap canvas { width: 100%; height: 100%; }
+
+		/* ─── Stats panel ──────────────────────────────────────── */
+
+		#stats-panel {
+			position: absolute;
+			top: 16px;
+			right: 16px;
+			padding: 12px 16px;
+			background: rgba(20, 20, 30, 0.75);
+			backdrop-filter: blur(8px);
+			-webkit-backdrop-filter: blur(8px);
+			border-radius: 10px;
+			border: 1px solid rgba(255, 255, 255, 0.1);
+			color: rgba(255, 255, 255, 0.8);
+			font-size: 12px;
+			line-height: 1.7;
+			z-index: 10;
+			pointer-events: none;
+		}
+		#stats-panel .label { color: rgba(255, 255, 255, 0.45); }
+		#stats-panel .warn { color: rgba(255, 180, 80, 0.9); }
+		#stats-panel .ok { color: rgba(140, 255, 140, 0.9); }
+
+		/* ─── Modal overlay ────────────────────────────────────── */
+
+		.modal-overlay {
+			position: fixed;
+			inset: 0;
+			background: rgba(0, 0, 0, 0.6);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			z-index: 100;
+		}
+		.modal-overlay.hidden { display: none; }
+
+		.modal {
+			background: rgba(30, 30, 45, 0.95);
+			backdrop-filter: blur(16px);
+			-webkit-backdrop-filter: blur(16px);
+			border-radius: 14px;
+			border: 1px solid rgba(255, 255, 255, 0.12);
+			box-shadow: 0 16px 64px rgba(0, 0, 0, 0.5);
+			color: #fff;
+			padding: 24px;
+			min-width: 320px;
+			max-width: 440px;
+			max-height: 80vh;
+			overflow-y: auto;
+		}
+		.modal h3 {
+			margin: 0 0 16px;
+			font-size: 16px;
+			font-weight: 600;
+		}
+		.modal input[type="text"] {
+			width: 100%;
+			padding: 8px 12px;
+			border: 1px solid rgba(255, 255, 255, 0.15);
+			border-radius: 8px;
+			background: rgba(255, 255, 255, 0.08);
+			color: #fff;
+			font-size: 14px;
+			outline: none;
+			margin-bottom: 12px;
+		}
+		.modal input[type="text"]:focus {
+			border-color: rgba(140, 255, 140, 0.5);
+		}
+		.modal-actions {
+			display: flex;
+			gap: 8px;
+			justify-content: flex-end;
+			margin-top: 16px;
+		}
+		.modal-actions button {
+			padding: 8px 20px;
+			border: none;
+			border-radius: 8px;
+			font-size: 13px;
+			font-weight: 500;
+			cursor: pointer;
+			transition: all 0.15s;
+		}
+		.modal-actions .btn-primary {
+			background: rgba(80, 180, 80, 0.35);
+			color: rgba(140, 255, 140, 0.95);
+		}
+		.modal-actions .btn-primary:hover {
+			background: rgba(80, 180, 80, 0.55);
+		}
+		.modal-actions .btn-cancel {
+			background: rgba(255, 255, 255, 0.08);
+			color: rgba(255, 255, 255, 0.65);
+		}
+		.modal-actions .btn-cancel:hover {
+			background: rgba(255, 255, 255, 0.15);
+			color: #fff;
+		}
+
+		.saved-track-list {
+			list-style: none;
+			padding: 0;
+			margin: 0 0 8px;
+			max-height: 300px;
+			overflow-y: auto;
+		}
+		.saved-track-list li {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 8px 12px;
+			border-radius: 8px;
+			cursor: pointer;
+			transition: background 0.15s;
+		}
+		.saved-track-list li:hover {
+			background: rgba(255, 255, 255, 0.08);
+		}
+		.saved-track-list li .track-name {
+			font-size: 14px;
+			font-weight: 500;
+		}
+		.saved-track-list li .track-meta {
+			font-size: 11px;
+			color: rgba(255, 255, 255, 0.4);
+		}
+		.saved-track-list li .delete-btn {
+			background: none;
+			border: none;
+			color: rgba(255, 80, 80, 0.6);
+			cursor: pointer;
+			font-size: 16px;
+			padding: 2px 6px;
+			border-radius: 4px;
+		}
+		.saved-track-list li .delete-btn:hover {
+			background: rgba(255, 80, 80, 0.15);
+			color: rgba(255, 80, 80, 0.9);
+		}
+		.saved-track-list .empty-msg {
+			text-align: center;
+			color: rgba(255, 255, 255, 0.35);
+			padding: 20px;
+			font-size: 13px;
+		}
+
 	</style>
 	<script type="importmap">
 	{
@@ -108,13 +278,59 @@
 		<button id="btn-road" class="active">Road</button>
 		<button id="btn-erase">Erase</button>
 		<div class="separator"></div>
+		<button id="btn-undo" disabled title="Undo (Ctrl+Z)">Undo</button>
+		<button id="btn-redo" disabled title="Redo (Ctrl+Shift+Z)">Redo</button>
+		<div class="separator"></div>
 		<button id="btn-play" class="action">Play</button>
 		<button id="btn-share" class="action">Share</button>
+		<div class="separator"></div>
+		<button id="btn-save">Save</button>
+		<button id="btn-load">Load</button>
+		<div class="separator"></div>
+		<button id="btn-validate">Validate</button>
+		<div class="separator"></div>
+		<button id="btn-view-top" class="active" title="Top-down (0)">Top</button>
+		<button id="btn-view-iso" title="Isometric">Iso</button>
+		<button id="btn-view-front" title="Front view">Front</button>
+		<div class="separator"></div>
+		<button id="btn-tod" title="Time of day">Day</button>
 		<div class="separator"></div>
 		<button id="btn-clear" class="danger">Clear</button>
 	</div>
 
 	<div id="toast"></div>
+	<div id="minimap"></div>
+
+	<div id="stats-panel">
+		<span class="label">Pieces:</span> <span id="stat-pieces">1</span><br>
+		<span class="label">Straights:</span> <span id="stat-straights">0</span>
+		<span class="label" style="margin-left:8px">Corners:</span> <span id="stat-corners">0</span><br>
+		<span class="label">Length:</span> <span id="stat-length">0m</span><br>
+		<span class="label">Loop:</span> <span id="stat-loop" class="warn">No</span>
+	</div>
+
+	<!-- Save modal -->
+	<div id="modal-save" class="modal-overlay hidden">
+		<div class="modal">
+			<h3>Save Track</h3>
+			<input type="text" id="save-name" placeholder="Track name..." maxlength="40" autocomplete="off">
+			<div class="modal-actions">
+				<button class="btn-cancel" id="save-cancel">Cancel</button>
+				<button class="btn-primary" id="save-confirm">Save</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Load modal -->
+	<div id="modal-load" class="modal-overlay hidden">
+		<div class="modal">
+			<h3>Load Track</h3>
+			<ul class="saved-track-list" id="load-list"></ul>
+			<div class="modal-actions">
+				<button class="btn-cancel" id="load-cancel">Close</button>
+			</div>
+		</div>
+	</div>
 
 	<script type="module">
 	import * as THREE from 'three';
@@ -152,6 +368,85 @@
 	let tool = 'road'; // 'road', 'erase'
 
 	function cellKey( gx, gz ) { return gx + ',' + gz; }
+
+	// ─── Undo / Redo ─────────────────────────────────────────
+
+	const undoStack = [];
+	const redoStack = [];
+	const MAX_UNDO = 100;
+
+	function snapshotGrid() {
+
+		const snap = [];
+		for ( const [ key, cell ] of grid ) {
+
+			const [ gx, gz ] = key.split( ',' ).map( Number );
+			snap.push( [ gx, gz, cell.type, cell.orient, cell.isFinish ] );
+
+		}
+
+		return snap;
+
+	}
+
+	function restoreSnapshot( snap ) {
+
+		// Remove all existing meshes
+		for ( const [ , cell ] of grid ) {
+
+			if ( cell.mesh ) trackGroup.remove( cell.mesh );
+
+		}
+
+		grid.clear();
+
+		for ( const [ gx, gz, type, orient, isFinish ] of snap ) {
+
+			const cell = { type, orient, isFinish, mesh: null };
+			grid.set( cellKey( gx, gz ), cell );
+			placeMesh( gx, gz, cell );
+
+		}
+
+		save();
+		updateStats();
+		updateFinishCar();
+
+	}
+
+	function pushUndo() {
+
+		undoStack.push( snapshotGrid() );
+		if ( undoStack.length > MAX_UNDO ) undoStack.shift();
+		redoStack.length = 0;
+		updateUndoButtons();
+
+	}
+
+	function undo() {
+
+		if ( undoStack.length === 0 ) return;
+		redoStack.push( snapshotGrid() );
+		restoreSnapshot( undoStack.pop() );
+		updateUndoButtons();
+
+	}
+
+	function redo() {
+
+		if ( redoStack.length === 0 ) return;
+		undoStack.push( snapshotGrid() );
+		restoreSnapshot( redoStack.pop() );
+		updateUndoButtons();
+
+	}
+
+	function updateUndoButtons() {
+
+		document.getElementById( 'btn-undo' ).disabled = undoStack.length === 0;
+		document.getElementById( 'btn-redo' ).disabled = redoStack.length === 0;
+
+	}
 
 	// ─── Renderer ─────────────────────────────────────────────
 
@@ -214,7 +509,31 @@
 	scene.add( ghostGroup );
 	let ghostMesh = null;
 
-	// ─── Camera (orthographic, top-down) ──────────────────────
+	// ─── Grid snap indicator ──────────────────────────────────
+
+	const indicatorGeo = new THREE.PlaneGeometry( cellWorld, cellWorld );
+	const indicatorMat = new THREE.MeshBasicMaterial( {
+		color: 0xffffff,
+		opacity: 0.15,
+		transparent: true,
+		depthTest: false
+	} );
+	const cellIndicator = new THREE.Mesh( indicatorGeo, indicatorMat );
+	cellIndicator.rotation.x = - Math.PI / 2;
+	cellIndicator.position.y = - 0.1;
+	cellIndicator.visible = false;
+	scene.add( cellIndicator );
+
+	// Outline ring for the indicator
+	const outlineGeo = new THREE.EdgesGeometry( new THREE.PlaneGeometry( cellWorld, cellWorld ) );
+	const outlineMat = new THREE.LineBasicMaterial( { color: 0xffffff, opacity: 0.5, transparent: true, depthTest: false } );
+	const cellOutline = new THREE.LineSegments( outlineGeo, outlineMat );
+	cellOutline.rotation.x = - Math.PI / 2;
+	cellOutline.position.y = - 0.09;
+	cellOutline.visible = false;
+	scene.add( cellOutline );
+
+	// ─── Camera (orthographic) ────────────────────────────────
 
 	const frustum = 30;
 	const aspect = window.innerWidth / window.innerHeight;
@@ -224,10 +543,227 @@
 		0.1, 200
 	);
 	const cellCenter = 0.5 * CELL_RAW * GRID_SCALE;
-	camera.position.set( cellCenter, 50, cellCenter );
-	camera.lookAt( cellCenter, 0, cellCenter );
-
 	const camTarget = new THREE.Vector3( cellCenter, 0, cellCenter );
+
+	// ─── Orbit / tilt / height state ──────────────────────────
+
+	let orbitAngle = 0;
+	let tiltAngle = Math.PI / 2;
+	let isOrbiting = false;
+	let orbitStartMouse = { x: 0, y: 0 };
+	let orbitAngleStart = 0;
+	let tiltAngleStart = 0;
+	let camHeightStart = 0;
+	let camPanStart = { x: 0, z: 0 };
+
+	function updateCamera() {
+
+		const dist = 50;
+		camera.position.x = camTarget.x + dist * Math.cos( tiltAngle ) * Math.sin( orbitAngle );
+		camera.position.y = camTarget.y + dist * Math.sin( tiltAngle );
+		camera.position.z = camTarget.z + dist * Math.cos( tiltAngle ) * Math.cos( orbitAngle );
+		camera.lookAt( camTarget );
+
+	}
+
+	function getCameraPanAxes() {
+
+		const right = new THREE.Vector3( Math.cos( orbitAngle ), 0, - Math.sin( orbitAngle ) );
+		const fwd = new THREE.Vector3( - Math.sin( orbitAngle ), 0, - Math.cos( orbitAngle ) );
+		return { right, fwd };
+
+	}
+
+	updateCamera();
+
+	// ─── View presets ─────────────────────────────────────────
+
+	const viewBtnTop = document.getElementById( 'btn-view-top' );
+	const viewBtnIso = document.getElementById( 'btn-view-iso' );
+	const viewBtnFront = document.getElementById( 'btn-view-front' );
+
+	function setView( name ) {
+
+		if ( name === 'top' ) {
+
+			orbitAngle = 0;
+			tiltAngle = Math.PI / 2;
+
+		} else if ( name === 'iso' ) {
+
+			orbitAngle = Math.PI / 4;
+			tiltAngle = Math.PI / 5.1; // ~35°
+
+		} else if ( name === 'front' ) {
+
+			orbitAngle = 0;
+			tiltAngle = 0.25; // ~14°
+
+		}
+
+		camTarget.y = 0;
+		updateCamera();
+
+		viewBtnTop.classList.toggle( 'active', name === 'top' );
+		viewBtnIso.classList.toggle( 'active', name === 'iso' );
+		viewBtnFront.classList.toggle( 'active', name === 'front' );
+
+	}
+
+	viewBtnTop.addEventListener( 'click', () => setView( 'top' ) );
+	viewBtnIso.addEventListener( 'click', () => setView( 'iso' ) );
+	viewBtnFront.addEventListener( 'click', () => setView( 'front' ) );
+
+	// ─── Time of day ──────────────────────────────────────────
+
+	const TOD_PRESETS = {
+		day: {
+			bg: 0xadb2ba,
+			fog: 0xadb2ba,
+			dirColor: 0xffffff,
+			dirIntensity: 5,
+			dirPos: [ 11.4, 15, - 5.3 ],
+			hemiSky: 0xc8d8e8,
+			hemiGround: 0x7a8a5a,
+			hemiIntensity: 1.5,
+			groundColor: 0x369069,
+			exposure: 1.0,
+			label: 'Day'
+		},
+		sunset: {
+			bg: 0x8a6050,
+			fog: 0x8a6050,
+			dirColor: 0xffaa66,
+			dirIntensity: 4,
+			dirPos: [ 3, 5, - 12 ],
+			hemiSky: 0xffccaa,
+			hemiGround: 0x553322,
+			hemiIntensity: 1.0,
+			groundColor: 0x2d6648,
+			exposure: 0.85,
+			label: 'Sunset'
+		},
+		night: {
+			bg: 0x1a1a2e,
+			fog: 0x1a1a2e,
+			dirColor: 0x8888cc,
+			dirIntensity: 2,
+			dirPos: [ - 5, 12, 8 ],
+			hemiSky: 0x334466,
+			hemiGround: 0x111122,
+			hemiIntensity: 0.6,
+			groundColor: 0x1a4a35,
+			exposure: 0.6,
+			label: 'Night'
+		}
+	};
+
+	const todOrder = [ 'day', 'sunset', 'night' ];
+	let todIndex = 0;
+	const btnTod = document.getElementById( 'btn-tod' );
+
+	function applyTod( name ) {
+
+		const p = TOD_PRESETS[ name ];
+		scene.background.setHex( p.bg );
+		scene.fog.color.setHex( p.fog );
+		dirLight.color.setHex( p.dirColor );
+		dirLight.intensity = p.dirIntensity;
+		dirLight.position.set( ...p.dirPos );
+		hemiLight.color.setHex( p.hemiSky );
+		hemiLight.groundColor.setHex( p.hemiGround );
+		hemiLight.intensity = p.hemiIntensity;
+		groundMat.color.setHex( p.groundColor );
+		renderer.toneMappingExposure = p.exposure;
+		btnTod.textContent = p.label;
+
+	}
+
+	btnTod.addEventListener( 'click', () => {
+
+		todIndex = ( todIndex + 1 ) % todOrder.length;
+		applyTod( todOrder[ todIndex ] );
+
+	} );
+
+	// ─── Minimap ──────────────────────────────────────────────
+
+	const minimapSize = 180;
+	const minimapCanvas = document.createElement( 'canvas' );
+	minimapCanvas.width = minimapSize;
+	minimapCanvas.height = minimapSize;
+	document.getElementById( 'minimap' ).appendChild( minimapCanvas );
+	const mmCtx = minimapCanvas.getContext( '2d' );
+
+	function updateMinimap() {
+
+		mmCtx.clearRect( 0, 0, minimapSize, minimapSize );
+		mmCtx.fillStyle = 'rgba(20, 50, 35, 0.6)';
+		mmCtx.fillRect( 0, 0, minimapSize, minimapSize );
+
+		if ( grid.size === 0 ) return;
+
+		// Find bounds
+		let minGx = Infinity, maxGx = - Infinity;
+		let minGz = Infinity, maxGz = - Infinity;
+
+		for ( const key of grid.keys() ) {
+
+			const [ gx, gz ] = key.split( ',' ).map( Number );
+			minGx = Math.min( minGx, gx );
+			maxGx = Math.max( maxGx, gx );
+			minGz = Math.min( minGz, gz );
+			maxGz = Math.max( maxGz, gz );
+
+		}
+
+		const rangeX = maxGx - minGx + 1;
+		const rangeZ = maxGz - minGz + 1;
+		const padding = 20;
+		const usable = minimapSize - padding * 2;
+		const cellSize = Math.min( usable / Math.max( rangeX, 1 ), usable / Math.max( rangeZ, 1 ), 14 );
+		const ox = ( minimapSize - rangeX * cellSize ) / 2;
+		const oz = ( minimapSize - rangeZ * cellSize ) / 2;
+
+		for ( const [ key, cell ] of grid ) {
+
+			const [ gx, gz ] = key.split( ',' ).map( Number );
+			const px = ox + ( gx - minGx ) * cellSize;
+			const py = oz + ( gz - minGz ) * cellSize;
+
+			if ( cell.isFinish ) {
+
+				mmCtx.fillStyle = '#ffcc44';
+
+			} else if ( cell.type === 'track-corner-night' ) {
+
+				mmCtx.fillStyle = '#66aaff';
+
+			} else {
+
+				mmCtx.fillStyle = '#aaccaa';
+
+			}
+
+			mmCtx.fillRect( px + 1, py + 1, cellSize - 2, cellSize - 2 );
+
+		}
+
+		// Camera viewport indicator
+		const camGx = camTarget.x / cellWorld;
+		const camGz = camTarget.z / cellWorld;
+		const viewRadius = frustum / cellWorld / camera.zoom;
+
+		const cx = ox + ( camGx - minGx ) * cellSize;
+		const cy = oz + ( camGz - minGz ) * cellSize;
+		const rw = viewRadius * cellSize * aspect;
+		const rh = viewRadius * cellSize;
+
+		mmCtx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+		mmCtx.lineWidth = 1;
+		mmCtx.strokeRect( cx - rw, cy - rh, rw * 2, rh * 2 );
+
+	}
 
 	window.addEventListener( 'resize', () => {
 
@@ -236,13 +772,17 @@
 		camera.right = frustum * a;
 		camera.updateProjectionMatrix();
 		renderer.setSize( window.innerWidth, window.innerHeight );
+		updateCamera();
 
 	} );
 
 	// ─── Load models ──────────────────────────────────────────
 
 	const loader = new GLTFLoader();
-	const modelNames = [ 'track-straight-night', 'track-corner-night', 'track-bump', 'track-finish' ];
+	const modelNames = [
+		'track-straight-night', 'track-corner-night', 'track-bump', 'track-finish',
+		'vehicle-truck-red'
+	];
 	const models = {};
 
 	async function loadModels() {
@@ -258,6 +798,12 @@
 
 					} );
 
+					if ( name.startsWith( 'vehicle-' ) ) {
+
+						gltf.scene.scale.setScalar( 0.5 );
+
+					}
+
 					models[ name ] = gltf.scene;
 					resolve();
 
@@ -267,6 +813,69 @@
 		);
 
 		await Promise.all( promises );
+
+	}
+
+	// ─── Finish line car preview ──────────────────────────────
+
+	let finishCarMesh = null;
+
+	function updateFinishCar() {
+
+		// Remove old car
+		if ( finishCarMesh ) {
+
+			trackGroup.remove( finishCarMesh );
+			finishCarMesh = null;
+
+		}
+
+		const carModel = models[ 'vehicle-truck-red' ];
+		if ( ! carModel ) return;
+
+		// Find finish cell
+		let finishGx = null, finishGz = null, finishCell = null;
+
+		for ( const [ key, cell ] of grid ) {
+
+			if ( cell.isFinish ) {
+
+				[ finishGx, finishGz ] = key.split( ',' ).map( Number );
+				finishCell = cell;
+				break;
+
+			}
+
+		}
+
+		if ( ! finishCell ) return;
+
+		finishCarMesh = carModel.clone();
+		// Position on the finish cell in track-group local space
+		finishCarMesh.position.set(
+			( finishGx + 0.5 ) * CELL_RAW,
+			0.5,
+			( finishGz + 0.5 ) * CELL_RAW
+		);
+
+		// Orient car to match finish line direction
+		const deg = ORIENT_DEG[ finishCell.orient ] || 0;
+		finishCarMesh.rotation.y = THREE.MathUtils.degToRad( deg );
+
+		// Scale relative to track group (which is already at GRID_SCALE)
+		// Vehicle is already at 0.5 from loading; scale down a tiny bit for preview look
+		finishCarMesh.traverse( ( c ) => {
+
+			if ( c.isMesh ) {
+
+				c.castShadow = true;
+				c.receiveShadow = true;
+
+			}
+
+		} );
+
+		trackGroup.add( finishCarMesh );
 
 	}
 
@@ -567,9 +1176,11 @@
 			// Click on finish tile → flip direction (rotate 180°)
 			if ( cell.isFinish ) {
 
+				pushUndo();
 				cell.orient = ORIENT_FLIP[ cell.orient ] ?? cell.orient;
 				placeMesh( gx, gz, cell );
 				save();
+				updateFinishCar();
 
 			}
 
@@ -577,9 +1188,11 @@
 
 		}
 
+		pushUndo();
 		grid.set( key, { type: 'track-straight-night', orient: 0, isFinish: false, mesh: null } );
 		resolveCellAndNeighbors( gx, gz );
 		save();
+		updateStats();
 
 	}
 
@@ -600,6 +1213,7 @@
 		const cell = grid.get( key );
 		if ( cell.isFinish ) return;
 
+		pushUndo();
 		if ( cell.mesh ) trackGroup.remove( cell.mesh );
 		grid.delete( key );
 
@@ -610,10 +1224,13 @@
 		resolveCell( gx - 1, gz );
 
 		save();
+		updateStats();
 
 	}
 
 	function clearAll() {
+
+		pushUndo();
 
 		for ( const [ , cell ] of grid ) {
 
@@ -624,6 +1241,8 @@
 		grid.clear();
 		placeFinish();
 		save();
+		updateStats();
+		updateFinishCar();
 
 	}
 
@@ -770,6 +1389,46 @@
 
 	}
 
+	function updateCellIndicator( gx, gz ) {
+
+		cellIndicator.position.x = ( gx + 0.5 ) * cellWorld;
+		cellIndicator.position.z = ( gz + 0.5 ) * cellWorld;
+		cellIndicator.visible = true;
+
+		cellOutline.position.x = cellIndicator.position.x;
+		cellOutline.position.z = cellIndicator.position.z;
+		cellOutline.visible = true;
+
+		// Color: green if empty (can place), red if occupied, yellow if finish
+		const key = cellKey( gx, gz );
+		const existing = grid.get( key );
+
+		if ( existing && existing.isFinish ) {
+
+			indicatorMat.color.setHex( 0xffcc44 );
+			outlineMat.color.setHex( 0xffcc44 );
+
+		} else if ( existing ) {
+
+			indicatorMat.color.setHex( tool === 'erase' ? 0xff4444 : 0x888888 );
+			outlineMat.color.setHex( tool === 'erase' ? 0xff4444 : 0x888888 );
+
+		} else {
+
+			indicatorMat.color.setHex( 0x44ff88 );
+			outlineMat.color.setHex( 0x44ff88 );
+
+		}
+
+	}
+
+	function hideCellIndicator() {
+
+		cellIndicator.visible = false;
+		cellOutline.visible = false;
+
+	}
+
 	// ─── Persistence ──────────────────────────────────────────
 
 	function save() {
@@ -816,6 +1475,362 @@
 
 	}
 
+	// ─── Named saves ──────────────────────────────────────────
+
+	const SAVES_KEY = 'racing-editor-saved-tracks';
+
+	function getSavedTracks() {
+
+		try {
+
+			return JSON.parse( localStorage.getItem( SAVES_KEY ) ) || [];
+
+		} catch {
+
+			return [];
+
+		}
+
+	}
+
+	function saveNamedTrack( name ) {
+
+		const tracks = getSavedTracks();
+		const encoded = encodeCells( getCellsArray() );
+		const existing = tracks.findIndex( t => t.name === name );
+
+		const entry = {
+			name,
+			cells: encoded,
+			pieces: grid.size,
+			date: new Date().toLocaleDateString()
+		};
+
+		if ( existing >= 0 ) {
+
+			tracks[ existing ] = entry;
+
+		} else {
+
+			tracks.unshift( entry );
+
+		}
+
+		localStorage.setItem( SAVES_KEY, JSON.stringify( tracks ) );
+
+	}
+
+	function deleteNamedTrack( name ) {
+
+		const tracks = getSavedTracks().filter( t => t.name !== name );
+		localStorage.setItem( SAVES_KEY, JSON.stringify( tracks ) );
+
+	}
+
+	function loadNamedTrack( encoded ) {
+
+		pushUndo();
+
+		for ( const [ , cell ] of grid ) {
+
+			if ( cell.mesh ) trackGroup.remove( cell.mesh );
+
+		}
+
+		grid.clear();
+
+		try {
+
+			const arr = decodeCells( encoded );
+
+			for ( const [ gx, gz, type, orient ] of arr ) {
+
+				const isFinish = ( type === 'track-finish' );
+				const cell = { type, orient, isFinish, mesh: null };
+				grid.set( cellKey( gx, gz ), cell );
+				placeMesh( gx, gz, cell );
+
+			}
+
+		} catch ( e ) {
+
+			console.warn( 'Failed to load track', e );
+
+		}
+
+		save();
+		updateStats();
+		updateFinishCar();
+
+	}
+
+	// Save modal
+	const modalSave = document.getElementById( 'modal-save' );
+	const saveNameInput = document.getElementById( 'save-name' );
+
+	document.getElementById( 'btn-save' ).addEventListener( 'click', () => {
+
+		if ( grid.size === 0 ) { showToast( 'Draw some road first!' ); return; }
+		saveNameInput.value = '';
+		modalSave.classList.remove( 'hidden' );
+		saveNameInput.focus();
+
+	} );
+
+	document.getElementById( 'save-confirm' ).addEventListener( 'click', () => {
+
+		const name = saveNameInput.value.trim();
+		if ( ! name ) { showToast( 'Enter a name' ); return; }
+		saveNamedTrack( name );
+		modalSave.classList.add( 'hidden' );
+		showToast( `Track "${ name }" saved!` );
+
+	} );
+
+	saveNameInput.addEventListener( 'keydown', ( e ) => {
+
+		if ( e.key === 'Enter' ) document.getElementById( 'save-confirm' ).click();
+		if ( e.key === 'Escape' ) modalSave.classList.add( 'hidden' );
+		e.stopPropagation();
+
+	} );
+
+	document.getElementById( 'save-cancel' ).addEventListener( 'click', () => {
+
+		modalSave.classList.add( 'hidden' );
+
+	} );
+
+	// Load modal
+	const modalLoad = document.getElementById( 'modal-load' );
+	const loadList = document.getElementById( 'load-list' );
+
+	document.getElementById( 'btn-load' ).addEventListener( 'click', () => {
+
+		const tracks = getSavedTracks();
+		loadList.innerHTML = '';
+
+		if ( tracks.length === 0 ) {
+
+			loadList.innerHTML = '<li class="empty-msg">No saved tracks yet</li>';
+
+		} else {
+
+			for ( const t of tracks ) {
+
+				const li = document.createElement( 'li' );
+
+				const info = document.createElement( 'div' );
+				info.innerHTML = `<div class="track-name">${ t.name }</div><div class="track-meta">${ t.pieces } pieces &middot; ${ t.date }</div>`;
+				info.style.cursor = 'pointer';
+				info.style.flex = '1';
+				info.addEventListener( 'click', () => {
+
+					loadNamedTrack( t.cells );
+					modalLoad.classList.add( 'hidden' );
+					showToast( `Loaded "${ t.name }"` );
+
+				} );
+
+				const del = document.createElement( 'button' );
+				del.className = 'delete-btn';
+				del.textContent = '\u00d7';
+				del.title = 'Delete';
+				del.addEventListener( 'click', ( ev ) => {
+
+					ev.stopPropagation();
+					deleteNamedTrack( t.name );
+					li.remove();
+					if ( loadList.children.length === 0 ) {
+
+						loadList.innerHTML = '<li class="empty-msg">No saved tracks yet</li>';
+
+					}
+
+					showToast( `Deleted "${ t.name }"` );
+
+				} );
+
+				li.appendChild( info );
+				li.appendChild( del );
+				loadList.appendChild( li );
+
+			}
+
+		}
+
+		modalLoad.classList.remove( 'hidden' );
+
+	} );
+
+	document.getElementById( 'load-cancel' ).addEventListener( 'click', () => {
+
+		modalLoad.classList.add( 'hidden' );
+
+	} );
+
+	// Close modals on overlay click
+	modalSave.addEventListener( 'click', ( e ) => {
+
+		if ( e.target === modalSave ) modalSave.classList.add( 'hidden' );
+
+	} );
+
+	modalLoad.addEventListener( 'click', ( e ) => {
+
+		if ( e.target === modalLoad ) modalLoad.classList.add( 'hidden' );
+
+	} );
+
+	// ─── Track validation ─────────────────────────────────────
+
+	function validateTrack() {
+
+		// Find finish cell
+		let startKey = null;
+
+		for ( const [ key, cell ] of grid ) {
+
+			if ( cell.isFinish ) { startKey = key; break; }
+
+		}
+
+		if ( ! startKey ) return { valid: false, message: 'No finish line found' };
+		if ( grid.size < 4 ) return { valid: false, message: 'Track too short (need at least 4 pieces)' };
+
+		// Walk the track from finish, following exits
+		const [ sx, sz ] = startKey.split( ',' ).map( Number );
+		const startCell = grid.get( startKey );
+		const startExits = getCellExits( startCell );
+
+		// Pick one exit direction to start walking
+		const exitDirs = [
+			{ bit: 8, dx: 0, dz: - 1 },
+			{ bit: 4, dx: 0, dz: 1 },
+			{ bit: 2, dx: 1, dz: 0 },
+			{ bit: 1, dx: - 1, dz: 0 },
+		];
+
+		let walkDir = null;
+
+		for ( const d of exitDirs ) {
+
+			if ( ! ( startExits & d.bit ) ) continue;
+			const nKey = cellKey( sx + d.dx, sz + d.dz );
+			if ( grid.has( nKey ) ) { walkDir = d; break; }
+
+		}
+
+		if ( ! walkDir ) return { valid: false, message: 'Finish line has no connected road' };
+
+		// Walk
+		const visited = new Set();
+		visited.add( startKey );
+		let cx = sx + walkDir.dx;
+		let cz = sz + walkDir.dz;
+		let prevX = sx;
+		let prevZ = sz;
+
+		for ( let steps = 0; steps < 1000; steps ++ ) {
+
+			const key = cellKey( cx, cz );
+
+			// Did we loop back to start?
+			if ( key === startKey ) {
+
+				if ( visited.size === grid.size ) {
+
+					return { valid: true, message: `Valid loop! (${ visited.size } pieces)` };
+
+				}
+
+				return {
+					valid: false,
+					message: `Loop found but ${ grid.size - visited.size } pieces are disconnected`
+				};
+
+			}
+
+			const cell = grid.get( key );
+			if ( ! cell ) return { valid: false, message: 'Track has a dead end' };
+
+			if ( visited.has( key ) ) return { valid: false, message: 'Track crosses itself' };
+
+			visited.add( key );
+
+			// Find next cell: follow exits that aren't back where we came from
+			const exits = getCellExits( cell );
+			let moved = false;
+
+			for ( const d of exitDirs ) {
+
+				if ( ! ( exits & d.bit ) ) continue;
+				const nx = cx + d.dx;
+				const nz = cz + d.dz;
+				if ( nx === prevX && nz === prevZ ) continue;
+
+				prevX = cx;
+				prevZ = cz;
+				cx = nx;
+				cz = nz;
+				moved = true;
+				break;
+
+			}
+
+			if ( ! moved ) return { valid: false, message: 'Track has a dead end' };
+
+		}
+
+		return { valid: false, message: 'Track is too long or has an issue' };
+
+	}
+
+	document.getElementById( 'btn-validate' ).addEventListener( 'click', () => {
+
+		const result = validateTrack();
+
+		if ( result.valid ) {
+
+			showToast( '\u2705 ' + result.message );
+
+		} else {
+
+			showToast( '\u274c ' + result.message );
+
+		}
+
+	} );
+
+	// ─── Track stats ──────────────────────────────────────────
+
+	function updateStats() {
+
+		let pieces = 0, straights = 0, corners = 0;
+
+		for ( const [ , cell ] of grid ) {
+
+			pieces ++;
+			if ( cell.type === 'track-corner-night' ) corners ++;
+			else straights ++;
+
+		}
+
+		const length = ( pieces * cellWorld ).toFixed( 0 );
+
+		document.getElementById( 'stat-pieces' ).textContent = pieces;
+		document.getElementById( 'stat-straights' ).textContent = straights;
+		document.getElementById( 'stat-corners' ).textContent = corners;
+		document.getElementById( 'stat-length' ).textContent = length + 'm';
+
+		// Quick loop check
+		const result = validateTrack();
+		const loopEl = document.getElementById( 'stat-loop' );
+		loopEl.textContent = result.valid ? 'Yes' : 'No';
+		loopEl.className = result.valid ? 'ok' : 'warn';
+
+	}
+
 	// ─── Toast ────────────────────────────────────────────────
 
 	let toastTimer = 0;
@@ -845,6 +1860,9 @@
 
 	btnRoad.addEventListener( 'click', () => selectTool( 'road' ) );
 	btnErase.addEventListener( 'click', () => selectTool( 'erase' ) );
+
+	document.getElementById( 'btn-undo' ).addEventListener( 'click', undo );
+	document.getElementById( 'btn-redo' ).addEventListener( 'click', redo );
 
 	function getCellsArray() {
 
@@ -1022,9 +2040,12 @@
 
 		} else if ( e.button === 2 ) {
 
-			isErasing = true;
-			lastDrawCell = null;
-			handleDraw( e.clientX, e.clientY );
+			isOrbiting = true;
+			orbitStartMouse = { x: e.clientX, y: e.clientY };
+			orbitAngleStart = orbitAngle;
+			tiltAngleStart = tiltAngle;
+			camHeightStart = camTarget.y;
+			camPanStart = { x: camTarget.x, z: camTarget.z };
 
 		}
 
@@ -1039,11 +2060,12 @@
 
 			const mid = getPinchMid();
 			const scale = frustum * 2 / window.innerHeight / camera.zoom;
-			camTarget.x = camStart.x - ( mid.x - panStart.x ) * scale;
-			camTarget.z = camStart.z - ( mid.y - panStart.y ) * scale;
-			camera.position.x = camTarget.x;
-			camera.position.z = camTarget.z;
-			camera.lookAt( camTarget.x, 0, camTarget.z );
+			const sdx = ( mid.x - panStart.x ) * scale;
+			const sdy = ( mid.y - panStart.y ) * scale;
+			const { right, fwd } = getCameraPanAxes();
+			camTarget.x = camStart.x - right.x * sdx - fwd.x * sdy;
+			camTarget.z = camStart.z - right.z * sdx - fwd.z * sdy;
+			updateCamera();
 
 			const dist = getPinchDist();
 			camera.zoom = Math.max( 0.1, Math.min( 10, pinchStartZoom * ( dist / pinchStartDist ) ) );
@@ -1052,17 +2074,49 @@
 
 		}
 
+		// Orbit / tilt / height (right-click drag)
+		if ( isOrbiting ) {
+
+			const dx = e.clientX - orbitStartMouse.x;
+			const dy = e.clientY - orbitStartMouse.y;
+
+			if ( e.shiftKey ) {
+
+				// Shift+RMB: height (up/down) and pan (left/right)
+				camTarget.y = Math.max( - 20, Math.min( 20, camHeightStart - dy * 0.1 ) );
+				const scale = frustum * 2 / window.innerHeight / camera.zoom;
+				const { right } = getCameraPanAxes();
+				camTarget.x = camPanStart.x + right.x * dx * scale;
+				camTarget.z = camPanStart.z + right.z * dx * scale;
+
+			} else {
+
+				// RMB: orbit (left/right) and tilt (up/down)
+				orbitAngle = orbitAngleStart + dx * 0.005;
+				tiltAngle = Math.max( 0.17, Math.min( Math.PI / 2, tiltAngleStart - dy * 0.005 ) );
+
+			}
+
+			updateCamera();
+
+			// Clear view preset active states when user manually orbits
+			viewBtnTop.classList.remove( 'active' );
+			viewBtnIso.classList.remove( 'active' );
+			viewBtnFront.classList.remove( 'active' );
+			return;
+
+		}
+
 		// Single-pointer pan
 		if ( isPanning ) {
 
-			const zoom = camera.zoom;
-			const dx = ( e.clientX - panStart.x ) / window.innerWidth * frustum * 2 * ( window.innerWidth / window.innerHeight ) / zoom;
-			const dz = ( e.clientY - panStart.y ) / window.innerHeight * frustum * 2 / zoom;
-			camTarget.x = camStart.x - dx;
-			camTarget.z = camStart.z - dz;
-			camera.position.x = camTarget.x;
-			camera.position.z = camTarget.z;
-			camera.lookAt( camTarget.x, 0, camTarget.z );
+			const scale = frustum * 2 / window.innerHeight / camera.zoom;
+			const sdx = ( e.clientX - panStart.x ) * scale * ( window.innerWidth / window.innerHeight );
+			const sdy = ( e.clientY - panStart.y ) * scale;
+			const { right, fwd } = getCameraPanAxes();
+			camTarget.x = camStart.x - right.x * sdx - fwd.x * sdy;
+			camTarget.z = camStart.z - right.z * sdx - fwd.z * sdy;
+			updateCamera();
 			return;
 
 		}
@@ -1074,7 +2128,7 @@
 
 		}
 
-		// Hover ghost (mouse only)
+		// Hover ghost + cell indicator (mouse only)
 		if ( e.pointerType === 'mouse' ) {
 
 			const cell = screenToGrid( e.clientX, e.clientY );
@@ -1082,11 +2136,13 @@
 
 				hoveredCell = cell;
 				updateGhost( cell.gx, cell.gz );
+				updateCellIndicator( cell.gx, cell.gz );
 
 			} else {
 
 				hoveredCell = null;
 				clearGhost();
+				hideCellIndicator();
 
 			}
 
@@ -1108,6 +2164,7 @@
 			}
 
 			isPanning = false;
+			isOrbiting = false;
 			isDrawing = false;
 			isErasing = false;
 			lastDrawCell = null;
@@ -1123,32 +2180,26 @@
 
 	} );
 
-	// Trackpad: two-finger scroll → pan, pinch (ctrl+wheel) → zoom
+	function zoomCamera( delta ) {
+
+		const zoomSpeed = 1.08;
+		camera.zoom *= delta > 0 ? 1 / zoomSpeed : zoomSpeed;
+		camera.zoom = Math.max( 0.1, Math.min( 10, camera.zoom ) );
+		camera.updateProjectionMatrix();
+
+	}
+
 	el.addEventListener( 'wheel', ( e ) => {
 
 		e.preventDefault();
-
-		if ( e.ctrlKey ) {
-
-			const zoomSpeed = 1.02;
-			camera.zoom *= e.deltaY > 0 ? 1 / zoomSpeed : zoomSpeed;
-			camera.zoom = Math.max( 0.1, Math.min( 10, camera.zoom ) );
-			camera.updateProjectionMatrix();
-
-		} else {
-
-			const scale = frustum * 2 / window.innerHeight / camera.zoom;
-			camTarget.x += e.deltaX * scale;
-			camTarget.z += e.deltaY * scale;
-			camera.position.x = camTarget.x;
-			camera.position.z = camTarget.z;
-			camera.lookAt( camTarget.x, 0, camTarget.z );
-
-		}
+		zoomCamera( e.deltaY );
 
 	}, { passive: false } );
 
 	window.addEventListener( 'keydown', ( e ) => {
+
+		// Don't capture keys when typing in an input
+		if ( e.target.tagName === 'INPUT' ) return;
 
 		if ( e.key === ' ' ) {
 
@@ -1168,6 +2219,28 @@
 		} else if ( e.key === '2' ) {
 
 			selectTool( 'erase' );
+
+		} else if ( e.key === '0' ) {
+
+			setView( 'top' );
+
+		} else if ( e.key === 'z' && ( e.ctrlKey || e.metaKey ) && e.shiftKey ) {
+
+			e.preventDefault();
+			redo();
+
+		} else if ( e.key === 'z' && ( e.ctrlKey || e.metaKey ) ) {
+
+			e.preventDefault();
+			undo();
+
+		} else if ( e.key === '+' || e.key === '=' ) {
+
+			zoomCamera( - 1 );
+
+		} else if ( e.key === '-' || e.key === '_' ) {
+
+			zoomCamera( 1 );
 
 		}
 
@@ -1196,10 +2269,14 @@
 
 	}
 
+	updateStats();
+	updateFinishCar();
+
 	function animate() {
 
 		requestAnimationFrame( animate );
 		renderer.render( scene, camera );
+		updateMinimap();
 
 	}
 
