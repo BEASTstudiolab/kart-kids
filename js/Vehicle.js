@@ -77,7 +77,7 @@ export class Vehicle {
 			bodyHeight: 0.2,
 			underbodyOffset: - 0.5,
 			accelerationRate: 1,
-			topSpeed: 150,
+			topSpeed: 250,
 		};
 		this.wheelOrigY = [];
 
@@ -107,9 +107,9 @@ export class Vehicle {
 		this.boostFillTime = 20;       // seconds to fill passively
 		this.boostDriftMultiplier = 5;  // 5x fill rate while drifting
 		this.boostDuration = 4;        // seconds boost lasts
-		this.boostTopSpeed = 300;      // top speed during boost
+		this.boostTopSpeed = 350;      // top speed during boost
 		this.driftThreshold = 1.0;     // driftIntensity threshold for "drifting"
-		this._normalTopSpeed = 150;
+		this._normalTopSpeed = 250;
 
 	}
 
