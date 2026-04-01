@@ -189,9 +189,6 @@ const screenShakeShader = {
 // ---------------------------------------------------------------------------
 // God Rays — screen-space light scattering
 // ---------------------------------------------------------------------------
-const _isMobileGPU = 'ontouchstart' in ( typeof window !== 'undefined' ? window : {} ) ||
-	( typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0 );
-
 const godRaysShader = {
 	uniforms: {
 		tDiffuse:              { value: null },
@@ -200,7 +197,7 @@ const godRaysShader = {
 		decay:                 { value: 0.96 },
 		density:               { value: 0.5 },
 		weight:                { value: 0.1 },
-		samples:               { value: _isMobileGPU ? 24 : 60 },
+		samples:               { value: 60 },
 	},
 	vertexShader: VERT,
 	fragmentShader: /* glsl */`
@@ -255,6 +252,9 @@ export class PostProcessing {
 		// SSAO — placeholder, lazy-loaded when first enabled
 		this._ssaoPass = null;
 		this._ssaoLoaded = false;
+
+		// Preset generation counter for rapid-switch race guard
+		this._presetGeneration = 0;
 
 		// Custom ShaderPass instances
 		const motionBlurPass   = new ShaderPass( motionBlurShader );
@@ -364,6 +364,99 @@ export class PostProcessing {
 	setDirLight( light ) {
 
 		this.dirLight = light;
+
+	}
+
+	// ── Preset application ──────────────────────────────────────────────────
+
+	/**
+	 * Bulk-apply a preset config object. Directly mutates effect.enabled flags
+	 * and sets uniform params, then rebuilds once. Async because SSAO may need
+	 * lazy-loading.
+	 * @param {object} config - Maps effect names to { enabled, params }
+	 */
+	async applyPreset( config ) {
+
+		const gen = ++ this._presetGeneration;
+
+		// Directly set enabled flags (bypass setEnabled to avoid 9 rebuilds)
+		for ( const effect of this.effects ) {
+
+			const entry = config[ effect.name ];
+			if ( ! entry ) continue;
+
+			effect.enabled = entry.enabled;
+
+		}
+
+		// Handle SSAO lazy-load if enabling
+		const ssaoEntry = config.ssao;
+
+		if ( ssaoEntry && ssaoEntry.enabled && ! this._ssaoLoaded ) {
+
+			try {
+
+				const { SSAOPass } = await import( 'three/addons/postprocessing/SSAOPass.js' );
+
+				// Check generation — bail if a newer preset was applied during the await
+				if ( this._presetGeneration !== gen ) return;
+
+				const ssaoPass = new SSAOPass( this.scene, this.camera, window.innerWidth, window.innerHeight );
+				ssaoPass.kernelRadius = 1;
+				ssaoPass.minDistance = 0.001;
+				ssaoPass.maxDistance = 0.05;
+
+				const ssaoEffect = this.getEffect( 'ssao' );
+				ssaoEffect.pass = ssaoPass;
+				this._ssaoPass = ssaoPass;
+				this._ssaoLoaded = true;
+				this._applyPendingSSAOParams();
+
+			} catch ( e ) {
+
+				console.warn( 'SSAO pass failed to load:', e.message );
+				const ssaoEffect = this.getEffect( 'ssao' );
+				ssaoEffect.enabled = false;
+
+			}
+
+		}
+
+		// Check generation again after potential await
+		if ( this._presetGeneration !== gen ) return;
+
+		// Apply SSAO params via buffered API
+		if ( ssaoEntry && ssaoEntry.params ) {
+
+			for ( const key in ssaoEntry.params ) {
+
+				this.setSSAOParam( key, ssaoEntry.params[ key ] );
+
+			}
+
+		}
+
+		// Apply uniform params for all other effects
+		for ( const effect of this.effects ) {
+
+			if ( effect.name === 'ssao' ) continue;
+
+			const entry = config[ effect.name ];
+			if ( ! entry || ! entry.params || ! effect.pass ) continue;
+
+			for ( const key in entry.params ) {
+
+				if ( effect.pass.uniforms[ key ] ) {
+
+					effect.pass.uniforms[ key ].value = entry.params[ key ];
+
+				}
+
+			}
+
+		}
+
+		this.rebuildEffects();
 
 	}
 

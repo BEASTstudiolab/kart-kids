@@ -25,6 +25,7 @@ import { DebugMenu } from './DebugMenu.js';
 import { PostProcessing } from './PostProcessing.js';
 import { Settings } from './Settings.js';
 import { SettingsMenu } from './SettingsMenu.js';
+import { PRESETS, TIER_PIXEL_RATIO } from './QualityTiers.js';
 
 
 const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -41,7 +42,7 @@ scene.fog = new THREE.Fog( 0xadb2ba, 30, 55 );
 const dirLight = new THREE.DirectionalLight( 0xffffff, 5 );
 dirLight.position.set( 11.4, 15, -5.3 );
 dirLight.castShadow = true;
-dirLight.shadow.mapSize.setScalar( isMobile ? 1024 : 2048 );
+dirLight.shadow.mapSize.setScalar( 2048 ); // Overridden by quality preset during init
 dirLight.shadow.camera.near = 0.5;
 dirLight.shadow.camera.far = 60;
 scene.add( dirLight );
@@ -203,7 +204,7 @@ async function init() {
 	// pipeline is migrated to TSL nodes.
 	renderer = new THREE.WebGLRenderer( { antialias: true, outputBufferType: THREE.HalfFloatType } );
 	renderer.setSize( window.innerWidth, window.innerHeight );
-	renderer.setPixelRatio( isMobile ? 1.0 : Math.min( window.devicePixelRatio, 2.0 ) );
+	renderer.setPixelRatio( 1.0 ); // Overridden by quality preset during init
 	renderer.shadowMap.enabled = true;
 	renderer.toneMapping = THREE.ACESFilmicToneMapping;
 	renderer.toneMappingExposure = 1.0;
@@ -704,6 +705,17 @@ async function init() {
 		// ── Tab: Post FX ─────────────────────────────────────────────────────────
 		const postFXTab = debugMenu.addTab( 'postprocessing', 'Post FX' );
 
+		// Active preset label
+		const presetLabel = document.createElement( 'div' );
+		presetLabel.style.cssText = 'margin:4px 0 8px;padding:4px 8px;background:#0f02;border:1px solid #0f044;border-radius:3px;text-align:center';
+		presetLabel.textContent = 'Active preset: ' + ( settings.get( 'quality' ) || 'unknown' );
+		postFXTab.appendChild( presetLabel );
+		window.addEventListener( 'settings-changed', ( e ) => {
+
+			if ( e.detail.key === 'quality' ) presetLabel.textContent = 'Active preset: ' + e.detail.value;
+
+		} );
+
 		debugMenu.addHeader( postFXTab, 'Bloom / Glow' );
 
 		let _savedBloomStrength = bloomPass.strength;
@@ -913,6 +925,24 @@ async function init() {
 	const controls = new Controls( settings, cam );
 	const settingsMenu = new SettingsMenu( settings, controls );
 
+	// Apply initial quality preset from settings
+	{
+
+		const tier = settings.get( 'quality' );
+		const preset = PRESETS[ tier ];
+		if ( preset ) {
+
+			postFX.applyPreset( preset );
+			dirLight.shadow.mapSize.setScalar( preset.shadowMapSize );
+			dirLight.shadow.map = null;
+			renderer.shadowMap.needsUpdate = true;
+			renderer.setPixelRatio( TIER_PIXEL_RATIO[ tier ] );
+			renderer.setSize( window.innerWidth, window.innerHeight );
+
+		}
+
+	}
+
 	// ─── Camera toggle button (top-left) ─────────────────────────────────
 	const camToggleBtn = document.createElement( 'div' );
 	camToggleBtn.style.cssText = 'position:fixed;top:16px;left:16px;z-index:100;width:44px;height:44px;border-radius:10px;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.2);cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;touch-action:manipulation;';
@@ -929,17 +959,15 @@ async function init() {
 
 		const { key, value } = e.detail;
 
-		if ( key === 'shadowQuality' ) {
+		if ( key === 'quality' && postFX ) {
 
-			dirLight.shadow.mapSize.setScalar( value === 'high' ? 2048 : 1024 );
-			dirLight.shadow.map = null; // force shadow map rebuild
+			if ( ! PRESETS[ value ] ) return;
+			postFX.applyPreset( PRESETS[ value ] );
+			dirLight.shadow.mapSize.setScalar( PRESETS[ value ].shadowMapSize );
+			dirLight.shadow.map = null;
 			renderer.shadowMap.needsUpdate = true;
-
-		}
-
-		if ( key === 'postProcessing' && postFX ) {
-
-			postFX.setEnabled( 'bloom', value );
+			renderer.setPixelRatio( TIER_PIXEL_RATIO[ value ] );
+			renderer.setSize( window.innerWidth, window.innerHeight );
 
 		}
 

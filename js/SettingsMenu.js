@@ -152,12 +152,12 @@ export class SettingsMenu {
 
 		const gfx = this._section( 'Graphics' );
 
-		gfx.appendChild( this._selectRow( 'Shadows', 'shadowQuality', [
+		gfx.appendChild( this._selectRow( 'Quality', 'quality', [
 			{ label: 'Low', value: 'low' },
-			{ label: 'High', value: 'high' }
+			{ label: 'Medium', value: 'medium' },
+			{ label: 'High', value: 'high' },
+			{ label: 'Ultra', value: 'ultra' },
 		] ) );
-
-		gfx.appendChild( this._toggleRow( 'Post-Processing', 'postProcessing' ) );
 
 		panel.appendChild( gfx );
 
