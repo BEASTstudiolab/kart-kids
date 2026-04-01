@@ -734,7 +734,7 @@ async function init() {
 		// Active preset label
 		const presetLabel = document.createElement( 'div' );
 		presetLabel.style.cssText = 'margin:4px 0 8px;padding:4px 8px;background:#0f02;border:1px solid #0f044;border-radius:3px;text-align:center';
-		presetLabel.textContent = 'Active preset: ' + ( settings.get( 'quality' ) || 'unknown' );
+		presetLabel.textContent = 'Active preset: detecting...';
 		postFXTab.appendChild( presetLabel );
 		window.addEventListener( 'settings-changed', ( e ) => {
 
@@ -968,6 +968,9 @@ async function init() {
 		}
 
 	}
+
+	// Update debug preset label now that settings is available
+	presetLabel.textContent = 'Active preset: ' + ( settings.get( 'quality' ) || 'unknown' );
 
 	// ─── Camera toggle button (top-left) ─────────────────────────────────
 	const camToggleBtn = document.createElement( 'div' );
