@@ -23,6 +23,8 @@ import { ItemPickupVFX } from './ItemPickupVFX.js';
 import { AIManager } from './AIManager.js';
 import { DebugMenu } from './DebugMenu.js';
 import { PostProcessing } from './PostProcessing.js';
+import { Settings } from './Settings.js';
+import { SettingsMenu } from './SettingsMenu.js';
 
 
 const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -906,7 +908,47 @@ async function init() {
 	postFX = new PostProcessing( renderer, scene, cam.camera, bloomPass );
 	postFX.setDirLight( dirLight );
 
-	const controls = new Controls();
+	const settings = new Settings();
+	const controls = new Controls( settings, cam );
+	const settingsMenu = new SettingsMenu( settings, controls );
+
+	// ─── Camera toggle button (top-left) ─────────────────────────────────
+	const camToggleBtn = document.createElement( 'div' );
+	camToggleBtn.style.cssText = 'position:fixed;top:16px;left:16px;z-index:100;width:44px;height:44px;border-radius:10px;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.2);cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;touch-action:manipulation;';
+	camToggleBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>';
+	camToggleBtn.addEventListener( 'pointerup', () => {
+
+		cam.mode = cam.mode === 'chase' ? 'isometric' : 'chase';
+
+	} );
+	document.body.appendChild( camToggleBtn );
+
+	// ─── React to settings changes ───────────────────────────────────────
+	window.addEventListener( 'settings-changed', ( e ) => {
+
+		const { key, value } = e.detail;
+
+		if ( key === 'shadowQuality' ) {
+
+			dirLight.shadow.mapSize.setScalar( value === 'high' ? 2048 : 1024 );
+			dirLight.shadow.map = null; // force shadow map rebuild
+			renderer.shadowMap.needsUpdate = true;
+
+		}
+
+		if ( key === 'postProcessing' && postFX ) {
+
+			postFX.setEnabled( 'bloom', value );
+
+		}
+
+		if ( key === 'cameraMode' ) {
+
+			cam.mode = value;
+
+		}
+
+	} );
 
 	const audio = new GameAudio();
 	audio.init( cam.camera );
@@ -1013,7 +1055,7 @@ async function init() {
 
 		updateWorld( world, contactListener, dt );
 
-		playerManager.update( dt, spectating ? { x: 0, z: 0, touchActive: false } : input );
+		playerManager.update( dt, spectating ? { x: 0, z: 0, touchActive: false, boost: false, gas: false, brake: false } : input );
 
 		aiManager.update( dt, vehicle, raceMode.state, raceMode.lap );
 

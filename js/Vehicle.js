@@ -474,22 +474,9 @@ export class Vehicle {
 		this.inputX = controlsInput.x;
 		this.inputZ = controlsInput.z;
 
-		if ( controlsInput.touchActive && ( this.inputX !== 0 || this.inputZ !== 0 ) ) {
+		{
 
-			// Touch: joystick defines world-space direction, auto-gas
-			const targetAngle = Math.atan2( this.inputX, this.inputZ );
-			_quat.setFromAxisAngle( _up, targetAngle );
-			this.container.quaternion.slerp( _quat, 1 - Math.exp( - 3 * dt ) );
-
-			_forward.set( 0, 0, 1 ).applyQuaternion( this.container.quaternion );
-			const cross = _forward.x * this.inputZ - _forward.z * this.inputX;
-			this.inputX = - cross * 2;
-
-			this.linearSpeed = THREE.MathUtils.lerp( this.linearSpeed, 1, dt * 6 );
-
-		} else {
-
-			// Keyboard / gamepad: standard steering + throttle
+			// Unified steering + throttle (keyboard, gamepad, and touch all use same model)
 			let direction = Math.sign( this.linearSpeed );
 			if ( direction === 0 ) direction = Math.abs( this.inputZ ) > 0.1 ? Math.sign( this.inputZ ) : 1;
 

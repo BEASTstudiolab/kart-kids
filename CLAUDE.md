@@ -31,3 +31,18 @@ Port of the Kenney "Starter Kit Racing" Godot 4.6 project (in `_godot/`) to plai
 ## Porting reference
 
 Godot collision shapes are defined in `_godot/models/Library/mesh-library.tscn` as `ConcavePolygonShape3D` vertex data. The JS port approximates these with crashcat cuboid colliders.
+
+## Mobile testing
+
+The dev server (`node server.js`) binds `0.0.0.0:3000` — accessible from any device on the same LAN.
+
+1. Find your PC's local IP: run `ipconfig` and look for your WiFi adapter's IPv4 address
+2. On your phone (same WiFi), navigate to `http://<your-ip>:3000`
+3. For accelerometer/tilt steering (requires HTTPS): run `npx ngrok http 3000` and use the HTTPS URL on your phone
+
+## Mobile controls architecture
+
+- `Settings.js` — localStorage persistence for user preferences (handedness, accelerometer, graphics)
+- `SettingsMenu.js` — Hamburger menu overlay (top-right) for graphics and controller settings
+- `Controls.js` — Multi-touch input: horizontal 3-level joystick (steering), gas/brake/boost buttons, accelerometer, pinch-to-zoom
+- Controls return `{ x, z, touchActive, boost, gas, brake }` — Vehicle.js uses unified steering+throttle model for all input sources

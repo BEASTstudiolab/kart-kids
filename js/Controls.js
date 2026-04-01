@@ -1,111 +1,433 @@
 export class Controls {
 
-	constructor() {
+	constructor( settings, camera ) {
+
+		this.settings = settings;
+		this.camera = camera;
 
 		this.keys = {};
 		this.x = 0;
 		this.z = 0;
 
-		// Touch state
-		this.touchActive = false;
-		this.touchDirX = 0;
-		this.touchDirY = 0;
-		this.steerPointerId = null;
-		this.steerStartX = 0;
-		this.steerStartY = 0;
+		// Touch button state
+		this._gasPressed = false;
+		this._brakePressed = false;
+		this._boostPressed = false;
 
+		// Touch joystick state
+		this._steerPointerId = null;
+		this._steerStartX = 0;
+		this._steerRawX = 0;
+		this.touchActive = false;
+
+		// Accelerometer state
+		this._accelGamma = 0;
+		this._accelEnabled = false;
+		this._accelListening = false;
+
+		// Pinch-to-zoom state
+		this._activePointers = new Map();
+
+		// Gamepad
 		this._gamepadConnected = false;
+
+		// Touch UI elements (for teardown/rebuild)
+		this._touchContainer = null;
+		this._touchCSS = null;
 
 		window.addEventListener( 'keydown', ( e ) => this.keys[ e.code ] = true );
 		window.addEventListener( 'keyup', ( e ) => this.keys[ e.code ] = false );
 		window.addEventListener( 'gamepadconnected', () => { this._gamepadConnected = true; } );
 		window.addEventListener( 'gamepaddisconnected', () => {
+
 			this._gamepadConnected = navigator.getGamepads().some( ( gp ) => gp !== null );
+
+		} );
+
+		// Pinch-to-zoom tracking (window-level)
+		window.addEventListener( 'pointerdown', ( e ) => this._onPinchPointerDown( e ) );
+		window.addEventListener( 'pointermove', ( e ) => this._onPinchPointerMove( e ) );
+		window.addEventListener( 'pointerup', ( e ) => this._onPinchPointerEnd( e ) );
+		window.addEventListener( 'pointercancel', ( e ) => this._onPinchPointerEnd( e ) );
+
+		// Listen for settings changes
+		window.addEventListener( 'settings-changed', ( e ) => {
+
+			if ( e.detail.key === 'handedness' ) this._rebuildTouchUI();
+			if ( e.detail.key === 'accelerometer' ) this._toggleAccelerometer( e.detail.value );
+
 		} );
 
 		this.setupTouchUI();
 
+		// Init accelerometer if previously enabled
+		if ( settings && settings.get( 'accelerometer' ) ) {
+
+			this._toggleAccelerometer( true );
+
+		}
+
 	}
+
+	// ─── Touch UI ─────────────────────────────────────────────────────────────
 
 	setupTouchUI() {
 
 		if ( ! ( 'ontouchstart' in window ) ) return;
 
+		const hand = this.settings ? this.settings.get( 'handedness' ) : 'right';
+		const steerSide = hand === 'right' ? 'left' : 'right';
+		const btnSide = hand === 'right' ? 'right' : 'left';
+
 		const css = document.createElement( 'style' );
 		css.textContent = `
-			.touch-controls { position: absolute; bottom: 0; left: 0; right: 0; height: 50%; pointer-events: none; z-index: 10; }
-			.steer-zone { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; pointer-events: auto; touch-action: none; }
-			.steer-base { position: absolute; bottom: 32px; left: 32px; width: 140px; height: 140px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.2); }
-			.steer-knob { position: absolute; top: 50%; left: 50%; width: 60px; height: 60px; margin: -30px 0 0 -30px; border-radius: 50%; background: rgba(255,255,255,0.35); }
+			.touch-controls {
+				position: absolute; bottom: 0; left: 0; right: 0; height: 50%;
+				pointer-events: none; z-index: 10;
+			}
+			.steer-zone {
+				position: absolute; ${ steerSide }: 0; top: 0; bottom: 0; width: 50%;
+				pointer-events: auto; touch-action: none;
+			}
+			.steer-base {
+				position: absolute; bottom: 32px; ${ steerSide }: 32px;
+				width: 160px; height: 80px; border-radius: 40px;
+				background: rgba(255,255,255,0.06);
+				border: 2px solid rgba(255,255,255,0.25);
+				display: flex; align-items: center; justify-content: center;
+			}
+			.steer-knob {
+				width: 52px; height: 52px; border-radius: 50%;
+				background: rgba(255,255,255,0.15);
+				border: 2px solid rgba(255,255,255,0.4);
+				pointer-events: none; position: relative;
+			}
+			.steer-arrow {
+				position: absolute; top: 50%; transform: translateY(-50%);
+				font-size: 18px; color: rgba(255,255,255,0.3);
+				pointer-events: none; user-select: none;
+			}
+			.steer-arrow-l { left: 12px; }
+			.steer-arrow-r { right: 12px; }
+			.btn-zone {
+				position: absolute; ${ btnSide }: 0; top: 0; bottom: 0; width: 50%;
+				pointer-events: none; touch-action: none;
+			}
+			.touch-btn {
+				position: absolute; width: 80px; height: 80px; border-radius: 50%;
+				background: rgba(255,255,255,0.06);
+				border: 2px solid rgba(255,255,255,0.3);
+				pointer-events: auto; touch-action: none;
+				display: flex; align-items: center; justify-content: center;
+				font-family: sans-serif; font-size: 13px; font-weight: 700;
+				color: rgba(255,255,255,0.5); user-select: none;
+				-webkit-user-select: none;
+				transition: background 0.1s, border-color 0.1s;
+			}
+			.touch-btn.active {
+				background: rgba(255,255,255,0.18);
+				border-color: rgba(255,255,255,0.6);
+			}
+			.touch-btn-gas { bottom: 32px; ${ btnSide }: 110px; border-color: rgba(100,255,100,0.4); color: rgba(100,255,100,0.6); }
+			.touch-btn-gas.active { background: rgba(100,255,100,0.18); border-color: rgba(100,255,100,0.7); }
+			.touch-btn-brake { bottom: 32px; ${ btnSide }: 20px; border-color: rgba(255,100,100,0.4); color: rgba(255,100,100,0.6); }
+			.touch-btn-brake.active { background: rgba(255,100,100,0.18); border-color: rgba(255,100,100,0.7); }
+			.touch-btn-boost {
+				bottom: 124px; ${ btnSide }: 65px; width: 68px; height: 68px;
+				border-color: rgba(255,200,50,0.4); color: rgba(255,200,50,0.6);
+			}
+			.touch-btn-boost.active { background: rgba(255,200,50,0.18); border-color: rgba(255,200,50,0.7); }
 		`;
 		document.head.appendChild( css );
+		this._touchCSS = css;
 
 		const container = document.createElement( 'div' );
 		container.className = 'touch-controls';
+
+		// ── Steering joystick (horizontal only) ──────────────────────────────
 
 		const steerZone = document.createElement( 'div' );
 		steerZone.className = 'steer-zone';
 
 		const base = document.createElement( 'div' );
 		base.className = 'steer-base';
+
+		const arrowL = document.createElement( 'span' );
+		arrowL.className = 'steer-arrow steer-arrow-l';
+		arrowL.textContent = '\u25C0';
+
+		const arrowR = document.createElement( 'span' );
+		arrowR.className = 'steer-arrow steer-arrow-r';
+		arrowR.textContent = '\u25B6';
+
 		const knob = document.createElement( 'div' );
 		knob.className = 'steer-knob';
+
+		base.appendChild( arrowL );
 		base.appendChild( knob );
+		base.appendChild( arrowR );
 		steerZone.appendChild( base );
-
 		container.appendChild( steerZone );
-		document.body.appendChild( container );
 
-		const steerRange = 40;
+		const steerRange = 50;
 
 		steerZone.addEventListener( 'pointerdown', ( e ) => {
 
-			if ( this.steerPointerId !== null ) return;
+			if ( this._steerPointerId !== null ) return;
 			steerZone.setPointerCapture( e.pointerId );
-			this.steerPointerId = e.pointerId;
-			this.steerStartX = e.clientX;
-			this.steerStartY = e.clientY;
+			this._steerPointerId = e.pointerId;
+			this._steerStartX = e.clientX;
+			this._steerRawX = 0;
 			this.touchActive = true;
-			this.touchDirX = 0;
-			this.touchDirY = 0;
 
 		} );
 
 		steerZone.addEventListener( 'pointermove', ( e ) => {
 
-			if ( e.pointerId !== this.steerPointerId ) return;
-			let dx = ( e.clientX - this.steerStartX ) / steerRange;
-			let dy = ( e.clientY - this.steerStartY ) / steerRange;
-			const mag = Math.sqrt( dx * dx + dy * dy );
-
-			if ( mag > 1 ) {
-
-				dx /= mag;
-				dy /= mag;
-
-			}
-
-			this.touchDirX = dx;
-			this.touchDirY = dy;
-			knob.style.transform = `translate(${ this.touchDirX * 60 }px, ${ this.touchDirY * 60 }px)`;
+			if ( e.pointerId !== this._steerPointerId ) return;
+			let dx = ( e.clientX - this._steerStartX ) / steerRange;
+			dx = Math.max( - 1, Math.min( 1, dx ) );
+			this._steerRawX = dx;
+			knob.style.transform = `translateX(${ dx * 50 }px)`;
 
 		} );
 
 		const endSteer = ( e ) => {
 
-			if ( e.pointerId !== this.steerPointerId ) return;
-			this.steerPointerId = null;
-			this.touchActive = false;
-			this.touchDirX = 0;
-			this.touchDirY = 0;
+			if ( e.pointerId !== this._steerPointerId ) return;
+			this._steerPointerId = null;
+			this._steerRawX = 0;
 			knob.style.transform = '';
+			if ( ! this._gasPressed && ! this._brakePressed && ! this._boostPressed ) {
+
+				this.touchActive = false;
+
+			}
 
 		};
 
 		steerZone.addEventListener( 'pointerup', endSteer );
 		steerZone.addEventListener( 'pointercancel', endSteer );
 
+		// ── Action buttons ───────────────────────────────────────────────────
+
+		const btnZone = document.createElement( 'div' );
+		btnZone.className = 'btn-zone';
+
+		const gasBtn = this._createButton( 'GAS', 'touch-btn touch-btn-gas', ( pressed ) => {
+
+			this._gasPressed = pressed;
+			if ( pressed ) this.touchActive = true;
+
+		} );
+
+		const brakeBtn = this._createButton( 'BRK', 'touch-btn touch-btn-brake', ( pressed ) => {
+
+			this._brakePressed = pressed;
+			if ( pressed ) this.touchActive = true;
+
+		} );
+
+		const boostBtn = this._createButton( 'NOS', 'touch-btn touch-btn-boost', ( pressed ) => {
+
+			this._boostPressed = pressed;
+			if ( pressed ) this.touchActive = true;
+
+		} );
+
+		btnZone.appendChild( gasBtn );
+		btnZone.appendChild( brakeBtn );
+		btnZone.appendChild( boostBtn );
+		container.appendChild( btnZone );
+
+		document.body.appendChild( container );
+		this._touchContainer = container;
+
+		// Hide joystick if accelerometer is active
+		if ( this._accelEnabled ) {
+
+			steerZone.style.display = 'none';
+
+		}
+
+		this._steerZone = steerZone;
+
 	}
+
+	_createButton( label, className, onToggle ) {
+
+		const btn = document.createElement( 'div' );
+		btn.className = className;
+		btn.textContent = label;
+
+		btn.addEventListener( 'pointerdown', ( e ) => {
+
+			btn.setPointerCapture( e.pointerId );
+			btn.classList.add( 'active' );
+			onToggle( true );
+
+		} );
+
+		const release = () => {
+
+			btn.classList.remove( 'active' );
+			onToggle( false );
+
+		};
+
+		btn.addEventListener( 'pointerup', release );
+		btn.addEventListener( 'pointercancel', release );
+
+		return btn;
+
+	}
+
+	_rebuildTouchUI() {
+
+		// Tear down existing
+		if ( this._touchContainer ) {
+
+			this._touchContainer.remove();
+			this._touchContainer = null;
+
+		}
+
+		if ( this._touchCSS ) {
+
+			this._touchCSS.remove();
+			this._touchCSS = null;
+
+		}
+
+		// Reset state
+		this._steerPointerId = null;
+		this._steerRawX = 0;
+		this._gasPressed = false;
+		this._brakePressed = false;
+		this._boostPressed = false;
+		this.touchActive = false;
+
+		this.setupTouchUI();
+
+	}
+
+	// ─── Accelerometer ───────────────────────────────────────────────────────
+
+	_toggleAccelerometer( enabled ) {
+
+		this._accelEnabled = enabled;
+
+		if ( enabled && ! this._accelListening ) {
+
+			this._requestAccelPermission().then( ( granted ) => {
+
+				if ( granted ) {
+
+					window.addEventListener( 'deviceorientation', ( e ) => {
+
+						this._accelGamma = e.gamma || 0;
+
+					} );
+					this._accelListening = true;
+
+				}
+
+			} );
+
+		}
+
+		// Show/hide joystick
+		if ( this._steerZone ) {
+
+			this._steerZone.style.display = enabled ? 'none' : '';
+
+		}
+
+	}
+
+	async _requestAccelPermission() {
+
+		if ( typeof DeviceOrientationEvent !== 'undefined' &&
+			typeof DeviceOrientationEvent.requestPermission === 'function' ) {
+
+			try {
+
+				const perm = await DeviceOrientationEvent.requestPermission();
+				return perm === 'granted';
+
+			} catch ( e ) {
+
+				return false;
+
+			}
+
+		}
+
+		// Android or desktop — no permission needed
+		return true;
+
+	}
+
+	// ─── Pinch-to-Zoom ──────────────────────────────────────────────────────
+
+	_onPinchPointerDown( e ) {
+
+		this._activePointers.set( e.pointerId, { x: e.clientX, y: e.clientY } );
+
+	}
+
+	_onPinchPointerMove( e ) {
+
+		if ( ! this._activePointers.has( e.pointerId ) ) return;
+		this._activePointers.set( e.pointerId, { x: e.clientX, y: e.clientY } );
+
+		if ( this._activePointers.size >= 2 && this.camera ) {
+
+			const pts = [ ...this._activePointers.values() ];
+			const dx = pts[ 0 ].x - pts[ 1 ].x;
+			const dy = pts[ 0 ].y - pts[ 1 ].y;
+			const dist = Math.sqrt( dx * dx + dy * dy );
+
+			if ( this._prevPinchDist !== undefined ) {
+
+				const scale = dist / this._prevPinchDist;
+				this.camera.zoom = Math.max( 0.5, Math.min( 3.0,
+					this.camera.zoom / scale
+				) );
+
+			}
+
+			this._prevPinchDist = dist;
+
+		}
+
+	}
+
+	_onPinchPointerEnd( e ) {
+
+		this._activePointers.delete( e.pointerId );
+		if ( this._activePointers.size < 2 ) {
+
+			this._prevPinchDist = undefined;
+
+		}
+
+	}
+
+	// ─── Quantize steering to 3 levels ───────────────────────────────────────
+
+	_quantizeSteer( raw ) {
+
+		const sign = Math.sign( raw );
+		const abs = Math.abs( raw );
+		if ( abs < 0.1 ) return 0;
+		if ( abs < 0.33 ) return sign * 0.33;
+		if ( abs < 0.66 ) return sign * 0.66;
+		return sign * 1.0;
+
+	}
+
+	// ─── Main update ─────────────────────────────────────────────────────────
 
 	update() {
 
@@ -122,47 +444,55 @@ export class Controls {
 
 		if ( this._gamepadConnected ) {
 
-		const gamepads = navigator.getGamepads();
+			const gamepads = navigator.getGamepads();
 
-		for ( const gp of gamepads ) {
+			for ( const gp of gamepads ) {
 
-			if ( ! gp ) continue;
+				if ( ! gp ) continue;
 
-			const stickX = gp.axes[ 0 ];
-			if ( Math.abs( stickX ) > 0.15 ) x = stickX;
+				const stickX = gp.axes[ 0 ];
+				if ( Math.abs( stickX ) > 0.15 ) x = stickX;
 
-			const rt = gp.buttons[ 7 ] ? gp.buttons[ 7 ].value : 0;
-			const lt = gp.buttons[ 6 ] ? gp.buttons[ 6 ].value : 0;
+				const rt = gp.buttons[ 7 ] ? gp.buttons[ 7 ].value : 0;
+				const lt = gp.buttons[ 6 ] ? gp.buttons[ 6 ].value : 0;
 
-			if ( rt > 0.1 || lt > 0.1 ) z = rt - lt;
+				if ( rt > 0.1 || lt > 0.1 ) z = rt - lt;
 
-			break;
+				break;
+
+			}
 
 		}
 
-		}
-
-		// Touch — joystick mapped to world space (camera is 45° azimuth)
+		// Touch — separate joystick + buttons
+		let gas = false, brake = false;
 
 		if ( this.touchActive ) {
 
-			const jx = this.touchDirX;
-			const jy = this.touchDirY;
-			const mag = Math.sqrt( jx * jx + jy * jy );
+			// Steering: accelerometer or joystick
+			if ( this._accelEnabled && this._accelListening ) {
 
-			if ( mag > 0.15 ) {
+				const gamma = Math.max( - 30, Math.min( 30, this._accelGamma ) );
+				x = this._quantizeSteer( gamma / 30 );
 
-				x = ( jx + jy ) * Math.SQRT1_2 / mag;
-				z = ( - jx + jy ) * Math.SQRT1_2 / mag;
+			} else {
+
+				x = this._quantizeSteer( this._steerRawX );
 
 			}
+
+			gas = this._gasPressed;
+			brake = this._brakePressed;
+			z = gas ? 1 : ( brake ? - 1 : 0 );
 
 		}
 
 		this.x = x;
 		this.z = z;
 
-		return { x, z, touchActive: this.touchActive, boost: !! this.keys[ 'ShiftLeft' ] || !! this.keys[ 'ShiftRight' ] };
+		const boost = this._boostPressed || !! this.keys[ 'ShiftLeft' ] || !! this.keys[ 'ShiftRight' ];
+
+		return { x, z, touchActive: this.touchActive, boost, gas, brake };
 
 	}
 

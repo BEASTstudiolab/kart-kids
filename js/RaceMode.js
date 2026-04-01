@@ -7,7 +7,7 @@ const STATE_RACING = 'racing';
 const STATE_FINISHED = 'finished';
 
 const COUNTDOWN_DURATION = 3; // seconds
-const ZERO_INPUT = { x: 0, z: 0, touchActive: false, boost: false };
+const ZERO_INPUT = { x: 0, z: 0, touchActive: false, boost: false, gas: false, brake: false };
 
 export class RaceMode extends GameMode {
 

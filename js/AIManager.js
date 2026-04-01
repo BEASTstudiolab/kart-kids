@@ -16,7 +16,7 @@ const VEHICLE_MODEL_NAMES = [
 	'vehicle-truck-red',
 ];
 
-const ZERO_INPUT = { x: 0, z: 0, touchActive: false, boost: false };
+const ZERO_INPUT = { x: 0, z: 0, touchActive: false, boost: false, gas: false, brake: false };
 
 const COL_OFFSETS = [ - 2.5, 0, 2.5 ];
 const ROW_OFFSETS = [ 0, - 3.0, - 6.0 ];
