@@ -4,11 +4,14 @@ const STORAGE_KEY = 'kart-kids-settings';
 
 const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
+// Cache detectTier() result — avoids creating multiple throwaway WebGL contexts
+const _detectedTier = detectTier();
+
 const DEFAULTS = {
 	handedness: 'right',
 	accelerometer: false,
 	cameraMode: 'chase',
-	quality: detectTier(),
+	quality: _detectedTier,
 };
 
 export class Settings {
@@ -34,7 +37,7 @@ export class Settings {
 
 					} else {
 
-						parsed.quality = detectTier();
+						parsed.quality = _detectedTier;
 
 					}
 
@@ -54,7 +57,7 @@ export class Settings {
 		// Validate quality tier
 		if ( ! VALID_TIERS.includes( this._data.quality ) ) {
 
-			this._data.quality = detectTier();
+			this._data.quality = _detectedTier;
 
 		}
 
