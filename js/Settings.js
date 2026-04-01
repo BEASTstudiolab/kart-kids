@@ -1,13 +1,17 @@
+import { detectTier, VALID_TIERS } from './QualityTiers.js';
+
 const STORAGE_KEY = 'kart-kids-settings';
 
 const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+// Cache detectTier() result — avoids creating multiple throwaway WebGL contexts
+const _detectedTier = detectTier();
 
 const DEFAULTS = {
 	handedness: 'right',
 	accelerometer: false,
 	cameraMode: 'chase',
-	shadowQuality: isMobile ? 'low' : 'high',
-	postProcessing: ! isMobile
+	quality: _detectedTier,
 };
 
 export class Settings {
@@ -19,9 +23,43 @@ export class Settings {
 		try {
 
 			const stored = localStorage.getItem( STORAGE_KEY );
-			if ( stored ) Object.assign( this._data, JSON.parse( stored ) );
+
+			if ( stored ) {
+
+				const parsed = JSON.parse( stored );
+
+				// Migrate old postProcessing boolean → quality tier
+				if ( 'postProcessing' in parsed ) {
+
+					if ( parsed.postProcessing === false ) {
+
+						parsed.quality = 'low';
+
+					} else {
+
+						parsed.quality = _detectedTier;
+
+					}
+
+					delete parsed.postProcessing;
+
+				}
+
+				// Drop old shadowQuality (now owned by quality preset)
+				delete parsed.shadowQuality;
+
+				Object.assign( this._data, parsed );
+
+			}
 
 		} catch ( e ) { /* ignore corrupt data */ }
+
+		// Validate quality tier
+		if ( ! VALID_TIERS.includes( this._data.quality ) ) {
+
+			this._data.quality = _detectedTier;
+
+		}
 
 	}
 
