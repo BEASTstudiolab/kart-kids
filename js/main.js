@@ -359,6 +359,9 @@ async function init() {
 	const dirLightOffset = { x: 11.4, y: 15, z: - 5.3 };
 	let lastShadowX = 0, lastShadowZ = 0;
 
+	// ── Audio (must be before RaceMode which references it in callbacks) ────
+	const audio = new GameAudio();
+
 	// ── Race mode setup ──────────────────────────────────────────────────────
 	const raceMode = new RaceMode( {
 		totalLaps: 3,
@@ -1020,7 +1023,6 @@ async function init() {
 
 	} );
 
-	const audio = new GameAudio();
 	audio.init( cam.camera );
 
 	let lastImpactTime = 0;

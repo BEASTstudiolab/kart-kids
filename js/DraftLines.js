@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 
-const POOL_SIZE = 20;
-const BASE_OPACITY = 0.3;
-const LINE_LIFETIME = 0.3;
+const POOL_SIZE = 10;
+const BASE_OPACITY = 0.15;
+const LINE_LIFETIME = 0.2;
 
 const _leadForward = new THREE.Vector3();
 const _trailerForward = new THREE.Vector3();
@@ -37,7 +37,7 @@ export class DraftLines {
 
 			const sprite = new THREE.Sprite( this.material.clone() );
 			sprite.visible = false;
-			sprite.scale.set( 0.08, 0.4, 1 );
+			sprite.scale.set( 0.04, 0.25, 1 );
 			scene.add( sprite );
 
 			this.particles.push( {
@@ -45,8 +45,8 @@ export class DraftLines {
 				life: 0,
 				maxLife: 0,
 				velocity: new THREE.Vector3(),
-				width: 0.08,
-				length: 0.4,
+				width: 0.04,
+				length: 0.25,
 			} );
 
 		}
