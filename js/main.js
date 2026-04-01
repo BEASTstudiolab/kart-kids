@@ -26,6 +26,8 @@ import { PostProcessing } from './PostProcessing.js';
 import { Settings } from './Settings.js';
 import { SettingsMenu } from './SettingsMenu.js';
 import { PRESETS, TIER_PIXEL_RATIO } from './QualityTiers.js';
+import { DraftingSystem } from './DraftingSystem.js';
+import { DraftLines } from './DraftLines.js';
 
 
 const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -1098,6 +1100,8 @@ async function init() {
 	let fpsFrames = 0;
 	let fpsTime = performance.now();
 	const allActiveVehicles = [];
+	const draftingSystem = new DraftingSystem();
+	const draftLines = new DraftLines( scene );
 
 	function animate() {
 
@@ -1175,6 +1179,11 @@ async function init() {
 		allActiveVehicles.length = 0;
 		for ( const v of playerManager.getActiveVehicles() ) allActiveVehicles.push( v );
 		for ( const v of aiManager.getActiveVehicles() ) allActiveVehicles.push( v );
+
+		// Drafting detection and VFX
+		draftingSystem.update( dt, allActiveVehicles );
+		draftLines.update( dt, draftingSystem.getActiveDrafts() );
+
 		raceMode.update( dt, vehicle, allActiveVehicles, aiManager.getAIRaceData() );
 
 		if ( raceMode.state === 'idle' ) {
@@ -1240,6 +1249,14 @@ async function init() {
 		}
 
 		audio.update( dt, vehicle ? vehicle.linearSpeed : 0, input.z, vehicle ? vehicle.driftIntensity : 0 );
+
+		// Draft wind audio — get player's draft intensity
+		if ( vehicle ) {
+
+			const playerDraft = draftingSystem.getActiveDrafts().get( vehicle );
+			audio.updateDraft( playerDraft ? playerDraft.intensity : 0 );
+
+		}
 
 		// Update dynamic post-processing effects
 		if ( postFX ) {

@@ -19,6 +19,11 @@ export class GameAudio {
 		this.ready = false;
 		this.unlocked = false;
 
+		// Draft wind sound (generated noise buffer)
+		this._draftGain = null;
+		this._draftSource = null;
+		this._draftIntensity = 0;
+
 	}
 
 	init( camera ) {
@@ -110,6 +115,40 @@ export class GameAudio {
 		if ( ! this.engineSound.isPlaying ) this.engineSound.play();
 		if ( ! this.skidSound.isPlaying ) this.skidSound.play();
 
+		// Initialize draft wind noise
+		if ( ! this._draftSource && this.listener.context ) {
+
+			const ctx = this.listener.context;
+
+			// Generate white noise buffer
+			const bufferSize = ctx.sampleRate * 2;
+			const noiseBuffer = ctx.createBuffer( 1, bufferSize, ctx.sampleRate );
+			const data = noiseBuffer.getChannelData( 0 );
+			for ( let i = 0; i < bufferSize; i ++ ) data[ i ] = Math.random() * 2 - 1;
+
+			// Noise source → bandpass filter → gain → destination
+			const source = ctx.createBufferSource();
+			source.buffer = noiseBuffer;
+			source.loop = true;
+
+			const filter = ctx.createBiquadFilter();
+			filter.type = 'bandpass';
+			filter.frequency.value = 1200;
+			filter.Q.value = 0.8;
+
+			const gain = ctx.createGain();
+			gain.gain.value = 0;
+
+			source.connect( filter );
+			filter.connect( gain );
+			gain.connect( ctx.destination );
+			source.start();
+
+			this._draftSource = source;
+			this._draftGain = gain;
+
+		}
+
 	}
 
 	update( dt, speed, throttle, driftIntensity ) {
@@ -148,6 +187,16 @@ export class GameAudio {
 		const skidPitch = THREE.MathUtils.clamp( Math.abs( speed ), 1, 3 );
 		const curSkidPitch = this.skidSound.getPlaybackRate();
 		this.skidSound.setPlaybackRate( THREE.MathUtils.lerp( curSkidPitch, skidPitch, 0.1 ) );
+
+	}
+
+	updateDraft( intensity ) {
+
+		if ( ! this._draftGain ) return;
+
+		const targetVol = intensity * 0.12; // subtle wind volume
+		const ctx = this.listener.context;
+		this._draftGain.gain.linearRampToValueAtTime( targetVol, ctx.currentTime + 0.05 );
 
 	}
 
