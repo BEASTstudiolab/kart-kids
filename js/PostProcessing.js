@@ -380,10 +380,14 @@ export class PostProcessing {
 		const gen = ++ this._presetGeneration;
 
 		// Directly set enabled flags (bypass setEnabled to avoid 9 rebuilds)
+		// Pre-await mutations are unguarded by design — the last caller's flags always win synchronously
 		for ( const effect of this.effects ) {
 
 			const entry = config[ effect.name ];
 			if ( ! entry ) continue;
+
+			// Preserve active screen shake — gameplay code auto-manages this effect
+			if ( effect.name === 'screenShake' && this.shakeIntensity > 0.001 ) continue;
 
 			effect.enabled = entry.enabled;
 
@@ -442,7 +446,7 @@ export class PostProcessing {
 			if ( effect.name === 'ssao' ) continue;
 
 			const entry = config[ effect.name ];
-			if ( ! entry || ! entry.params || ! effect.pass ) continue;
+			if ( ! entry || ! entry.params || ! effect.pass || ! effect.pass.uniforms ) continue;
 
 			for ( const key in entry.params ) {
 
