@@ -4,6 +4,7 @@
   "type": "module",
   "dependencies": {
     "crashcat": "^0.0.3",
+    "three": "^0.183.2",
     "ws": "^8.0.0"
   },
   "scripts": {

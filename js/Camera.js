@@ -55,6 +55,10 @@ export class Camera {
 		this.baseChaseDistance = 6;
 		this._currentChaseDistance = 6;
 
+		// Velocity tracking for motion blur
+		this.prevPosition = new THREE.Vector3();
+		this._velocity = new THREE.Vector3();
+
 		// Orbit state
 		this.orbitAngle = 0;
 		this.dragging = false;
@@ -281,6 +285,17 @@ export class Camera {
 			this.camera.lookAt( this.targetPosition );
 
 		}
+
+		// Velocity tracking for motion blur
+		this._velocity.copy( this.camera.position ).sub( this.prevPosition );
+		if ( dt > 0 ) this._velocity.divideScalar( dt );
+		this.prevPosition.copy( this.camera.position );
+
+	}
+
+	getVelocity() {
+
+		return this._velocity;
 
 	}
 

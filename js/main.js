@@ -21,26 +21,16 @@ import { Haptics } from './Haptics.js';
 import { ItemBoxManager } from './ItemBoxManager.js';
 import { ItemPickupVFX } from './ItemPickupVFX.js';
 import { AIManager } from './AIManager.js';
+import { DebugMenu } from './DebugMenu.js';
+import { PostProcessing } from './PostProcessing.js';
 
 
 const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 window.isMobile = isMobile;
 
-const renderer = new THREE.WebGLRenderer( { antialias: true, outputBufferType: THREE.HalfFloatType } );
-renderer.setSize( window.innerWidth, window.innerHeight );
-renderer.setPixelRatio( isMobile ? 1.0 : Math.min( window.devicePixelRatio, 2.0 ) );
-renderer.shadowMap.enabled = true;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.0;
-
-const bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ) );
-bloomPass.strength = 0.02;
-bloomPass.radius = 0.02;
-bloomPass.threshold = 0.5;
-
-renderer.setEffects( [ bloomPass ] );
-
-document.body.appendChild( renderer.domElement );
+let renderer;
+let bloomPass;
+let postFX;
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color( 0xadb2ba );
@@ -153,6 +143,7 @@ function applyLighting( preset ) {
 window.addEventListener( 'resize', () => {
 
 	renderer.setSize( window.innerWidth, window.innerHeight );
+	if ( postFX ) postFX.resize( window.innerWidth, window.innerHeight );
 
 } );
 
@@ -202,6 +193,26 @@ async function loadModels() {
 }
 
 async function init() {
+
+	// ── Renderer setup ───────────────────────────────────────────────────────
+	// WebGPU requires a node-based post-processing pipeline (TSL) which is
+	// incompatible with the ShaderPass / setEffects() API we use.  Stick with
+	// WebGLRenderer for now; WebGPU can be revisited once the post-processing
+	// pipeline is migrated to TSL nodes.
+	renderer = new THREE.WebGLRenderer( { antialias: true, outputBufferType: THREE.HalfFloatType } );
+	renderer.setSize( window.innerWidth, window.innerHeight );
+	renderer.setPixelRatio( isMobile ? 1.0 : Math.min( window.devicePixelRatio, 2.0 ) );
+	renderer.shadowMap.enabled = true;
+	renderer.toneMapping = THREE.ACESFilmicToneMapping;
+	renderer.toneMappingExposure = 1.0;
+
+	bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ) );
+	bloomPass.strength = 0.02;
+	bloomPass.radius = 0.02;
+	bloomPass.threshold = 0.5;
+
+	renderer.setEffects( [ bloomPass ] );
+	document.body.appendChild( renderer.domElement );
 
 	registerAll();
 	await loadModels();
@@ -527,127 +538,16 @@ async function init() {
 
 		} );
 
-		// ─── DEBUG CONTROLS PANEL (top-left, toggle with Z) ──────────────────────
+		// ─── DEBUG CONTROLS PANEL (tabbed, toggle with M) ────────────────────────
 
-		const debugPanel = document.createElement( 'div' );
-		debugPanel.style.cssText = [
-			'position:fixed', 'top:12px', 'left:12px', 'bottom:12px',
-			'background:rgba(0,0,0,0.72)', 'color:#0f0', 'font:13px/1.6 monospace',
-			'padding:10px 14px', 'border-radius:6px', 'pointer-events:auto',
-			'min-width:280px', 'z-index:999', 'user-select:none', 'overflow-y:auto',
-		].join( ';' );
-		document.body.appendChild( debugPanel );
+		const debugMenu = new DebugMenu();
 
-		debugPanel.addEventListener( 'keydown', ( e ) => e.stopPropagation() );
-		debugPanel.addEventListener( 'keyup', ( e ) => e.stopPropagation() );
+		// ── Tab: General ─────────────────────────────────────────────────────────
+		const generalTab = debugMenu.addTab( 'general', 'General' );
 
-		function addCheckbox( parent, label, defaultVal, onChange ) {
+		debugMenu.addHeader( generalTab, 'Environment' );
 
-			const row = document.createElement( 'div' );
-			row.style.cssText = 'margin:4px 0;display:flex;align-items:center;gap:6px';
-
-			const input = document.createElement( 'input' );
-			input.type = 'checkbox';
-			input.checked = defaultVal;
-			input.style.cssText = 'accent-color:#0f0';
-
-			const lbl = document.createElement( 'span' );
-			lbl.textContent = label;
-
-			input.addEventListener( 'change', () => onChange( input.checked ) );
-
-			row.appendChild( input );
-			row.appendChild( lbl );
-			parent.appendChild( row );
-
-		}
-
-		function addSlider( parent, label, min, max, step, defaultVal, onChange ) {
-
-			const row = document.createElement( 'div' );
-			row.style.cssText = 'margin:4px 0;display:flex;align-items:center;gap:6px';
-
-			const lbl = document.createElement( 'span' );
-			lbl.style.cssText = 'min-width:100px';
-			lbl.textContent = label;
-
-			const input = document.createElement( 'input' );
-			input.type = 'range';
-			input.min = min;
-			input.max = max;
-			input.step = step;
-			input.value = defaultVal;
-			input.style.cssText = 'flex:1;accent-color:#0f0';
-
-			const val = document.createElement( 'input' );
-			val.type = 'text';
-			val.value = Number( defaultVal ).toFixed( 2 );
-			val.style.cssText = 'width:55px;text-align:right;background:transparent;color:#0f0;border:1px solid #0f044;font:12px monospace;padding:1px 3px';
-
-			input.addEventListener( 'input', () => {
-
-				const v = parseFloat( input.value );
-				val.value = v.toFixed( 2 );
-				onChange( v );
-
-			} );
-
-			val.addEventListener( 'change', () => {
-
-				const v = parseFloat( val.value );
-				if ( isNaN( v ) ) return;
-				input.value = v;
-				val.value = v.toFixed( 2 );
-				onChange( v );
-
-			} );
-
-			row.appendChild( lbl );
-			row.appendChild( input );
-			row.appendChild( val );
-			parent.appendChild( row );
-
-		}
-
-		function addColorPicker( parent, label, defaultHex, onChange ) {
-
-			const row = document.createElement( 'div' );
-			row.style.cssText = 'margin:4px 0;display:flex;align-items:center;gap:6px';
-
-			const lbl = document.createElement( 'span' );
-			lbl.style.cssText = 'min-width:100px';
-			lbl.textContent = label;
-
-			const input = document.createElement( 'input' );
-			input.type = 'color';
-			input.value = '#' + defaultHex.toString( 16 ).padStart( 6, '0' );
-			input.style.cssText = 'width:40px;height:24px;border:none;background:none;cursor:pointer';
-
-			input.addEventListener( 'input', () => {
-
-				onChange( parseInt( input.value.slice( 1 ), 16 ) );
-
-			} );
-
-			row.appendChild( lbl );
-			row.appendChild( input );
-			parent.appendChild( row );
-
-		}
-
-		// Title
-		const debugTitle = document.createElement( 'div' );
-		debugTitle.textContent = '─── DEBUG CONTROLS ─────────';
-		debugTitle.style.marginBottom = '6px';
-		debugPanel.appendChild( debugTitle );
-
-		// Environment toggle
-		const envHeader = document.createElement( 'div' );
-		envHeader.textContent = 'Environment:';
-		envHeader.style.cssText = 'margin:6px 0 2px';
-		debugPanel.appendChild( envHeader );
-
-		addCheckbox( debugPanel, 'Night mode', true, ( v ) => {
+		debugMenu.addCheckbox( generalTab, 'Night mode', true, ( v ) => {
 
 			applyLighting( v ? LIGHTING_NIGHT : LIGHTING_DAY );
 			for ( const hl of vehicle.headlights ) hl.visible = v;
@@ -688,7 +588,6 @@ async function init() {
 				playerModelIndex = truckNames.indexOf( select.value );
 				aiManager.playerModelIndex = playerModelIndex;
 
-				// Remove old vehicle model (first child of container)
 				while ( vehicle.container.children.length > 0 ) {
 
 					const child = vehicle.container.children[ 0 ];
@@ -698,11 +597,9 @@ async function init() {
 
 				}
 
-				// Re-init with new model
 				const oldLights = [ vehicle.underglowLight, ...vehicle.headlights ];
 				const oldTargets = vehicle.headlights.map( ( hl ) => hl.target );
 
-				// Remove all children, re-add
 				vehicle.container.clear();
 				vehicle.wheels = [];
 				vehicle.wheelFL = vehicle.wheelFR = vehicle.wheelBL = vehicle.wheelBR = null;
@@ -742,7 +639,6 @@ async function init() {
 				} );
 
 				vehicle.wheelOrigY = vehicle.wheels.map( ( w ) => w.position.y );
-				// Re-add lights
 				vehicle.container.add( oldLights[ 0 ] );
 				for ( let i = 0; i < vehicle.headlights.length; i ++ ) {
 
@@ -755,33 +651,19 @@ async function init() {
 
 			row.appendChild( lbl );
 			row.appendChild( select );
-			debugPanel.appendChild( row );
+			generalTab.appendChild( row );
 
 		}
 
-		// Wheel axis locks
-		const axisHeader = document.createElement( 'div' );
-		axisHeader.textContent = 'Wheel rotation locks:';
-		axisHeader.style.cssText = 'margin:6px 0 2px';
-		debugPanel.appendChild( axisHeader );
+		debugMenu.addHeader( generalTab, 'Debug visuals' );
 
-		addCheckbox( debugPanel, 'Lock X', false, ( v ) => { vehicle.debug.lockX = v; } );
-		addCheckbox( debugPanel, 'Lock Y (roll)', false, ( v ) => { vehicle.debug.lockY = v; } );
-		addCheckbox( debugPanel, 'Lock Z (steer)', false, ( v ) => { vehicle.debug.lockZ = v; } );
-
-		// Visibility toggles
-		const visHeader = document.createElement( 'div' );
-		visHeader.textContent = 'Debug visuals:';
-		visHeader.style.cssText = 'margin:8px 0 2px';
-		debugPanel.appendChild( visHeader );
-
-		addCheckbox( debugPanel, 'Show physics sphere', false, ( v ) => {
+		debugMenu.addCheckbox( generalTab, 'Show physics sphere', false, ( v ) => {
 
 			debugSphere.visible = v;
 
 		} );
 
-		addCheckbox( debugPanel, 'Show wheel debug', false, ( v ) => {
+		debugMenu.addCheckbox( generalTab, 'Show wheel debug', false, ( v ) => {
 
 			for ( const wd of wheelDebug ) {
 
@@ -793,40 +675,36 @@ async function init() {
 
 		} );
 
-		// Height sliders
-		const heightHeader = document.createElement( 'div' );
-		heightHeader.textContent = 'Height offsets (Y axis):';
-		heightHeader.style.cssText = 'margin:8px 0 2px';
-		debugPanel.appendChild( heightHeader );
+		debugMenu.addHeader( generalTab, 'Height offsets (Y axis)' );
 
-		addSlider( debugPanel, 'Wheel height', - 1.0, 1.0, 0.01, 0, ( v ) => { vehicle.debug.wheelHeight = v; } );
-		addSlider( debugPanel, 'Body height', - 1.0, 1.0, 0.01, 0.2, ( v ) => { vehicle.debug.bodyHeight = v; } );
-		addSlider( debugPanel, 'Underbody', - 2.0, 1.0, 0.01, - 0.5, ( v ) => { vehicle.debug.underbodyOffset = v; } );
-		addSlider( debugPanel, 'Ride height', 0, 0.5, 0.01, 0, ( v ) => { vehicle.debug.rideHeight = v; } );
-		addSlider( debugPanel, 'Chase cam height', 0, 10.0, 0.1, 2, ( v ) => { cam.chaseHeight = v; } );
-		addSlider( debugPanel, 'Zoom', 0.5, 3.0, 0.05, 1.0, ( v ) => { cam.zoom = v; } );
-		addSlider( debugPanel, 'Acceleration', 1, 20, 0.5, 1, ( v ) => { vehicle.debug.accelerationRate = v; } );
-		addSlider( debugPanel, 'Top speed', 10, 300, 5, 250, ( v ) => { vehicle.debug.topSpeed = v; } );
+		debugMenu.addSlider( generalTab, 'Wheel height', - 1.0, 1.0, 0.01, 0, ( v ) => { vehicle.debug.wheelHeight = v; } );
+		debugMenu.addSlider( generalTab, 'Body height', - 1.0, 1.0, 0.01, 0.2, ( v ) => { vehicle.debug.bodyHeight = v; } );
+		debugMenu.addSlider( generalTab, 'Underbody', - 2.0, 1.0, 0.01, - 0.5, ( v ) => { vehicle.debug.underbodyOffset = v; } );
+		debugMenu.addSlider( generalTab, 'Ride height', 0, 0.5, 0.01, 0, ( v ) => { vehicle.debug.rideHeight = v; } );
+		debugMenu.addSlider( generalTab, 'Chase cam height', 0, 10.0, 0.1, 2, ( v ) => { cam.chaseHeight = v; } );
+		debugMenu.addSlider( generalTab, 'Zoom', 0.5, 3.0, 0.05, 1.0, ( v ) => { cam.zoom = v; } );
+		debugMenu.addSlider( generalTab, 'Acceleration', 1, 20, 0.5, 1, ( v ) => { vehicle.debug.accelerationRate = v; } );
+		debugMenu.addSlider( generalTab, 'Top speed', 10, 300, 5, 250, ( v ) => { vehicle.debug.topSpeed = v; } );
 
-		// Camera G-Force
-		const gforceHeader = document.createElement( 'div' );
-		gforceHeader.textContent = 'Camera G-Force:';
-		gforceHeader.style.cssText = 'margin:8px 0 2px';
-		debugPanel.appendChild( gforceHeader );
+		debugMenu.addHeader( generalTab, 'Camera G-Force' );
 
-		addCheckbox( debugPanel, 'G-Force Effects', true, ( v ) => { cam.gforceEnabled = v; } );
-		addSlider( debugPanel, 'Roll intensity', 0, 1.0, 0.01, 0.35, ( v ) => { cam.rollIntensity = v; } );
-		addSlider( debugPanel, 'FOV narrow', 0, 16, 0.5, 8, ( v ) => { cam.fovNarrowMax = v; } );
-		addSlider( debugPanel, 'Boost punch', 0, 20, 0.5, 8, ( v ) => { cam.boostPunchAmount = v; } );
+		debugMenu.addCheckbox( generalTab, 'G-Force Effects', true, ( v ) => { cam.gforceEnabled = v; } );
+		debugMenu.addSlider( generalTab, 'Roll intensity', 0, 1.0, 0.01, 0.35, ( v ) => { cam.rollIntensity = v; } );
+		debugMenu.addSlider( generalTab, 'FOV narrow', 0, 16, 0.5, 8, ( v ) => { cam.fovNarrowMax = v; } );
+		debugMenu.addSlider( generalTab, 'Boost punch', 0, 20, 0.5, 8, ( v ) => { cam.boostPunchAmount = v; } );
 
-		// Bloom sliders
-		const bloomHeader = document.createElement( 'div' );
-		bloomHeader.textContent = 'Bloom / Glow:';
-		bloomHeader.style.cssText = 'margin:8px 0 2px';
-		debugPanel.appendChild( bloomHeader );
+		debugMenu.addHeader( generalTab, 'AI Racers' );
+
+		debugMenu.addSlider( generalTab, 'AI count', 0, 9, 1, 0, ( v ) => { aiManager.setCount( v ); } );
+		debugMenu.addSlider( generalTab, 'Rubber band %', 0, 100, 1, 50, ( v ) => { aiManager.rubberBandIntensity = v / 100; } );
+
+		// ── Tab: Post FX ─────────────────────────────────────────────────────────
+		const postFXTab = debugMenu.addTab( 'postprocessing', 'Post FX' );
+
+		debugMenu.addHeader( postFXTab, 'Bloom / Glow' );
 
 		let _savedBloomStrength = bloomPass.strength;
-		addCheckbox( debugPanel, 'Bloom enabled', true, ( v ) => {
+		debugMenu.addCheckbox( postFXTab, 'Bloom enabled', true, ( v ) => {
 
 			if ( v ) {
 
@@ -841,14 +719,14 @@ async function init() {
 
 		} );
 
-		addCheckbox( debugPanel, 'Glow (underglow light)', true, ( v ) => {
+		debugMenu.addCheckbox( postFXTab, 'Glow (underglow light)', true, ( v ) => {
 
 			if ( vehicle.underglowLight ) vehicle.underglowLight.visible = v;
 			vehicle._glowEnabled = v;
 
 		} );
 
-		addCheckbox( debugPanel, 'Emissive materials', true, ( v ) => {
+		debugMenu.addCheckbox( postFXTab, 'Emissive materials', true, ( v ) => {
 
 			scene.traverse( ( child ) => {
 
@@ -867,137 +745,146 @@ async function init() {
 
 		} );
 
-		addSlider( debugPanel, 'Strength', 0, 3.0, 0.01, bloomPass.strength, ( v ) => { bloomPass.strength = v; } );
-		addSlider( debugPanel, 'Radius', 0, 1.0, 0.01, bloomPass.radius, ( v ) => { bloomPass.radius = v; } );
-		addSlider( debugPanel, 'Threshold', 0, 1.0, 0.01, bloomPass.threshold, ( v ) => { bloomPass.threshold = v; } );
+		debugMenu.addSlider( postFXTab, 'Bloom strength', 0, 3.0, 0.01, bloomPass.strength, ( v ) => { bloomPass.strength = v; } );
+		debugMenu.addSlider( postFXTab, 'Bloom radius', 0, 1.0, 0.01, bloomPass.radius, ( v ) => { bloomPass.radius = v; } );
+		debugMenu.addSlider( postFXTab, 'Bloom threshold', 0, 1.0, 0.01, bloomPass.threshold, ( v ) => { bloomPass.threshold = v; } );
 
-		// Exposure
-		const exposureHeader = document.createElement( 'div' );
-		exposureHeader.textContent = 'Exposure:';
-		exposureHeader.style.cssText = 'margin:8px 0 2px';
-		debugPanel.appendChild( exposureHeader );
+		debugMenu.addHeader( postFXTab, 'Motion Blur' );
 
-		addSlider( debugPanel, 'Exposure', 0, 3.0, 0.01, renderer.toneMappingExposure, ( v ) => { renderer.toneMappingExposure = v; } );
+		debugMenu.addCheckbox( postFXTab, 'Motion Blur', false, ( v ) => { postFX.setEnabled( 'motionBlur', v ); } );
+		debugMenu.addSlider( postFXTab, 'MB Intensity', 0, 1.0, 0.01, 0.5, ( v ) => { postFX.getPass( 'motionBlur' ).uniforms.intensity.value = v; } );
+		debugMenu.addSlider( postFXTab, 'MB Samples', 1, 16, 1, 8, ( v ) => { postFX.getPass( 'motionBlur' ).uniforms.samples.value = v; } );
 
-		// Directional light
-		const dirHeader = document.createElement( 'div' );
-		dirHeader.textContent = 'Directional light:';
-		dirHeader.style.cssText = 'margin:8px 0 2px';
-		debugPanel.appendChild( dirHeader );
+		debugMenu.addHeader( postFXTab, 'Chromatic Aberration' );
 
-		addSlider( debugPanel, 'Dir X', - 30, 30, 0.1, dirLightOffset.x, ( v ) => { dirLightOffset.x = v; } );
-		addSlider( debugPanel, 'Dir Y', 0, 40, 0.1, dirLightOffset.y, ( v ) => { dirLightOffset.y = v; } );
-		addSlider( debugPanel, 'Dir Z', - 30, 30, 0.1, dirLightOffset.z, ( v ) => { dirLightOffset.z = v; } );
-		addSlider( debugPanel, 'Dir intensity', 0, 10, 0.1, dirLight.intensity, ( v ) => { dirLight.intensity = v; } );
-		addColorPicker( debugPanel, 'Dir color', dirLight.color.getHex(), ( v ) => { dirLight.color.setHex( v ); } );
+		debugMenu.addCheckbox( postFXTab, 'Chromatic Aberration', false, ( v ) => { postFX.setEnabled( 'chromaticAberration', v ); } );
+		debugMenu.addSlider( postFXTab, 'CA Offset', 0, 0.02, 0.001, 0.005, ( v ) => { postFX.getPass( 'chromaticAberration' ).uniforms.offset.value = v; } );
 
-		// Hemisphere light
-		const hemiHeader = document.createElement( 'div' );
-		hemiHeader.textContent = 'Hemisphere light:';
-		hemiHeader.style.cssText = 'margin:8px 0 2px';
-		debugPanel.appendChild( hemiHeader );
+		debugMenu.addHeader( postFXTab, 'Radial Zoom Blur' );
 
-		addSlider( debugPanel, 'Hemi intensity', 0, 5, 0.05, hemiLight.intensity, ( v ) => { hemiLight.intensity = v; } );
-		addColorPicker( debugPanel, 'Sky color', hemiLight.color.getHex(), ( v ) => { hemiLight.color.setHex( v ); } );
-		addColorPicker( debugPanel, 'Ground color', hemiLight.groundColor.getHex(), ( v ) => { hemiLight.groundColor.setHex( v ); } );
+		debugMenu.addCheckbox( postFXTab, 'Radial Zoom', false, ( v ) => { postFX.setEnabled( 'radialZoom', v ); } );
+		debugMenu.addSlider( postFXTab, 'RZ Intensity', 0, 1.0, 0.01, 0.3, ( v ) => { postFX.getPass( 'radialZoom' ).uniforms.intensity.value = v; } );
 
-		// Fog
-		const fogHeader = document.createElement( 'div' );
-		fogHeader.textContent = 'Fog:';
-		fogHeader.style.cssText = 'margin:8px 0 2px';
-		debugPanel.appendChild( fogHeader );
+		debugMenu.addHeader( postFXTab, 'Vignette' );
 
-		addSlider( debugPanel, 'Fog near', 0, 200, 1, scene.fog ? scene.fog.near : 30, ( v ) => { if ( scene.fog ) scene.fog.near = v; } );
-		addSlider( debugPanel, 'Fog far', 0, 400, 1, scene.fog ? scene.fog.far : 55, ( v ) => { if ( scene.fog ) scene.fog.far = v; } );
-		addColorPicker( debugPanel, 'Fog color', scene.fog ? scene.fog.color.getHex() : 0xadb2ba, ( v ) => { if ( scene.fog ) scene.fog.color.setHex( v ); } );
+		debugMenu.addCheckbox( postFXTab, 'Vignette', false, ( v ) => { postFX.setEnabled( 'vignette', v ); } );
+		debugMenu.addSlider( postFXTab, 'Vignette intensity', 0, 1.5, 0.01, 0.5, ( v ) => { postFX.getPass( 'vignette' ).uniforms.intensity.value = v; } );
+		debugMenu.addSlider( postFXTab, 'Vignette softness', 0, 1.0, 0.01, 0.5, ( v ) => { postFX.getPass( 'vignette' ).uniforms.softness.value = v; } );
 
-		// Shadows
-		const shadowHeader = document.createElement( 'div' );
-		shadowHeader.textContent = 'Shadows:';
-		shadowHeader.style.cssText = 'margin:8px 0 2px';
-		debugPanel.appendChild( shadowHeader );
+		debugMenu.addHeader( postFXTab, 'Color Grading' );
 
-		addCheckbox( debugPanel, 'Shadows enabled', true, ( v ) => { renderer.shadowMap.enabled = v; dirLight.castShadow = v; } );
-		addSlider( debugPanel, 'Shadow bias', - 0.01, 0.01, 0.0001, dirLight.shadow.bias, ( v ) => { dirLight.shadow.bias = v; } );
-		addSlider( debugPanel, 'Shadow near', 0, 10, 0.1, dirLight.shadow.camera.near, ( v ) => { dirLight.shadow.camera.near = v; dirLight.shadow.camera.updateProjectionMatrix(); } );
-		addSlider( debugPanel, 'Shadow far', 10, 200, 1, dirLight.shadow.camera.far, ( v ) => { dirLight.shadow.camera.far = v; dirLight.shadow.camera.updateProjectionMatrix(); } );
-		addSlider( debugPanel, 'Shadow darkness', 0, 1.0, 0.01, dirLight.shadow.intensity ?? 1, ( v ) => { dirLight.shadow.intensity = v; } );
+		debugMenu.addCheckbox( postFXTab, 'Color Grading', false, ( v ) => { postFX.setEnabled( 'colorGrading', v ); } );
+		debugMenu.addSlider( postFXTab, 'Brightness', - 1, 1, 0.01, 0, ( v ) => { postFX.getPass( 'colorGrading' ).uniforms.brightness.value = v; } );
+		debugMenu.addSlider( postFXTab, 'Contrast', 0, 2, 0.01, 1, ( v ) => { postFX.getPass( 'colorGrading' ).uniforms.contrast.value = v; } );
+		debugMenu.addSlider( postFXTab, 'Saturation', 0, 2, 0.01, 1, ( v ) => { postFX.getPass( 'colorGrading' ).uniforms.saturation.value = v; } );
 
-		// Headlights
-		const hlHeader = document.createElement( 'div' );
-		hlHeader.textContent = 'Headlights:';
-		hlHeader.style.cssText = 'margin:8px 0 2px';
-		debugPanel.appendChild( hlHeader );
+		debugMenu.addHeader( postFXTab, 'Screen Shake' );
 
-		addSlider( debugPanel, 'HL intensity', 0, 20, 0.5, vehicle.headlights[ 0 ] ? vehicle.headlights[ 0 ].intensity : 8, ( v ) => { for ( const hl of vehicle.headlights ) hl.intensity = v; } );
-		addSlider( debugPanel, 'HL distance', 1, 100, 1, vehicle.headlights[ 0 ] ? vehicle.headlights[ 0 ].distance : 54, ( v ) => { for ( const hl of vehicle.headlights ) hl.distance = v; } );
-		addSlider( debugPanel, 'HL angle', 0.05, 1.57, 0.01, vehicle.headlights[ 0 ] ? vehicle.headlights[ 0 ].angle : Math.PI / 8, ( v ) => { for ( const hl of vehicle.headlights ) hl.angle = v; } );
-		addSlider( debugPanel, 'HL penumbra', 0, 1.0, 0.01, vehicle.headlights[ 0 ] ? vehicle.headlights[ 0 ].penumbra : 0.3, ( v ) => { for ( const hl of vehicle.headlights ) hl.penumbra = v; } );
-		addColorPicker( debugPanel, 'HL color', vehicle.headlights[ 0 ] ? vehicle.headlights[ 0 ].color.getHex() : 0xffe0b0, ( v ) => { for ( const hl of vehicle.headlights ) hl.color.setHex( v ); } );
+		debugMenu.addCheckbox( postFXTab, 'Screen Shake', false, ( v ) => { postFX.setEnabled( 'screenShake', v ); } );
+		debugMenu.addSlider( postFXTab, 'Shake Intensity', 0, 0.05, 0.001, 0.02, ( v ) => { postFX.shakeIntensity = v; } );
+		debugMenu.addSlider( postFXTab, 'Shake Decay', 1, 20, 0.5, 10, ( v ) => { postFX.shakeDecay = v; } );
+		debugMenu.addButton( postFXTab, 'Test Shake', () => { postFX.triggerScreenShake( 0.03 ); } );
 
-		// Vehicle physics
-		const physHeader = document.createElement( 'div' );
-		physHeader.textContent = 'Vehicle Physics:';
-		physHeader.style.cssText = 'margin:8px 0 2px';
-		debugPanel.appendChild( physHeader );
+		debugMenu.addHeader( postFXTab, 'SSAO' );
 
-		addSlider( debugPanel, 'Steering multiplier', 0.5, 10, 0.1, vehicle.debug.steeringMultiplier, ( v ) => { vehicle.debug.steeringMultiplier = v; } );
-		addSlider( debugPanel, 'Steering lerp', 0.5, 15, 0.1, vehicle.debug.steeringLerp, ( v ) => { vehicle.debug.steeringLerp = v; } );
-		addSlider( debugPanel, 'Steering grip min', 0.0, 1.0, 0.01, vehicle.debug.steeringGripMin, ( v ) => { vehicle.debug.steeringGripMin = v; } );
-		addSlider( debugPanel, 'Steering grip max', 0.2, 2.0, 0.01, vehicle.debug.steeringGripMax, ( v ) => { vehicle.debug.steeringGripMax = v; } );
-		addSlider( debugPanel, 'Brake rate', 1, 20, 0.5, vehicle.debug.brakeRate, ( v ) => { vehicle.debug.brakeRate = v; } );
-		addSlider( debugPanel, 'Reverse speed factor', 0.1, 1.0, 0.05, vehicle.debug.reverseSpeedFactor, ( v ) => { vehicle.debug.reverseSpeedFactor = v; } );
-		addSlider( debugPanel, 'Reverse accel rate', 0.5, 10, 0.5, vehicle.debug.reverseAccelRate, ( v ) => { vehicle.debug.reverseAccelRate = v; } );
-		addSlider( debugPanel, 'Linear damp', 0.0, 1.0, 0.01, vehicle.debug.linearDamp, ( v ) => { vehicle.debug.linearDamp = v; } );
-		addSlider( debugPanel, 'Speed scale', 1, 30, 0.5, vehicle.debug.speedScale, ( v ) => { vehicle.debug.speedScale = v; } );
-		addSlider( debugPanel, 'Velocity blend rate', 1, 20, 0.5, vehicle.debug.velocityBlendRate, ( v ) => { vehicle.debug.velocityBlendRate = v; } );
+		debugMenu.addCheckbox( postFXTab, 'SSAO', false, ( v ) => { postFX.setEnabled( 'ssao', v ); } );
+		debugMenu.addSlider( postFXTab, 'SSAO Radius', 0, 4, 0.1, 1, ( v ) => { if ( postFX._ssaoPass ) postFX._ssaoPass.kernelRadius = v; } );
+		debugMenu.addSlider( postFXTab, 'SSAO Min Dist', 0, 0.01, 0.001, 0.001, ( v ) => { if ( postFX._ssaoPass ) postFX._ssaoPass.minDistance = v; } );
+		debugMenu.addSlider( postFXTab, 'SSAO Max Dist', 0, 0.1, 0.005, 0.05, ( v ) => { if ( postFX._ssaoPass ) postFX._ssaoPass.maxDistance = v; } );
 
-		// Drift & Boost
-		const driftHeader = document.createElement( 'div' );
-		driftHeader.textContent = 'Drift & Boost:';
-		driftHeader.style.cssText = 'margin:8px 0 2px';
-		debugPanel.appendChild( driftHeader );
+		debugMenu.addHeader( postFXTab, 'God Rays' );
 
-		addSlider( debugPanel, 'Drift threshold', 0.1, 5.0, 0.1, vehicle.debug.driftThreshold, ( v ) => { vehicle.debug.driftThreshold = v; } );
-		addSlider( debugPanel, 'Boost fill time', 5, 60, 1, vehicle.debug.boostFillTime, ( v ) => { vehicle.debug.boostFillTime = v; } );
-		addSlider( debugPanel, 'Boost drift multiplier', 1, 15, 0.5, vehicle.debug.boostDriftMultiplier, ( v ) => { vehicle.debug.boostDriftMultiplier = v; } );
-		addSlider( debugPanel, 'Boost duration', 1, 15, 0.5, vehicle.debug.boostDuration, ( v ) => { vehicle.debug.boostDuration = v; } );
-		addSlider( debugPanel, 'Boost top speed', 100, 500, 10, vehicle.debug.boostTopSpeed, ( v ) => { vehicle.debug.boostTopSpeed = v; } );
+		debugMenu.addCheckbox( postFXTab, 'God Rays', false, ( v ) => { postFX.setEnabled( 'godRays', v ); } );
+		debugMenu.addSlider( postFXTab, 'GR Intensity', 0, 2, 0.01, 1.0, ( v ) => { postFX.getPass( 'godRays' ).uniforms.intensity.value = v; } );
+		debugMenu.addSlider( postFXTab, 'GR Decay', 0.9, 1.0, 0.005, 0.96, ( v ) => { postFX.getPass( 'godRays' ).uniforms.decay.value = v; } );
+		debugMenu.addSlider( postFXTab, 'GR Density', 0, 1, 0.01, 0.5, ( v ) => { postFX.getPass( 'godRays' ).uniforms.density.value = v; } );
+		debugMenu.addSlider( postFXTab, 'GR Weight', 0, 1, 0.01, 0.1, ( v ) => { postFX.getPass( 'godRays' ).uniforms.weight.value = v; } );
 
-		// Body lean
-		const leanHeader = document.createElement( 'div' );
-		leanHeader.textContent = 'Body Lean:';
-		leanHeader.style.cssText = 'margin:8px 0 2px';
-		debugPanel.appendChild( leanHeader );
+		// ── Tab: Physics ─────────────────────────────────────────────────────────
+		const physicsTab = debugMenu.addTab( 'physics', 'Physics' );
 
-		addSlider( debugPanel, 'Body lean pitch', 1, 20, 0.5, vehicle.debug.bodyLeanPitch, ( v ) => { vehicle.debug.bodyLeanPitch = v; } );
-		addSlider( debugPanel, 'Body lean roll', 1, 20, 0.5, vehicle.debug.bodyLeanRoll, ( v ) => { vehicle.debug.bodyLeanRoll = v; } );
+		debugMenu.addHeader( physicsTab, 'Wheel rotation locks' );
 
-		// AI Racers
-		const aiHeader = document.createElement( 'div' );
-		aiHeader.textContent = 'AI Racers:';
-		aiHeader.style.cssText = 'margin:8px 0 2px';
-		debugPanel.appendChild( aiHeader );
+		debugMenu.addCheckbox( physicsTab, 'Lock X', false, ( v ) => { vehicle.debug.lockX = v; } );
+		debugMenu.addCheckbox( physicsTab, 'Lock Y (roll)', false, ( v ) => { vehicle.debug.lockY = v; } );
+		debugMenu.addCheckbox( physicsTab, 'Lock Z (steer)', false, ( v ) => { vehicle.debug.lockZ = v; } );
 
-		addSlider( debugPanel, 'AI count', 0, 9, 1, 0, ( v ) => { aiManager.setCount( v ); } );
-		addSlider( debugPanel, 'Rubber band %', 0, 100, 1, 50, ( v ) => { aiManager.rubberBandIntensity = v / 100; } );
+		debugMenu.addHeader( physicsTab, 'Vehicle Physics' );
 
-		// Footer
-		const debugFooter = document.createElement( 'div' );
-		debugFooter.textContent = '─── Press M to toggle ──────';
-		debugFooter.style.cssText = 'margin-top:6px;opacity:0.5';
-		debugPanel.appendChild( debugFooter );
+		debugMenu.addSlider( physicsTab, 'Steering multiplier', 0.5, 10, 0.1, vehicle.debug.steeringMultiplier, ( v ) => { vehicle.debug.steeringMultiplier = v; } );
+		debugMenu.addSlider( physicsTab, 'Steering lerp', 0.5, 15, 0.1, vehicle.debug.steeringLerp, ( v ) => { vehicle.debug.steeringLerp = v; } );
+		debugMenu.addSlider( physicsTab, 'Steering grip min', 0.0, 1.0, 0.01, vehicle.debug.steeringGripMin, ( v ) => { vehicle.debug.steeringGripMin = v; } );
+		debugMenu.addSlider( physicsTab, 'Steering grip max', 0.2, 2.0, 0.01, vehicle.debug.steeringGripMax, ( v ) => { vehicle.debug.steeringGripMax = v; } );
+		debugMenu.addSlider( physicsTab, 'Brake rate', 1, 20, 0.5, vehicle.debug.brakeRate, ( v ) => { vehicle.debug.brakeRate = v; } );
+		debugMenu.addSlider( physicsTab, 'Reverse speed factor', 0.1, 1.0, 0.05, vehicle.debug.reverseSpeedFactor, ( v ) => { vehicle.debug.reverseSpeedFactor = v; } );
+		debugMenu.addSlider( physicsTab, 'Reverse accel rate', 0.5, 10, 0.5, vehicle.debug.reverseAccelRate, ( v ) => { vehicle.debug.reverseAccelRate = v; } );
+		debugMenu.addSlider( physicsTab, 'Linear damp', 0.0, 1.0, 0.01, vehicle.debug.linearDamp, ( v ) => { vehicle.debug.linearDamp = v; } );
+		debugMenu.addSlider( physicsTab, 'Speed scale', 1, 30, 0.5, vehicle.debug.speedScale, ( v ) => { vehicle.debug.speedScale = v; } );
+		debugMenu.addSlider( physicsTab, 'Velocity blend rate', 1, 20, 0.5, vehicle.debug.velocityBlendRate, ( v ) => { vehicle.debug.velocityBlendRate = v; } );
 
-		let debugPanelVisible = false;
-		debugPanel.style.display = 'none';
+		debugMenu.addHeader( physicsTab, 'Drift & Boost' );
+
+		debugMenu.addSlider( physicsTab, 'Drift threshold', 0.1, 5.0, 0.1, vehicle.debug.driftThreshold, ( v ) => { vehicle.debug.driftThreshold = v; } );
+		debugMenu.addSlider( physicsTab, 'Boost fill time', 5, 60, 1, vehicle.debug.boostFillTime, ( v ) => { vehicle.debug.boostFillTime = v; } );
+		debugMenu.addSlider( physicsTab, 'Boost drift multiplier', 1, 15, 0.5, vehicle.debug.boostDriftMultiplier, ( v ) => { vehicle.debug.boostDriftMultiplier = v; } );
+		debugMenu.addSlider( physicsTab, 'Boost duration', 1, 15, 0.5, vehicle.debug.boostDuration, ( v ) => { vehicle.debug.boostDuration = v; } );
+		debugMenu.addSlider( physicsTab, 'Boost top speed', 100, 500, 10, vehicle.debug.boostTopSpeed, ( v ) => { vehicle.debug.boostTopSpeed = v; } );
+
+		debugMenu.addHeader( physicsTab, 'Body Lean' );
+
+		debugMenu.addSlider( physicsTab, 'Body lean pitch', 1, 20, 0.5, vehicle.debug.bodyLeanPitch, ( v ) => { vehicle.debug.bodyLeanPitch = v; } );
+		debugMenu.addSlider( physicsTab, 'Body lean roll', 1, 20, 0.5, vehicle.debug.bodyLeanRoll, ( v ) => { vehicle.debug.bodyLeanRoll = v; } );
+
+		// ── Tab: Lighting ────────────────────────────────────────────────────────
+		const lightingTab = debugMenu.addTab( 'lighting', 'Lighting' );
+
+		debugMenu.addHeader( lightingTab, 'Exposure' );
+
+		debugMenu.addSlider( lightingTab, 'Exposure', 0, 3.0, 0.01, renderer.toneMappingExposure, ( v ) => { renderer.toneMappingExposure = v; } );
+
+		debugMenu.addHeader( lightingTab, 'Directional light' );
+
+		debugMenu.addSlider( lightingTab, 'Dir X', - 30, 30, 0.1, dirLightOffset.x, ( v ) => { dirLightOffset.x = v; } );
+		debugMenu.addSlider( lightingTab, 'Dir Y', 0, 40, 0.1, dirLightOffset.y, ( v ) => { dirLightOffset.y = v; } );
+		debugMenu.addSlider( lightingTab, 'Dir Z', - 30, 30, 0.1, dirLightOffset.z, ( v ) => { dirLightOffset.z = v; } );
+		debugMenu.addSlider( lightingTab, 'Dir intensity', 0, 10, 0.1, dirLight.intensity, ( v ) => { dirLight.intensity = v; } );
+		debugMenu.addColorPicker( lightingTab, 'Dir color', dirLight.color.getHex(), ( v ) => { dirLight.color.setHex( v ); } );
+
+		debugMenu.addHeader( lightingTab, 'Hemisphere light' );
+
+		debugMenu.addSlider( lightingTab, 'Hemi intensity', 0, 5, 0.05, hemiLight.intensity, ( v ) => { hemiLight.intensity = v; } );
+		debugMenu.addColorPicker( lightingTab, 'Sky color', hemiLight.color.getHex(), ( v ) => { hemiLight.color.setHex( v ); } );
+		debugMenu.addColorPicker( lightingTab, 'Ground color', hemiLight.groundColor.getHex(), ( v ) => { hemiLight.groundColor.setHex( v ); } );
+
+		debugMenu.addHeader( lightingTab, 'Fog' );
+
+		debugMenu.addSlider( lightingTab, 'Fog near', 0, 200, 1, scene.fog ? scene.fog.near : 30, ( v ) => { if ( scene.fog ) scene.fog.near = v; } );
+		debugMenu.addSlider( lightingTab, 'Fog far', 0, 400, 1, scene.fog ? scene.fog.far : 55, ( v ) => { if ( scene.fog ) scene.fog.far = v; } );
+		debugMenu.addColorPicker( lightingTab, 'Fog color', scene.fog ? scene.fog.color.getHex() : 0xadb2ba, ( v ) => { if ( scene.fog ) scene.fog.color.setHex( v ); } );
+
+		debugMenu.addHeader( lightingTab, 'Shadows' );
+
+		debugMenu.addCheckbox( lightingTab, 'Shadows enabled', true, ( v ) => { renderer.shadowMap.enabled = v; dirLight.castShadow = v; } );
+		debugMenu.addSlider( lightingTab, 'Shadow bias', - 0.01, 0.01, 0.0001, dirLight.shadow.bias, ( v ) => { dirLight.shadow.bias = v; } );
+		debugMenu.addSlider( lightingTab, 'Shadow near', 0, 10, 0.1, dirLight.shadow.camera.near, ( v ) => { dirLight.shadow.camera.near = v; dirLight.shadow.camera.updateProjectionMatrix(); } );
+		debugMenu.addSlider( lightingTab, 'Shadow far', 10, 200, 1, dirLight.shadow.camera.far, ( v ) => { dirLight.shadow.camera.far = v; dirLight.shadow.camera.updateProjectionMatrix(); } );
+		debugMenu.addSlider( lightingTab, 'Shadow darkness', 0, 1.0, 0.01, dirLight.shadow.intensity ?? 1, ( v ) => { dirLight.shadow.intensity = v; } );
+
+		debugMenu.addHeader( lightingTab, 'Headlights' );
+
+		debugMenu.addSlider( lightingTab, 'HL intensity', 0, 20, 0.5, vehicle.headlights[ 0 ] ? vehicle.headlights[ 0 ].intensity : 8, ( v ) => { for ( const hl of vehicle.headlights ) hl.intensity = v; } );
+		debugMenu.addSlider( lightingTab, 'HL distance', 1, 100, 1, vehicle.headlights[ 0 ] ? vehicle.headlights[ 0 ].distance : 54, ( v ) => { for ( const hl of vehicle.headlights ) hl.distance = v; } );
+		debugMenu.addSlider( lightingTab, 'HL angle', 0.05, 1.57, 0.01, vehicle.headlights[ 0 ] ? vehicle.headlights[ 0 ].angle : Math.PI / 8, ( v ) => { for ( const hl of vehicle.headlights ) hl.angle = v; } );
+		debugMenu.addSlider( lightingTab, 'HL penumbra', 0, 1.0, 0.01, vehicle.headlights[ 0 ] ? vehicle.headlights[ 0 ].penumbra : 0.3, ( v ) => { for ( const hl of vehicle.headlights ) hl.penumbra = v; } );
+		debugMenu.addColorPicker( lightingTab, 'HL color', vehicle.headlights[ 0 ] ? vehicle.headlights[ 0 ].color.getHex() : 0xffe0b0, ( v ) => { for ( const hl of vehicle.headlights ) hl.color.setHex( v ); } );
+
+		// ── M key toggle ─────────────────────────────────────────────────────────
 		window.addEventListener( 'keydown', ( e ) => {
 
 			if ( e.key === 'm' || e.key === 'M' ) {
 
 				e.preventDefault();
-
-				debugPanelVisible = ! debugPanelVisible;
-				debugPanel.style.display = debugPanelVisible ? 'block' : 'none';
+				debugMenu.toggle();
 
 			}
 
@@ -1014,6 +901,10 @@ async function init() {
 
 	const cam = new Camera();
 	cam.targetPosition.copy( vehicle.spherePos );
+
+	// Initialize PostProcessing now that cam is available
+	postFX = new PostProcessing( renderer, scene, cam.camera, bloomPass );
+	postFX.setDirLight( dirLight );
 
 	const controls = new Controls();
 
@@ -1240,6 +1131,14 @@ async function init() {
 
 		audio.update( dt, vehicle ? vehicle.linearSpeed : 0, input.z, vehicle ? vehicle.driftIntensity : 0 );
 
+		// Update dynamic post-processing effects
+		if ( postFX ) {
+
+			const followV = spectating ? cam.spectatorTarget : vehicle;
+			postFX.update( dt, cam.getVelocity(), followV ? followV.boostActive : false );
+
+		}
+
 		renderer.render( scene, cam.camera );
 
 	}
@@ -1276,4 +1175,4 @@ async function init() {
 
 }
 
-init();
+init().catch( ( e ) => console.error( 'Init failed:', e ) );
