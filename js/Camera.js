@@ -71,6 +71,20 @@ export class Camera {
 
 		} );
 
+		window.addEventListener( 'keydown', ( e ) => {
+
+			if ( e.key === '+' || e.key === '=' ) {
+
+				this.zoom = THREE.MathUtils.clamp( this.zoom - 0.1, 0.5, 3.0 );
+
+			} else if ( e.key === '-' || e.key === '_' ) {
+
+				this.zoom = THREE.MathUtils.clamp( this.zoom + 0.1, 0.5, 3.0 );
+
+			}
+
+		} );
+
 		window.addEventListener( 'contextmenu', ( e ) => e.preventDefault() );
 
 		window.addEventListener( 'mousedown', ( e ) => {

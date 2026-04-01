@@ -20,6 +20,7 @@ import { BoostBurst } from './BoostBurst.js';
 import { Haptics } from './Haptics.js';
 import { ItemBoxManager } from './ItemBoxManager.js';
 import { ItemPickupVFX } from './ItemPickupVFX.js';
+import { AIManager } from './AIManager.js';
 
 
 const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -37,7 +38,7 @@ bloomPass.strength = 0.02;
 bloomPass.radius = 0.02;
 bloomPass.threshold = 0.5;
 
-if ( ! isMobile ) renderer.setEffects( [ bloomPass ] );
+renderer.setEffects( [ bloomPass ] );
 
 document.body.appendChild( renderer.domElement );
 
@@ -366,7 +367,9 @@ async function init() {
 		onAllReady: () => {
 
 			raceLobby.reset();
+			if ( aiManager.count > 0 ) aiManager.teleportToGrid( vehicle );
 			raceMode.start();
+			aiManager.startRace();
 
 		},
 	} );
@@ -387,12 +390,16 @@ async function init() {
 	} );
 
 	const hud = new HUD(
-		() => { raceMode.reset(); raceLobby.reset(); },
+		() => { raceMode.reset(); aiManager.resetRace(); raceLobby.reset(); },
 		() => raceLobby.setReady( playerManager.localId )
 	);
 
 	const trackIntel = new TrackIntel( activeCells );
 	raceMode.trackIntel = trackIntel;
+
+	const aiManager = new AIManager( scene, world, models, trackIntel, spawnPosition, spawnAngle, spawn.finishAngle );
+	aiManager.totalLaps = 3;
+	let playerModelIndex = 0;
 
 	const minimap = new Minimap( activeCells, bounds );
 
@@ -435,7 +442,7 @@ async function init() {
 	let wheelDebug = null;
 	let hudVisible = false;
 
-	if ( ! isMobile ) {
+	{
 
 		// ─── DEBUG OVERLAY ────────────────────────────────────────────────────────
 
@@ -678,6 +685,9 @@ async function init() {
 				const newModel = models[ select.value ];
 				if ( ! newModel ) return;
 
+				playerModelIndex = truckNames.indexOf( select.value );
+				aiManager.playerModelIndex = playerModelIndex;
+
 				// Remove old vehicle model (first child of container)
 				while ( vehicle.container.children.length > 0 ) {
 
@@ -815,6 +825,48 @@ async function init() {
 		bloomHeader.style.cssText = 'margin:8px 0 2px';
 		debugPanel.appendChild( bloomHeader );
 
+		let _savedBloomStrength = bloomPass.strength;
+		addCheckbox( debugPanel, 'Bloom enabled', true, ( v ) => {
+
+			if ( v ) {
+
+				bloomPass.strength = _savedBloomStrength;
+
+			} else {
+
+				_savedBloomStrength = bloomPass.strength;
+				bloomPass.strength = 0;
+
+			}
+
+		} );
+
+		addCheckbox( debugPanel, 'Glow (underglow light)', true, ( v ) => {
+
+			if ( vehicle.underglowLight ) vehicle.underglowLight.visible = v;
+			vehicle._glowEnabled = v;
+
+		} );
+
+		addCheckbox( debugPanel, 'Emissive materials', true, ( v ) => {
+
+			scene.traverse( ( child ) => {
+
+				if ( child.isMesh && child.material && child.material.emissiveIntensity !== undefined ) {
+
+					child.material.emissiveIntensity = v ? child.material.userData._origEmissive || 0.8 : 0;
+					if ( v && ! child.material.userData._origEmissive ) {
+
+						child.material.userData._origEmissive = child.material.emissiveIntensity;
+
+					}
+
+				}
+
+			} );
+
+		} );
+
 		addSlider( debugPanel, 'Strength', 0, 3.0, 0.01, bloomPass.strength, ( v ) => { bloomPass.strength = v; } );
 		addSlider( debugPanel, 'Radius', 0, 1.0, 0.01, bloomPass.radius, ( v ) => { bloomPass.radius = v; } );
 		addSlider( debugPanel, 'Threshold', 0, 1.0, 0.01, bloomPass.threshold, ( v ) => { bloomPass.threshold = v; } );
@@ -921,9 +973,18 @@ async function init() {
 		addSlider( debugPanel, 'Body lean pitch', 1, 20, 0.5, vehicle.debug.bodyLeanPitch, ( v ) => { vehicle.debug.bodyLeanPitch = v; } );
 		addSlider( debugPanel, 'Body lean roll', 1, 20, 0.5, vehicle.debug.bodyLeanRoll, ( v ) => { vehicle.debug.bodyLeanRoll = v; } );
 
+		// AI Racers
+		const aiHeader = document.createElement( 'div' );
+		aiHeader.textContent = 'AI Racers:';
+		aiHeader.style.cssText = 'margin:8px 0 2px';
+		debugPanel.appendChild( aiHeader );
+
+		addSlider( debugPanel, 'AI count', 0, 9, 1, 0, ( v ) => { aiManager.setCount( v ); } );
+		addSlider( debugPanel, 'Rubber band %', 0, 100, 1, 50, ( v ) => { aiManager.rubberBandIntensity = v / 100; } );
+
 		// Footer
 		const debugFooter = document.createElement( 'div' );
-		debugFooter.textContent = '─── Press Tab to toggle ──────';
+		debugFooter.textContent = '─── Press M to toggle ──────';
 		debugFooter.style.cssText = 'margin-top:6px;opacity:0.5';
 		debugPanel.appendChild( debugFooter );
 
@@ -931,7 +992,7 @@ async function init() {
 		debugPanel.style.display = 'none';
 		window.addEventListener( 'keydown', ( e ) => {
 
-			if ( e.key === 'Tab' ) {
+			if ( e.key === 'm' || e.key === 'M' ) {
 
 				e.preventDefault();
 
@@ -1063,6 +1124,8 @@ async function init() {
 
 		playerManager.update( dt, spectating ? { x: 0, z: 0, touchActive: false } : input );
 
+		aiManager.update( dt, vehicle, raceMode.state, raceMode.lap );
+
 		// ─── Item box pickups ─────────────────────────────────────────────────
 		if ( ! spectating ) itemBoxManager.update( dt, vehicle );
 
@@ -1110,7 +1173,8 @@ async function init() {
 		boostBurst.update( dt );
 		itemPickupVFX.update( dt );
 
-		raceMode.update( dt, vehicle, playerManager.getActiveVehicles() );
+		const allActiveVehicles = [ ...playerManager.getActiveVehicles(), ...aiManager.getActiveVehicles() ];
+		raceMode.update( dt, vehicle, allActiveVehicles, aiManager.getAIRaceData() );
 
 		if ( raceMode.state === 'idle' ) {
 
@@ -1125,7 +1189,7 @@ async function init() {
 		}
 
 		hud.update( dt, raceMode.getDisplayState(), raceLobby.getDisplayState() );
-		minimap.update( playerManager.getActiveVehicles(), raceMode.getDisplayState().state );
+		minimap.update( allActiveVehicles, raceMode.getDisplayState().state );
 
 		// Send local state to server (throttled internally at 20Hz)
 		if ( multiplayer && network.connected && ! spectating ) {

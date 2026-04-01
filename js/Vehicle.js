@@ -49,6 +49,9 @@ export class Vehicle {
 
 		this.driftIntensity = 0;
 
+		// External speed multiplier (used by AI rubber-banding)
+		this.externalTopSpeedMultiplier = 1.0;
+
 		// Set true before init() to force wheel orientation correction regardless of bounding box
 		this.forceWheelCorrection = false;
 
@@ -717,7 +720,7 @@ export class Vehicle {
 
 		// ── Effective top speed (R13) — max of base, nitro, mini-boost ────────
 		this.effectiveTopSpeed = Math.max(
-			this.debug.topSpeed,
+			this.debug.topSpeed * ( this.externalTopSpeedMultiplier || 1 ),
 			this.boostActive ? this.debug.boostTopSpeed : 0,
 			this.miniBoostTimer > 0 ? this.miniBoostTopSpeed : 0,
 			this.starActive ? this.debug.boostTopSpeed : 0

@@ -77,7 +77,7 @@ export class RaceMode extends GameMode {
 
 	}
 
-	update( dt, vehicle, activeVehicles ) {
+	update( dt, vehicle, activeVehicles, aiRaceData ) {
 
 		this._vehicle = vehicle;
 
@@ -106,7 +106,7 @@ export class RaceMode extends GameMode {
 
 			this._elapsedTime += dt;
 			this._checkFinishLine( vehicle );
-			this._updatePosition( vehicle, activeVehicles );
+			this._updatePosition( vehicle, activeVehicles, aiRaceData );
 
 		}
 
@@ -232,7 +232,7 @@ export class RaceMode extends GameMode {
 
 	}
 
-	_updatePosition( vehicle, activeVehicles ) {
+	_updatePosition( vehicle, activeVehicles, aiRaceData ) {
 
 		if ( ! this.trackIntel || ! vehicle || ! activeVehicles ) {
 
@@ -249,15 +249,29 @@ export class RaceMode extends GameMode {
 		// Update segment hint for windowed search next frame
 		this._lastSegmentHint = this.trackIntel.getNearestWaypoint( pos.x, pos.z );
 
-		// Note: remote vehicles' lap counts are not available via network,
-		// so we use intra-lap progress (0-1) for relative ordering.
-		// Cross-lap ranking requires network protocol changes (future work).
 		let ahead = 0;
 
+		// AI racers with known lap counts — use full race progress
+		const aiVehicleSet = new Set();
+		if ( aiRaceData ) {
+
+			for ( const ai of aiRaceData ) {
+
+				aiVehicleSet.add( ai.vehicle );
+				const vPos = ai.vehicle.spherePos;
+				const vProgress = ai.lap + this.trackIntel.getProgress( vPos.x, vPos.z );
+				if ( vProgress > myProgress ) ahead ++;
+
+			}
+
+		}
+
+		// Remote human players — intra-lap progress only (no network lap data)
 		for ( const entry of activeVehicles ) {
 
 			const v = entry.vehicle;
 			if ( v === vehicle ) continue;
+			if ( aiVehicleSet.has( v ) ) continue;
 
 			const vPos = v.spherePos;
 			const vProgress = this.trackIntel.getProgress( vPos.x, vPos.z );
