@@ -698,8 +698,32 @@ async function init() {
 
 		debugMenu.addHeader( generalTab, 'AI Racers' );
 
-		debugMenu.addSlider( generalTab, 'AI count', 0, 9, 1, 0, ( v ) => { aiManager.setCount( v ); } );
+		debugMenu.addSlider( generalTab, 'AI count', 0, 8, 1, 0, ( v ) => { aiManager.setCount( v ); } );
 		debugMenu.addSlider( generalTab, 'Rubber band %', 0, 100, 1, 50, ( v ) => { aiManager.rubberBandIntensity = v / 100; } );
+
+		const aiPersonalityLabel = document.createElement( 'div' );
+		aiPersonalityLabel.style.cssText = 'margin:4px 0;font-size:11px;color:#0f08';
+		aiPersonalityLabel.textContent = '';
+		generalTab.appendChild( aiPersonalityLabel );
+
+		// Update personality display when AI count changes
+		const updatePersonalityLabel = () => {
+
+			const data = aiManager.getAIRaceData();
+			if ( data.length === 0 ) {
+
+				aiPersonalityLabel.textContent = '';
+
+			} else {
+
+				aiPersonalityLabel.textContent = 'Personalities: ' + data.map( ( d ) => d.profileName ).join( ', ' );
+
+			}
+
+		};
+
+		// Poll every 500ms (lightweight, only when debug visible)
+		setInterval( () => { if ( debugMenu.visible ) updatePersonalityLabel(); }, 500 );
 
 		// ── Tab: Post FX ─────────────────────────────────────────────────────────
 		const postFXTab = debugMenu.addTab( 'postprocessing', 'Post FX' );
@@ -791,9 +815,9 @@ async function init() {
 		debugMenu.addHeader( postFXTab, 'SSAO' );
 
 		debugMenu.addCheckbox( postFXTab, 'SSAO', false, ( v ) => { postFX.setEnabled( 'ssao', v ); } );
-		debugMenu.addSlider( postFXTab, 'SSAO Radius', 0, 4, 0.1, 1, ( v ) => { if ( postFX._ssaoPass ) postFX._ssaoPass.kernelRadius = v; } );
-		debugMenu.addSlider( postFXTab, 'SSAO Min Dist', 0, 0.01, 0.001, 0.001, ( v ) => { if ( postFX._ssaoPass ) postFX._ssaoPass.minDistance = v; } );
-		debugMenu.addSlider( postFXTab, 'SSAO Max Dist', 0, 0.1, 0.005, 0.05, ( v ) => { if ( postFX._ssaoPass ) postFX._ssaoPass.maxDistance = v; } );
+		debugMenu.addSlider( postFXTab, 'SSAO Radius', 0, 4, 0.1, 1, ( v ) => { postFX.setSSAOParam( 'kernelRadius', v ); } );
+		debugMenu.addSlider( postFXTab, 'SSAO Min Dist', 0, 0.01, 0.001, 0.001, ( v ) => { postFX.setSSAOParam( 'minDistance', v ); } );
+		debugMenu.addSlider( postFXTab, 'SSAO Max Dist', 0, 0.1, 0.005, 0.05, ( v ) => { postFX.setSSAOParam( 'maxDistance', v ); } );
 
 		debugMenu.addHeader( postFXTab, 'God Rays' );
 
@@ -911,7 +935,7 @@ async function init() {
 
 	const settings = new Settings();
 	const controls = new Controls( settings, cam );
-	const settingsMenu = new SettingsMenu( settings, controls, aiManager );
+	const settingsMenu = new SettingsMenu( settings, controls );
 
 	// ─── Camera toggle button (top-left) ─────────────────────────────────
 	const camToggleBtn = document.createElement( 'div' );
@@ -946,6 +970,18 @@ async function init() {
 		if ( key === 'cameraMode' ) {
 
 			cam.mode = value;
+
+		}
+
+		if ( key === 'aiCount' ) {
+
+			aiManager.setCount( value );
+
+		}
+
+		if ( key === 'difficulty' ) {
+
+			aiManager.rubberBandIntensity = value / 100;
 
 		}
 
@@ -1033,6 +1069,7 @@ async function init() {
 
 	let fpsFrames = 0;
 	let fpsTime = performance.now();
+	const allActiveVehicles = [];
 
 	function animate() {
 
@@ -1107,7 +1144,9 @@ async function init() {
 		boostBurst.update( dt );
 		itemPickupVFX.update( dt );
 
-		const allActiveVehicles = [ ...playerManager.getActiveVehicles(), ...aiManager.getActiveVehicles() ];
+		allActiveVehicles.length = 0;
+		for ( const v of playerManager.getActiveVehicles() ) allActiveVehicles.push( v );
+		for ( const v of aiManager.getActiveVehicles() ) allActiveVehicles.push( v );
 		raceMode.update( dt, vehicle, allActiveVehicles, aiManager.getAIRaceData() );
 
 		if ( raceMode.state === 'idle' ) {

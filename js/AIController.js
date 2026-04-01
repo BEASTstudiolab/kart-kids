@@ -1,20 +1,14 @@
 import * as THREE from 'three';
+import { DEFAULT_PROFILE } from './AIProfiles.js';
 
 const _forward = new THREE.Vector3();
 const _toTarget = new THREE.Vector3();
 
-const STEER_SENSITIVITY = 3.5;
-const NOISE_AMPLITUDE = 0.03;
-const TURN_THROTTLE_DOT = 0.7;
-const TURN_THROTTLE_MIN = 0.3;
-
 const STUCK_THRESHOLD = 0.05;
-const STUCK_TIME = 2.0;
-const REVERSE_TIME = 1.0;
 
 export class AIController {
 
-	constructor( trackIntel, seed ) {
+	constructor( trackIntel, seed, profile ) {
 
 		this._trackIntel = trackIntel;
 		this._seed = seed || 0;
@@ -22,10 +16,14 @@ export class AIController {
 
 		this._waypointHint = 0;
 
+		// Merge profile with defaults — missing keys fall back to DEFAULT_PROFILE
+		this._profile = Object.assign( {}, DEFAULT_PROFILE, profile );
+
 		// Stuck detection
 		this._stuckTimer = 0;
 		this._reverseTimer = 0;
 		this._reversing = false;
+		this._reverseSteer = 0;
 
 	}
 
@@ -33,6 +31,7 @@ export class AIController {
 
 		const trackIntel = this._trackIntel;
 		const pos = vehicle.spherePos;
+		const p = this._profile;
 
 		// ── Stuck detection ──────────────────────────────────────
 		if ( this._reversing ) {
@@ -46,7 +45,7 @@ export class AIController {
 
 			} else {
 
-				return { x: 0.5, z: - 0.5, touchActive: false, boost: false };
+				return { x: this._reverseSteer, z: - 1.0, touchActive: false, boost: false };
 
 			}
 
@@ -56,11 +55,12 @@ export class AIController {
 
 			this._stuckTimer += dt;
 
-			if ( this._stuckTimer >= STUCK_TIME ) {
+			if ( this._stuckTimer >= p.stuckTime ) {
 
 				this._reversing = true;
-				this._reverseTimer = REVERSE_TIME;
-				return { x: 0.5, z: - 0.5, touchActive: false, boost: false };
+				this._reverseTimer = p.reverseTime;
+				this._reverseSteer = Math.random() > 0.5 ? 0.7 : - 0.7;
+				return { x: this._reverseSteer, z: - 1.0, touchActive: false, boost: false };
 
 			}
 
@@ -80,9 +80,11 @@ export class AIController {
 		const wp1 = trackIntel.waypoints[ idx1 ];
 		const wp2 = trackIntel.waypoints[ idx2 ];
 
-		// Blend: 30% wp+1, 70% wp+2 for smooth cornering
-		const targetX = wp1.x * 0.3 + wp2.x * 0.7;
-		const targetZ = wp1.z * 0.3 + wp2.z * 0.7;
+		// Blend using profile lookAheadBlend (weight toward wp+2)
+		const nearWeight = 1 - p.lookAheadBlend;
+		const farWeight = p.lookAheadBlend;
+		let targetX = wp1.x * nearWeight + wp2.x * farWeight;
+		let targetZ = wp1.z * nearWeight + wp2.z * farWeight;
 
 		// ── Compute steering ─────────────────────────────────────
 		_forward.set( 0, 0, 1 ).applyQuaternion( vehicle.container.quaternion );
@@ -92,27 +94,67 @@ export class AIController {
 		_toTarget.set( targetX - pos.x, 0, targetZ - pos.z );
 		_toTarget.normalize();
 
+		// Dot product for throttle and lateral offset scaling
+		const dot = _forward.x * _toTarget.x + _forward.z * _toTarget.z;
+
+		// ── Apply lateral offset perpendicular to track direction ─
+		if ( p.lateralOffset !== 0 ) {
+
+			const tdx = wp2.x - wp1.x;
+			const tdz = wp2.z - wp1.z;
+			const tLen = Math.sqrt( tdx * tdx + tdz * tdz );
+
+			if ( tLen > 0.001 ) {
+
+				// Perpendicular: (-dz, dx) normalized
+				const perpX = - tdz / tLen;
+				const perpZ = tdx / tLen;
+				const scale = p.lateralOffset * Math.max( 0, dot );
+
+				targetX += perpX * scale;
+				targetZ += perpZ * scale;
+
+				// Recompute toTarget after offset
+				_toTarget.set( targetX - pos.x, 0, targetZ - pos.z );
+				_toTarget.normalize();
+
+			}
+
+		}
+
 		// Cross product Y component: positive = target is to the right
 		const cross = _forward.x * _toTarget.z - _forward.z * _toTarget.x;
 
 		// Per-AI noise so bots don't follow identical lines
 		this._noisePhase += dt * 2.3;
-		const noise = Math.sin( this._noisePhase ) * NOISE_AMPLITUDE;
+		const noise = Math.sin( this._noisePhase ) * p.noiseAmplitude;
 
-		const steerInput = Math.max( - 1, Math.min( 1, cross * STEER_SENSITIVITY + noise ) );
+		const steerInput = Math.max( - 1, Math.min( 1, cross * p.steerSensitivity + noise ) );
 
 		// ── Compute throttle ─────────────────────────────────────
-		const dot = _forward.x * _toTarget.x + _forward.z * _toTarget.z;
-
 		let throttle = 1.0;
-		if ( dot < TURN_THROTTLE_DOT ) {
+		if ( dot < p.turnThrottleDot ) {
 
-			throttle = Math.max( TURN_THROTTLE_MIN, dot );
+			throttle = Math.max( p.turnThrottleMin, dot );
 
 		}
 
 		// ── Boost ────────────────────────────────────────────────
-		const boost = vehicle.boostMeter >= 1.0;
+		let boost = false;
+		if ( vehicle.boostMeter >= 1.0 ) {
+
+			if ( p.boostEagerness ) {
+
+				boost = true;
+
+			} else {
+
+				// Hold for straights: fire only when facing target (dot > 0.9)
+				boost = dot > 0.9;
+
+			}
+
+		}
 
 		return { x: steerInput, z: throttle, touchActive: false, boost };
 

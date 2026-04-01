@@ -7,6 +7,7 @@ import { BoostFlame } from './BoostFlame.js';
 import { TireMarks } from './TireMarks.js';
 import { FinishLine } from './FinishLine.js';
 import { AIController } from './AIController.js';
+import { AI_PROFILES } from './AIProfiles.js';
 import { rigidBody } from 'crashcat';
 
 const VEHICLE_MODEL_NAMES = [
@@ -42,6 +43,7 @@ export class AIManager {
 
 		this._racers = [];
 		this._activeVehiclesCache = [];
+		this._raceDataCache = [];
 
 	}
 
@@ -49,7 +51,7 @@ export class AIManager {
 
 	setCount( count ) {
 
-		count = clamp( Math.round( count ), 0, 9 );
+		count = clamp( Math.round( count ), 0, 8 );
 
 		// Spawn new
 		while ( this._racers.length < count ) {
@@ -73,28 +75,22 @@ export class AIManager {
 		const modelName = VEHICLE_MODEL_NAMES[ modelIndex ];
 		const model = this.models[ modelName ];
 
-		const vehicle = new Vehicle();
-		vehicle.forceWheelCorrection = true;
-
-		const body = createVehicleBody( this.world, this.spawnPosition );
-		vehicle.rigidBody = body;
-		vehicle.physicsWorld = this.world;
-
-		const [ sx, sy, sz ] = this.spawnPosition;
-		vehicle.spherePos.set( sx, sy, sz );
-		vehicle.groundHeight = sy;
-		vehicle.prevModelPos.set( sx, sy, sz );
-		vehicle.container.rotation.y = this.spawnAngle;
-
-		vehicle.init( model );
-		vehicle.initRaycast( this.world );
+		const vehicle = Vehicle.spawn( {
+			world: this.world,
+			createBody: createVehicleBody,
+			model,
+			position: this.spawnPosition,
+			angle: this.spawnAngle,
+			options: { forceWheelCorrection: true },
+		} );
 
 		// Disable headlights on AI vehicles to save GPU
 		for ( const hl of vehicle.headlights ) hl.visible = false;
 
 		this.scene.add( vehicle.container );
 
-		const controller = new AIController( this.trackIntel, index );
+		const profile = AI_PROFILES[ index % AI_PROFILES.length ];
+		const controller = new AIController( this.trackIntel, index, profile );
 
 		const finishLine = new FinishLine( {
 			position: this.spawnPosition,
@@ -105,6 +101,7 @@ export class AIManager {
 			id: 'ai_' + index,
 			vehicle,
 			controller,
+			profile,
 			modelIndex,
 			smokeTrails: new SmokeTrails( this.scene ),
 			driftSparks: new DriftSparks( this.scene ),
@@ -114,6 +111,7 @@ export class AIManager {
 			lap: 0,
 			prevPos: null,
 			finished: false,
+			segmentHint: null,
 		} );
 
 	}
@@ -180,7 +178,8 @@ export class AIManager {
 
 		const ti = this.trackIntel;
 		const playerProgress = playerLap + ti.getProgress( playerVehicle.spherePos.x, playerVehicle.spherePos.z );
-		const aiProgress = ai.lap + ti.getProgress( ai.vehicle.spherePos.x, ai.vehicle.spherePos.z );
+		ai.segmentHint = ti.getNearestWaypoint( ai.vehicle.spherePos.x, ai.vehicle.spherePos.z, ai.segmentHint );
+		const aiProgress = ai.lap + ti.getProgress( ai.vehicle.spherePos.x, ai.vehicle.spherePos.z, ai.segmentHint );
 
 		// Positive diff = AI is behind player
 		const diff = playerProgress - aiProgress;
@@ -336,6 +335,7 @@ export class AIManager {
 			ai.lap = 0;
 			ai.finished = false;
 			ai.prevPos = null;
+			ai.segmentHint = null;
 			ai.finishLine.resetCooldown();
 			ai.vehicle.externalTopSpeedMultiplier = 1.0;
 			ai.tireMarks.clear();
@@ -362,10 +362,15 @@ export class AIManager {
 
 	getAIRaceData() {
 
-		return this._racers.map( ai => ( {
-			vehicle: ai.vehicle,
-			lap: ai.lap,
-		} ) );
+		this._raceDataCache.length = 0;
+
+		for ( const ai of this._racers ) {
+
+			this._raceDataCache.push( { vehicle: ai.vehicle, lap: ai.lap, profileName: ai.profile.name } );
+
+		}
+
+		return this._raceDataCache;
 
 	}
 

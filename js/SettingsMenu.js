@@ -1,10 +1,9 @@
 export class SettingsMenu {
 
-	constructor( settings, controls, aiManager ) {
+	constructor( settings, controls ) {
 
 		this.settings = settings;
 		this.controls = controls;
-		this.aiManager = aiManager;
 		this._open = false;
 
 		this._injectCSS();
@@ -179,15 +178,15 @@ export class SettingsMenu {
 
 		const ai = this._section( 'Race' );
 
-		ai.appendChild( this._sliderRow( 'AI Racers', 0, 9, 1, 0, ( v ) => {
+		ai.appendChild( this._sliderRow( 'AI Racers', 0, 8, 1, 0, ( v ) => {
 
-			if ( this.aiManager ) this.aiManager.setCount( v );
+			this.settings.set( 'aiCount', v );
 
 		} ) );
 
 		ai.appendChild( this._sliderRow( 'Difficulty', 0, 100, 5, 50, ( v ) => {
 
-			if ( this.aiManager ) this.aiManager.rubberBandIntensity = v / 100;
+			this.settings.set( 'difficulty', v );
 
 		} ) );
 

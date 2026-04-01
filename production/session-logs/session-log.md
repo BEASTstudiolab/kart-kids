@@ -2562,204 +2562,411 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
-## Session End: 20260401_004029
-### Uncommitted Changes
-js/Vehicle.js
-production/session-logs/agent-audit.log
----
-
-## Session End: 20260401_004521
-### Uncommitted Changes
-js/RaceMode.js
-js/Vehicle.js
-js/main.js
-production/session-logs/agent-audit.log
-production/session-logs/session-log.md
----
-
-## Session End: 20260401_004821
-### Uncommitted Changes
-js/RaceMode.js
-js/Vehicle.js
-js/main.js
-production/session-logs/agent-audit.log
-production/session-logs/session-log.md
----
-
-## Session End: 20260401_004849
-### Uncommitted Changes
-js/RaceMode.js
-js/Vehicle.js
-js/main.js
-production/session-logs/agent-audit.log
-production/session-logs/session-log.md
----
-
-## Session End: 20260401_004948
-### Uncommitted Changes
-js/RaceMode.js
-js/Vehicle.js
-js/main.js
-production/session-logs/agent-audit.log
-production/session-logs/session-log.md
----
-
-## Session End: 20260401_005141
-### Uncommitted Changes
-js/RaceMode.js
-js/Vehicle.js
-js/main.js
-production/session-logs/agent-audit.log
-production/session-logs/session-log.md
----
-
-## Session End: 20260401_005221
-### Uncommitted Changes
-js/RaceMode.js
-js/Vehicle.js
-js/main.js
-production/session-logs/agent-audit.log
-production/session-logs/session-log.md
----
-
-## Session End: 20260401_005809
-### Uncommitted Changes
-js/Camera.js
-js/RaceMode.js
-js/Vehicle.js
-js/main.js
-production/session-logs/agent-audit.log
-production/session-logs/session-log.md
----
-
-## Session End: 20260401_005957
-### Uncommitted Changes
-js/Camera.js
-js/RaceMode.js
-js/Vehicle.js
-js/main.js
-production/session-logs/agent-audit.log
-production/session-logs/session-log.md
----
-
-## Session End: 20260401_010555
-### Uncommitted Changes
-js/Camera.js
-js/RaceMode.js
-js/Vehicle.js
-js/main.js
-production/session-logs/agent-audit.log
-production/session-logs/session-log.md
----
-
-## Session End: 20260401_015322
+## Session End: 20260331_151742
 ### Commits
-27c74a6 kart-kids-v0.16-ai-bot-racers
-### Uncommitted Changes
-.claude/settings.local.json
+114f8b3 kart-kids-v0.15-physics-particlefx-camera-optimizations
+1ca80af kart-kids-v0.14-physics-debugger-added
+932722a kart-kids-v0.13-top-speed-boost-increase
+2c29fcc kart-kids-v0.12-raycast-physics
 ---
 
-## Session End: 20260401_021745
+## Session End: 20260331_152351
 ### Commits
-27c74a6 kart-kids-v0.16-ai-bot-racers
+114f8b3 kart-kids-v0.15-physics-particlefx-camera-optimizations
+1ca80af kart-kids-v0.14-physics-debugger-added
+932722a kart-kids-v0.13-top-speed-boost-increase
+2c29fcc kart-kids-v0.12-raycast-physics
 ### Uncommitted Changes
-.claude/settings.local.json
-js/Camera.js
-js/main.js
-production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
-## Session End: 20260401_024436
+## Session End: 20260331_154721
 ### Commits
-27c74a6 kart-kids-v0.16-ai-bot-racers
-### Uncommitted Changes
-.claude/settings.local.json
-js/Camera.js
-js/main.js
-production/session-logs/agent-audit.log
-production/session-logs/session-log.md
----
-
-## Session End: 20260401_024512
-### Commits
-27c74a6 kart-kids-v0.16-ai-bot-racers
-### Uncommitted Changes
-.claude/settings.local.json
-js/Camera.js
-js/main.js
-production/session-logs/agent-audit.log
-production/session-logs/session-log.md
----
-
-## Session End: 20260401_025031
-### Commits
-27c74a6 kart-kids-v0.16-ai-bot-racers
-### Uncommitted Changes
-.claude/settings.local.json
-editor.html
-index.html
-js/Camera.js
-js/main.js
-package-lock.json
-package.json
-production/session-logs/agent-audit.log
-production/session-logs/session-log.md
----
-
-## Session End: 20260401_025219
-### Commits
-27c74a6 kart-kids-v0.16-ai-bot-racers
-### Uncommitted Changes
-.claude/settings.local.json
-editor.html
-index.html
-js/Camera.js
-js/main.js
-package-lock.json
-package.json
-production/session-logs/agent-audit.log
-production/session-logs/session-log.md
----
-
-## Session End: 20260401_025343
-### Commits
-27c74a6 kart-kids-v0.16-ai-bot-racers
-### Uncommitted Changes
-.claude/settings.local.json
-editor.html
-index.html
-js/Camera.js
-js/main.js
-package-lock.json
-package.json
-production/session-logs/agent-audit.log
-production/session-logs/session-log.md
----
-
-## Session End: 20260401_033536
-### Commits
-d26d8d2 kart-kids-v0.17-gpu-fx-menu-organization
-27c74a6 kart-kids-v0.16-ai-bot-racers
+114f8b3 kart-kids-v0.15-physics-particlefx-camera-optimizations
+1ca80af kart-kids-v0.14-physics-debugger-added
+932722a kart-kids-v0.13-top-speed-boost-increase
+2c29fcc kart-kids-v0.12-raycast-physics
 ### Uncommitted Changes
 CLAUDE.md
-js/AIManager.js
-js/Controls.js
+js/Camera.js
+js/DriftSparks.js
+js/Vehicle.js
+js/main.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260331_155145
+### Commits
+114f8b3 kart-kids-v0.15-physics-particlefx-camera-optimizations
+1ca80af kart-kids-v0.14-physics-debugger-added
+932722a kart-kids-v0.13-top-speed-boost-increase
+2c29fcc kart-kids-v0.12-raycast-physics
+### Uncommitted Changes
+CLAUDE.md
+js/Camera.js
+js/DriftSparks.js
+js/Vehicle.js
+js/main.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260331_160603
+### Commits
+114f8b3 kart-kids-v0.15-physics-particlefx-camera-optimizations
+1ca80af kart-kids-v0.14-physics-debugger-added
+932722a kart-kids-v0.13-top-speed-boost-increase
+2c29fcc kart-kids-v0.12-raycast-physics
+### Uncommitted Changes
+CLAUDE.md
+js/Camera.js
+js/DriftSparks.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260331_164028
+### Commits
+114f8b3 kart-kids-v0.15-physics-particlefx-camera-optimizations
+1ca80af kart-kids-v0.14-physics-debugger-added
+932722a kart-kids-v0.13-top-speed-boost-increase
+2c29fcc kart-kids-v0.12-raycast-physics
+### Uncommitted Changes
+CLAUDE.md
+js/Audio.js
+js/Camera.js
+js/DriftSparks.js
+js/HUD.js
+js/PlayerManager.js
 js/RaceMode.js
 js/Vehicle.js
 js/main.js
 production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
 ---
 
-## Session End: 20260401_040148
+## Session End: 20260331_164339
 ### Commits
-d94d584 kart-kids-v0.180-mobile-joystick
-d26d8d2 kart-kids-v0.17-gpu-fx-menu-organization
-27c74a6 kart-kids-v0.16-ai-bot-racers
+114f8b3 kart-kids-v0.15-physics-particlefx-camera-optimizations
+1ca80af kart-kids-v0.14-physics-debugger-added
+932722a kart-kids-v0.13-top-speed-boost-increase
+2c29fcc kart-kids-v0.12-raycast-physics
 ### Uncommitted Changes
-index.html
-js/Controls.js
-js/SettingsMenu.js
+CLAUDE.md
+js/Audio.js
+js/Camera.js
+js/DriftSparks.js
+js/HUD.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Vehicle.js
 js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260331_165911
+### Commits
+114f8b3 kart-kids-v0.15-physics-particlefx-camera-optimizations
+1ca80af kart-kids-v0.14-physics-debugger-added
+932722a kart-kids-v0.13-top-speed-boost-increase
+2c29fcc kart-kids-v0.12-raycast-physics
+### Uncommitted Changes
+CLAUDE.md
+js/Audio.js
+js/Camera.js
+js/DriftSparks.js
+js/HUD.js
+js/ItemBoxManager.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260331_171202
+### Commits
+114f8b3 kart-kids-v0.15-physics-particlefx-camera-optimizations
+1ca80af kart-kids-v0.14-physics-debugger-added
+932722a kart-kids-v0.13-top-speed-boost-increase
+2c29fcc kart-kids-v0.12-raycast-physics
+### Uncommitted Changes
+CLAUDE.md
+js/Audio.js
+js/Camera.js
+js/DriftSparks.js
+js/HUD.js
+js/ItemBoxManager.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260331_171246
+### Commits
+114f8b3 kart-kids-v0.15-physics-particlefx-camera-optimizations
+1ca80af kart-kids-v0.14-physics-debugger-added
+932722a kart-kids-v0.13-top-speed-boost-increase
+2c29fcc kart-kids-v0.12-raycast-physics
+### Uncommitted Changes
+CLAUDE.md
+js/Audio.js
+js/Camera.js
+js/DriftSparks.js
+js/HUD.js
+js/ItemBoxManager.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260331_171250
+### Commits
+114f8b3 kart-kids-v0.15-physics-particlefx-camera-optimizations
+1ca80af kart-kids-v0.14-physics-debugger-added
+932722a kart-kids-v0.13-top-speed-boost-increase
+2c29fcc kart-kids-v0.12-raycast-physics
+### Uncommitted Changes
+CLAUDE.md
+js/Audio.js
+js/Camera.js
+js/DriftSparks.js
+js/HUD.js
+js/ItemBoxManager.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260331_171309
+### Commits
+114f8b3 kart-kids-v0.15-physics-particlefx-camera-optimizations
+1ca80af kart-kids-v0.14-physics-debugger-added
+932722a kart-kids-v0.13-top-speed-boost-increase
+2c29fcc kart-kids-v0.12-raycast-physics
+### Uncommitted Changes
+CLAUDE.md
+js/Audio.js
+js/Camera.js
+js/DriftSparks.js
+js/HUD.js
+js/ItemBoxManager.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260331_171447
+### Commits
+114f8b3 kart-kids-v0.15-physics-particlefx-camera-optimizations
+1ca80af kart-kids-v0.14-physics-debugger-added
+932722a kart-kids-v0.13-top-speed-boost-increase
+2c29fcc kart-kids-v0.12-raycast-physics
+### Uncommitted Changes
+CLAUDE.md
+js/Audio.js
+js/Camera.js
+js/DriftSparks.js
+js/HUD.js
+js/ItemBoxManager.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260331_173319
+### Commits
+114f8b3 kart-kids-v0.15-physics-particlefx-camera-optimizations
+1ca80af kart-kids-v0.14-physics-debugger-added
+932722a kart-kids-v0.13-top-speed-boost-increase
+2c29fcc kart-kids-v0.12-raycast-physics
+### Uncommitted Changes
+CLAUDE.md
+js/Audio.js
+js/Camera.js
+js/DriftSparks.js
+js/HUD.js
+js/ItemBoxManager.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260331_173931
+### Commits
+114f8b3 kart-kids-v0.15-physics-particlefx-camera-optimizations
+1ca80af kart-kids-v0.14-physics-debugger-added
+932722a kart-kids-v0.13-top-speed-boost-increase
+### Uncommitted Changes
+CLAUDE.md
+js/Audio.js
+js/Camera.js
+js/DriftSparks.js
+js/HUD.js
+js/ItemBoxManager.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260331_184350
+### Commits
+114f8b3 kart-kids-v0.15-physics-particlefx-camera-optimizations
+### Uncommitted Changes
+CLAUDE.md
+js/Audio.js
+js/Camera.js
+js/DriftSparks.js
+js/HUD.js
+js/ItemBoxManager.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260331_193032
+### Commits
+114f8b3 kart-kids-v0.15-physics-particlefx-camera-optimizations
+### Uncommitted Changes
+CLAUDE.md
+js/Audio.js
+js/Camera.js
+js/DriftSparks.js
+js/HUD.js
+js/ItemBoxManager.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260331_221139
+### Uncommitted Changes
+CLAUDE.md
+js/Audio.js
+js/Camera.js
+js/DriftSparks.js
+js/HUD.js
+js/ItemBoxManager.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260331_222444
+### Uncommitted Changes
+CLAUDE.md
+js/Audio.js
+js/Camera.js
+js/DriftSparks.js
+js/HUD.js
+js/ItemBoxManager.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260331_222804
+### Uncommitted Changes
+CLAUDE.md
+js/Audio.js
+js/Camera.js
+js/DriftSparks.js
+js/HUD.js
+js/ItemBoxManager.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260331_223036
+### Commits
+b61b37e feat: add item pickups, tire marks, spring UI, and review fixes
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260331_225610
+### Commits
+164a239 Merge pull request #3 from BEASTstudiolab/feat/track-item-pickups
+b61b37e feat: add item pickups, tire marks, spring UI, and review fixes
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260331_225632
+### Commits
+164a239 Merge pull request #3 from BEASTstudiolab/feat/track-item-pickups
+b61b37e feat: add item pickups, tire marks, spring UI, and review fixes
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260401_114850
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260401_120441
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
 ---
 
