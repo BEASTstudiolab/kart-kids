@@ -27,6 +27,7 @@ export class Controls {
 
 		// Pinch-to-zoom state
 		this._activePointers = new Map();
+		this._controlPointers = new Set(); // pointerIds owned by touch controls (excluded from pinch)
 
 		// Gamepad
 		this._gamepadConnected = false;
@@ -179,6 +180,7 @@ export class Controls {
 			this._steerStartX = e.clientX;
 			this._steerRawX = 0;
 			this.touchActive = true;
+			this._controlPointers.add( e.pointerId );
 
 		} );
 
@@ -195,6 +197,7 @@ export class Controls {
 		const endSteer = ( e ) => {
 
 			if ( e.pointerId !== this._steerPointerId ) return;
+			this._controlPointers.delete( e.pointerId );
 			this._steerPointerId = null;
 			this._steerRawX = 0;
 			knob.style.transform = '';
@@ -264,13 +267,15 @@ export class Controls {
 
 			btn.setPointerCapture( e.pointerId );
 			btn.classList.add( 'active' );
+			this._controlPointers.add( e.pointerId );
 			onToggle( true );
 
 		} );
 
-		const release = () => {
+		const release = ( e ) => {
 
 			btn.classList.remove( 'active' );
+			this._controlPointers.delete( e.pointerId );
 			onToggle( false );
 
 		};
@@ -306,6 +311,7 @@ export class Controls {
 		this._brakePressed = false;
 		this._boostPressed = false;
 		this.touchActive = false;
+		this._controlPointers.clear();
 
 		this.setupTouchUI();
 
@@ -372,6 +378,7 @@ export class Controls {
 
 	_onPinchPointerDown( e ) {
 
+		if ( this._controlPointers.has( e.pointerId ) ) return;
 		this._activePointers.set( e.pointerId, { x: e.clientX, y: e.clientY } );
 
 	}

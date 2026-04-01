@@ -795,4 +795,37 @@ export class Vehicle {
 
 	}
 
+	/**
+	 * Factory: create a fully initialized vehicle with physics body and model.
+	 * @param {object} opts
+	 * @param {object} opts.world - crashcat physics world
+	 * @param {Function} opts.createBody - (world, position) => rigidBody
+	 * @param {object} opts.model - cloneable GLTF model
+	 * @param {number[]} opts.position - [x, y, z] spawn position
+	 * @param {number} opts.angle - spawn rotation Y
+	 * @param {object} [opts.options] - { forceWheelCorrection }
+	 * @returns {Vehicle}
+	 */
+	static spawn( { world, createBody, model, position, angle, options = {} } ) {
+
+		const vehicle = new Vehicle();
+		if ( options.forceWheelCorrection ) vehicle.forceWheelCorrection = true;
+
+		const body = createBody( world, position );
+		vehicle.rigidBody = body;
+		vehicle.physicsWorld = world;
+
+		const [ sx, sy, sz ] = position;
+		vehicle.spherePos.set( sx, sy, sz );
+		vehicle.groundHeight = sy;
+		vehicle.prevModelPos.set( sx, sy, sz );
+		vehicle.container.rotation.y = angle;
+
+		vehicle.init( model );
+		vehicle.initRaycast( world );
+
+		return vehicle;
+
+	}
+
 }

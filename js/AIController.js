@@ -10,7 +10,7 @@ const TURN_THROTTLE_MIN = 0.3;
 
 const STUCK_THRESHOLD = 0.05;
 const STUCK_TIME = 2.0;
-const REVERSE_TIME = 1.0;
+const REVERSE_TIME = 1.5;
 
 export class AIController {
 
@@ -26,6 +26,7 @@ export class AIController {
 		this._stuckTimer = 0;
 		this._reverseTimer = 0;
 		this._reversing = false;
+		this._reverseSteer = 0;
 
 	}
 
@@ -46,7 +47,7 @@ export class AIController {
 
 			} else {
 
-				return { x: 0.5, z: - 0.5, touchActive: false, boost: false };
+				return { x: this._reverseSteer, z: - 1.0, touchActive: false, boost: false };
 
 			}
 
@@ -60,7 +61,8 @@ export class AIController {
 
 				this._reversing = true;
 				this._reverseTimer = REVERSE_TIME;
-				return { x: 0.5, z: - 0.5, touchActive: false, boost: false };
+				this._reverseSteer = Math.random() > 0.5 ? 0.7 : - 0.7;
+				return { x: this._reverseSteer, z: - 1.0, touchActive: false, boost: false };
 
 			}
 

@@ -189,6 +189,9 @@ const screenShakeShader = {
 // ---------------------------------------------------------------------------
 // God Rays — screen-space light scattering
 // ---------------------------------------------------------------------------
+const _isMobileGPU = 'ontouchstart' in ( typeof window !== 'undefined' ? window : {} ) ||
+	( typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0 );
+
 const godRaysShader = {
 	uniforms: {
 		tDiffuse:              { value: null },
@@ -197,7 +200,7 @@ const godRaysShader = {
 		decay:                 { value: 0.96 },
 		density:               { value: 0.5 },
 		weight:                { value: 0.1 },
-		samples:               { value: 60 },
+		samples:               { value: _isMobileGPU ? 24 : 60 },
 	},
 	vertexShader: VERT,
 	fragmentShader: /* glsl */`
@@ -215,7 +218,7 @@ const godRaysShader = {
 			vec2 coord = vUv;
 			vec4 color = texture2D( tDiffuse, vUv );
 			float illuminationDecay = 1.0;
-			for ( int i = 0; i < 100; i++ ) {
+			for ( int i = 0; i < 64; i++ ) {
 				if ( i >= samples ) break;
 				coord -= deltaTextCoord;
 				vec4 s = texture2D( tDiffuse, coord );
@@ -243,6 +246,7 @@ export class PostProcessing {
 
 		// Directional light ref for god-rays (set via setDirLight)
 		this.dirLight = null;
+		this._lightProjVec = new THREE.Vector3();
 
 		// Screen shake state
 		this.shakeIntensity = 0;
@@ -310,6 +314,7 @@ export class PostProcessing {
 				effect.pass = ssaoPass;
 				this._ssaoPass = ssaoPass;
 				this._ssaoLoaded = true;
+				this._applyPendingSSAOParams();
 
 			} catch ( e ) {
 
@@ -359,6 +364,35 @@ export class PostProcessing {
 	setDirLight( light ) {
 
 		this.dirLight = light;
+
+	}
+
+	// ── SSAO parameter API ──────────────────────────────────────────────────
+
+	/** Set an SSAO parameter. Buffers values until the pass is lazy-loaded. */
+	setSSAOParam( key, value ) {
+
+		if ( ! this._ssaoPendingParams ) this._ssaoPendingParams = {};
+		this._ssaoPendingParams[ key ] = value;
+
+		if ( this._ssaoPass ) {
+
+			this._ssaoPass[ key ] = value;
+
+		}
+
+	}
+
+	/** Apply any buffered SSAO params after lazy load. Called internally. */
+	_applyPendingSSAOParams() {
+
+		if ( ! this._ssaoPendingParams || ! this._ssaoPass ) return;
+
+		for ( const key in this._ssaoPendingParams ) {
+
+			this._ssaoPass[ key ] = this._ssaoPendingParams[ key ];
+
+		}
 
 	}
 
@@ -422,7 +456,7 @@ export class PostProcessing {
 		// God rays — project directional light to screen space
 		if ( this.getEffect( 'godRays' ).enabled && this.dirLight ) {
 
-			const lightPos = this.dirLight.position.clone().project( this.camera );
+			const lightPos = this._lightProjVec.copy( this.dirLight.position ).project( this.camera );
 			this.getPass( 'godRays' ).uniforms.lightPositionOnScreen.value.set(
 				( lightPos.x + 1 ) / 2,
 				( lightPos.y + 1 ) / 2

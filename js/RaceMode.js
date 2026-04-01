@@ -32,6 +32,7 @@ export class RaceMode extends GameMode {
 		this.trackIntel = null;
 		this._lastSegmentHint = null;
 		this._position = 1;
+		this._aiVehicleSet = new Set();
 
 		this._state = STATE_IDLE;
 		this._countdownTime = 0;
@@ -252,12 +253,12 @@ export class RaceMode extends GameMode {
 		let ahead = 0;
 
 		// AI racers with known lap counts — use full race progress
-		const aiVehicleSet = new Set();
+		this._aiVehicleSet.clear();
 		if ( aiRaceData ) {
 
 			for ( const ai of aiRaceData ) {
 
-				aiVehicleSet.add( ai.vehicle );
+				this._aiVehicleSet.add( ai.vehicle );
 				const vPos = ai.vehicle.spherePos;
 				const vProgress = ai.lap + this.trackIntel.getProgress( vPos.x, vPos.z );
 				if ( vProgress > myProgress ) ahead ++;
@@ -271,7 +272,7 @@ export class RaceMode extends GameMode {
 
 			const v = entry.vehicle;
 			if ( v === vehicle ) continue;
-			if ( aiVehicleSet.has( v ) ) continue;
+			if ( this._aiVehicleSet.has( v ) ) continue;
 
 			const vPos = v.spherePos;
 			const vProgress = this.trackIntel.getProgress( vPos.x, vPos.z );
