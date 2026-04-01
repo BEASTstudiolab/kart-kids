@@ -26,6 +26,8 @@ import { PostProcessing } from './PostProcessing.js';
 import { Settings } from './Settings.js';
 import { SettingsMenu } from './SettingsMenu.js';
 import { PRESETS, TIER_PIXEL_RATIO } from './QualityTiers.js';
+import { DraftingSystem } from './DraftingSystem.js';
+import { DraftLines } from './DraftLines.js';
 
 
 const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -356,6 +358,9 @@ async function init() {
 
 	const dirLightOffset = { x: 11.4, y: 15, z: - 5.3 };
 	let lastShadowX = 0, lastShadowZ = 0;
+
+	// ── Audio (must be before RaceMode which references it in callbacks) ────
+	const audio = new GameAudio();
 
 	// ── Race mode setup ──────────────────────────────────────────────────────
 	const raceMode = new RaceMode( {
@@ -732,7 +737,7 @@ async function init() {
 		// Active preset label
 		const presetLabel = document.createElement( 'div' );
 		presetLabel.style.cssText = 'margin:4px 0 8px;padding:4px 8px;background:#0f02;border:1px solid #0f044;border-radius:3px;text-align:center';
-		presetLabel.textContent = 'Active preset: ' + ( settings.get( 'quality' ) || 'unknown' );
+		presetLabel.textContent = 'Active preset: detecting...';
 		postFXTab.appendChild( presetLabel );
 		window.addEventListener( 'settings-changed', ( e ) => {
 
@@ -965,6 +970,9 @@ async function init() {
 
 		}
 
+		// Notify debug label of initial quality
+		window.dispatchEvent( new CustomEvent( 'settings-changed', { detail: { key: 'quality', value: tier } } ) );
+
 	}
 
 	// ─── Camera toggle button (top-left) ─────────────────────────────────
@@ -1015,7 +1023,6 @@ async function init() {
 
 	} );
 
-	const audio = new GameAudio();
 	audio.init( cam.camera );
 
 	let lastImpactTime = 0;
@@ -1098,6 +1105,8 @@ async function init() {
 	let fpsFrames = 0;
 	let fpsTime = performance.now();
 	const allActiveVehicles = [];
+	const draftingSystem = new DraftingSystem();
+	const draftLines = new DraftLines( scene );
 
 	function animate() {
 
@@ -1175,6 +1184,11 @@ async function init() {
 		allActiveVehicles.length = 0;
 		for ( const v of playerManager.getActiveVehicles() ) allActiveVehicles.push( v );
 		for ( const v of aiManager.getActiveVehicles() ) allActiveVehicles.push( v );
+
+		// Drafting detection and VFX
+		draftingSystem.update( dt, allActiveVehicles );
+		draftLines.update( dt, draftingSystem.getActiveDrafts() );
+
 		raceMode.update( dt, vehicle, allActiveVehicles, aiManager.getAIRaceData() );
 
 		if ( raceMode.state === 'idle' ) {
@@ -1240,6 +1254,14 @@ async function init() {
 		}
 
 		audio.update( dt, vehicle ? vehicle.linearSpeed : 0, input.z, vehicle ? vehicle.driftIntensity : 0 );
+
+		// Draft wind audio — get player's draft intensity
+		if ( vehicle ) {
+
+			const playerDraft = draftingSystem.getActiveDrafts().get( vehicle );
+			audio.updateDraft( playerDraft ? playerDraft.intensity : 0 );
+
+		}
 
 		// Update dynamic post-processing effects
 		if ( postFX ) {

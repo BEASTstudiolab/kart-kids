@@ -1,0 +1,189 @@
+import * as THREE from 'three';
+
+const _leadForward = new THREE.Vector3();
+const _trailerForward = new THREE.Vector3();
+const _leadToTrailer = new THREE.Vector3();
+
+const DRAFT_DISTANCE = 3.0;
+const DRAFT_DISTANCE_SQ = DRAFT_DISTANCE * DRAFT_DISTANCE;
+const BEHIND_DOT_THRESHOLD = - 0.5;
+const ALIGNMENT_DOT_THRESHOLD = 0.8;
+const RAMP_TIME = 1.0;
+const DECAY_TIME = 0.5;
+const MAX_DRAFT_BOOST = 0.08;
+
+export class DraftingSystem {
+
+	constructor() {
+
+		// ── Draft State ──────────────────────────────────────────────────────
+		this._drafts = new Map();
+		this._activeVehicles = new Set();
+		this._detectedLeads = new Map();
+		this._detectedLeadDistanceSq = new Map();
+		this._staleVehicles = [];
+
+	}
+
+	update( dt, activeVehicles ) {
+
+		// ── Frame Setup ──────────────────────────────────────────────────────
+		this._activeVehicles.clear();
+		this._detectedLeads.clear();
+		this._detectedLeadDistanceSq.clear();
+
+		if ( ! Array.isArray( activeVehicles ) || activeVehicles.length === 0 ) {
+
+			this._drafts.clear();
+			return;
+
+		}
+
+		for ( let i = 0; i < activeVehicles.length; i ++ ) {
+
+			const vehicle = activeVehicles[ i ].vehicle;
+			if ( ! vehicle ) continue;
+
+			this._activeVehicles.add( vehicle );
+			vehicle.draftSpeedMultiplier = 1.0;
+
+		}
+
+		// ── Draft Detection ──────────────────────────────────────────────────
+		for ( let leadIndex = 0; leadIndex < activeVehicles.length; leadIndex ++ ) {
+
+			const leadVehicle = activeVehicles[ leadIndex ].vehicle;
+			if ( ! leadVehicle ) continue;
+
+			for ( let trailerIndex = 0; trailerIndex < activeVehicles.length; trailerIndex ++ ) {
+
+				if ( leadIndex === trailerIndex ) continue;
+
+				const trailerVehicle = activeVehicles[ trailerIndex ].vehicle;
+				if ( ! trailerVehicle ) continue;
+
+				const distanceSq = this._getDraftDistanceSq( leadVehicle, trailerVehicle );
+
+				if ( distanceSq === null ) continue;
+
+				const bestDistanceSq = this._detectedLeadDistanceSq.get( trailerVehicle );
+
+				if ( bestDistanceSq === undefined || distanceSq < bestDistanceSq ) {
+
+					this._detectedLeads.set( trailerVehicle, leadVehicle );
+					this._detectedLeadDistanceSq.set( trailerVehicle, distanceSq );
+
+				}
+
+			}
+
+		}
+
+		// ── Intensity Update ─────────────────────────────────────────────────
+		for ( let i = 0; i < activeVehicles.length; i ++ ) {
+
+			const vehicle = activeVehicles[ i ].vehicle;
+			if ( ! vehicle ) continue;
+
+			const detectedLead = this._detectedLeads.get( vehicle ) || null;
+			let state = this._drafts.get( vehicle );
+
+			if ( ! detectedLead && ! state ) continue;
+
+			if ( ! state ) {
+
+				state = { intensity: 0, leadVehicle: detectedLead };
+				this._drafts.set( vehicle, state );
+
+			}
+
+			if ( detectedLead ) {
+
+				state.intensity = Math.min( 1, state.intensity + dt / RAMP_TIME );
+				state.leadVehicle = detectedLead;
+
+			} else {
+
+				state.intensity = Math.max( 0, state.intensity - dt / DECAY_TIME );
+
+			}
+
+			if ( state.intensity > 0 ) {
+
+				vehicle.draftSpeedMultiplier = 1.0 + MAX_DRAFT_BOOST * state.intensity;
+
+			} else {
+
+				this._drafts.delete( vehicle );
+
+			}
+
+		}
+
+		// ── Cleanup ──────────────────────────────────────────────────────────
+		this._staleVehicles.length = 0;
+
+		for ( const draftedVehicle of this._drafts.keys() ) {
+
+			if ( ! this._activeVehicles.has( draftedVehicle ) ) {
+
+				this._staleVehicles.push( draftedVehicle );
+
+			}
+
+		}
+
+		for ( let i = 0; i < this._staleVehicles.length; i ++ ) {
+
+			this._drafts.delete( this._staleVehicles[ i ] );
+
+		}
+
+	}
+
+	getActiveDrafts() {
+
+		return this._drafts;
+
+	}
+
+	_getDraftDistanceSq( leadVehicle, trailerVehicle ) {
+
+		// ── Lead / Trailer Geometry ─────────────────────────────────────────
+		_leadForward.set( 0, 0, 1 ).applyQuaternion( leadVehicle.container.quaternion );
+		_leadForward.y = 0;
+
+		if ( _leadForward.lengthSq() === 0 ) return null;
+
+		_leadForward.normalize();
+
+		_trailerForward.set( 0, 0, 1 ).applyQuaternion( trailerVehicle.container.quaternion );
+		_trailerForward.y = 0;
+
+		if ( _trailerForward.lengthSq() === 0 ) return null;
+
+		_trailerForward.normalize();
+
+		_leadToTrailer.subVectors( trailerVehicle.spherePos, leadVehicle.spherePos );
+		_leadToTrailer.y = 0;
+
+		const distanceSq = _leadToTrailer.lengthSq();
+
+		if ( distanceSq >= DRAFT_DISTANCE_SQ ) return null;
+		if ( distanceSq === 0 ) return null;
+
+		_leadToTrailer.normalize();
+
+		const behindDot = _leadForward.dot( _leadToTrailer );
+
+		if ( behindDot >= BEHIND_DOT_THRESHOLD ) return null;
+
+		const alignmentDot = _leadForward.dot( _trailerForward );
+
+		if ( alignmentDot <= ALIGNMENT_DOT_THRESHOLD ) return null;
+
+		return distanceSq;
+
+	}
+
+}
