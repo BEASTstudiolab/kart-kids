@@ -528,7 +528,8 @@ async function init() {
 		].join( ';' );
 		document.body.appendChild( debugHud );
 
-		hudVisible = true;
+		hudVisible = false;
+		debugHud.style.display = 'none';
 		window.addEventListener( 'keydown', ( e ) => {
 
 			if ( e.key === 'h' || e.key === 'H' ) {
@@ -910,7 +911,7 @@ async function init() {
 
 	const settings = new Settings();
 	const controls = new Controls( settings, cam );
-	const settingsMenu = new SettingsMenu( settings, controls );
+	const settingsMenu = new SettingsMenu( settings, controls, aiManager );
 
 	// ─── Camera toggle button (top-left) ─────────────────────────────────
 	const camToggleBtn = document.createElement( 'div' );
@@ -1024,7 +1025,7 @@ async function init() {
 	// ─── FPS DISPLAY ─────────────────────────────────────────────────────────
 	const fpsDisplay = document.createElement( 'div' );
 	fpsDisplay.style.cssText = [
-		'position:fixed', 'top:12px', 'right:12px',
+		'position:fixed', 'top:68px', 'left:16px',
 		'background:rgba(0,0,0,0.72)', 'color:#0f0', 'font:13px/1.6 monospace',
 		'padding:4px 10px', 'border-radius:6px', 'z-index:999', 'user-select:none',
 	].join( ';' );

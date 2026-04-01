@@ -473,7 +473,8 @@ export class Controls {
 			if ( this._accelEnabled && this._accelListening ) {
 
 				const gamma = Math.max( - 30, Math.min( 30, this._accelGamma ) );
-				x = this._quantizeSteer( gamma / 30 );
+				const normalized = gamma / 30;
+				x = Math.abs( normalized ) < 0.12 ? 0 : this._quantizeSteer( normalized );
 
 			} else {
 

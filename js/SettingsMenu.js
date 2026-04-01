@@ -1,9 +1,10 @@
 export class SettingsMenu {
 
-	constructor( settings, controls ) {
+	constructor( settings, controls, aiManager ) {
 
 		this.settings = settings;
 		this.controls = controls;
+		this.aiManager = aiManager;
 		this._open = false;
 
 		this._injectCSS();
@@ -85,6 +86,23 @@ export class SettingsMenu {
 				background: rgba(80,200,120,0.3); border-color: rgba(80,200,120,0.6);
 				color: #fff;
 			}
+			.settings-slider-wrap {
+				display: flex; align-items: center; gap: 10px;
+			}
+			.settings-slider {
+				-webkit-appearance: none; appearance: none;
+				width: 120px; height: 6px; border-radius: 3px;
+				background: rgba(255,255,255,0.15); outline: none;
+				cursor: pointer;
+			}
+			.settings-slider::-webkit-slider-thumb {
+				-webkit-appearance: none; width: 20px; height: 20px;
+				border-radius: 50%; background: rgba(80,200,120,0.8);
+			}
+			.settings-slider-val {
+				color: rgba(255,255,255,0.6); font-size: 13px; min-width: 28px;
+				text-align: right;
+			}
 			.settings-close {
 				display: block; margin: 20px auto 0; padding: 10px 32px;
 				border-radius: 10px; background: rgba(255,255,255,0.1);
@@ -156,6 +174,24 @@ export class SettingsMenu {
 		ctrl.appendChild( this._toggleRow( 'Tilt Steering', 'accelerometer' ) );
 
 		panel.appendChild( ctrl );
+
+		// ── AI Race section ──
+
+		const ai = this._section( 'Race' );
+
+		ai.appendChild( this._sliderRow( 'AI Racers', 0, 9, 1, 0, ( v ) => {
+
+			if ( this.aiManager ) this.aiManager.setCount( v );
+
+		} ) );
+
+		ai.appendChild( this._sliderRow( 'Difficulty', 0, 100, 5, 50, ( v ) => {
+
+			if ( this.aiManager ) this.aiManager.rubberBandIntensity = v / 100;
+
+		} ) );
+
+		panel.appendChild( ai );
 
 		// ── Close button ──
 
@@ -242,6 +278,45 @@ export class SettingsMenu {
 
 		row.appendChild( lbl );
 		row.appendChild( group );
+		return row;
+
+	}
+
+	_sliderRow( label, min, max, step, initial, onChange ) {
+
+		const row = document.createElement( 'div' );
+		row.className = 'settings-row';
+
+		const lbl = document.createElement( 'span' );
+		lbl.className = 'settings-label';
+		lbl.textContent = label;
+
+		const wrap = document.createElement( 'div' );
+		wrap.className = 'settings-slider-wrap';
+
+		const slider = document.createElement( 'input' );
+		slider.type = 'range';
+		slider.className = 'settings-slider';
+		slider.min = min;
+		slider.max = max;
+		slider.step = step;
+		slider.value = initial;
+
+		const val = document.createElement( 'span' );
+		val.className = 'settings-slider-val';
+		val.textContent = initial;
+
+		slider.addEventListener( 'input', () => {
+
+			val.textContent = slider.value;
+			onChange( Number( slider.value ) );
+
+		} );
+
+		wrap.appendChild( slider );
+		wrap.appendChild( val );
+		row.appendChild( lbl );
+		row.appendChild( wrap );
 		return row;
 
 	}
