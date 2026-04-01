@@ -967,10 +967,10 @@ async function init() {
 
 		}
 
-	}
+		// Notify debug label of initial quality
+		window.dispatchEvent( new CustomEvent( 'settings-changed', { detail: { key: 'quality', value: tier } } ) );
 
-	// Update debug preset label now that settings is available
-	presetLabel.textContent = 'Active preset: ' + ( settings.get( 'quality' ) || 'unknown' );
+	}
 
 	// ─── Camera toggle button (top-left) ─────────────────────────────────
 	const camToggleBtn = document.createElement( 'div' );
