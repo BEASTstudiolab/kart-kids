@@ -7,6 +7,7 @@ import { BoostFlame } from './BoostFlame.js';
 import { TireMarks } from './TireMarks.js';
 import { FinishLine } from './FinishLine.js';
 import { AIController } from './AIController.js';
+import { AI_PROFILES } from './AIProfiles.js';
 import { rigidBody } from 'crashcat';
 
 const VEHICLE_MODEL_NAMES = [
@@ -88,7 +89,8 @@ export class AIManager {
 
 		this.scene.add( vehicle.container );
 
-		const controller = new AIController( this.trackIntel, index );
+		const profile = AI_PROFILES[ index % AI_PROFILES.length ];
+		const controller = new AIController( this.trackIntel, index, profile );
 
 		const finishLine = new FinishLine( {
 			position: this.spawnPosition,
@@ -99,6 +101,7 @@ export class AIManager {
 			id: 'ai_' + index,
 			vehicle,
 			controller,
+			profile,
 			modelIndex,
 			smokeTrails: new SmokeTrails( this.scene ),
 			driftSparks: new DriftSparks( this.scene ),
@@ -363,7 +366,7 @@ export class AIManager {
 
 		for ( const ai of this._racers ) {
 
-			this._raceDataCache.push( { vehicle: ai.vehicle, lap: ai.lap } );
+			this._raceDataCache.push( { vehicle: ai.vehicle, lap: ai.lap, profileName: ai.profile.name } );
 
 		}
 

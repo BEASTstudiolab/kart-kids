@@ -701,6 +701,30 @@ async function init() {
 		debugMenu.addSlider( generalTab, 'AI count', 0, 8, 1, 0, ( v ) => { aiManager.setCount( v ); } );
 		debugMenu.addSlider( generalTab, 'Rubber band %', 0, 100, 1, 50, ( v ) => { aiManager.rubberBandIntensity = v / 100; } );
 
+		const aiPersonalityLabel = document.createElement( 'div' );
+		aiPersonalityLabel.style.cssText = 'margin:4px 0;font-size:11px;color:#0f08';
+		aiPersonalityLabel.textContent = '';
+		generalTab.appendChild( aiPersonalityLabel );
+
+		// Update personality display when AI count changes
+		const updatePersonalityLabel = () => {
+
+			const data = aiManager.getAIRaceData();
+			if ( data.length === 0 ) {
+
+				aiPersonalityLabel.textContent = '';
+
+			} else {
+
+				aiPersonalityLabel.textContent = 'Personalities: ' + data.map( ( d ) => d.profileName ).join( ', ' );
+
+			}
+
+		};
+
+		// Poll every 500ms (lightweight, only when debug visible)
+		setInterval( () => { if ( debugMenu.visible ) updatePersonalityLabel(); }, 500 );
+
 		// ── Tab: Post FX ─────────────────────────────────────────────────────────
 		const postFXTab = debugMenu.addTab( 'postprocessing', 'Post FX' );
 
