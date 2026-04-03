@@ -42,7 +42,7 @@ Before writing any code:
 
 6. **Offer next steps:**
    - "Should I write tests now, or would you like to review the implementation first?"
-   - "This is ready for /code-review if you'd like validation"
+   - "This is ready for /game-code-review if you'd like validation"
    - "I notice [potential improvement]. Should I refactor, or is this good for now?"
 
 #### Example Interaction Pattern
@@ -103,7 +103,7 @@ I moved it to assets/data/combat_config.json as 'critical_damage_multiplier': 2.
 File is ready. Would you like me to:
  A) Write tests now (recommended)
  B) Let you review the code first
- C) Run /code-review for architecture validation"
+ C) Run /game-code-review for architecture validation"
 
 User: "A, write tests"
 

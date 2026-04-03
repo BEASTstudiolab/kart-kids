@@ -12,9 +12,9 @@ When this skill is invoked:
 
 Three modes:
 
-- **Full spec**: `/setup-engine godot 4.6` — engine and version provided
-- **Engine only**: `/setup-engine unity` — engine provided, version will be looked up
-- **No args**: `/setup-engine` — fully guided mode (engine recommendation + version)
+- **Full spec**: `/game-setup-engine godot 4.6` — engine and version provided
+- **Engine only**: `/game-setup-engine unity` — engine provided, version will be looked up
+- **No args**: `/game-setup-engine` — fully guided mode (engine recommendation + version)
 
 ---
 
@@ -24,9 +24,9 @@ If no engine is specified, run an interactive engine selection process:
 
 ### Check for existing game concept
 - Read `design/gdd/game-concept.md` if it exists — extract genre, scope, platform
-  targets, art style, team size, and any engine recommendation from `/brainstorm`
+  targets, art style, team size, and any engine recommendation from `/game-brainstorm`
 - If no concept exists, inform the user:
-  > "No game concept found. Consider running `/brainstorm` first to discover what
+  > "No game concept found. Consider running `/game-brainstorm` first to discover what
   > you want to build — it will also recommend an engine. Or tell me about your
   > game and I can help you pick."
 
@@ -189,7 +189,7 @@ Create a minimal `docs/engine-reference/<engine>/VERSION.md`:
 This engine version is within the LLM's training data. Engine reference
 docs are optional but can be added later if agents suggest incorrect APIs.
 
-Run `/setup-engine refresh` to populate full reference docs at any time.
+Run `/game-setup-engine refresh` to populate full reference docs at any time.
 ```
 
 Do NOT create breaking-changes.md, deprecated-apis.md, etc. — they would
@@ -261,7 +261,7 @@ The section should instruct the agent to:
 
 ## 10. Refresh Subcommand
 
-If invoked as `/setup-engine refresh`:
+If invoked as `/game-setup-engine refresh`:
 
 1. Read the existing `docs/engine-reference/<engine>/VERSION.md` to get
    the current engine and version
@@ -291,11 +291,11 @@ Agent Config:    [verified]
 
 Next Steps:
 1. Review docs/engine-reference/<engine>/VERSION.md
-2. [If from /brainstorm] Run /map-systems to decompose your concept into individual systems
-3. [If from /brainstorm] Run /design-system to author per-system GDDs (guided, section-by-section)
-4. [If from /brainstorm] Run /prototype [core-mechanic] to test the core loop
-5. [If fresh start] Run /brainstorm to discover your game concept
-6. Create your first milestone: /sprint-plan new
+2. [If from /game-brainstorm] Run /game-map-systems to decompose your concept into individual systems
+3. [If from /game-brainstorm] Run /game-design-system to author per-system GDDs (guided, section-by-section)
+4. [If from /game-brainstorm] Run /game-prototype [core-mechanic] to test the core loop
+5. [If fresh start] Run /game-brainstorm to discover your game concept
+6. Create your first milestone: /game-sprint-plan new
 ```
 
 ---

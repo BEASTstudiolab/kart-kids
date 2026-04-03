@@ -69,48 +69,48 @@ Ask yourself: "What department would handle this in a real studio?"
 | Build GDExtension modules | `godot-gdextension-specialist` |
 | Plan live events and seasons | `live-ops-designer` |
 | Write patch notes for players | `community-manager` |
-| Brainstorm a new game idea | Use `/brainstorm` skill |
+| Brainstorm a new game idea | Use `/game-brainstorm` skill |
 
 ### 3. Use Slash Commands for Common Tasks
 
 | Command | What it does |
 |---------|-------------|
-| `/start` | First-time onboarding — asks where you are, guides you to the right workflow |
-| `/design-review` | Reviews a design document |
-| `/code-review` | Reviews code for quality and architecture |
-| `/playtest-report` | Creates or analyzes playtest feedback |
-| `/balance-check` | Analyzes game balance data |
-| `/sprint-plan` | Creates or updates sprint plans |
-| `/architecture-decision` | Creates an ADR |
-| `/asset-audit` | Audits assets for compliance |
-| `/milestone-review` | Reviews milestone progress |
-| `/onboard` | Generates onboarding docs for a role |
-| `/prototype` | Scaffolds a throwaway prototype |
-| `/release-checklist` | Validates pre-release checklist |
-| `/changelog` | Generates changelog from git history |
-| `/retrospective` | Runs sprint/milestone retrospective |
-| `/estimate` | Produces structured effort estimates |
-| `/hotfix` | Emergency fix with audit trail |
-| `/tech-debt` | Scan, track, and prioritize tech debt |
-| `/scope-check` | Detect scope creep against plan |
-| `/localize` | Localization scan, extract, validate |
-| `/perf-profile` | Performance profiling and bottleneck ID |
-| `/gate-check` | Validate phase readiness (PASS/CONCERNS/FAIL) |
-| `/project-stage-detect` | Analyze project state, detect stage, identify gaps |
-| `/reverse-document` | Generate design/architecture docs from existing code |
-| `/setup-engine` | Configure engine + version, populate reference docs |
-| `/map-systems` | Decompose concept into systems, map dependencies, guide per-system GDDs |
-| `/design-system` | Guided, section-by-section GDD authoring for a single game system |
-| `/team-combat` | Orchestrate full combat team pipeline |
-| `/team-narrative` | Orchestrate full narrative team pipeline |
-| `/team-ui` | Orchestrate full UI team pipeline |
-| `/team-release` | Orchestrate full release team pipeline |
-| `/team-polish` | Orchestrate full polish team pipeline |
-| `/team-audio` | Orchestrate full audio team pipeline |
-| `/team-level` | Orchestrate full level creation pipeline |
-| `/launch-checklist` | Complete launch readiness validation |
-| `/patch-notes` | Generate player-facing patch notes |
-| `/brainstorm` | Guided game concept ideation from scratch |
+| `/game-start` | First-time onboarding — asks where you are, guides you to the right workflow |
+| `/game-design-review` | Reviews a design document |
+| `/game-code-review` | Reviews code for quality and architecture |
+| `/game-playtest-report` | Creates or analyzes playtest feedback |
+| `/game-balance-check` | Analyzes game balance data |
+| `/game-sprint-plan` | Creates or updates sprint plans |
+| `/game-architecture-decision` | Creates an ADR |
+| `/game-asset-audit` | Audits assets for compliance |
+| `/game-milestone-review` | Reviews milestone progress |
+| `/game-onboard` | Generates onboarding docs for a role |
+| `/game-prototype` | Scaffolds a throwaway prototype |
+| `/game-release-checklist` | Validates pre-release checklist |
+| `/game-changelog` | Generates changelog from git history |
+| `/game-retrospective` | Runs sprint/milestone retrospective |
+| `/game-estimate` | Produces structured effort estimates |
+| `/game-hotfix` | Emergency fix with audit trail |
+| `/game-tech-debt` | Scan, track, and prioritize tech debt |
+| `/game-scope-check` | Detect scope creep against plan |
+| `/game-localize` | Localization scan, extract, validate |
+| `/game-perf-profile` | Performance profiling and bottleneck ID |
+| `/game-gate-check` | Validate phase readiness (PASS/CONCERNS/FAIL) |
+| `/game-project-stage-detect` | Analyze project state, detect stage, identify gaps |
+| `/game-reverse-document` | Generate design/architecture docs from existing code |
+| `/game-setup-engine` | Configure engine + version, populate reference docs |
+| `/game-map-systems` | Decompose concept into systems, map dependencies, guide per-system GDDs |
+| `/game-design-system` | Guided, section-by-section GDD authoring for a single game system |
+| `/game-team-combat` | Orchestrate full combat team pipeline |
+| `/game-team-narrative` | Orchestrate full narrative team pipeline |
+| `/game-team-ui` | Orchestrate full UI team pipeline |
+| `/game-team-release` | Orchestrate full release team pipeline |
+| `/game-team-polish` | Orchestrate full polish team pipeline |
+| `/game-team-audio` | Orchestrate full audio team pipeline |
+| `/game-team-level` | Orchestrate full level creation pipeline |
+| `/game-launch-checklist` | Complete launch readiness validation |
+| `/game-patch-notes` | Generate player-facing patch notes |
+| `/game-brainstorm` | Guided game concept ideation from scratch |
 
 ### 4. Use Templates for New Documents
 
@@ -153,51 +153,51 @@ Templates are in `.claude/docs/templates/`:
 
 ## First Steps for a New Project
 
-**Don't know where to begin?** Run `/start`. It asks where you are and routes
+**Don't know where to begin?** Run `/game-start`. It asks where you are and routes
 you to the right workflow. No assumptions about your game, engine, or experience level.
 
 If you already know what you need, jump directly to the relevant path:
 
 ### Path A: "I have no idea what to build"
 
-1. **Run `/start`** (or `/brainstorm open`) — guided creative exploration:
+1. **Run `/game-start`** (or `/game-brainstorm open`) — guided creative exploration:
    what excites you, what you've played, your constraints
    - Generates 3 concepts, helps you pick one, defines core loop and pillars
    - Produces a game concept document and recommends an engine
-2. **Set up the engine** — Run `/setup-engine` (uses the brainstorm recommendation)
+2. **Set up the engine** — Run `/game-setup-engine` (uses the brainstorm recommendation)
    - Configures CLAUDE.md, detects knowledge gaps, populates reference docs
    - Creates `.claude/docs/technical-preferences.md` with naming conventions,
      performance budgets, and engine-specific defaults
    - If the engine version is newer than the LLM's training data, it fetches
      current docs from the web so agents suggest correct APIs
-3. **Validate the concept** — Run `/design-review design/gdd/game-concept.md`
-4. **Decompose into systems** — Run `/map-systems` to map all systems and dependencies
-5. **Design each system** — Run `/design-system [system-name]` (or `/map-systems next`)
+3. **Validate the concept** — Run `/game-design-review design/gdd/game-concept.md`
+4. **Decompose into systems** — Run `/game-map-systems` to map all systems and dependencies
+5. **Design each system** — Run `/game-design-system [system-name]` (or `/game-map-systems next`)
    to write GDDs in dependency order
-6. **Test the core loop** — Run `/prototype [core-mechanic]`
-7. **Playtest it** — Run `/playtest-report` to validate the hypothesis
-8. **Plan the first sprint** — Run `/sprint-plan new`
+6. **Test the core loop** — Run `/game-prototype [core-mechanic]`
+7. **Playtest it** — Run `/game-playtest-report` to validate the hypothesis
+8. **Plan the first sprint** — Run `/game-sprint-plan new`
 9. Start building
 
 ### Path B: "I know what I want to build"
 
 If you already have a game concept and engine choice:
 
-1. **Set up the engine** — Run `/setup-engine [engine] [version]`
-   (e.g., `/setup-engine godot 4.6`) — also creates technical preferences
+1. **Set up the engine** — Run `/game-setup-engine [engine] [version]`
+   (e.g., `/game-setup-engine godot 4.6`) — also creates technical preferences
 2. **Write the Game Pillars** — delegate to `creative-director`
-3. **Decompose into systems** — Run `/map-systems` to enumerate systems and dependencies
-4. **Design each system** — Run `/design-system [system-name]` for GDDs in dependency order
-5. **Create the initial ADR** — Run `/architecture-decision`
+3. **Decompose into systems** — Run `/game-map-systems` to enumerate systems and dependencies
+4. **Design each system** — Run `/game-design-system [system-name]` for GDDs in dependency order
+5. **Create the initial ADR** — Run `/game-architecture-decision`
 6. **Create the first milestone** in `production/milestones/`
-7. **Plan the first sprint** — Run `/sprint-plan new`
+7. **Plan the first sprint** — Run `/game-sprint-plan new`
 8. Start building
 
 ### Path C: "I know the game but not the engine"
 
 If you have a concept but don't know which engine fits:
 
-1. **Run `/setup-engine`** with no arguments — it will ask about your game's
+1. **Run `/game-setup-engine`** with no arguments — it will ask about your game's
    needs (2D/3D, platforms, team size, language preferences) and recommend
    an engine based on your answers
 2. Follow Path B from step 2 onward
@@ -206,11 +206,11 @@ If you have a concept but don't know which engine fits:
 
 If you have design docs, prototypes, or code already:
 
-1. **Run `/start`** (or `/project-stage-detect`) — analyzes what exists,
+1. **Run `/game-start`** (or `/game-project-stage-detect`) — analyzes what exists,
    identifies gaps, and recommends next steps
-2. **Configure engine if needed** — Run `/setup-engine` if not yet configured
-3. **Validate phase readiness** — Run `/gate-check` to see where you stand
-4. **Plan the next sprint** — Run `/sprint-plan new`
+2. **Configure engine if needed** — Run `/game-setup-engine` if not yet configured
+3. **Validate phase readiness** — Run `/game-gate-check` to see where you stand
+4. **Plan the next sprint** — Run `/game-sprint-plan new`
 
 ## File Structure Reference
 
@@ -224,7 +224,7 @@ CLAUDE.md                          -- Master config (read this first, ~60 lines)
   rules/                           -- 11 path-specific rule files
   docs/
     quick-start.md                 -- This file
-    technical-preferences.md       -- Project-specific standards (populated by /setup-engine)
+    technical-preferences.md       -- Project-specific standards (populated by /game-setup-engine)
     coding-standards.md            -- Coding and design doc standards
     coordination-rules.md          -- Agent coordination rules
     context-management.md          -- Context budgets and compaction instructions

@@ -8,7 +8,7 @@ allowed-tools: Read, Glob, Grep, Write
 
 When this skill is invoked:
 
-> **Explicit invocation only**: This skill should only run when the user explicitly requests it with `/launch-checklist`. Do not auto-invoke based on context matching.
+> **Explicit invocation only**: This skill should only run when the user explicitly requests it with `/game-launch-checklist`. Do not auto-invoke based on context matching.
 
 1. **Read the argument** for the launch date or `dry-run` mode. Dry-run mode
    generates the checklist without creating sign-off entries.
@@ -215,7 +215,7 @@ Generated: [Date]
 ```
 
 5. **Save the checklist** to
-   `production/releases/launch-checklist-[date].md`, creating directories as needed.
+   `production/releases/game-launch-checklist-[date].md`, creating directories as needed.
 
 6. **Output a summary** to the user: total items, blocking items count,
    conditional items count, departments with incomplete sections, and the file path.

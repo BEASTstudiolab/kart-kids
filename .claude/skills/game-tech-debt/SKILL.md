@@ -29,7 +29,7 @@ When this skill is invoked:
      - **Documentation Debt**: Missing docs, outdated docs, undocumented APIs
      - **Dependency Debt**: Outdated packages, deprecated APIs, version conflicts
      - **Performance Debt**: Known slow paths, unoptimized queries, memory issues
-   - Update the debt register at `docs/tech-debt-register.md`
+   - Update the debt register at `docs/game-tech-debt-register.md`
 
 3. **For `add`**:
    - Prompt for: description, category, affected files, estimated fix effort, impact if left unfixed

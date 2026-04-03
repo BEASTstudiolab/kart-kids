@@ -197,14 +197,14 @@ Ground the concept in reality:
 
 6. **Suggest next steps** (in this order — this is the professional studio
    pre-production pipeline):
-   - "Run `/setup-engine [engine] [version]` to configure the engine and populate version-aware reference docs"
-   - "Use `/design-review design/gdd/game-concept.md` to validate completeness"
+   - "Run `/game-setup-engine [engine] [version]` to configure the engine and populate version-aware reference docs"
+   - "Use `/game-design-review design/gdd/game-concept.md` to validate completeness"
    - "Discuss vision with the `creative-director` agent for pillar refinement"
-   - "Decompose the concept into individual systems with `/map-systems` — maps dependencies, assigns priorities, and creates the systems index"
-   - "Author per-system GDDs with `/design-system` — guided, section-by-section GDD writing"
-   - "Prototype the core loop with `/prototype [core-mechanic]`"
-   - "Playtest the prototype with `/playtest-report` to validate the hypothesis"
-   - "If validated, plan the first sprint with `/sprint-plan new`"
+   - "Decompose the concept into individual systems with `/game-map-systems` — maps dependencies, assigns priorities, and creates the systems index"
+   - "Author per-system GDDs with `/game-design-system` — guided, section-by-section GDD writing"
+   - "Prototype the core loop with `/game-prototype [core-mechanic]`"
+   - "Playtest the prototype with `/game-playtest-report` to validate the hypothesis"
+   - "If validated, plan the first sprint with `/game-sprint-plan new`"
 
 7. **Output a summary** with the chosen concept's elevator pitch, pillars,
    primary player type, engine recommendation, biggest risk, and file path.

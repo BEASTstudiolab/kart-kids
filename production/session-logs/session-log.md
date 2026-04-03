@@ -2970,3 +2970,43 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260403_135127
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+.claude/docs/CLAUDE-local-template.md
+.claude/docs/agent-coordination-map.md
+.claude/docs/hooks-reference.md
+.claude/docs/hooks-reference/post-merge-asset-validation.md
+.claude/docs/quick-start.md
+.claude/docs/skills-reference.md
+.claude/docs/technical-preferences.md
+.claude/docs/templates/architecture-doc-from-code.md
+.claude/docs/templates/collaborative-protocols/design-agent-protocol.md
+.claude/docs/templates/collaborative-protocols/implementation-agent-protocol.md
+.claude/docs/templates/concept-doc-from-prototype.md
+.claude/docs/templates/design-doc-from-implementation.md
+.claude/docs/templates/game-concept.md
+.claude/docs/templates/project-stage-report.md
+.claude/docs/templates/systems-index.md
+.claude/hooks/detect-gaps.sh
+.claude/skills/game-brainstorm/SKILL.md
+.claude/skills/game-bug-report/SKILL.md
+.claude/skills/game-design-review/SKILL.md
+.claude/skills/game-design-system/SKILL.md
+.claude/skills/game-gate-check/SKILL.md
+.claude/skills/game-hotfix/SKILL.md
+.claude/skills/game-launch-checklist/SKILL.md
+.claude/skills/game-map-systems/SKILL.md
+.claude/skills/game-patch-notes/SKILL.md
+.claude/skills/game-project-stage-detect/SKILL.md
+.claude/skills/game-release-checklist/SKILL.md
+.claude/skills/game-reverse-document/SKILL.md
+.claude/skills/game-setup-engine/SKILL.md
+.claude/skills/game-start/SKILL.md
+.claude/skills/game-team-polish/SKILL.md
+.claude/skills/game-team-release/SKILL.md
+.claude/skills/game-tech-debt/SKILL.md
+---
+

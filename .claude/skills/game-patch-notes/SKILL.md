@@ -113,7 +113,7 @@ Includes everything from Detailed, plus:
    - Bug fixes describe the player experience, not the technical cause
    - Tone matches the game's voice (adjust formality based on game style)
 
-7. **Save the patch notes** to `production/releases/[version]/patch-notes.md`,
+7. **Save the patch notes** to `production/releases/[version]/game-patch-notes.md`,
    creating the directory if needed.
 
 8. **Output to the user**: the complete patch notes, the file path, a count of

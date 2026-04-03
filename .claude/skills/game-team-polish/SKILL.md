@@ -32,7 +32,7 @@ Always provide full context in each agent's prompt (target feature/area, perform
 
 ### Phase 1: Assessment
 Delegate to **performance-analyst**:
-- Profile the target feature/area using `/perf-profile`
+- Profile the target feature/area using `/game-perf-profile`
 - Identify performance bottlenecks and frame budget violations
 - Measure memory usage and check for leaks
 - Benchmark against target hardware specs
