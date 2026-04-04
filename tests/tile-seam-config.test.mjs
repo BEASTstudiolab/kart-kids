@@ -18,17 +18,46 @@ test( 'Track.js keeps exact tile spacing and disables tile shadow casting', () =
 
 } );
 
-test( 'main game and testers apply the asphalt seam material tuning', () => {
+test( 'main game, editor, and testers do not keep the rejected flat-material experiment', () => {
 
 	const main = read( 'js/main.js' );
 	const trackTester = read( 'js/TrackTester.js' );
 	const tileTester = read( 'js/TileTester.js' );
-	const tuning = read( 'js/TrackMaterialTuning.js' );
+	const editor = read( 'editor.html' );
 
-	assert.match( main, /tuneTrackMaterial\( child\.material, \{ surfaceMode: trackSurfaceMode \} \);/ );
-	assert.match( trackTester, /child\.material\.side = THREE\.FrontSide;\s+tuneTrackMaterial\( child\.material, \{ surfaceMode: trackSurfaceMode \} \);\s+child\.receiveShadow = true;\s+child\.castShadow = false;/ );
-	assert.match( tileTester, /child\.material\.side = THREE\.FrontSide;\s+tuneTrackMaterial\( child\.material, \{ surfaceMode: trackSurfaceMode \} \);\s+child\.receiveShadow = true;\s+child\.castShadow = false;/ );
-	assert.match( tuning, /material\.name === 'asphalt'/ );
-	assert.match( tuning, /material\.normalMap = null;/ );
+	assert.doesNotMatch( main, /TrackMaterialTuning/ );
+	assert.doesNotMatch( main, /trackSurfaceMode/ );
+	assert.doesNotMatch( main, /tuneTrackMaterial/ );
+	assert.doesNotMatch( trackTester, /TrackMaterialTuning/ );
+	assert.doesNotMatch( trackTester, /trackSurfaceMode/ );
+	assert.doesNotMatch( trackTester, /tuneTrackMaterial/ );
+	assert.doesNotMatch( tileTester, /TrackMaterialTuning/ );
+	assert.doesNotMatch( tileTester, /trackSurfaceMode/ );
+	assert.doesNotMatch( tileTester, /tuneTrackMaterial/ );
+	assert.doesNotMatch( editor, /TrackMaterialTuning/ );
+	assert.doesNotMatch( editor, /trackSurfaceMode/ );
+	assert.doesNotMatch( editor, /tuneTrackMaterial/ );
+
+} );
+
+test( 'main game, editor, and testers wire the opt-in opaque asphalt experiment', () => {
+
+	const main = read( 'js/main.js' );
+	const trackTester = read( 'js/TrackTester.js' );
+	const tileTester = read( 'js/TileTester.js' );
+	const editor = read( 'editor.html' );
+
+	assert.match( main, /TrackAsphaltMode/ );
+	assert.match( main, /const asphaltMode = getTrackAsphaltMode/ );
+	assert.match( main, /applyTrackAsphaltMode\( child\.material, \{ asphaltMode \} \);/ );
+	assert.match( trackTester, /TrackAsphaltMode/ );
+	assert.match( trackTester, /const asphaltMode = getTrackAsphaltMode/ );
+	assert.match( trackTester, /applyTrackAsphaltMode\( child\.material, \{ asphaltMode \} \);/ );
+	assert.match( tileTester, /TrackAsphaltMode/ );
+	assert.match( tileTester, /const asphaltMode = getTrackAsphaltMode/ );
+	assert.match( tileTester, /applyTrackAsphaltMode\( child\.material, \{ asphaltMode \} \);/ );
+	assert.match( editor, /TrackAsphaltMode/ );
+	assert.match( editor, /const asphaltMode = getTrackAsphaltMode/ );
+	assert.match( editor, /applyTrackAsphaltMode\( child\.material, \{ asphaltMode \} \);/ );
 
 } );

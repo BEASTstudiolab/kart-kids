@@ -11,6 +11,7 @@ const _quat = new THREE.Quaternion();
 const _edge1 = new THREE.Vector3();
 const _edge2 = new THREE.Vector3();
 
+export const DrivingState = { NORMAL: 0, DRIFTING: 1, AIRBORNE: 2 };
 
 function lerpAngle( a, b, t ) {
 
@@ -28,6 +29,11 @@ export class Vehicle {
 		this.linearSpeed = 0;
 		this.angularSpeed = 0;
 		this.acceleration = 0;
+
+		// Bump physics
+		this.weight = 5; // 1-10 scale: heavier vehicles push lighter ones more
+		this.lastBumpTime = 0;
+		this._bumpVel = new THREE.Vector3(); // smoothly decaying bump/bounce velocity overlay
 
 		this.spherePos = new THREE.Vector3( 3.5, 0.5, 5 );
 		this.sphereVel = new THREE.Vector3();
@@ -101,15 +107,19 @@ export class Vehicle {
 			boostDuration: 4,
 			boostTopSpeed: 350,
 			driftThreshold: 1.0,
-			// Drift state machine (implements R10-R15 from gameplay-juice-pass-plan)
-			driftStageThreshold: 0.3,
-			stage0Duration: 0.15,
-			stage1Duration: 1.0,
-			stage2Duration: 1.5,
-			miniBoostStage2Speed: 300,
-			miniBoostStage3Speed: 325,
-			miniBoostStage2Duration: 1.5,
-			miniBoostStage3Duration: 2.0,
+			// Arcade drift
+			driftArcSpeed: 3.0,
+			driftSteerInfluence: 0.3,
+			driftMinSpeed: 0.2,
+			driftBlueTier: 1.5,
+			driftOrangeTier: 3.0,
+			driftPurpleTier: 5.0,
+			driftBlueBoostMult: 1.2,
+			driftBlueBoostDuration: 1.0,
+			driftOrangeBoostMult: 1.5,
+			driftOrangeBoostDuration: 1.5,
+			driftPurpleBoostMult: 2.0,
+			driftPurpleBoostDuration: 2.0,
 			// Body lean
 			bodyLeanPitch: 6,
 			bodyLeanRoll: 5,
@@ -119,6 +129,12 @@ export class Vehicle {
 			suspDamping: 25,
 			suspMaxCompress: 0.05,
 			suspMaxExtend: 0.05,
+			// Bump physics (vehicle-vs-vehicle)
+			bumpForceScale: 0.8,
+			bumpMaxForce: 15,
+			bumpMinSpeed: 2.0,
+			bumpLateralBias: 0.7,
+			bumpCooldown: 0.4,
 		};
 		this.wheelOrigY = [];
 
@@ -131,6 +147,7 @@ export class Vehicle {
 		this._vehicleY = 0;
 		this._airborneTimer = 0;
 		this._launchCooldown = 0;
+		this._wallHitTime = 0; // set by contact listener to suppress launches after wall bounce
 		this._rayCollector = null;
 		this._raySettings = null;
 		this._rayFilter = null;
@@ -162,12 +179,23 @@ export class Vehicle {
 		this.boostActive = false;
 		this.boostTimer = 0;
 
-		// Drift state machine (implements R10-R15 from gameplay-juice-pass-plan)
+		// Drift state machine (legacy fields kept for DriftSparks, BoostFlame, Audio, Network compat)
 		this.driftStage = 0;
 		this.driftStageTimer = 0;
 		this.miniBoostTimer = 0;
 		this.miniBoostTopSpeed = 0;
 		this.effectiveTopSpeed = 250;
+
+		// Arcade drift state
+		this.drivingState = DrivingState.NORMAL;
+		this.driftActive = false;
+		this.driftDirection = 0;
+		this.driftTimer = 0;
+		this.driftSparkTier = 0;
+		this.driftArcAngle = 0;
+		this.driftForwardDir = new THREE.Vector3();
+		this.driftBoostTimer = 0;
+		this.driftBoostMultiplier = 1.0;
 
 		// Powerup state
 		this.shieldActive = false;
@@ -665,11 +693,13 @@ export class Vehicle {
 		this.driftIntensity = THREE.MathUtils.lerp( this.driftIntensity, this._targetDrift, t );
 		this.acceleration = this.linearSpeed;
 
-		// Derive synthetic drift stage from interpolated driftIntensity for remote visuals
-		if ( this.driftIntensity >= 2.5 ) this.driftStage = 3;
-		else if ( this.driftIntensity >= 1.5 ) this.driftStage = 2;
-		else if ( this.driftIntensity >= ( this.debug.driftStageThreshold || 0.5 ) ) this.driftStage = 1;
-		else this.driftStage = 0;
+		// Derive synthetic drift state from interpolated driftIntensity for remote visuals
+		if ( this.driftIntensity >= 2.5 ) this.driftSparkTier = 3;
+		else if ( this.driftIntensity >= 1.5 ) this.driftSparkTier = 2;
+		else if ( this.driftIntensity >= 0.5 ) this.driftSparkTier = 1;
+		else this.driftSparkTier = 0;
+		this.driftActive = this.driftSparkTier > 0;
+		this.driftStage = this.driftSparkTier;
 
 		// Sync remote boost and powerup state
 		this.boostActive = this._targetBoostActive || false;
@@ -699,10 +729,20 @@ export class Vehicle {
 			let direction = Math.sign( this.linearSpeed );
 			if ( direction === 0 ) direction = Math.abs( this.inputZ ) > 0.1 ? Math.sign( this.inputZ ) : 1;
 
-			const steeringGrip = THREE.MathUtils.clamp( Math.abs( this.linearSpeed ), this.debug.steeringGripMin, this.debug.steeringGripMax );
+			if ( this.drivingState === DrivingState.DRIFTING ) {
 
-			const targetAngular = - this.inputX * steeringGrip * this.debug.steeringMultiplier * direction;
-			this.angularSpeed = THREE.MathUtils.lerp( this.angularSpeed, targetAngular, dt * this.debug.steeringLerp );
+				// During drift: arc rotation + minor steer adjustment
+				this.driftArcAngle += this.inputX * this.debug.driftSteerInfluence * dt;
+				this.angularSpeed = this.driftDirection * this.debug.driftArcSpeed
+					+ this.inputX * this.debug.driftSteerInfluence;
+
+			} else {
+
+				// Normal: snappy arcade steering with fast lerp (no speed-dependent grip reduction)
+				const targetAngular = - this.inputX * this.debug.steeringMultiplier * direction;
+				this.angularSpeed = THREE.MathUtils.lerp( this.angularSpeed, targetAngular, dt * this.debug.steeringLerp );
+
+			}
 
 			this.container.rotateY( this.angularSpeed * dt );
 
@@ -744,13 +784,20 @@ export class Vehicle {
 			const vel = this.rigidBody.motionProperties.linearVelocity;
 			this.sphereVel.set( vel[ 0 ], vel[ 1 ], vel[ 2 ] );
 
-			// Keep collider above surface — high enough to avoid ramp mesh collisions
-			// (physics body only handles wall/barrier collisions, not ground contact)
+			// Keep collider at wall-band height so it always contacts barriers.
+			// Clamp Y so the box can never rise above the walls (prevents driving over them).
+			const colliderY = Math.min( this._vehicleY + 1.0, 2.5 );
 			rigidBody.setPosition( this.physicsWorld, this.rigidBody,
-				[ this.spherePos.x, this._vehicleY + 1.0, this.spherePos.z ], false );
-			const q = this.container.quaternion;
+				[ this.spherePos.x, colliderY, this.spherePos.z ], false );
+
+			// Use yaw-only quaternion for the collider — pitch/roll tilt would let
+			// the box wedge upward against walls and ride over them.
+			const yaw = Math.atan2(
+				2 * ( this.container.quaternion.w * this.container.quaternion.y ),
+				1 - 2 * ( this.container.quaternion.y * this.container.quaternion.y )
+			);
 			rigidBody.setQuaternion( this.physicsWorld, this.rigidBody,
-				[ q.x, q.y, q.z, q.w ], false );
+				[ 0, Math.sin( yaw / 2 ), 0, Math.cos( yaw / 2 ) ], false );
 
 		}
 
@@ -772,6 +819,7 @@ export class Vehicle {
 
 			this.spherePos.set( 3.5, 0.5, 5 );
 			this.sphereVel.set( 0, 0, 0 );
+			this._bumpVel.set( 0, 0, 0 );
 			this.groundHeight = 0.5;
 			this._vehicleY = 0.5;
 			this._groundVelocity = 0;
@@ -782,6 +830,12 @@ export class Vehicle {
 			this.shieldTimer = 0;
 			this.starActive = false;
 			this.starTimer = 0;
+			this.drivingState = DrivingState.NORMAL;
+			this.driftActive = false;
+			this.driftTimer = 0;
+			this.driftSparkTier = 0;
+			this.driftBoostTimer = 0;
+			this.driftBoostMultiplier = 1.0;
 			this.container.rotation.set( 0, 0, 0 );
 			this.container.quaternion.identity();
 
@@ -790,6 +844,18 @@ export class Vehicle {
 		// Vertical positioning: grounded spring when wheels touch, gravity when airborne
 		const GRAVITY = 9.81;
 		const targetY = this.groundHeight + this.debug.rideHeight;
+		const recentWallHit = ( performance.now() / 1000 - this._wallHitTime ) < 0.5;
+
+		// Wall/bump contacts force vehicle back to grounded — barriers must
+		// never cause vertical lift, only ramps should launch players.
+		if ( recentWallHit && ! this._grounded ) {
+
+			this._grounded = true;
+			this._verticalVelocity = 0;
+			this._vehicleY = targetY;
+			this._airborneTimer = 0;
+
+		}
 
 		if ( this._grounded ) {
 
@@ -802,10 +868,12 @@ export class Vehicle {
 			this._verticalVelocity = _forward.y * Math.abs( this.linearSpeed ) *
 				this.effectiveTopSpeed / this.debug.speedScale;
 
-			// Launch when front wheels go off the ramp edge and vehicle has upward momentum.
-			// Uses wheel edge-detection instead of groundDelta (which was noise-sensitive).
+			// Wall contacts suppress all vertical velocity — no launches near barriers
+			if ( recentWallHit ) this._verticalVelocity = 0;
+
+			// Launch ONLY from ramp edges, never near walls/barriers
 			const frontOffEdge = ! this._wheelOnSurface[ 0 ] && ! this._wheelOnSurface[ 1 ];
-			if ( this._verticalVelocity > 0.5 && frontOffEdge ) {
+			if ( this._verticalVelocity > 0.5 && frontOffEdge && ! recentWallHit ) {
 
 				this._grounded = false;
 				this._airborneTimer = 0;
@@ -886,48 +954,77 @@ export class Vehicle {
 		this.updateBody( dt );
 		this.updateWheels( dt );
 
-		this.driftIntensity = Math.abs( this.linearSpeed - this.acceleration ) +
-			( this.bodyNode ? Math.abs( this.bodyNode.rotation.z ) * 2 : 0 );
+		// ── Arcade drift state machine ──���───────────────────────────────────
+		switch ( this.drivingState ) {
 
-		// ── Drift state machine (R10-R13 from gameplay-juice-pass-plan) ────────
-		const stageDurations = [
-			this.debug.stage0Duration,
-			this.debug.stage1Duration,
-			this.debug.stage2Duration,
-			Infinity,
-		];
+			case DrivingState.NORMAL:
+				if ( controlsInput.drift && Math.abs( this.inputX ) > 0.1
+					&& Math.abs( this.linearSpeed ) > this.debug.driftMinSpeed && this._grounded ) {
 
-		if ( this.driftIntensity >= this.debug.driftStageThreshold ) {
+					this.drivingState = DrivingState.DRIFTING;
+					this.driftActive = true;
+					this.driftDirection = - Math.sign( this.inputX );
+					this.driftTimer = 0;
+					this.driftSparkTier = 0;
+					this.driftArcAngle = 0;
+					this.driftForwardDir.set( 0, 0, 1 ).applyQuaternion( this.container.quaternion );
+					this.driftForwardDir.y = 0;
+					this.driftForwardDir.normalize();
 
-			this.driftStageTimer += dt;
+				}
+				break;
 
-			if ( this.driftStage < 3 && this.driftStageTimer >= stageDurations[ this.driftStage ] ) {
+			case DrivingState.DRIFTING:
+				if ( ! controlsInput.drift || Math.abs( this.linearSpeed ) < 0.01 ) {
 
-				this.driftStage ++;
-				this.driftStageTimer = 0;
+					this._applyDriftBoost();
+					this.drivingState = DrivingState.NORMAL;
+					this.driftActive = false;
+					this.driftSparkTier = 0;
+					this.driftTimer = 0;
 
-			}
+				} else {
 
-		} else if ( this.driftStage > 0 ) {
+					this.driftTimer += dt;
+					if ( this.driftTimer >= this.debug.driftPurpleTier ) this.driftSparkTier = 3;
+					else if ( this.driftTimer >= this.debug.driftOrangeTier ) this.driftSparkTier = 2;
+					else if ( this.driftTimer >= this.debug.driftBlueTier ) this.driftSparkTier = 1;
 
-			// Drift release — grant mini-boost if Stage 2+
-			if ( this.driftStage >= 2 ) {
-
-				this.miniBoostTopSpeed = this.driftStage === 3
-					? this.debug.miniBoostStage3Speed
-					: this.debug.miniBoostStage2Speed;
-				this.miniBoostTimer = this.driftStage === 3
-					? this.debug.miniBoostStage3Duration
-					: this.debug.miniBoostStage2Duration;
-
-			}
-
-			this.driftStage = 0;
-			this.driftStageTimer = 0;
+				}
+				break;
 
 		}
 
-		// Mini-boost timer
+		// Airborne state tracking (supplements above, doesn't override drift)
+		if ( ! this._grounded && this.drivingState === DrivingState.NORMAL ) {
+
+			this.drivingState = DrivingState.AIRBORNE;
+
+		} else if ( this._grounded && this.drivingState === DrivingState.AIRBORNE ) {
+
+			this.drivingState = DrivingState.NORMAL;
+
+		}
+
+		// Legacy field sync (keeps DriftSparks, BoostFlame, Audio, Network working)
+		this.driftStage = this.driftSparkTier;
+		this.driftIntensity = this.driftActive ? 1.0 + this.driftSparkTier : 0;
+
+		// Drift boost timer
+		if ( this.driftBoostTimer > 0 ) {
+
+			this.driftBoostTimer -= dt;
+
+			if ( this.driftBoostTimer <= 0 ) {
+
+				this.driftBoostTimer = 0;
+				this.driftBoostMultiplier = 1.0;
+
+			}
+
+		}
+
+		// Mini-boost timer (used by item box speed powerup)
 		if ( this.miniBoostTimer > 0 ) {
 
 			this.miniBoostTimer -= dt;
@@ -986,15 +1083,15 @@ export class Vehicle {
 			// Fill meter
 			let fillRate = dt / this.debug.boostFillTime;
 
-			if ( this.driftIntensity > this.debug.driftThreshold ) {
+			if ( this.driftActive ) {
 
 				fillRate *= this.debug.boostDriftMultiplier;
 
 			}
 
-			// R14: faster nitro fill at higher drift stages
+			// Faster nitro fill at higher drift tiers
 			const stageFillMultiplier = [ 1.0, 1.0, 1.5, 2.0 ];
-			fillRate *= stageFillMultiplier[ this.driftStage ];
+			fillRate *= stageFillMultiplier[ this.driftSparkTier ];
 
 			this.boostMeter = Math.min( 1, this.boostMeter + fillRate );
 
@@ -1014,6 +1111,7 @@ export class Vehicle {
 		this.effectiveTopSpeed = Math.max(
 			this.debug.topSpeed * ( this.externalTopSpeedMultiplier || 1 ) * ( this.draftSpeedMultiplier || 1 ),
 			this.boostActive ? this.debug.boostTopSpeed : 0,
+			this.driftBoostTimer > 0 ? this.debug.topSpeed * this.driftBoostMultiplier : 0,
 			this.miniBoostTimer > 0 ? this.miniBoostTopSpeed : 0,
 			this.starActive ? this.debug.boostTopSpeed : 0
 		);
@@ -1022,7 +1120,21 @@ export class Vehicle {
 		if ( this.rigidBody ) {
 
 			// Horizontal drive direction (Y handled by raycast ground system, not drive force)
-			_forward.set( 0, 0, 1 ).applyQuaternion( this.container.quaternion );
+			if ( this.drivingState === DrivingState.DRIFTING ) {
+
+				// During drift: move along captured forward dir rotated by accumulated arc angle
+				_forward.copy( this.driftForwardDir );
+				const cos = Math.cos( this.driftArcAngle );
+				const sin = Math.sin( this.driftArcAngle );
+				const fx = _forward.x * cos - _forward.z * sin;
+				const fz = _forward.x * sin + _forward.z * cos;
+				_forward.set( fx, 0, fz );
+
+			} else {
+
+				_forward.set( 0, 0, 1 ).applyQuaternion( this.container.quaternion );
+
+			}
 
 			// Slope gravity affects speed: slows uphill, accelerates downhill
 			const slopeGravity = - 9.81 * _forward.y * 0.5;
@@ -1034,16 +1146,58 @@ export class Vehicle {
 			const desiredSpeed = this.linearSpeed * this.effectiveTopSpeed / this.debug.speedScale;
 			const slopeAdjustedSpeed = desiredSpeed + slopeGravity;
 
-			// Blend desired velocity with physics velocity to preserve wall collision response
-			const blendRate = 1 - Math.exp( - this.debug.velocityBlendRate * dt );
-			const newVelX = this.sphereVel.x + ( _forward.x * slopeAdjustedSpeed - this.sphereVel.x ) * blendRate;
-			const newVelZ = this.sphereVel.z + ( _forward.z * slopeAdjustedSpeed - this.sphereVel.z ) * blendRate;
+			// Drain _bumpVel as a consumed impulse spread over several frames.
+			// Each frame we apply a fraction and subtract it — no accumulation.
+			const bumpApply = 1 - Math.exp( - 12 * dt );
+			const bumpDeltaX = this._bumpVel.x * bumpApply;
+			const bumpDeltaZ = this._bumpVel.z * bumpApply;
+			this._bumpVel.x -= bumpDeltaX;
+			this._bumpVel.z -= bumpDeltaZ;
 
-			// Zero Y velocity when grounded — vertical position is managed by raycasts, not physics
-			rigidBody.setLinearVelocity( this.physicsWorld, this.rigidBody, [ newVelX, this._grounded ? 0 : this.sphereVel.y, newVelZ ] );
+			// Kill tiny residual
+			if ( this._bumpVel.x * this._bumpVel.x + this._bumpVel.z * this._bumpVel.z < 0.0001 ) {
+
+				this._bumpVel.x = 0;
+				this._bumpVel.z = 0;
+
+			}
+
+			// Blend desired velocity with physics velocity to preserve wall collision response.
+			// After wall hits, slow the blend so crashcat's deflection persists as a clean arc
+			// instead of being instantly absorbed back into the forward direction.
+			const recentWallContact = ( performance.now() / 1000 - this._wallHitTime ) < 0.3;
+			const effectiveBlendRate = recentWallContact
+				? this.debug.velocityBlendRate * 0.3
+				: this.debug.velocityBlendRate;
+			const blendRate = 1 - Math.exp( - effectiveBlendRate * dt );
+			const driveX = _forward.x * slopeAdjustedSpeed;
+			const driveZ = _forward.z * slopeAdjustedSpeed;
+			const newVelX = this.sphereVel.x + ( driveX - this.sphereVel.x ) * blendRate + bumpDeltaX;
+			const newVelZ = this.sphereVel.z + ( driveZ - this.sphereVel.z ) * blendRate + bumpDeltaZ;
+
+			// Always zero Y velocity — vertical position is managed entirely by raycasts,
+			// never by the physics body (gravityFactor=0).
+			rigidBody.setLinearVelocity( this.physicsWorld, this.rigidBody, [ newVelX, 0, newVelZ ] );
 			rigidBody.setAngularVelocity( this.physicsWorld, this.rigidBody, [ 0, 0, 0 ] );
 
 		}
+
+	}
+
+	_applyDriftBoost() {
+
+		const tier = this.driftSparkTier;
+		if ( tier === 0 ) return;
+		const d = this.debug;
+		const map = [
+			null,
+			[ d.driftBlueBoostMult, d.driftBlueBoostDuration ],
+			[ d.driftOrangeBoostMult, d.driftOrangeBoostDuration ],
+			[ d.driftPurpleBoostMult, d.driftPurpleBoostDuration ],
+		];
+		const [ mult, dur ] = map[ tier ];
+		this.driftBoostTimer = dur;
+		this.driftBoostMultiplier = mult;
 
 	}
 

@@ -1,11 +1,11 @@
 export function getTrackTileSet( search = '' ) {
 
 	const params = new URLSearchParams( search.startsWith( '?' ) ? search.slice( 1 ) : search );
-	return params.get( 'tileset' ) === 'standard' ? 'standard' : 'legacy';
+	return params.get( 'tileset' ) === 'legacy' ? 'legacy' : 'standard';
 
 }
 
-export function getTrackModelConfig( name, tileSet = 'legacy' ) {
+export function getTrackModelConfig( name, tileSet = 'standard' ) {
 
 	if ( tileSet === 'standard' ) {
 

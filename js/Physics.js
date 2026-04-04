@@ -283,7 +283,7 @@ export function createVehicleBody( world, spawnPos ) {
 		position: spawnPos || [ 3.5, 0.8, 5 ],
 		mass: 800.0,
 		friction: 1.5,
-		restitution: 0.05,
+		restitution: 0.3,
 		linearDamping: 0.5,
 		angularDamping: 100.0,
 		gravityFactor: 0,

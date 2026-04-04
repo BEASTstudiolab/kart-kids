@@ -12,6 +12,7 @@ export const DEFAULT_PROFILE = {
 	boostEagerness: true,    // true = fire immediately when full, false = hold for straights
 	stuckTime: 2.0,
 	reverseTime: 1.5,
+	weight: 5,               // bump physics weight (1-10)
 };
 
 export const AI_PROFILES = [
@@ -27,6 +28,7 @@ export const AI_PROFILES = [
 		boostEagerness: true,
 		stuckTime: 1.5,
 		reverseTime: 1.0,
+		weight: 7,
 	},
 
 	{
@@ -40,6 +42,7 @@ export const AI_PROFILES = [
 		boostEagerness: true,
 		stuckTime: 2.5,
 		reverseTime: 2.0,
+		weight: 4,
 	},
 
 	{
@@ -53,6 +56,7 @@ export const AI_PROFILES = [
 		boostEagerness: true,
 		stuckTime: 2.0,
 		reverseTime: 1.5,
+		weight: 5,
 	},
 
 	{
@@ -66,6 +70,7 @@ export const AI_PROFILES = [
 		boostEagerness: false,  // holds boost for straights (dot > 0.9)
 		stuckTime: 2.0,
 		reverseTime: 1.5,
+		weight: 6,
 	},
 
 ];

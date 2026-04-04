@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 const POOL_SIZE = 32;
 const _worldPos = new THREE.Vector3();
-const DRIFT_STAGE_COLORS = [ 0x888899, 0xbbaa77, 0xffaa33, 0xff4499 ];
+const DRIFT_STAGE_COLORS = [ 0x888899, 0x4488ff, 0xff8800, 0xaa44ff ];
 
 export class SmokeTrails {
 

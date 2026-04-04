@@ -2,12 +2,12 @@ import * as THREE from 'three';
 
 const POOL_SIZE = 48;
 
-// Stage color palettes — embers get hotter at higher stages
+// Tier color palettes — blue → orange → purple (Mario Kart-style)
 const STAGE_COLORS = [
-	[ 0xffaa22 ],                                // stage 0 — unused
-	[ 0xffaa22, 0xff8811, 0xffcc33 ],            // stage 1 — warm orange-yellow
-	[ 0xffcc33, 0xffdd44, 0xffee66, 0xff8811 ],  // stage 2 — brighter yellow-orange
-	[ 0xff6600, 0xff4400, 0xff8800, 0xffaa00 ],  // stage 3 — hot red-orange
+	[ 0x888899 ],                                // tier 0 — unused
+	[ 0x4488ff, 0x66aaff, 0x2266dd ],            // tier 1 — blue sparks
+	[ 0xff8800, 0xffaa22, 0xff6600 ],            // tier 2 — orange sparks
+	[ 0xaa44ff, 0xcc66ff, 0x8822dd ],            // tier 3 — purple sparks
 ];
 
 const _worldPos = new THREE.Vector3();
@@ -52,7 +52,7 @@ export class DriftSparks {
 	update( dt, vehicle ) {
 
 		// Only emit while actively drifting, rate-limited to ~30 particles/sec
-		if ( vehicle.driftStage > 0 ) {
+		if ( vehicle.driftActive && vehicle.driftSparkTier > 0 ) {
 
 			this._emitTimer += dt;
 			const emitInterval = 1 / 15; // 15 emits/sec (2 wheels = 30 particles/sec)
@@ -60,7 +60,7 @@ export class DriftSparks {
 			if ( this._emitTimer >= emitInterval ) {
 
 				this._emitTimer -= emitInterval;
-				const stage = Math.min( vehicle.driftStage, 3 );
+				const stage = Math.min( vehicle.driftSparkTier, 3 );
 
 				if ( vehicle.wheelBL ) this._emitAtWheel( vehicle.wheelBL, vehicle, stage );
 				if ( vehicle.wheelBR ) this._emitAtWheel( vehicle.wheelBR, vehicle, stage );

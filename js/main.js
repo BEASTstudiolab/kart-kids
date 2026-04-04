@@ -2,8 +2,8 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { createWorldSettings, createWorld, addBroadphaseLayer, addObjectLayer, enableCollision, registerAll, updateWorld, rigidBody, box, MotionType } from 'crashcat';
-import { getTrackSurfaceMode, tuneTrackMaterial } from './TrackMaterialTuning.js';
 import { getTrackModelConfig, getTrackTileSet } from './TrackModelConfig.js';
+import { getTrackAsphaltMode, applyTrackAsphaltMode } from './TrackAsphaltMode.js';
 import { Camera } from './Camera.js';
 import { Controls } from './Controls.js';
 import { buildTrack, decodeCells, computeSpawnPosition, computeTrackBounds, TRACK_CELLS, CELL_RAW, GRID_SCALE } from './Track.js';
@@ -164,7 +164,7 @@ const modelNames = [
 
 const models = {};
 const trackTileSet = getTrackTileSet( globalThis.location?.search ?? '' );
-const trackSurfaceMode = getTrackSurfaceMode( globalThis.location?.search ?? '' );
+const asphaltMode = getTrackAsphaltMode( globalThis.location?.search ?? '' );
 
 async function loadModels() {
 
@@ -179,7 +179,7 @@ async function loadModels() {
 					if ( child.isMesh ) {
 
 						child.material.side = THREE.FrontSide;
-						tuneTrackMaterial( child.material, { surfaceMode: trackSurfaceMode } );
+					applyTrackAsphaltMode( child.material, { asphaltMode } );
 
 					}
 
@@ -282,15 +282,6 @@ async function init() {
 
 	buildTrack( scene, models, customCells );
 
-	// Road-colored fill plane at track surface level — hides geometry gaps between tiles
-	const gapFill = new THREE.Mesh(
-		new THREE.PlaneGeometry( groundSize, groundSize ),
-		new THREE.MeshStandardMaterial( { color: 0x303030, roughness: 1, metalness: 0 } )
-	);
-	gapFill.rotation.x = - Math.PI / 2;
-	gapFill.position.set( bounds.centerX, - 0.01, bounds.centerZ );
-	gapFill.receiveShadow = true;
-	scene.add( gapFill );
 
 	const worldSettings = createWorldSettings();
 	worldSettings.gravity = [ 0, - 9.81, 0 ];
@@ -943,6 +934,14 @@ async function init() {
 		debugMenu.addSlider( physicsTab, 'Max compress', 0.05, 0.4, 0.01, vehicle.debug.suspMaxCompress, ( v ) => { vehicle.debug.suspMaxCompress = v; } );
 		debugMenu.addSlider( physicsTab, 'Max extend', 0.05, 0.5, 0.01, vehicle.debug.suspMaxExtend, ( v ) => { vehicle.debug.suspMaxExtend = v; } );
 
+		debugMenu.addHeader( physicsTab, 'Bump Physics' );
+
+		debugMenu.addSlider( physicsTab, 'Weight', 1, 10, 1, vehicle.weight, ( v ) => { vehicle.weight = v; } );
+		debugMenu.addSlider( physicsTab, 'Bump force scale', 0, 3, 0.1, vehicle.debug.bumpForceScale, ( v ) => { vehicle.debug.bumpForceScale = v; } );
+		debugMenu.addSlider( physicsTab, 'Bump max force', 0, 30, 0.5, vehicle.debug.bumpMaxForce, ( v ) => { vehicle.debug.bumpMaxForce = v; } );
+		debugMenu.addSlider( physicsTab, 'Bump lateral bias', 0, 1, 0.05, vehicle.debug.bumpLateralBias, ( v ) => { vehicle.debug.bumpLateralBias = v; } );
+		debugMenu.addSlider( physicsTab, 'Bump cooldown', 0, 2, 0.05, vehicle.debug.bumpCooldown, ( v ) => { vehicle.debug.bumpCooldown = v; } );
+
 		// ── Tab: Lighting ────────────────────────────────────────────────────────
 		const lightingTab = debugMenu.addTab( 'lighting', 'Lighting' );
 
@@ -1109,18 +1108,135 @@ async function init() {
 
 	};
 
+	// Reusable vectors for bump calculations (avoid per-contact allocation)
+	const _bumpFwd = new THREE.Vector3();
+	const _bumpRight = new THREE.Vector3();
+	const _bumpNormalXZ = new THREE.Vector3();
+	const _bumpLateral = new THREE.Vector3();
+	const _bumpPushDir = new THREE.Vector3();
+
 	const contactListener = {
 		onContactAdded( bodyA, bodyB, manifold ) {
 
-			if ( ! vehicle.rigidBody ) return;
-			if ( bodyA !== vehicle.rigidBody && bodyB !== vehicle.rigidBody ) return;
-
-			// Need a valid contact normal for direction-dependent effects
 			const wn = manifold && manifold.worldSpaceNormal;
 			if ( ! wn ) return;
 
 			// Skip ground-like contacts (normal mostly vertical)
 			if ( Math.abs( wn[ 1 ] ) > 0.5 ) return;
+
+			const vehicleA = bodyToVehicle.get( bodyA );
+			const vehicleB = bodyToVehicle.get( bodyB );
+			const bothVehicles = !! vehicleA && !! vehicleB;
+
+			// ── Vehicle-vs-Vehicle bump ──────────────────────────────────────
+			if ( bothVehicles ) {
+
+				const now = performance.now() / 1000;
+				const cd = vehicle.debug.bumpCooldown;
+				if ( now - vehicleA.lastBumpTime < cd && now - vehicleB.lastBumpTime < cd ) return;
+
+				const svA = vehicleA.sphereVel;
+				const svB = vehicleB.sphereVel;
+				const speedA = Math.sqrt( svA.x * svA.x + svA.z * svA.z );
+				const speedB = Math.sqrt( svB.x * svB.x + svB.z * svB.z );
+
+				if ( Math.max( speedA, speedB ) < vehicle.debug.bumpMinSpeed ) return;
+
+				// Aggressor = faster vehicle
+				const attacker = speedA >= speedB ? vehicleA : vehicleB;
+				const defender = speedA >= speedB ? vehicleB : vehicleA;
+				const attackSpeed = Math.max( speedA, speedB );
+
+				// Star: defender is immune
+				if ( defender.starActive ) return;
+
+				// Shield: absorb one bump
+				if ( defender.shieldActive ) {
+
+					defender.shieldActive = false;
+					defender.shieldTimer = 0;
+					if ( defender === vehicle ) audio.playShieldBreak();
+					vehicleA.lastBumpTime = now;
+					vehicleB.lastBumpTime = now;
+					return;
+
+				}
+
+				// Push magnitude: (attackerSpeed * attackerWeight) / defenderWeight
+				let pushMag = ( attackSpeed * attacker.weight ) / defender.weight;
+				pushMag *= vehicle.debug.bumpForceScale;
+
+				// Speed ramp: weaker bumps at low speed
+				pushMag *= Math.min( attackSpeed / 15, 1.0 );
+
+				// Star attacker gets 2x force
+				if ( attacker.starActive ) pushMag *= 2.0;
+
+				// Clamp
+				pushMag = Math.min( pushMag, vehicle.debug.bumpMaxForce );
+
+				// Direction: blend contact normal with defender's lateral axis
+				_bumpFwd.set( 0, 0, 1 ).applyQuaternion( defender.container.quaternion );
+				_bumpFwd.y = 0;
+				_bumpFwd.normalize();
+				_bumpRight.set( - _bumpFwd.z, 0, _bumpFwd.x );
+
+				// Contact normal in XZ, pointing from attacker toward defender
+				const nSign = ( attacker === vehicleA ) ? 1 : - 1;
+				_bumpNormalXZ.set( wn[ 0 ] * nSign, 0, wn[ 2 ] * nSign ).normalize();
+
+				// Modulate lateral bias by hit angle: side hits = more lateral
+				const headOnDot = Math.abs( _bumpNormalXZ.dot( _bumpFwd ) );
+				const lateralBias = vehicle.debug.bumpLateralBias * ( 1 - headOnDot * 0.5 );
+
+				_bumpLateral.copy( _bumpRight ).multiplyScalar( Math.sign( _bumpRight.dot( _bumpNormalXZ ) ) );
+				_bumpPushDir.copy( _bumpNormalXZ ).lerp( _bumpLateral, lateralBias ).normalize();
+
+				// Inject bump as a smooth velocity overlay (decays over ~0.15s in Vehicle.update)
+				defender._bumpVel.x += _bumpPushDir.x * pushMag;
+				defender._bumpVel.z += _bumpPushDir.z * pushMag;
+
+				// Counter-push on attacker (Newton's 3rd, scaled by weight ratio)
+				const counterScale = defender.weight / attacker.weight * 0.3;
+				attacker._bumpVel.x -= _bumpPushDir.x * pushMag * counterScale;
+				attacker._bumpVel.z -= _bumpPushDir.z * pushMag * counterScale;
+
+				vehicleA.lastBumpTime = now;
+				vehicleB.lastBumpTime = now;
+
+				// Suppress vertical launch after bump — keep both karts grounded
+				defender._wallHitTime = now;
+				defender._verticalVelocity = 0;
+
+				// VFX/audio for local player
+				if ( vehicleA === vehicle || vehicleB === vehicle ) {
+
+					const isDefender = ( defender === vehicle );
+					const severity = pushMag / vehicle.debug.bumpMaxForce;
+
+					audio.playImpact( pushMag );
+					cam.applyShake(
+						_bumpPushDir.x, _bumpPushDir.z,
+						pushMag * ( isDefender ? 1.0 : 0.4 )
+					);
+
+					const posA = vehicleA.container.position;
+					const posB = vehicleB.container.position;
+					wallSparks.emit(
+						{ x: ( posA.x + posB.x ) / 2, y: posA.y, z: ( posA.z + posB.z ) / 2 },
+						_bumpPushDir.x, _bumpPushDir.z, pushMag
+					);
+					haptics.impulse( severity * 0.6 );
+
+				}
+
+				return;
+
+			}
+
+			// ── Vehicle-vs-Wall (local player only) ─────────────────────────
+			if ( ! vehicle.rigidBody ) return;
+			if ( bodyA !== vehicle.rigidBody && bodyB !== vehicle.rigidBody ) return;
 
 			// Star: ignore all wall impacts
 			if ( vehicle.starActive ) return;
@@ -1135,10 +1251,8 @@ async function init() {
 
 			}
 
-			// Velocity into the contact surface
 			const sv = vehicle.sphereVel;
 			const speed = Math.sqrt( sv.x * sv.x + sv.z * sv.z );
-
 			if ( speed < 1.5 ) return;
 
 			// Cooldown
@@ -1146,12 +1260,19 @@ async function init() {
 			if ( now - lastImpactTime < 0.3 ) return;
 			lastImpactTime = now;
 
-			audio.playImpact( speed );
+			// Let crashcat's collision solver handle the wall bounce naturally.
+			// We just dampen linearSpeed and suppress vertical launch.
+			vehicle.linearSpeed *= 0.85;
+			vehicle._wallHitTime = now;
+			vehicle._verticalVelocity = 0;
 
-			// Screen shake + wall sparks (directional)
-			const sign = ( bodyA === vehicle.rigidBody ) ? - 1 : 1;
-			cam.applyShake( wn[ 0 ] * sign, wn[ 2 ] * sign, speed );
-			wallSparks.emit( vehicle.container.position, wn[ 0 ] * sign, wn[ 2 ] * sign, speed );
+			// ── Feedback ─────────────────────────────────────────────────────
+			const normalSign = ( bodyA === vehicle.rigidBody ) ? - 1 : 1;
+			const nx = wn[ 0 ] * normalSign;
+			const nz = wn[ 2 ] * normalSign;
+			audio.playImpact( speed );
+			cam.applyShake( nx, nz, speed );
+			wallSparks.emit( vehicle.container.position, nx, nz, speed );
 			haptics.impulse( speed / 10 );
 
 		}
@@ -1182,6 +1303,7 @@ async function init() {
 	let fpsTime = performance.now();
 	let gamePaused = false;
 	const allActiveVehicles = [];
+	const bodyToVehicle = new Map();
 	const draftingSystem = new DraftingSystem();
 	const draftLines = new DraftLines( scene );
 
@@ -1245,6 +1367,20 @@ async function init() {
 
 		const rawInput = controls.update();
 		const input = raceMode.filterInput( rawInput );
+
+		// Rebuild body→vehicle lookup for contact listener
+		bodyToVehicle.clear();
+		for ( const v of playerManager.getActiveVehicles() ) {
+
+			if ( v.vehicle.rigidBody ) bodyToVehicle.set( v.vehicle.rigidBody, v.vehicle );
+
+		}
+
+		for ( const v of aiManager.getActiveVehicles() ) {
+
+			if ( v.vehicle.rigidBody ) bodyToVehicle.set( v.vehicle.rigidBody, v.vehicle );
+
+		}
 
 		updateWorld( world, contactListener, dt );
 
@@ -1366,7 +1502,9 @@ async function init() {
 				inputX: followVehicle.inputX,
 				linearSpeed: followVehicle.linearSpeed,
 				boostActive: followVehicle.boostActive,
-				bodyLeanRoll: followVehicle.debug.bodyLeanRoll
+				bodyLeanRoll: followVehicle.debug.bodyLeanRoll,
+				driftActive: followVehicle.driftActive,
+				driftDirection: followVehicle.driftDirection,
 			} );
 
 		}

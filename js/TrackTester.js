@@ -8,8 +8,8 @@ import {
 	castRay, createClosestCastRayCollector, createDefaultCastRaySettings, CastRayStatus, filter
 } from 'crashcat';
 import { buildSingleTileCollider, createVehicleBody } from './Physics.js';
-import { getTrackSurfaceMode, tuneTrackMaterial } from './TrackMaterialTuning.js';
 import { Vehicle } from './Vehicle.js';
+import { getTrackAsphaltMode, applyTrackAsphaltMode } from './TrackAsphaltMode.js';
 
 // ── Tile manifest (same as TileTester) ─────────────────────────────────────
 
@@ -99,15 +99,6 @@ const gridHelper = new THREE.GridHelper( 60, 60, 0x444466, 0x333355 );
 gridHelper.position.set( SLOT_POSITIONS[ 1 ].x, - 0.01, SLOT_POSITIONS[ 1 ].z );
 scene.add( gridHelper );
 
-// Road-colored fill plane — hides geometry gaps between tiles
-const gapFill = new THREE.Mesh(
-	new THREE.PlaneGeometry( 80, 80 ),
-	new THREE.MeshStandardMaterial( { color: 0x303030, roughness: 1, metalness: 0 } )
-);
-gapFill.rotation.x = - Math.PI / 2;
-gapFill.position.set( SLOT_POSITIONS[ 1 ].x, - 0.01, SLOT_POSITIONS[ 1 ].z );
-gapFill.receiveShadow = true;
-scene.add( gapFill );
 
 const camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 200 );
 camera.position.set( SLOT_POSITIONS[ 1 ].x, 15, SLOT_POSITIONS[ 1 ].z + 20 );
@@ -127,7 +118,7 @@ window.addEventListener( 'resize', () => {
 // ── State ──────────────────────────────────────────────────────────────────
 
 const loader = new GLTFLoader();
-const trackSurfaceMode = getTrackSurfaceMode( globalThis.location?.search ?? '' );
+const asphaltMode = getTrackAsphaltMode( globalThis.location?.search ?? '' );
 let vehicleModel = null;
 let vehicle = null;
 let world = null;
@@ -242,7 +233,7 @@ async function loadTileGLB( tileName ) {
 		if ( child.isMesh ) {
 
 			child.material.side = THREE.FrontSide;
-			tuneTrackMaterial( child.material, { surfaceMode: trackSurfaceMode } );
+			applyTrackAsphaltMode( child.material, { asphaltMode } );
 			child.receiveShadow = true;
 			child.castShadow = false;
 

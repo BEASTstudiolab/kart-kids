@@ -196,9 +196,15 @@ export class Camera {
 				const linearSpeed = vehicleState.linearSpeed ?? 0;
 				const bodyLeanRoll = vehicleState.bodyLeanRoll ?? 5;
 				const boostActive = vehicleState.boostActive ?? false;
+				const driftActive = vehicleState.driftActive ?? false;
+				const driftDirection = vehicleState.driftDirection ?? 0;
 
 				// Cornering lean signal: same formula as Vehicle.js updateBody()
-				const rawLean = -( inputX / bodyLeanRoll ) * linearSpeed;
+				let rawLean = -( inputX / bodyLeanRoll ) * linearSpeed;
+
+				// Drift camera: extra lean in drift direction
+				if ( driftActive ) rawLean += driftDirection * 0.15;
+
 				const targetRoll = rawLean * this.rollIntensity;
 
 				// Asymmetric smoothing: fast attack, slow release

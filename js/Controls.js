@@ -13,6 +13,7 @@ export class Controls {
 		this._gasPressed = false;
 		this._brakePressed = false;
 		this._boostPressed = false;
+		this._driftPressed = false;
 
 		// Touch joystick state
 		this._steerPointerId = null;
@@ -134,10 +135,15 @@ export class Controls {
 			.touch-btn-brake { bottom: 32px; ${ btnSide }: 20px; border-color: rgba(255,100,100,0.4); color: rgba(255,100,100,0.6); }
 			.touch-btn-brake.active { background: rgba(255,100,100,0.18); border-color: rgba(255,100,100,0.7); }
 			.touch-btn-boost {
-				bottom: 124px; ${ btnSide }: 65px; width: 68px; height: 68px;
+				bottom: 210px; ${ btnSide }: 65px; width: 68px; height: 68px;
 				border-color: rgba(255,200,50,0.4); color: rgba(255,200,50,0.6);
 			}
 			.touch-btn-boost.active { background: rgba(255,200,50,0.18); border-color: rgba(255,200,50,0.7); }
+			.touch-btn-drift {
+				bottom: 124px; ${ btnSide }: 155px; width: 68px; height: 68px;
+				border-color: rgba(100,180,255,0.4); color: rgba(100,180,255,0.6);
+			}
+			.touch-btn-drift.active { background: rgba(100,180,255,0.18); border-color: rgba(100,180,255,0.7); }
 		`;
 		document.head.appendChild( css );
 		this._touchCSS = css;
@@ -238,9 +244,17 @@ export class Controls {
 
 		} );
 
+		const driftBtn = this._createButton( 'DFT', 'touch-btn touch-btn-drift', ( pressed ) => {
+
+			this._driftPressed = pressed;
+			if ( pressed ) this.touchActive = true;
+
+		} );
+
 		btnZone.appendChild( gasBtn );
 		btnZone.appendChild( brakeBtn );
 		btnZone.appendChild( boostBtn );
+		btnZone.appendChild( driftBtn );
 		container.appendChild( btnZone );
 
 		document.body.appendChild( container );
@@ -506,7 +520,24 @@ export class Controls {
 
 		const boost = this._boostPressed || !! this.keys[ 'ShiftLeft' ] || !! this.keys[ 'ShiftRight' ];
 
-		return { x, z, touchActive: this.touchActive, boost, gas, brake };
+		let drift = this._driftPressed || !! this.keys[ 'Space' ];
+
+		// Gamepad L1/LB for drift
+		if ( this._gamepadConnected ) {
+
+			const gamepads = navigator.getGamepads();
+
+			for ( const gp of gamepads ) {
+
+				if ( ! gp ) continue;
+				if ( gp.buttons[ 4 ] && gp.buttons[ 4 ].pressed ) drift = true;
+				break;
+
+			}
+
+		}
+
+		return { x, z, touchActive: this.touchActive, boost, drift, gas, brake };
 
 	}
 

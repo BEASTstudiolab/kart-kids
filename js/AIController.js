@@ -45,7 +45,7 @@ export class AIController {
 
 			} else {
 
-				return { x: this._reverseSteer, z: - 1.0, touchActive: false, boost: false };
+				return { x: this._reverseSteer, z: - 1.0, touchActive: false, boost: false, drift: false };
 
 			}
 
@@ -60,7 +60,7 @@ export class AIController {
 				this._reversing = true;
 				this._reverseTimer = p.reverseTime;
 				this._reverseSteer = Math.random() > 0.5 ? 0.7 : - 0.7;
-				return { x: this._reverseSteer, z: - 1.0, touchActive: false, boost: false };
+				return { x: this._reverseSteer, z: - 1.0, touchActive: false, boost: false, drift: false };
 
 			}
 
@@ -156,7 +156,7 @@ export class AIController {
 
 		}
 
-		return { x: steerInput, z: throttle, touchActive: false, boost };
+		return { x: steerInput, z: throttle, touchActive: false, boost, drift: false };
 
 	}
 

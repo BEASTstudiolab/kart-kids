@@ -7,7 +7,7 @@ const STATE_RACING = 'racing';
 const STATE_FINISHED = 'finished';
 
 const COUNTDOWN_DURATION = 3; // seconds
-const ZERO_INPUT = { x: 0, z: 0, touchActive: false, boost: false, gas: false, brake: false };
+const ZERO_INPUT = { x: 0, z: 0, touchActive: false, boost: false, drift: false, gas: false, brake: false };
 
 export class RaceMode extends GameMode {
 
@@ -176,6 +176,8 @@ export class RaceMode extends GameMode {
 		s.boostActive = v ? v.boostActive : false;
 		s.shieldActive = v ? v.shieldActive : false;
 		s.starActive = v ? v.starActive : false;
+		s.driftActive = v ? v.driftActive : false;
+		s.driftSparkTier = v ? v.driftSparkTier : 0;
 
 		return s;
 

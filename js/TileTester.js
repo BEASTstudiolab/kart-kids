@@ -8,8 +8,8 @@ import {
 	castRay, createClosestCastRayCollector, createDefaultCastRaySettings, CastRayStatus, filter
 } from 'crashcat';
 import { buildSingleTileCollider, createVehicleBody } from './Physics.js';
-import { getTrackSurfaceMode, tuneTrackMaterial } from './TrackMaterialTuning.js';
 import { Vehicle } from './Vehicle.js';
+import { getTrackAsphaltMode, applyTrackAsphaltMode } from './TrackAsphaltMode.js';
 
 // ── Tile manifest ──────────────────────────────────────────────────────────
 
@@ -111,7 +111,7 @@ window.addEventListener( 'resize', () => {
 // ── State ──────────────────────────────────────────────────────────────────
 
 const loader = new GLTFLoader();
-const trackSurfaceMode = getTrackSurfaceMode( globalThis.location?.search ?? '' );
+const asphaltMode = getTrackAsphaltMode( globalThis.location?.search ?? '' );
 let currentTileIndex = 36;
 let currentTileGroup = null;
 let vehicleModel = null;
@@ -783,7 +783,7 @@ async function loadTile( index ) {
 		if ( child.isMesh ) {
 
 			child.material.side = THREE.FrontSide;
-			tuneTrackMaterial( child.material, { surfaceMode: trackSurfaceMode } );
+			applyTrackAsphaltMode( child.material, { asphaltMode } );
 			child.receiveShadow = true;
 			child.castShadow = false;
 

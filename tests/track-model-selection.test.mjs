@@ -5,12 +5,12 @@ import {
 	getTrackTileSet,
 } from '../js/TrackModelConfig.js';
 
-test( 'track tile set defaults to legacy unless explicitly opted into standard', () => {
+test( 'track tile set defaults to standard unless explicitly opted into legacy', () => {
 
-	assert.equal( getTrackTileSet( '' ), 'legacy' );
+	assert.equal( getTrackTileSet( '' ), 'standard' );
 	assert.equal( getTrackTileSet( '?tileset=legacy' ), 'legacy' );
 	assert.equal( getTrackTileSet( '?tileset=standard' ), 'standard' );
-	assert.equal( getTrackTileSet( '?foo=bar' ), 'legacy' );
+	assert.equal( getTrackTileSet( '?foo=bar' ), 'standard' );
 
 } );
 
