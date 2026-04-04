@@ -125,12 +125,18 @@ const _vec3 = new THREE.Vector3();
 export function buildTrackColliders( world, models, customCells ) {
 
 	const cells = customCells || TRACK_CELLS;
-	const S = GRID_SCALE;
 
-	// trackGroup has position.y = -0.5, scale = S
-	const groupMatrix = new THREE.Matrix4()
-		.makeTranslation( 0, - 0.5, 0 )
-		.scale( new THREE.Vector3( S, S, S ) );
+	// Merge ALL tile triangles into one continuous collision mesh to eliminate
+	// seam gaps between adjacent tiles that cause vehicle jitter
+	const dummy = new THREE.Object3D();
+	const childMat = new THREE.Matrix4();
+	const combinedMat = new THREE.Matrix4();
+	const GROUP_Y_OFFSET = - 0.5;
+
+	// Collect all positions and indices across all tiles
+	const allPositions = [];
+	const allIndices = [];
+	let vertexOffset = 0;
 
 	for ( const [ gx, gz, key, orient ] of cells ) {
 
@@ -138,17 +144,13 @@ export function buildTrackColliders( world, models, customCells ) {
 		if ( ! src ) continue;
 
 		const deg = ORIENT_DEG[ orient ] ?? 0;
-		const rad = deg * Math.PI / 180;
 
-		// Tile local transform (matches placePiece)
-		const tileMatrix = new THREE.Matrix4().compose(
-			new THREE.Vector3( ( gx + 0.5 ) * CELL_RAW, 0.5, ( gz + 0.5 ) * CELL_RAW ),
-			new THREE.Quaternion().setFromAxisAngle( new THREE.Vector3( 0, 1, 0 ), rad ),
-			new THREE.Vector3( 1, 1, 1 )
-		);
+		dummy.position.set( ( gx + 0.5 ) * CELL_RAW, 0.5, ( gz + 0.5 ) * CELL_RAW );
+		dummy.rotation.set( 0, THREE.MathUtils.degToRad( deg ), 0 );
+		dummy.updateMatrix();
 
-		// Full transform: group * tile
-		const worldMatrix = new THREE.Matrix4().multiplyMatrices( groupMatrix, tileMatrix );
+		src.updateMatrixWorld( true );
+		const srcInverse = src.matrixWorld.clone().invert();
 
 		src.traverse( ( child ) => {
 
@@ -158,48 +160,106 @@ export function buildTrackColliders( world, models, customCells ) {
 			const posAttr = geo.getAttribute( 'position' );
 			const index = geo.index;
 
-			// Build the mesh-to-world matrix (include any local transforms on the mesh node)
-			const meshWorld = new THREE.Matrix4().multiplyMatrices( worldMatrix, child.matrix );
+			childMat.copy( child.matrixWorld ).premultiply( srcInverse );
+			combinedMat.multiplyMatrices( dummy.matrix, childMat );
 
-			// Extract transformed positions
-			const positions = new Float32Array( posAttr.count * 3 );
-
+			// Transform and collect positions
 			for ( let i = 0; i < posAttr.count; i ++ ) {
 
 				_vec3.fromBufferAttribute( posAttr, i );
-				_vec3.applyMatrix4( meshWorld );
-				positions[ i * 3 ] = _vec3.x;
-				positions[ i * 3 + 1 ] = _vec3.y;
-				positions[ i * 3 + 2 ] = _vec3.z;
+				_vec3.applyMatrix4( combinedMat );
+				allPositions.push( _vec3.x, _vec3.y + GROUP_Y_OFFSET, _vec3.z );
 
 			}
 
-			// Build indices — use existing index buffer or generate sequential
-			let indices;
-
+			// Collect indices with offset
 			if ( index ) {
 
-				indices = new Uint32Array( index.count );
-				for ( let i = 0; i < index.count; i ++ ) indices[ i ] = index.array[ i ];
+				for ( let i = 0; i < index.count; i ++ ) {
+
+					allIndices.push( index.array[ i ] + vertexOffset );
+
+				}
 
 			} else {
 
-				indices = new Uint32Array( posAttr.count );
-				for ( let i = 0; i < posAttr.count; i ++ ) indices[ i ] = i;
+				for ( let i = 0; i < posAttr.count; i ++ ) {
+
+					allIndices.push( i + vertexOffset );
+
+				}
 
 			}
 
-			rigidBody.create( world, {
-				shape: triangleMesh.create( { positions, indices } ),
-				motionType: MotionType.STATIC,
-				objectLayer: world._OL_STATIC,
-				friction: 5.0,
-				restitution: 0.0,
-			} );
+			vertexOffset += posAttr.count;
 
 		} );
 
 	}
+
+	// Create single merged collider from all tile geometry
+	const positions = new Float32Array( allPositions );
+	const indices = new Uint32Array( allIndices );
+
+	rigidBody.create( world, {
+		shape: triangleMesh.create( { positions, indices } ),
+		motionType: MotionType.STATIC,
+		objectLayer: world._OL_STATIC,
+		friction: 5.0,
+		restitution: 0.0,
+	} );
+
+}
+
+export function buildSingleTileCollider( world, glbScene ) {
+
+	glbScene.traverse( ( child ) => {
+
+		if ( ! child.isMesh ) return;
+
+		const geo = child.geometry;
+		const posAttr = geo.getAttribute( 'position' );
+		const index = geo.index;
+
+		// Build mesh-to-world matrix from the node's world transform
+		child.updateWorldMatrix( true, false );
+		const meshWorld = child.matrixWorld;
+
+		const positions = new Float32Array( posAttr.count * 3 );
+
+		for ( let i = 0; i < posAttr.count; i ++ ) {
+
+			_vec3.fromBufferAttribute( posAttr, i );
+			_vec3.applyMatrix4( meshWorld );
+			positions[ i * 3 ] = _vec3.x;
+			positions[ i * 3 + 1 ] = _vec3.y;
+			positions[ i * 3 + 2 ] = _vec3.z;
+
+		}
+
+		let indices;
+
+		if ( index ) {
+
+			indices = new Uint32Array( index.count );
+			for ( let i = 0; i < index.count; i ++ ) indices[ i ] = index.array[ i ];
+
+		} else {
+
+			indices = new Uint32Array( posAttr.count );
+			for ( let i = 0; i < posAttr.count; i ++ ) indices[ i ] = i;
+
+		}
+
+		rigidBody.create( world, {
+			shape: triangleMesh.create( { positions, indices } ),
+			motionType: MotionType.STATIC,
+			objectLayer: world._OL_STATIC,
+			friction: 5.0,
+			restitution: 0.0,
+		} );
+
+	} );
 
 }
 

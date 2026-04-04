@@ -329,16 +329,22 @@ export class Controls {
 
 				if ( granted ) {
 
-					window.addEventListener( 'deviceorientation', ( e ) => {
+					this._accelHandler = ( e ) => {
 
 						this._accelGamma = e.gamma || 0;
 
-					} );
+					};
+					window.addEventListener( 'deviceorientation', this._accelHandler );
 					this._accelListening = true;
 
 				}
 
 			} );
+
+		} else if ( ! enabled && this._accelListening ) {
+
+			window.removeEventListener( 'deviceorientation', this._accelHandler );
+			this._accelListening = false;
 
 		}
 

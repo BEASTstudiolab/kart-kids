@@ -2,6 +2,7 @@ import * as THREE from 'three';
 
 const POOL_SIZE = 32;
 const _worldPos = new THREE.Vector3();
+const DRIFT_STAGE_COLORS = [ 0x888899, 0xbbaa77, 0xffaa33, 0xff4499 ];
 
 export class SmokeTrails {
 
@@ -41,11 +42,16 @@ export class SmokeTrails {
 
 	update( dt, vehicle ) {
 
-		const shouldEmit = vehicle.driftIntensity > 0.25;
+		// Emit on drifts AND sharp turns (lower threshold activates on hard steering)
+		const isTurningHard = Math.abs( vehicle.inputX ) > 0.5 && Math.abs( vehicle.linearSpeed ) > 0.3;
+		const shouldEmit = vehicle.driftIntensity > 0.15 || isTurningHard;
 
-		// Emit new particles from back wheel positions
-		if ( shouldEmit ) {
+		// Rate-limited emission: max 20 particles/sec per wheel
+		this._emitTimer = ( this._emitTimer || 0 ) + dt;
 
+		if ( shouldEmit && this._emitTimer > 1 / 20 ) {
+
+			this._emitTimer = 0;
 			if ( vehicle.wheelBL ) this.emitAtWheel( vehicle.wheelBL, vehicle );
 			if ( vehicle.wheelBR ) this.emitAtWheel( vehicle.wheelBR, vehicle );
 
@@ -109,7 +115,6 @@ export class SmokeTrails {
 		p.sprite.material.opacity = 0;
 
 		// Smoke color by drift stage
-		const DRIFT_STAGE_COLORS = [ 0x888899, 0xbbaa77, 0xffaa33, 0xff4499 ];
 		const stage = vehicle.driftStage || 0;
 		p.sprite.material.color.setHex( DRIFT_STAGE_COLORS[ stage ] );
 

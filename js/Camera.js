@@ -152,9 +152,9 @@ export class Camera {
 
 		if ( this.mode === 'chase' && vehicleQuaternion ) {
 
-			// Dynamic height: 0 at closest zoom (0.5), chaseHeight at default zoom (1.0)
+			// Dynamic height: minimum 1.0 at closest zoom (0.5), chaseHeight at default zoom (1.0)
 			const zoomT = THREE.MathUtils.clamp( ( this.zoom - 0.5 ) / 0.5, 0, 1 );
-			const dynamicHeight = this.chaseHeight * zoomT;
+			const dynamicHeight = THREE.MathUtils.lerp( 1.0, this.chaseHeight, zoomT );
 
 			// Behind offset: -Z is forward in Three.js convention, so backward is +Z (local)
 			_chaseOffset.set( 0, dynamicHeight, - this.chaseDistance );

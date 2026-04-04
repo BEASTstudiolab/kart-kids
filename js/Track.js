@@ -2,10 +2,12 @@ import * as THREE from 'three';
 
 export const ORIENT_DEG = { 0: 0, 10: 180, 16: 90, 22: 270 };
 
-export const CELL_RAW = 9.99;
+export const CELL_RAW = 10.0;
 export const GRID_SCALE = 1.0; // was 0.75 — temporarily disabled for testing
 
 const _dummy = new THREE.Object3D();
+const _childMat = new THREE.Matrix4();
+const _combinedMat = new THREE.Matrix4();
 
 export const TRACK_CELLS = [
 	[ -3, -3, 'track-corner-night',   16 ],
@@ -138,12 +140,19 @@ export function buildTrack( scene, models, customCells ) {
 		const entries = cellsByType[ key ];
 		const count = entries.length;
 
+		// Update world matrices so child.matrixWorld includes wrapper corrections
+		src.updateMatrixWorld( true );
+		const srcInverse = src.matrixWorld.clone().invert();
+
 		src.traverse( ( child ) => {
 
 			if ( ! child.isMesh ) return;
 
+			// Full relative matrix: includes wrapper correction rotation + mesh local position
+			_childMat.copy( child.matrixWorld ).premultiply( srcInverse );
+
 			const inst = new THREE.InstancedMesh( child.geometry, child.material, count );
-			inst.castShadow = true;
+			inst.castShadow = false;
 			inst.receiveShadow = true;
 
 			for ( let i = 0; i < count; i ++ ) {
@@ -154,7 +163,10 @@ export function buildTrack( scene, models, customCells ) {
 				_dummy.position.set( ( gx + 0.5 ) * CELL_RAW, 0.5, ( gz + 0.5 ) * CELL_RAW );
 				_dummy.rotation.set( 0, THREE.MathUtils.degToRad( deg ), 0 );
 				_dummy.updateMatrix();
-				inst.setMatrixAt( i, _dummy.matrix );
+
+				// Compose: placement × child correction
+				_combinedMat.multiplyMatrices( _dummy.matrix, _childMat );
+				inst.setMatrixAt( i, _combinedMat );
 
 			}
 
@@ -278,7 +290,7 @@ export function buildTrack( scene, models, customCells ) {
 				if ( ! child.isMesh ) return;
 
 				const inst = new THREE.InstancedMesh( child.geometry, child.material, count );
-				inst.castShadow = true;
+				inst.castShadow = false;
 				inst.receiveShadow = true;
 
 				for ( let i = 0; i < count; i ++ ) {
@@ -312,7 +324,7 @@ export function buildTrack( scene, models, customCells ) {
 				if ( ! child.isMesh ) return;
 
 				const inst = new THREE.InstancedMesh( child.geometry, child.material, tentCount );
-				inst.castShadow = true;
+				inst.castShadow = false;
 				inst.receiveShadow = true;
 
 				for ( let i = 0; i < tentCount; i ++ ) {
@@ -344,7 +356,7 @@ export function buildTrack( scene, models, customCells ) {
 
 		if ( child.isMesh ) {
 
-			child.castShadow = true;
+			child.castShadow = false;
 			child.receiveShadow = true;
 
 		}
@@ -497,3 +509,4 @@ function base64urlToBytes( str ) {
 	return bytes;
 
 }
+

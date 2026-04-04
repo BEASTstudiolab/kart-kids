@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Track Tester - Kart Kids</title>
+	<style>
+		body { margin: 0; overflow: hidden; background: #1a1a2e; }
+		canvas { display: block; }
+		#hud {
+			position: absolute;
+			top: 16px;
+			left: 16px;
+			color: #fff;
+			font: 14px/1.5 monospace;
+			background: rgba(0,0,0,0.7);
+			padding: 12px 18px;
+			border-radius: 8px;
+			z-index: 10;
+			pointer-events: none;
+			max-width: 500px;
+		}
+		#hud .slot { color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+		#hud .slot.active { color: #0ff; font-weight: bold; }
+		#hud .controls { font-size: 12px; color: #888; margin-top: 8px; }
+		.nav-links {
+			position: absolute;
+			bottom: 12px;
+			left: 16px;
+			display: flex;
+			gap: 10px;
+			z-index: 10;
+		}
+		.nav-links a {
+			color: #fff;
+			font: 14px sans-serif;
+			text-decoration: none;
+			background: rgba(0,0,0,0.5);
+			padding: 8px 14px;
+			border-radius: 6px;
+		}
+		.nav-links a:hover { background: rgba(0,0,0,0.7); }
+	</style>
+	<script type="importmap">
+	{
+		"imports": {
+			"three": "./node_modules/three/build/three.module.js",
+			"three/addons/": "./node_modules/three/examples/jsm/",
+			"crashcat": "https://esm.sh/crashcat@0.0.2"
+		}
+	}
+	</script>
+</head>
+<body>
+	<div id="hud">
+		<div id="slot-0" class="slot active">1: loading...</div>
+		<div id="slot-1" class="slot">2: loading...</div>
+		<div id="slot-2" class="slot">3: loading...</div>
+		<div class="controls">
+			Q = cycle active slot<br>
+			[ ] = change tile in active slot<br>
+			WASD = drive | Space = brake<br>
+			R = respawn | P = pause<br>
+			B = body bounds | T = tire bounds<br>
+			H = toggle debug overlay
+		</div>
+	</div>
+	<div id="debug-overlay" style="
+		position:absolute; bottom:50px; left:16px;
+		color:#0f0; font:12px/1.6 monospace;
+		background:rgba(0,0,0,0.7); padding:8px 12px;
+		border-radius:6px; z-index:10; pointer-events:none;
+		white-space:pre;
+	"></div>
+	<div class="nav-links">
+		<a href="index.html">Back to game</a>
+		<a href="tile-tester.html">Tile tester</a>
+	</div>
+	<script type="module" src="js/TrackTester.js"></script>
+</body>
+</html>

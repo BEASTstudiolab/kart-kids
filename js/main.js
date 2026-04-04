@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { createWorldSettings, createWorld, addBroadphaseLayer, addObjectLayer, enableCollision, registerAll, updateWorld, rigidBody, box, MotionType } from 'crashcat';
+import { getTrackSurfaceMode, tuneTrackMaterial } from './TrackMaterialTuning.js';
+import { getTrackModelConfig, getTrackTileSet } from './TrackModelConfig.js';
 import { Camera } from './Camera.js';
 import { Controls } from './Controls.js';
 import { buildTrack, decodeCells, computeSpawnPosition, computeTrackBounds, TRACK_CELLS, CELL_RAW, GRID_SCALE } from './Track.js';
@@ -79,6 +81,7 @@ const LIGHTING_NIGHT = {
 };
 
 const _originalMaterials = new WeakMap();
+const _boostFwd = new THREE.Vector3();
 
 // Populated once after scene is fully built; avoids per-call scene.traverse (H-6)
 const _lightingMeshes = [];
@@ -160,19 +163,23 @@ const modelNames = [
 ];
 
 const models = {};
+const trackTileSet = getTrackTileSet( globalThis.location?.search ?? '' );
+const trackSurfaceMode = getTrackSurfaceMode( globalThis.location?.search ?? '' );
 
 async function loadModels() {
 
 	const promises = modelNames.map( ( name ) =>
 		new Promise( ( resolve, reject ) => {
 
-			loader.load( `models/${ name }.glb`, ( gltf ) => {
+			const modelConfig = getTrackModelConfig( name, trackTileSet );
+            loader.load( `models/${ modelConfig.path }.glb`, ( gltf ) => {
 
 				gltf.scene.traverse( ( child ) => {
 
 					if ( child.isMesh ) {
 
 						child.material.side = THREE.FrontSide;
+						tuneTrackMaterial( child.material, { surfaceMode: trackSurfaceMode } );
 
 					}
 
@@ -185,7 +192,18 @@ async function loadModels() {
 
 				}
 
-				models[ name ] = gltf.scene;
+				if ( modelConfig.rotationY !== 0 ) {
+
+					const wrapper = new THREE.Group();
+					gltf.scene.rotation.y = modelConfig.rotationY;
+					wrapper.add( gltf.scene );
+					models[ name ] = wrapper;
+
+				} else {
+
+					models[ name ] = gltf.scene;
+
+				}
 				resolve();
 
 			}, undefined, reject );
@@ -264,6 +282,15 @@ async function init() {
 
 	buildTrack( scene, models, customCells );
 
+	// Road-colored fill plane at track surface level — hides geometry gaps between tiles
+	const gapFill = new THREE.Mesh(
+		new THREE.PlaneGeometry( groundSize, groundSize ),
+		new THREE.MeshStandardMaterial( { color: 0x303030, roughness: 1, metalness: 0 } )
+	);
+	gapFill.rotation.x = - Math.PI / 2;
+	gapFill.position.set( bounds.centerX, - 0.01, bounds.centerZ );
+	gapFill.receiveShadow = true;
+	scene.add( gapFill );
 
 	const worldSettings = createWorldSettings();
 	worldSettings.gravity = [ 0, - 9.81, 0 ];
@@ -280,7 +307,13 @@ async function init() {
 	world._OL_MOVING = OL_MOVING;
 	world._OL_STATIC = OL_STATIC;
 
-	buildWallColliders( world, null, customCells );
+	// Debug: pass a group to visualize wall colliders as green wireframes
+	// Toggle via debug menu checkbox (added below)
+	const wallDebugGroup = new THREE.Group();
+	wallDebugGroup.visible = false;
+	scene.add( wallDebugGroup );
+
+	buildWallColliders( world, wallDebugGroup, customCells );
 	buildTrackColliders( world, models, customCells );
 
 	// Safety-net ground far below the track — catches the vehicle if it falls off-track
@@ -672,6 +705,30 @@ async function init() {
 
 		} );
 
+		debugMenu.addCheckbox( generalTab, 'Show wall colliders', false, ( v ) => {
+
+			wallDebugGroup.visible = v;
+
+		} );
+
+		debugMenu.addCheckbox( generalTab, 'Jitter diagnostic overlay', false, ( v ) => {
+
+			jitterDisplay.style.display = v ? 'block' : 'none';
+
+		} );
+
+		debugMenu.addCheckbox( generalTab, 'Show ground plane indicator', false, ( v ) => {
+
+			groundIndicator.visible = v;
+
+		} );
+
+		debugMenu.addSlider( generalTab, 'FPS cap', 0, 240, 1, 0, ( v ) => {
+
+			fpsCapMs = v > 0 ? 1000 / v : 0;
+
+		} );
+
 		debugMenu.addCheckbox( generalTab, 'Show wheel debug', false, ( v ) => {
 
 			for ( const wd of wheelDebug ) {
@@ -879,6 +936,13 @@ async function init() {
 		debugMenu.addSlider( physicsTab, 'Body lean pitch', 1, 20, 0.5, vehicle.debug.bodyLeanPitch, ( v ) => { vehicle.debug.bodyLeanPitch = v; } );
 		debugMenu.addSlider( physicsTab, 'Body lean roll', 1, 20, 0.5, vehicle.debug.bodyLeanRoll, ( v ) => { vehicle.debug.bodyLeanRoll = v; } );
 
+		debugMenu.addHeader( physicsTab, 'Suspension' );
+
+		debugMenu.addSlider( physicsTab, 'Susp stiffness', 50, 500, 5, vehicle.debug.suspStiffness, ( v ) => { vehicle.debug.suspStiffness = v; } );
+		debugMenu.addSlider( physicsTab, 'Susp damping', 5, 50, 1, vehicle.debug.suspDamping, ( v ) => { vehicle.debug.suspDamping = v; } );
+		debugMenu.addSlider( physicsTab, 'Max compress', 0.05, 0.4, 0.01, vehicle.debug.suspMaxCompress, ( v ) => { vehicle.debug.suspMaxCompress = v; } );
+		debugMenu.addSlider( physicsTab, 'Max extend', 0.05, 0.5, 0.01, vehicle.debug.suspMaxExtend, ( v ) => { vehicle.debug.suspMaxExtend = v; } );
+
 		// ── Tab: Lighting ────────────────────────────────────────────────────────
 		const lightingTab = debugMenu.addTab( 'lighting', 'Lighting' );
 
@@ -937,7 +1001,9 @@ async function init() {
 	}
 
 	// ─────────────────────────────────────────────────────────────────────────
-	dirLight.target = vehicleGroup;
+	const dirLightTarget = new THREE.Object3D();
+	scene.add( dirLightTarget );
+	dirLight.target = dirLightTarget;
 
 	buildLightingCache();
 	applyLighting( LIGHTING_NIGHT );
@@ -1102,21 +1168,66 @@ async function init() {
 	].join( ';' );
 	document.body.appendChild( fpsDisplay );
 
+	// Jitter debug overlay
+	const jitterDisplay = document.createElement( 'div' );
+	jitterDisplay.style.cssText = [
+		'position:fixed', 'top:100px', 'left:16px',
+		'background:rgba(0,0,0,0.72)', 'color:#ff0', 'font:11px/1.4 monospace',
+		'padding:4px 10px', 'border-radius:6px', 'z-index:999', 'user-select:none',
+		'display:none', 'white-space:pre',
+	].join( ';' );
+	document.body.appendChild( jitterDisplay );
+
 	let fpsFrames = 0;
 	let fpsTime = performance.now();
+	let gamePaused = false;
 	const allActiveVehicles = [];
 	const draftingSystem = new DraftingSystem();
 	const draftLines = new DraftLines( scene );
+
+	document.addEventListener( 'keydown', ( e ) => {
+
+		if ( e.code === 'KeyP' ) {
+
+			gamePaused = ! gamePaused;
+			console.log( '%c[PAUSE] ' + ( gamePaused ? 'PAUSED' : 'RESUMED' ), 'color: cyan; font-weight: bold' );
+
+		}
+
+
+	} );
+
+	// Debug: ground plane visualizer — shows raycast ground height as a green disc
+	const groundIndicator = new THREE.Mesh(
+		new THREE.CircleGeometry( 1.5, 16 ),
+		new THREE.MeshBasicMaterial( { color: 0x00ff00, transparent: true, opacity: 0.4, side: THREE.DoubleSide } )
+	);
+	groundIndicator.rotation.x = - Math.PI / 2;
+	groundIndicator.visible = false;
+	scene.add( groundIndicator );
+
+	// Frame rate cap (0 = uncapped)
+	let fpsCapMs = 0;
+	let lastFrameTime = 0;
 
 	function animate() {
 
 		requestAnimationFrame( animate );
 
+		// Optional FPS cap
+		if ( fpsCapMs > 0 ) {
+
+			const nowCap = performance.now();
+			if ( nowCap - lastFrameTime < fpsCapMs ) return;
+			lastFrameTime = nowCap;
+
+		}
+
 		fpsFrames ++;
 		const now = performance.now();
 		if ( now - fpsTime >= 500 ) {
 
-			fpsDisplay.textContent = ( fpsFrames / ( ( now - fpsTime ) / 1000 ) ).toFixed( 0 ) + ' FPS';
+			fpsDisplay.textContent = ( fpsFrames / ( ( now - fpsTime ) / 1000 ) ).toFixed( 0 ) + ' FPS' + ( gamePaused ? ' (PAUSED)' : '' );
 			fpsFrames = 0;
 			fpsTime = now;
 
@@ -1124,6 +1235,13 @@ async function init() {
 
 		timer.update();
 		const dt = Math.min( timer.getDelta(), 1 / 30 );
+
+		if ( gamePaused ) {
+
+			renderer.render( scene, cam.camera );
+			return;
+
+		}
 
 		const rawInput = controls.update();
 		const input = raceMode.filterInput( rawInput );
@@ -1149,8 +1267,8 @@ async function init() {
 				vehicle.underglowLight.color.setHex( 0xff8800 );
 				audio.playBoostWhoosh();
 
-				const fwd = new THREE.Vector3( 0, 0, 1 ).applyQuaternion( vehicle.container.quaternion );
-				boostBurst.emit( vehicle.container.position, fwd.x, fwd.z );
+				_boostFwd.set( 0, 0, 1 ).applyQuaternion( vehicle.container.quaternion );
+				boostBurst.emit( vehicle.container.position, _boostFwd.x, _boostFwd.z );
 
 			}
 
@@ -1238,7 +1356,7 @@ async function init() {
 					dirLightOffset.y,
 					vehPos.z + dirLightOffset.z
 				);
-				dirLight.target.position.set( vehPos.x, 0, vehPos.z );
+				dirLightTarget.position.set( vehPos.x, 0, vehPos.z );
 				lastShadowX = vehPos.x;
 				lastShadowZ = vehPos.z;
 
@@ -1268,6 +1386,34 @@ async function init() {
 
 			const followV = spectating ? cam.spectatorTarget : vehicle;
 			postFX.update( dt, cam.getVelocity(), followV ? followV.boostActive : false );
+
+		}
+
+		// Update ground plane indicator — shows where raycasts think ground is
+		if ( groundIndicator.visible && vehicle ) {
+
+			groundIndicator.position.set(
+				vehicle.container.position.x,
+				vehicle.groundHeight,
+				vehicle.container.position.z
+			);
+
+		}
+
+		// Update jitter diagnostic overlay
+		if ( jitterDisplay.style.display !== 'none' && vehicle && vehicle.debugJitterInfo ) {
+
+			const j = vehicle.debugJitterInfo;
+			const spike = j.lastSpike;
+			const pos = vehicle.container.position;
+			jitterDisplay.textContent =
+				`pos:      ${ pos.x.toFixed( 2 ) }, ${ pos.y.toFixed( 2 ) }, ${ pos.z.toFixed( 2 ) }\n` +
+				`vehY:     ${ vehicle._vehicleY.toFixed( 4 ) }  Δ${ j.lastDelta >= 0 ? '+' : '' }${ j.lastDelta.toFixed( 4 ) }\n` +
+				`gndH:     ${ vehicle.groundHeight.toFixed( 4 ) }\n` +
+				`rawAvg:   ${ j.rawAvg.toFixed( 4 ) }\n` +
+				`grounded: ${ vehicle._grounded }\n` +
+				`spikes:   ${ j.spikeCount }/20\n` +
+				( spike ? `last:     Δ${ spike.delta >= 0 ? '+' : '' }${ spike.delta.toFixed( 4 ) } spd=${ spike.speed.toFixed( 2 ) } gnd=${ spike.grounded }` : '' );
 
 		}
 
