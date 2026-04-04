@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { rigidBody, box, triangleMesh, MotionType, MotionQuality } from 'crashcat';
 import { TRACK_CELLS, CELL_RAW, ORIENT_DEG, GRID_SCALE } from './Track.js';
+import { getTrackModelConfig } from './TrackModelConfig.js';
 
 const _debugMat = new THREE.MeshBasicMaterial( { color: 0x00ff00, wireframe: true } );
 
@@ -80,7 +81,8 @@ export function buildWallColliders( world, debugGroup, customCells ) {
 		const rad = deg * Math.PI / 180;
 		const cr = Math.cos( rad ), sr = Math.sin( rad );
 
-		if ( key === 'track-straight-night' || key === 'track-straight' || key === 'track-finish' ) {
+		if ( key === 'track-straight-night' || key === 'track-straight' || key === 'track-finish'
+			|| key.startsWith( 'track-elev-' ) || key.startsWith( 'track-ramp-' ) ) {
 
 			for ( const side of [ - 1, 1 ] ) {
 
@@ -114,6 +116,33 @@ export function buildWallColliders( world, debugGroup, customCells ) {
 			addArcWall( wcx, wcz, arcStart, OUTER_R, OUTER_SEG, OUTER_SEG_HALF_LEN );
 			addArcWall( wcx, wcz, arcStart, INNER_R, INNER_SEG, INNER_SEG_HALF_LEN );
 
+		} else if ( key.startsWith( 'track-curve-' ) ) {
+
+			// Multi-tile curves: generate arc walls with scaled radii
+			// Extract curve size from key (e.g., 'track-curve-3x3-l' → 3)
+			const sizeMatch = key.match( /(\d+)x\d+/ );
+			const curveSize = sizeMatch ? parseInt( sizeMatch[ 1 ] ) : 2;
+
+			// Outer arc radius scales with curve size
+			const curveOuterR = curveSize * CELL_HALF - WALL_HALF_THICK;
+			const curveOuterSeg = OUTER_SEG * curveSize;
+			const curveOuterSegHalfLen = ( curveOuterR * ( Math.PI / 2 ) / curveOuterSeg / 2 ) * S;
+
+			// Inner arc — scales with curve size
+			const curveInnerR = ( curveSize - 1 ) * CELL_HALF + WALL_HALF_THICK;
+			const curveInnerSeg = INNER_SEG * curveSize;
+			const curveInnerSegHalfLen = ( curveInnerR * ( Math.PI / 2 ) / ( curveInnerSeg ) / 2 ) * S;
+
+			// Arc center scales with curve size
+			const arcCX = - curveSize * CELL_HALF;
+			const arcCZ = curveSize * CELL_HALF;
+			const wcx = cx + ( arcCX * cr + arcCZ * sr ) * S;
+			const wcz = cz + ( - arcCX * sr + arcCZ * cr ) * S;
+			const arcStart = - rad;
+
+			addArcWall( wcx, wcz, arcStart, curveOuterR, curveOuterSeg, curveOuterSegHalfLen );
+			addArcWall( wcx, wcz, arcStart, curveInnerR, curveInnerSeg, curveInnerSegHalfLen );
+
 		}
 
 	}
@@ -145,7 +174,23 @@ export function buildTrackColliders( world, models, customCells ) {
 
 		const deg = ORIENT_DEG[ orient ] ?? 0;
 
-		dummy.position.set( ( gx + 0.5 ) * CELL_RAW, 0.5, ( gz + 0.5 ) * CELL_RAW );
+		// Apply position offset for multi-tile curves
+		let posX = ( gx + 0.5 ) * CELL_RAW;
+		let posZ = ( gz + 0.5 ) * CELL_RAW;
+
+		if ( key.startsWith( 'track-curve-' ) ) {
+
+			const modelConfig = getTrackModelConfig( key );
+			if ( modelConfig.offset ) {
+
+				posX += modelConfig.offset.x;
+				posZ += modelConfig.offset.z;
+
+			}
+
+		}
+
+		dummy.position.set( posX, 0.5, posZ );
 		dummy.rotation.set( 0, THREE.MathUtils.degToRad( deg ), 0 );
 		dummy.updateMatrix();
 

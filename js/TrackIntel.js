@@ -33,7 +33,8 @@ function getOpenEdges( pieceType, godotOrient ) {
 	const base = BASE_CONNECTIVITY[ pieceType ];
 	if ( base === undefined ) {
 
-		throw new Error( `TrackIntel: Unknown piece type: ${pieceType}` );
+		console.warn( `TrackIntel: Unknown piece type: ${pieceType} — returning null` );
+		return null;
 
 	}
 

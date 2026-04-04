@@ -6,7 +6,7 @@ import { getTrackModelConfig, getTrackTileSet } from './TrackModelConfig.js';
 import { getTrackAsphaltMode, applyTrackAsphaltMode } from './TrackAsphaltMode.js';
 import { Camera } from './Camera.js';
 import { Controls } from './Controls.js';
-import { buildTrack, decodeCells, computeSpawnPosition, computeTrackBounds, TRACK_CELLS, CELL_RAW, GRID_SCALE } from './Track.js';
+import { buildTrack, decodeCells, transformCells, computeSpawnPosition, computeTrackBounds, TRACK_CELLS, CELL_RAW, GRID_SCALE } from './Track.js';
 import { RaceLobby } from './RaceLobby.js';
 import { AFKDetector } from './AFKDetector.js';
 import { buildWallColliders, buildTrackColliders } from './Physics.js';
@@ -159,6 +159,12 @@ const loader = new GLTFLoader();
 const modelNames = [
 	'vehicle-truck-yellow', 'vehicle-truck-green', 'vehicle-truck-purple', 'vehicle-truck-red',
 	'track-straight-night', 'track-corner-night', 'track-bump', 'track-finish',
+	'track-curve-2x2-l', 'track-curve-2x2-r',
+	'track-curve-3x3-l', 'track-curve-3x3-r',
+	'track-curve-4x4-l', 'track-curve-4x4-r',
+	'track-elev-2p5', 'track-elev-5',
+	'track-ramp-up-2p5', 'track-ramp-up-5',
+	'track-ramp-down-2p5', 'track-ramp-down-5',
 	'decoration-empty-night', 'decoration-buildings-1', 'decoration-buildings-2', 'decoration-tents',
 ];
 
@@ -258,6 +264,12 @@ async function init() {
 	}
 
 	const activeCells = customCells || TRACK_CELLS;
+
+	// Transform cells: derive elevation/ramps and multi-tile curves for rendering.
+	// The original activeCells (with base types) go to TrackIntel for waypoint walking.
+	// The transformed cells (with visual types) go to buildTrack/buildTrackColliders/buildWallColliders.
+	const renderCells = customCells ? transformCells( activeCells ) : activeCells;
+
 	const spawn = computeSpawnPosition( activeCells );
 
 	// Compute track bounds and size physics/shadows to fit
@@ -280,7 +292,7 @@ async function init() {
 
 	}
 
-	buildTrack( scene, models, customCells );
+	buildTrack( scene, models, renderCells );
 
 
 	const worldSettings = createWorldSettings();
@@ -304,8 +316,8 @@ async function init() {
 	wallDebugGroup.visible = false;
 	scene.add( wallDebugGroup );
 
-	buildWallColliders( world, wallDebugGroup, customCells );
-	buildTrackColliders( world, models, customCells );
+	buildWallColliders( world, wallDebugGroup, renderCells );
+	buildTrackColliders( world, models, renderCells );
 
 	// Safety-net ground far below the track — catches the vehicle if it falls off-track
 	const roadHalf = groundSize / 2;
