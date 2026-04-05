@@ -71,15 +71,15 @@ The user needs creative exploration before anything else. Engine choice,
 technical setup — all of that comes later.
 
 1. Acknowledge that starting from zero is completely fine
-2. Briefly explain what `/brainstorm` does (guided ideation using professional
+2. Briefly explain what `/game-brainstorm` does (guided ideation using professional
    frameworks — MDA, player psychology, verb-first design)
-3. Recommend running `/brainstorm open` as the next step
+3. Recommend running `/game-brainstorm open` as the next step
 4. Show the recommended path:
-   - `/brainstorm` — discover your game concept
-   - `/setup-engine` — configure the engine (brainstorm will recommend one)
-   - `/map-systems` — decompose the concept into systems and plan GDD writing order
-   - `/prototype` — test the core mechanic
-   - `/sprint-plan` — plan the first sprint
+   - `/game-brainstorm` — discover your game concept
+   - `/game-setup-engine` — configure the engine (brainstorm will recommend one)
+   - `/game-map-systems` — decompose the concept into systems and plan GDD writing order
+   - `/game-prototype` — test the core mechanic
+   - `/game-sprint-plan` — plan the first sprint
 
 #### If B: Vague idea
 
@@ -87,13 +87,13 @@ The user has a seed but needs help growing it into a concept.
 
 1. Ask them to share their vague idea — even a few words is enough
 2. Validate the idea as a starting point (don't judge or redirect)
-3. Recommend running `/brainstorm [their hint]` to develop it
+3. Recommend running `/game-brainstorm [their hint]` to develop it
 4. Show the recommended path:
-   - `/brainstorm [hint]` — develop the idea into a full concept
-   - `/setup-engine` — configure the engine
-   - `/map-systems` — decompose the concept into systems and plan GDD writing order
-   - `/prototype` — test the core mechanic
-   - `/sprint-plan` — plan the first sprint
+   - `/game-brainstorm [hint]` — develop the idea into a full concept
+   - `/game-setup-engine` — configure the engine
+   - `/game-map-systems` — decompose the concept into systems and plan GDD writing order
+   - `/game-prototype` — test the core mechanic
+   - `/game-sprint-plan` — plan the first sprint
 
 #### If C: Clear concept
 
@@ -104,17 +104,17 @@ The user knows what they want to make but hasn't documented it.
    - Do they have an engine preference, or need help choosing?
    - What's the rough scope? (jam game, small project, large project)
 2. Based on their answers, offer two paths:
-   - **Formalize first**: Run `/brainstorm` to structure the concept into a
+   - **Formalize first**: Run `/game-brainstorm` to structure the concept into a
      proper game concept document with pillars, MDA analysis, and scope tiers
    - **Jump to engine setup**: If they're confident in their concept, go
-     straight to `/setup-engine` and write the GDD manually afterward
+     straight to `/game-setup-engine` and write the GDD manually afterward
 3. Show the recommended path (adapted to their choice):
-   - `/brainstorm` or `/setup-engine` (their pick)
-   - `/design-review` — validate the concept doc
-   - `/map-systems` — decompose the concept into individual systems with dependencies and priorities
-   - `/design-system` — author per-system GDDs (guided, section-by-section)
-   - `/architecture-decision` — make first technical decisions
-   - `/sprint-plan` — plan the first sprint
+   - `/game-brainstorm` or `/game-setup-engine` (their pick)
+   - `/game-design-review` — validate the concept doc
+   - `/game-map-systems` — decompose the concept into individual systems with dependencies and priorities
+   - `/game-design-system` — author per-system GDDs (guided, section-by-section)
+   - `/game-architecture-decision` — make first technical decisions
+   - `/game-sprint-plan` — plan the first sprint
 
 #### If D: Existing work
 
@@ -123,14 +123,14 @@ The user has artifacts already. Figure out what exists and what's missing.
 1. Share what you found in Step 1 (now it's relevant):
    - "I can see you have [X source files / Y design docs / Z prototypes]..."
    - "Your engine is [configured as X / not yet configured]..."
-2. Recommend running `/project-stage-detect` for a full analysis
-3. If the engine isn't configured, note that `/setup-engine` should come first
+2. Recommend running `/game-project-stage-detect` for a full analysis
+3. If the engine isn't configured, note that `/game-setup-engine` should come first
 4. Show the recommended path:
-   - `/project-stage-detect` — full gap analysis
-   - `/setup-engine` — if not configured
-   - `/design-system` — if systems index exists but GDDs are incomplete
-   - `/gate-check` — validate readiness for next phase
-   - `/sprint-plan` — organize the work
+   - `/game-project-stage-detect` — full gap analysis
+   - `/game-setup-engine` — if not configured
+   - `/game-design-system` — if systems index exists but GDDs are incomplete
+   - `/game-gate-check` — validate readiness for next phase
+   - `/game-sprint-plan` — organize the work
 
 ---
 
@@ -147,7 +147,7 @@ to take first. Never auto-run the next skill.
 ### 5. Hand Off
 
 When the user chooses their next step, let them invoke the skill themselves
-or offer to run it for them. Either way, the `/start` skill's job is done
+or offer to run it for them. Either way, the `/game-start` skill's job is done
 once the user has a clear next action.
 
 ---
@@ -163,7 +163,7 @@ once the user has a clear next action.
 - **User is returning (engine configured, concept exists)**: Skip onboarding
   entirely — "It looks like you're already set up! Your engine is [X] and you
   have a game concept at `design/gdd/game-concept.md`. Want to pick up where
-  you left off? Try `/sprint-plan` or just tell me what you'd like to work on."
+  you left off? Try `/game-sprint-plan` or just tell me what you'd like to work on."
 - **User doesn't fit any option**: Let them describe their situation in their
   own words and adapt. The 4 options are starting points, not a prison.
 

@@ -94,7 +94,7 @@ window.addEventListener( 'resize', () => {
 
 const loader = new GLTFLoader();
 const asphaltMode = getTrackAsphaltMode( globalThis.location?.search ?? '' );
-let currentTileIndex = 36;
+let currentTileIndex = 0;
 let currentTileGroup = null;
 let vehicleModel = null;
 let vehicle = null;

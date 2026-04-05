@@ -7,7 +7,7 @@ allowed-tools: Read, Glob, Grep, Write, Edit, Bash
 ---
 When this skill is invoked:
 
-> **Explicit invocation only**: This skill should only run when the user explicitly requests it with `/hotfix`. Do not auto-invoke based on context matching.
+> **Explicit invocation only**: This skill should only run when the user explicitly requests it with `/game-hotfix`. Do not auto-invoke based on context matching.
 
 1. **Assess the emergency** — Read the bug description or ID. Determine severity:
    - **S1 (Critical)**: Game unplayable, data loss, security vulnerability — hotfix immediately

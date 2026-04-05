@@ -1,14 +1,9 @@
 import * as THREE from 'three';
 
-const POOL_SIZE = 48;
+const POOL_SIZE = 64;
 
-// Tier color palettes — blue → orange → purple (Mario Kart-style)
-const STAGE_COLORS = [
-	[ 0x888899 ],                                // tier 0 — unused
-	[ 0x4488ff, 0x66aaff, 0x2266dd ],            // tier 1 — blue sparks
-	[ 0xff8800, 0xffaa22, 0xff6600 ],            // tier 2 — orange sparks
-	[ 0xaa44ff, 0xcc66ff, 0x8822dd ],            // tier 3 — purple sparks
-];
+// Yellow/orange spark palette
+const SPARK_COLORS = [ 0xffdd33, 0xffaa00, 0xff8800, 0xffee66 ];
 
 const _worldPos = new THREE.Vector3();
 
@@ -31,7 +26,7 @@ export class DriftSparks {
 
 			const sprite = new THREE.Sprite( this.material.clone() );
 			sprite.visible = false;
-			sprite.scale.setScalar( 0.06 );
+			sprite.scale.setScalar( 0.03 );
 			scene.add( sprite );
 
 			this.particles.push( {
@@ -40,6 +35,7 @@ export class DriftSparks {
 				maxLife: 0,
 				velocity: new THREE.Vector3(),
 				initialScale: 0,
+				isStreak: false,
 			} );
 
 		}
@@ -51,19 +47,21 @@ export class DriftSparks {
 
 	update( dt, vehicle ) {
 
-		// Only emit while actively drifting, rate-limited to ~30 particles/sec
-		if ( vehicle.driftActive && vehicle.driftSparkTier > 0 ) {
+		// Emit during drift OR hard turns
+		const isTurningHard = Math.abs( vehicle.inputX ) > 0.8 && Math.abs( vehicle.linearSpeed ) > 0.5;
+		const shouldEmit = ( vehicle.driftActive && vehicle.driftSparkTier > 0 ) || isTurningHard;
+
+		if ( shouldEmit ) {
 
 			this._emitTimer += dt;
-			const emitInterval = 1 / 15; // 15 emits/sec (2 wheels = 30 particles/sec)
+			const emitInterval = 1 / 12; // 12 emits/sec per wheel
 
 			if ( this._emitTimer >= emitInterval ) {
 
 				this._emitTimer -= emitInterval;
-				const stage = Math.min( vehicle.driftSparkTier, 3 );
 
-				if ( vehicle.wheelBL ) this._emitAtWheel( vehicle.wheelBL, vehicle, stage );
-				if ( vehicle.wheelBR ) this._emitAtWheel( vehicle.wheelBR, vehicle, stage );
+				if ( vehicle.wheelBL ) this._emitAtWheel( vehicle.wheelBL, vehicle );
+				if ( vehicle.wheelBR ) this._emitAtWheel( vehicle.wheelBR, vehicle );
 
 			}
 
@@ -89,63 +87,112 @@ export class DriftSparks {
 
 			const t = 1 - ( p.life / p.maxLife ); // 0 → 1
 
-			// Embers rise gently
-			p.velocity.y += 0.5 * dt;
-
-			// Damping — embers slow down
-			p.velocity.multiplyScalar( 1 - 2 * dt );
-
 			p.sprite.position.addScaledVector( p.velocity, dt );
 
-			// Shrink over lifetime — concentrated → tiny ember
-			p.sprite.scale.setScalar( p.initialScale * ( 1 - t * 0.6 ) );
+			if ( p.isStreak ) {
 
-			// Fade: stays bright then dims at end
-			p.sprite.material.opacity = 1 - t * t;
+				// Ground streaks: stay low, fade and shrink quickly
+				p.velocity.multiplyScalar( 1 - 4 * dt );
+				p.sprite.scale.set(
+					p.initialScale * ( 1 - t * 0.8 ) * 3, // elongated
+					p.initialScale * ( 1 - t * 0.9 ),
+					1
+				);
+				p.sprite.material.opacity = ( 1 - t ) * ( 1 - t );
+
+			} else {
+
+				// Embers: rise and drift, shrink to nothing
+				p.velocity.y += 0.3 * dt;
+				p.velocity.multiplyScalar( 1 - 3 * dt );
+				const s = p.initialScale * ( 1 - t );
+				p.sprite.scale.setScalar( s );
+				p.sprite.material.opacity = ( 1 - t * t ) * 0.8;
+
+			}
 
 		}
 
 	}
 
-	_emitAtWheel( wheel, vehicle, stage ) {
+	_emitAtWheel( wheel, vehicle ) {
+
+		// Get wheel ground position
+		wheel.getWorldPosition( _worldPos );
+		const groundY = vehicle.container.position.y + 0.02;
+
+		// Vehicle forward direction for streak alignment
+		const fwd = new THREE.Vector3( 0, 0, 1 ).applyQuaternion( vehicle.container.quaternion );
+
+		// Emit 1 ground streak + 1-2 embers per burst
+		// Ground streak
+		this._emitParticle( _worldPos, groundY, fwd, vehicle, true );
+
+		// Ember (50% chance of a second)
+		this._emitParticle( _worldPos, groundY, fwd, vehicle, false );
+		if ( Math.random() > 0.5 ) {
+
+			this._emitParticle( _worldPos, groundY, fwd, vehicle, false );
+
+		}
+
+	}
+
+	_emitParticle( pos, groundY, fwd, vehicle, isStreak ) {
 
 		const p = this.particles[ this.emitIndex ];
 		this.emitIndex = ( this.emitIndex + 1 ) % POOL_SIZE;
 
-		// Start at ground level right at the wheel — concentrated
-		wheel.getWorldPosition( _worldPos );
-		_worldPos.y = vehicle.container.position.y + 0.02;
-
-		p.sprite.position.set(
-			_worldPos.x + ( Math.random() - 0.5 ) * 0.1,
-			_worldPos.y,
-			_worldPos.z + ( Math.random() - 0.5 ) * 0.1
-		);
+		p.isStreak = isStreak;
 		p.sprite.visible = true;
-		p.sprite.material.opacity = 1;
+		p.sprite.material.color.setHex( SPARK_COLORS[ Math.floor( Math.random() * SPARK_COLORS.length ) ] );
 
-		// Pick a random color from this stage's palette
-		const palette = STAGE_COLORS[ stage ];
-		p.sprite.material.color.setHex( palette[ Math.floor( Math.random() * palette.length ) ] );
+		if ( isStreak ) {
 
-		// Start larger at ground, will shrink as ember rises
-		p.initialScale = 0.06 + Math.random() * 0.04;
+			// Ground streak: starts at wheel, slides backward along ground
+			p.sprite.position.set(
+				pos.x + ( Math.random() - 0.5 ) * 0.15,
+				groundY,
+				pos.z + ( Math.random() - 0.5 ) * 0.15
+			);
 
-		// Higher stages = slightly bigger embers
-		if ( stage >= 2 ) p.initialScale *= 1.3;
-		if ( stage >= 3 ) p.initialScale *= 1.2;
+			p.initialScale = 0.04 + Math.random() * 0.03;
 
-		p.sprite.scale.setScalar( p.initialScale );
+			// Streak moves opposite to vehicle forward + lateral scatter
+			const speed = Math.abs( vehicle.linearSpeed ) * 0.3;
+			p.velocity.set(
+				- fwd.x * speed + ( Math.random() - 0.5 ) * 0.5,
+				0,
+				- fwd.z * speed + ( Math.random() - 0.5 ) * 0.5
+			);
 
-		// Velocity: mostly upward lift with slight lateral scatter
-		p.velocity.set(
-			( Math.random() - 0.5 ) * 0.8,
-			0.8 + Math.random() * 1.5, // upward lift from ground
-			( Math.random() - 0.5 ) * 0.8
-		);
+			p.sprite.material.opacity = 1;
+			p.maxLife = 0.1 + Math.random() * 0.15; // very short — 0.1-0.25s
+			p.life = p.maxLife;
 
-		p.maxLife = 0.25 + Math.random() * 0.2; // 0.25-0.45s
-		p.life = p.maxLife;
+		} else {
+
+			// Ember: launches up from wheel, drifts and dies
+			p.sprite.position.set(
+				pos.x + ( Math.random() - 0.5 ) * 0.2,
+				groundY + Math.random() * 0.05,
+				pos.z + ( Math.random() - 0.5 ) * 0.2
+			);
+
+			p.initialScale = 0.03 + Math.random() * 0.03;
+			p.sprite.scale.setScalar( p.initialScale );
+
+			p.velocity.set(
+				( Math.random() - 0.5 ) * 2.0,
+				0.8 + Math.random() * 1.5,
+				( Math.random() - 0.5 ) * 2.0
+			);
+
+			p.sprite.material.opacity = 1;
+			p.maxLife = 0.3 + Math.random() * 0.4; // 0.3-0.7s
+			p.life = p.maxLife;
+
+		}
 
 	}
 

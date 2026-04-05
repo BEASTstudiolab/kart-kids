@@ -108,7 +108,7 @@ export class Minimap {
 		for ( let i = 0; i < activeVehicles.length; i ++ ) {
 
 			const { vehicle } = activeVehicles[ i ];
-			const pos = vehicle.spherePos;
+			const pos = vehicle.vehPos;
 			const [ cx, cz ] = this._worldToCanvas( pos.x, pos.z );
 
 			const colorIndex = i % VEHICLE_COLORS.length;

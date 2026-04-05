@@ -21,7 +21,7 @@ appropriate design or architecture documentation. Use this when:
 
 ### 1. Parse Arguments
 
-**Format**: `/reverse-document <type> <path>`
+**Format**: `/game-reverse-document <type> <path>`
 
 **Type options**:
 - `design` → Generate a game design document (GDD section)
@@ -35,9 +35,9 @@ appropriate design or architecture documentation. Use this when:
 
 **Examples**:
 ```bash
-/reverse-document design src/gameplay/magic-system
-/reverse-document architecture src/core/entity-component
-/reverse-document concept prototypes/vehicle-combat
+/game-reverse-document design src/gameplay/magic-system
+/game-reverse-document architecture src/core/entity-component
+/game-reverse-document concept prototypes/vehicle-combat
 ```
 
 ### 2. Analyze Implementation
@@ -183,7 +183,7 @@ After writing, suggest next steps:
 ✅ Written to design/gdd/combat-system.md
 
 FOLLOW-UP RECOMMENDED:
-1. Run /balance-check on combat formulas (exponential scaling concern)
+1. Run /game-balance-check on combat formulas (exponential scaling concern)
 2. Create ADR for stamina system architecture decision
 3. Implement missing edge cases:
    - Stamina depletion mid-combo behavior
@@ -210,7 +210,7 @@ Would you like me to tackle any of these now?
 ## Example Session: Reverse-Document Combat Code
 
 ```
-User: /reverse-document design src/gameplay/combat
+User: /game-reverse-document design src/gameplay/combat
 
 Agent: I'll analyze your combat implementation to create a design doc.
        [Reads code, discovers mechanics, formulas]
@@ -240,7 +240,7 @@ Agent: ✅ Written to design/gdd/combat-system.md
 
        Next steps:
        - Update damage formula to linear scaling
-       - Run /balance-check to validate progression curve
+       - Run /game-balance-check to validate progression curve
        - Document stagger as core pillar in game-pillars.md
 ```
 

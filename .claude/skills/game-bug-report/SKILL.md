@@ -2,7 +2,7 @@
 name: game-bug-report
 description: "Creates a structured bug report from a description, or analyzes code to identify potential bugs. Ensures every bug report has full reproduction steps, severity assessment, and context."
 argument-hint: "[description]
-/bug-report analyze [path-to-file]"
+/game-bug-report analyze [path-to-file]"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Write
 ---

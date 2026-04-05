@@ -1,11 +1,11 @@
 # Technical Preferences
 
-<!-- Populated by /setup-engine. Updated as the user makes decisions throughout development. -->
+<!-- Populated by /game-setup-engine. Updated as the user makes decisions throughout development. -->
 <!-- All agents reference this file for project-specific standards and conventions. -->
 
 ## Engine & Language
 
-- **Engine**: [TO BE CONFIGURED — run /setup-engine]
+- **Engine**: [TO BE CONFIGURED — run /game-setup-engine]
 - **Language**: [TO BE CONFIGURED]
 - **Rendering**: [TO BE CONFIGURED]
 - **Physics**: [TO BE CONFIGURED]
@@ -45,4 +45,4 @@
 ## Architecture Decisions Log
 
 <!-- Quick reference linking to full ADRs in docs/architecture/ -->
-- [No ADRs yet — use /architecture-decision to create one]
+- [No ADRs yet — use /game-architecture-decision to create one]

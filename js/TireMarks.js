@@ -26,9 +26,9 @@ export class TireMarks {
 		geometry.setDrawRange( 0, 0 );
 
 		const material = new THREE.MeshBasicMaterial( {
-			color: 0x222222,
+			color: 0x111111,
 			transparent: true,
-			opacity: 0.5,
+			opacity: 0.7,
 			depthWrite: false,
 			side: THREE.DoubleSide,
 		} );
@@ -45,8 +45,9 @@ export class TireMarks {
 
 	update( dt, vehicle ) {
 
-		// Only emit during drift
-		if ( vehicle.driftStage <= 0 || ! vehicle.wheelBL || ! vehicle.wheelBR ) {
+		// Emit during drift OR hard turns/skids
+		const isTurningHard = Math.abs( vehicle.inputX ) > 0.95 && Math.abs( vehicle.linearSpeed ) > 0.7;
+		if ( ( vehicle.driftStage <= 0 && ! isTurningHard ) || ! vehicle.wheelBL || ! vehicle.wheelBR ) {
 
 			this._prevBL = null;
 			this._prevBR = null;

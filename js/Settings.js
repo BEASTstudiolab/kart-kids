@@ -10,6 +10,7 @@ const _detectedTier = detectTier();
 const DEFAULTS = {
 	handedness: 'right',
 	accelerometer: false,
+	steeringAssist: false,
 	cameraMode: 'chase',
 	quality: _detectedTier,
 };

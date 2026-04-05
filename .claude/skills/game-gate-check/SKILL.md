@@ -11,7 +11,7 @@ allowed-tools: Read, Glob, Grep, Bash, Write
 This skill validates whether the project is ready to advance to the next development
 phase. It checks for required artifacts, quality standards, and blockers.
 
-**Distinct from `/project-stage-detect`**: That skill is diagnostic ("where are we?").
+**Distinct from `/game-project-stage-detect`**: That skill is diagnostic ("where are we?").
 This skill is prescriptive ("are we ready to advance?" with a formal verdict).
 
 ## Production Stages (7)
@@ -33,9 +33,9 @@ The project progresses through these stages:
 
 ## 1. Parse Arguments
 
-- **With argument**: `/gate-check production` — validate readiness for that specific phase
+- **With argument**: `/game-gate-check production` — validate readiness for that specific phase
 - **No argument**: Auto-detect current stage using the same heuristics as
-  `/project-stage-detect`, then validate the NEXT phase transition
+  `/game-project-stage-detect`, then validate the NEXT phase transition
 
 ---
 
@@ -48,7 +48,7 @@ The project progresses through these stages:
 - [ ] Game pillars defined (in concept doc or `design/gdd/game-pillars.md`)
 
 **Quality Checks:**
-- [ ] Game concept has been reviewed (`/design-review` verdict not MAJOR REVISION NEEDED)
+- [ ] Game concept has been reviewed (`/game-design-review` verdict not MAJOR REVISION NEEDED)
 - [ ] Core loop is described and understood
 - [ ] Target audience is identified
 
@@ -102,7 +102,7 @@ The project progresses through these stages:
 - [ ] All core mechanics from GDD are implemented (cross-reference `design/gdd/` with `src/`)
 - [ ] Main gameplay path is playable end-to-end
 - [ ] Test files exist in `tests/`
-- [ ] At least 1 playtest report (or `/playtest-report` has been run)
+- [ ] At least 1 playtest report (or `/game-playtest-report` has been run)
 
 **Quality Checks:**
 - [ ] Tests are passing (run test suite via Bash)
@@ -119,8 +119,8 @@ The project progresses through these stages:
 - [ ] Content is complete (all levels, assets, dialogue referenced in design docs exist)
 - [ ] Localization strings are externalized (no hardcoded player-facing text in `src/`)
 - [ ] QA test plan exists
-- [ ] Balance data has been reviewed (`/balance-check` run)
-- [ ] Release checklist completed (`/release-checklist` or `/launch-checklist` run)
+- [ ] Balance data has been reviewed (`/game-balance-check` run)
+- [ ] Release checklist completed (`/game-release-checklist` or `/game-launch-checklist` run)
 - [ ] Store metadata prepared (if applicable)
 - [ ] Changelog / patch notes drafted
 
@@ -149,7 +149,7 @@ For each item in the target gate:
 - For test checks: Run the test suite via `Bash` if a test runner is configured
 - For design review checks: `Read` the GDD and check for the 8 required sections
 - For performance checks: `Read` technical-preferences.md and compare against any
-  profiling data in `tests/performance/` or recent `/perf-profile` output
+  profiling data in `tests/performance/` or recent `/game-perf-profile` output
 - For localization checks: `Grep` for hardcoded strings in `src/`
 
 ### Cross-Reference Checks
@@ -165,7 +165,7 @@ For items that can't be automatically verified, **ask the user**:
 
 - "I can't automatically verify that the core loop plays well. Has it been playtested?"
 - "No playtest report found. Has informal testing been done?"
-- "Performance profiling data isn't available. Would you like to run `/perf-profile`?"
+- "Performance profiling data isn't available. Would you like to run `/game-perf-profile`?"
 
 **Never assume PASS for unverifiable items.** Mark them as MANUAL CHECK NEEDED.
 
@@ -190,7 +190,7 @@ For items that can't be automatically verified, **ask the user**:
 - [?] Core loop playtested — MANUAL CHECK NEEDED
 
 ### Blockers
-1. **No Architecture Decision Records** — Run `/architecture-decision` to create one
+1. **No Architecture Decision Records** — Run `/game-architecture-decision` to create one
    covering core system architecture before entering production.
 2. **3 test failures** — Fix failing tests in tests/unit/ before advancing.
 
@@ -226,15 +226,15 @@ echo -n "Production" > production/stage.txt
 
 Based on the verdict, suggest specific next steps:
 
-- **No game concept?** → `/brainstorm` to create one
-- **No systems index?** → `/map-systems` to decompose the concept into systems
-- **Missing design docs?** → `/reverse-document` or delegate to `game-designer`
-- **Missing ADRs?** → `/architecture-decision`
+- **No game concept?** → `/game-brainstorm` to create one
+- **No systems index?** → `/game-map-systems` to decompose the concept into systems
+- **Missing design docs?** → `/game-reverse-document` or delegate to `game-designer`
+- **Missing ADRs?** → `/game-architecture-decision`
 - **Tests failing?** → delegate to `lead-programmer` or `qa-tester`
-- **No playtest data?** → `/playtest-report`
-- **Performance unknown?** → `/perf-profile`
-- **Not localized?** → `/localize`
-- **Ready for release?** → `/launch-checklist`
+- **No playtest data?** → `/game-playtest-report`
+- **Performance unknown?** → `/game-perf-profile`
+- **Not localized?** → `/game-localize`
+- **Ready for release?** → `/game-launch-checklist`
 
 ---
 
@@ -246,7 +246,7 @@ This skill follows the collaborative design principle:
 2. **Ask about unknowns**: Don't assume PASS for things you can't verify
 3. **Present findings**: Show the full checklist with status
 4. **User decides**: The verdict is a recommendation — the user makes the final call
-5. **Get approval**: "May I write this gate check report to production/gate-checks/?"
+5. **Get approval**: "May I write this gate check report to production/game-gate-checks/?"
 
 **Never** block a user from advancing — the verdict is advisory. Document the risks
 and let the user decide whether to proceed despite concerns.

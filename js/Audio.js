@@ -19,6 +19,10 @@ export class GameAudio {
 		this.ready = false;
 		this.unlocked = false;
 
+		// Volume controls (0-1)
+		this.sfxVolume = 1.0;
+		this.musicVolume = 1.0;
+
 		// Draft wind sound (generated noise buffer)
 		this._draftGain = null;
 		this._draftSource = null;
@@ -26,10 +30,32 @@ export class GameAudio {
 
 	}
 
+	setSfxVolume( v ) {
+
+		this.sfxVolume = v;
+		if ( this.listener ) this.listener.setMasterVolume( v );
+		if ( this._sfxGain ) this._sfxGain.gain.value = v;
+
+	}
+
+	setMusicVolume( v ) {
+
+		this.musicVolume = v;
+		// Reserved for future music system
+
+	}
+
 	init( camera ) {
 
 		this.listener = new THREE.AudioListener();
+		this.listener.setMasterVolume( this.sfxVolume );
 		camera.add( this.listener );
+
+		// Master SFX gain for raw WebAudio oscillators/noise
+		const ctx = this.listener.context;
+		this._sfxGain = ctx.createGain();
+		this._sfxGain.gain.value = this.sfxVolume;
+		this._sfxGain.connect( ctx.destination );
 
 		const loader = new THREE.AudioLoader();
 
@@ -141,7 +167,7 @@ export class GameAudio {
 
 			source.connect( filter );
 			filter.connect( gain );
-			gain.connect( ctx.destination );
+			gain.connect( this._sfxGain );
 			source.start();
 
 			this._draftSource = source;
@@ -194,7 +220,12 @@ export class GameAudio {
 
 		if ( ! this._draftGain ) return;
 
-		const targetVol = intensity * 0.12; // subtle wind volume
+		// Tier-aware volume: louder at boost, subtle at opportunity
+		let targetVol;
+		if ( intensity >= 0.95 ) targetVol = 0.22;
+		else if ( intensity >= 0.3 ) targetVol = intensity * 0.16;
+		else targetVol = intensity * 0.10;
+
 		const ctx = this.listener.context;
 		this._draftGain.gain.linearRampToValueAtTime( targetVol, ctx.currentTime + 0.05 );
 
@@ -218,7 +249,7 @@ export class GameAudio {
 			gain.gain.exponentialRampToValueAtTime( 0.001, ctx.currentTime + duration );
 
 			osc.connect( gain );
-			gain.connect( ctx.destination );
+			gain.connect( this._sfxGain );
 
 			osc.start( ctx.currentTime );
 			osc.stop( ctx.currentTime + duration );
@@ -268,7 +299,7 @@ export class GameAudio {
 			gain.gain.exponentialRampToValueAtTime( 0.001, ctx.currentTime + 0.4 );
 
 			osc.connect( gain );
-			gain.connect( ctx.destination );
+			gain.connect( this._sfxGain );
 
 			osc.start( ctx.currentTime );
 			osc.stop( ctx.currentTime + 0.4 );
@@ -301,7 +332,7 @@ export class GameAudio {
 			gain.gain.exponentialRampToValueAtTime( 0.001, ctx.currentTime + 0.3 );
 
 			osc.connect( gain );
-			gain.connect( ctx.destination );
+			gain.connect( this._sfxGain );
 
 			osc.start( ctx.currentTime );
 			osc.stop( ctx.currentTime + 0.3 );
@@ -334,7 +365,7 @@ export class GameAudio {
 			gain.gain.exponentialRampToValueAtTime( 0.001, ctx.currentTime + 0.2 );
 
 			osc.connect( gain );
-			gain.connect( ctx.destination );
+			gain.connect( this._sfxGain );
 
 			osc.start( ctx.currentTime );
 			osc.stop( ctx.currentTime + 0.2 );
@@ -367,7 +398,7 @@ export class GameAudio {
 			gain.gain.exponentialRampToValueAtTime( 0.001, ctx.currentTime + 0.25 );
 
 			osc.connect( gain );
-			gain.connect( ctx.destination );
+			gain.connect( this._sfxGain );
 
 			osc.start( ctx.currentTime );
 			osc.stop( ctx.currentTime + 0.25 );

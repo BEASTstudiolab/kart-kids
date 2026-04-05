@@ -8,7 +8,7 @@ allowed-tools: Read, Glob, Grep, Write
 
 When this skill is invoked:
 
-> **Explicit invocation only**: This skill should only run when the user explicitly requests it with `/release-checklist`. Do not auto-invoke based on context matching.
+> **Explicit invocation only**: This skill should only run when the user explicitly requests it with `/game-release-checklist`. Do not auto-invoke based on context matching.
 
 1. **Read the argument** for the target platform (`pc`, `console`, `mobile`,
    or `all`). If no platform is specified, default to `all`.
@@ -159,7 +159,7 @@ resolution and estimated time to address them.]
 ```
 
 9. **Save the checklist** to
-   `production/releases/release-checklist-[version].md`, creating the
+   `production/releases/game-release-checklist-[version].md`, creating the
    directory if it does not exist.
 
 10. **Output a summary** to the user with: total checklist items, number of

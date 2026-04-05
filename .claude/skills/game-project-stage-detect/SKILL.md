@@ -58,7 +58,7 @@ Analyze project structure and content:
 ### 2. Classify Project Stage
 
 Based on scanned artifacts, determine stage. Check `production/stage.txt` first —
-if it exists, use its value (explicit override from `/gate-check`). Otherwise,
+if it exists, use its value (explicit override from `/game-gate-check`). Otherwise,
 auto-detect using these heuristics (check from most-advanced backward):
 
 | Stage | Indicators |
@@ -68,8 +68,8 @@ auto-detect using these heuristics (check from most-advanced backward):
 | **Technical Setup** | Systems index exists, engine not configured |
 | **Pre-Production** | Engine configured, `src/` has <10 source files |
 | **Production** | `src/` has 10+ source files, active development |
-| **Polish** | Explicit only (set by `/gate-check` Production → Polish gate) |
-| **Release** | Explicit only (set by `/gate-check` Polish → Release gate) |
+| **Polish** | Explicit only (set by `/game-gate-check` Production → Polish gate) |
+| **Release** | Explicit only (set by `/game-gate-check` Polish → Release gate) |
 
 ### 3. Collaborative Gap Identification
 
@@ -78,7 +78,7 @@ auto-detect using these heuristics (check from most-advanced backward):
 - "I see combat code (`src/gameplay/combat/`) but no `design/gdd/combat-system.md`. Was this prototyped first, or should we reverse-document?"
 - "You have 15 ADRs but no architecture overview. Should I create one to help new contributors?"
 - "No sprint plans in `production/`. Are you tracking work elsewhere (Jira, Trello, etc.)?"
-- "I found a game concept but no systems index. Have you decomposed the concept into individual systems yet, or should we run `/map-systems`?"
+- "I found a game concept but no systems index. Have you decomposed the concept into individual systems yet, or should we run `/game-map-systems`?"
 - "Prototypes directory has 3 projects with no READMEs. Were these experiments, or do they need documentation?"
 
 ### 4. Generate Stage Report
@@ -109,7 +109,7 @@ Use template: `.claude/docs/templates/project-stage-report.md`
 
 ### 5. Role-Filtered Recommendations (Optional)
 
-If user provided a role argument (e.g., `/project-stage-detect programmer`):
+If user provided a role argument (e.g., `/game-project-stage-detect programmer`):
 
 **Programmer**:
 - Focus on architecture docs, test coverage, missing ADRs
@@ -155,13 +155,13 @@ Wait for user approval before creating the file.
 
 ```bash
 # General project analysis
-/project-stage-detect
+/game-project-stage-detect
 
 # Programmer-focused analysis
-/project-stage-detect programmer
+/game-project-stage-detect programmer
 
 # Designer-focused analysis
-/project-stage-detect designer
+/game-project-stage-detect designer
 ```
 
 ---
@@ -170,12 +170,12 @@ Wait for user approval before creating the file.
 
 After generating the report, suggest relevant next steps:
 
-- **Concept exists but no systems index?** → `/map-systems` to decompose into systems
-- **Missing design docs?** → `/reverse-document design src/[system]`
-- **Missing architecture docs?** → `/architecture-decision` or `/reverse-document architecture`
-- **Prototypes need documentation?** → `/reverse-document concept prototypes/[name]`
-- **No sprint plan?** → `/sprint-plan`
-- **Approaching milestone?** → `/milestone-review`
+- **Concept exists but no systems index?** → `/game-map-systems` to decompose into systems
+- **Missing design docs?** → `/game-reverse-document design src/[system]`
+- **Missing architecture docs?** → `/game-architecture-decision` or `/game-reverse-document architecture`
+- **Prototypes need documentation?** → `/game-reverse-document concept prototypes/[name]`
+- **No sprint plan?** → `/game-sprint-plan`
+- **Approaching milestone?** → `/game-milestone-review`
 
 ---
 

@@ -41,7 +41,7 @@ Delegate to **producer**:
 Delegate to **release-manager**:
 - Cut release branch from the agreed commit
 - Bump version numbers in all relevant files
-- Generate the release checklist using `/release-checklist`
+- Generate the release checklist using `/game-release-checklist`
 - Freeze the branch — no feature changes, bug fixes only
 - Output: release branch name and checklist
 
@@ -66,7 +66,7 @@ Delegate to **producer**:
 ### Phase 6: Deployment (if GO)
 Delegate to **release-manager** + **devops-engineer**:
 - Tag the release in version control
-- Generate changelog using `/changelog`
+- Generate changelog using `/game-changelog`
 - Deploy to staging for final smoke test
 - Deploy to production
 - Monitor for 48 hours post-release

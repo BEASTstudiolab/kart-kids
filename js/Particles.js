@@ -73,17 +73,17 @@ export class SmokeTrails {
 
 			const t = 1 - ( p.life / p.maxLife );
 
-			// Apply damping to velocity (Godot damping = 1.0)
+			// Apply damping to velocity
 			const damping = Math.max( 0, 1 - dt );
 			p.velocity.multiplyScalar( damping );
 
 			p.sprite.position.addScaledVector( p.velocity, dt );
 
-			// Alpha curve: 0 → 1 (at midlife) → 0 (matching Godot's alpha_curve)
+			// Alpha curve: 0 → 1 (at midlife) → 0
 			const alpha = t < 0.5 ? t * 2 : ( 1 - t ) * 2;
 			p.sprite.material.opacity = alpha;
 
-			// Scale curve: 0.5 → 1.0 (at midlife) → 0.2 (matching Godot's scale_curve)
+			// Scale curve: 0.5 → 1.0 (at midlife) → 0.2
 			let scaleFactor;
 			if ( t < 0.5 ) {
 
@@ -118,18 +118,18 @@ export class SmokeTrails {
 		const stage = vehicle.driftStage || 0;
 		p.sprite.material.color.setHex( DRIFT_STAGE_COLORS[ stage ] );
 
-		// Godot: scale_min = 0.25, scale_max = 0.5
+		// Scale: random between 0.25 and 0.5
 		p.initialScale = 0.25 + Math.random() * 0.25;
 		p.sprite.scale.setScalar( p.initialScale * 0.5 );
 
-		// Godot: no gravity, damping = 1.0 — minimal velocity
+		// Minimal random velocity, no gravity
 		p.velocity.set(
 			( Math.random() - 0.5 ) * 0.2,
 			Math.random() * 0.1,
 			( Math.random() - 0.5 ) * 0.2
 		);
 
-		// Godot: lifetime = 0.5
+		// Particle lifetime
 		p.maxLife = 0.5;
 		p.life = p.maxLife;
 

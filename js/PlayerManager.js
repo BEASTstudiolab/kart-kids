@@ -20,7 +20,7 @@ export class PlayerManager {
 		this.scene = scene;
 		this.world = world;
 		this.models = models;
-		this.spawnPosition = spawnPosition || [ 3.5, 0.5, 5 ];
+		this.spawnPosition = spawnPosition || [ 3.5, 0, 5 ];
 		this.spawnAngle = spawnAngle || 0;
 
 		this.localId = null;
@@ -194,7 +194,7 @@ export class PlayerManager {
 			entry.vehicle.initRaycast( this.world );
 
 			const [ sx, sy, sz ] = pos;
-			entry.vehicle.spherePos.set( sx, sy, sz );
+			entry.vehicle.vehPos.set( sx, sy, sz );
 			entry.vehicle.groundHeight = sy;
 			entry.vehicle.linearSpeed = 0;
 			entry.vehicle.angularSpeed = 0;
@@ -280,15 +280,15 @@ export class PlayerManager {
 		const modelName = VEHICLE_MODEL_NAMES[ vehicleIndex % 4 ];
 		const model = this.models[ modelName ];
 
-		const sphereBody = createVehicleBody( this.world, position );
+		const vehCollider = createVehicleBody( this.world, position );
 
 		const vehicle = new Vehicle();
-		vehicle.rigidBody = sphereBody;
+		vehicle.rigidBody = vehCollider;
 		vehicle.physicsWorld = this.world;
 		vehicle.forceWheelCorrection = true;
 
 		const [ sx, sy, sz ] = position;
-		vehicle.spherePos.set( sx, sy, sz );
+		vehicle.vehPos.set( sx, sy, sz );
 		vehicle.groundHeight = sy;
 		vehicle.prevModelPos.set( sx, sy, sz );
 		vehicle.container.rotation.y = angle;

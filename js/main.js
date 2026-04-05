@@ -6,7 +6,7 @@ import { getTrackModelConfig, getTrackTileSet } from './TrackModelConfig.js';
 import { getTrackAsphaltMode, applyTrackAsphaltMode } from './TrackAsphaltMode.js';
 import { Camera } from './Camera.js';
 import { Controls } from './Controls.js';
-import { buildTrack, decodeCells, transformCells, deriveRampCells, computeSpawnPosition, computeTrackBounds, TRACK_CELLS, CELL_RAW, GRID_SCALE } from './Track.js';
+import { buildTrack, decodeCells, transformCells, deriveRampCells, computeSpawnPosition, computeTrackBounds, TRACK_CELLS, CELL_RAW, GRID_SCALE, ORIENT_DEG } from './Track.js';
 import { RaceLobby } from './RaceLobby.js';
 import { AFKDetector } from './AFKDetector.js';
 import { buildWallColliders, buildTrackColliders } from './Physics.js';
@@ -30,6 +30,7 @@ import { SettingsMenu } from './SettingsMenu.js';
 import { PRESETS, TIER_PIXEL_RATIO } from './QualityTiers.js';
 import { DraftingSystem } from './DraftingSystem.js';
 import { DraftLines } from './DraftLines.js';
+import { Speedometer } from './Speedometer.js';
 
 
 const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -48,7 +49,7 @@ dirLight.position.set( 11.4, 15, -5.3 );
 dirLight.castShadow = true;
 dirLight.shadow.mapSize.setScalar( 2048 ); // Overridden by quality preset during init
 dirLight.shadow.camera.near = 0.5;
-dirLight.shadow.camera.far = 60;
+dirLight.shadow.camera.far = 200;
 scene.add( dirLight );
 
 const hemiLight = new THREE.HemisphereLight( 0xc8d8e8, 0x7a8a5a, 1.5 );
@@ -158,14 +159,14 @@ window.addEventListener( 'resize', () => {
 const loader = new GLTFLoader();
 const modelNames = [
 	'vehicle-truck-yellow', 'vehicle-truck-green', 'vehicle-truck-purple', 'vehicle-truck-red',
-	'track-straight-night', 'track-corner-night', 'track-bump', 'track-finish',
-	'track-curve-2x2-l',
-	'track-curve-3x3-l',
-	'track-curve-4x4-l',
-	'track-elev-2p5', 'track-elev-5',
-	'track-ramp-up-2p5', 'track-ramp-up-5',
-	'track-ramp-down-2p5', 'track-ramp-down-5',
-	'decoration-empty-night', 'decoration-buildings-1', 'decoration-buildings-2', 'decoration-tents',
+	'trk-straight', 'trk-corner-1x1', 'trk-finish',
+	'trk-curve-2x2-l',
+	'trk-curve-3x3-l',
+	'trk-curve-4x4-l',
+	'trk-elev-2p5', 'trk-elev-5',
+	'trk-ramp-up-2p5', 'trk-ramp-up-5',
+	'trk-ramp-down-2p5', 'trk-ramp-down-5',
+	'decoration-empty-night', 'decoration-buildings-1', 'decoration-buildings-2',
 ];
 
 const models = {};
@@ -185,13 +186,14 @@ async function loadModels() {
 					if ( child.isMesh ) {
 
 						child.material.side = THREE.FrontSide;
+						child.material.depthWrite = true;
 					applyTrackAsphaltMode( child.material, { asphaltMode } );
 
 					}
 
 				} );
 
-				// Godot imports vehicle models at root_scale=0.5
+				// Vehicle models use root_scale=0.5
 				if ( name.startsWith( 'vehicle-' ) ) {
 
 					gltf.scene.scale.setScalar( 0.5 );
@@ -294,7 +296,6 @@ async function init() {
 
 	buildTrack( scene, models, renderCells );
 
-
 	const worldSettings = createWorldSettings();
 	worldSettings.gravity = [ 0, - 9.81, 0 ];
 
@@ -311,13 +312,169 @@ async function init() {
 	world._OL_STATIC = OL_STATIC;
 
 	// Debug: pass a group to visualize wall colliders as green wireframes
-	// Toggle via debug menu checkbox (added below)
+	// Wall colliders are OFF by default — toggle via debug menu
 	const wallDebugGroup = new THREE.Group();
 	wallDebugGroup.visible = false;
 	scene.add( wallDebugGroup );
+	let wallCollidersEnabled = false;
 
-	buildWallColliders( world, wallDebugGroup, renderCells );
-	buildTrackColliders( world, models, renderCells );
+	// Build debug wireframes only (no physics bodies) on first load
+	buildWallColliders( world, wallDebugGroup, renderCells, { skipPhysics: true } );
+
+	const trackColliderData = buildTrackColliders( world, models, renderCells );
+
+	// Build debug visualization of the track surface collider (pink wireframe)
+	const colliderDebugGroup = new THREE.Group();
+	colliderDebugGroup.visible = false;
+	scene.add( colliderDebugGroup );
+	{
+
+		const geo = new THREE.BufferGeometry();
+		geo.setAttribute( 'position', new THREE.BufferAttribute( trackColliderData.positions, 3 ) );
+		geo.setIndex( new THREE.BufferAttribute( trackColliderData.indices, 1 ) );
+		const edges = new THREE.EdgesGeometry( geo, 15 );
+		const mat = new THREE.LineBasicMaterial( { color: 0xff69b4, depthTest: false, transparent: true, opacity: 0.6 } );
+		colliderDebugGroup.add( new THREE.LineSegments( edges, mat ) );
+
+	}
+
+	// Build debug visualization: one cyan wireframe cube per track tile
+	const meshDebugGroup = new THREE.Group();
+	meshDebugGroup.visible = false;
+	scene.add( meshDebugGroup );
+	function rebuildMeshOutlines() {
+
+		meshDebugGroup.clear();
+		const S = GRID_SCALE;
+
+		for ( const cell of renderCells ) {
+
+			const [ gx, gz, key, , flags ] = cell;
+			if ( ! key ) continue;
+
+			const x = ( gx + 0.5 ) * CELL_RAW * S;
+			const z = ( gz + 0.5 ) * CELL_RAW * S;
+			const elev = flags?.elevation || 0;
+			const elevY = elev === 1 ? 2.416 : elev === 2 ? 4.832 : 0;
+			const cubeH = 1.5;
+			const y = elevY - 0.5 + cubeH / 2;
+
+			const mesh = new THREE.Mesh( new THREE.BoxGeometry( CELL_RAW * S, cubeH, CELL_RAW * S ) );
+			mesh.position.set( x, y, z );
+			const helper = new THREE.BoxHelper( mesh, 0x00ffff );
+			helper.material.depthTest = false;
+			helper.material.transparent = true;
+			helper.material.opacity = 0.6;
+			meshDebugGroup.add( helper );
+
+		}
+
+	}
+
+	// ── Debug: text sprite helper ────────────────────────────────────────────
+	function makeTextSprite( text, color = '#ffffff', fontSize = 48, scale = 2.5 ) {
+
+		const canvas = document.createElement( 'canvas' );
+		const ctx = canvas.getContext( '2d' );
+		ctx.font = `bold ${fontSize}px monospace`;
+		const metrics = ctx.measureText( text );
+		const w = Math.ceil( metrics.width ) + 12;
+		const h = fontSize + 12;
+		canvas.width = w;
+		canvas.height = h;
+		ctx.font = `bold ${fontSize}px monospace`;
+		ctx.fillStyle = 'rgba(0,0,0,0.6)';
+		ctx.fillRect( 0, 0, w, h );
+		ctx.fillStyle = color;
+		ctx.textBaseline = 'middle';
+		ctx.fillText( text, 6, h / 2 );
+		const tex = new THREE.CanvasTexture( canvas );
+		tex.minFilter = THREE.LinearFilter;
+		const mat = new THREE.SpriteMaterial( { map: tex, depthTest: false, transparent: true } );
+		const sprite = new THREE.Sprite( mat );
+		sprite.scale.set( scale * ( w / h ), scale, 1 );
+		return sprite;
+
+	}
+
+	// ── Debug: floating tile name labels ─────────────────────────────────────
+	const tileLabelsGroup = new THREE.Group();
+	tileLabelsGroup.visible = false;
+	scene.add( tileLabelsGroup );
+	function buildTileLabels() {
+
+		const S = GRID_SCALE;
+		for ( const cell of renderCells ) {
+
+			const [ gx, gz, key, orient, flags ] = cell;
+			if ( ! key ) continue;
+			const x = ( gx + 0.5 ) * CELL_RAW * S;
+			const z = ( gz + 0.5 ) * CELL_RAW * S;
+			const elev = flags?.elevation || 0;
+			const elevY = elev === 1 ? 2.416 : elev === 2 ? 4.832 : 0;
+			const y = elevY + 2.5;
+			const label = `${key} [${orient}]`;
+			const sprite = makeTextSprite( label, '#00ffcc', 24, 0.25 );
+			sprite.position.set( x, y, z );
+			tileLabelsGroup.add( sprite );
+
+		}
+
+	}
+
+	// ── Debug: barrier & curb Y height labels ────────────────────────────────
+	// Uses known model heights from GLTF accessor data:
+	// Road surface: Y 0.085-0.185 (model space), wall/curb: Y 0.085-0.935
+	// Track group offset: -0.5, tile placement Y: 0.5 → net world Y = model Y
+	const heightLabelsGroup = new THREE.Group();
+	heightLabelsGroup.visible = false;
+	scene.add( heightLabelsGroup );
+	function buildHeightLabels() {
+
+		const S = GRID_SCALE;
+		// Known model-space heights (from GLTF accessor measurements)
+		const ROAD_Y = 0.185;   // top of road surface
+		const WALL_Y = 0.935;   // top of barrier/curb
+		const BASE_Y = 0.085;   // bottom of road
+		// World offset: tile placed at Y=0.5, trackGroup at Y=-0.5 → net 0
+
+		const samples = [
+			{ label: 'L wall top', lx: - 4.8, modelY: WALL_Y },
+			{ label: 'R wall top', lx: 4.8, modelY: WALL_Y },
+			{ label: 'L curb', lx: - 4.0, modelY: ROAD_Y },
+			{ label: 'R curb', lx: 4.0, modelY: ROAD_Y },
+			{ label: 'road', lx: 0, modelY: ROAD_Y },
+			{ label: 'base', lx: 0, modelY: BASE_Y },
+		];
+
+		for ( const cell of renderCells ) {
+
+			const [ gx, gz, key, orient, flags ] = cell;
+			if ( ! key ) continue;
+
+			const cx = ( gx + 0.5 ) * CELL_RAW * S;
+			const cz = ( gz + 0.5 ) * CELL_RAW * S;
+			const elev = flags?.elevation || 0;
+			const elevY = elev === 1 ? 2.416 : elev === 2 ? 4.832 : 0;
+			const deg = ORIENT_DEG[ orient ] ?? 0;
+			const rad = deg * Math.PI / 180;
+			const cr = Math.cos( rad ), sr = Math.sin( rad );
+
+			for ( const sample of samples ) {
+
+				const wx = cx + ( sample.lx * cr ) * S;
+				const wz = cz + ( - sample.lx * sr ) * S;
+				const worldY = sample.modelY + elevY;
+				const yText = `${sample.label}: ${worldY.toFixed( 2 )}m`;
+				const sprite = makeTextSprite( yText, '#ffaa00', 24, 0.25 );
+				sprite.position.set( wx, worldY + 0.3, wz );
+				heightLabelsGroup.add( sprite );
+
+			}
+
+		}
+
+	}
 
 	// Safety-net ground far below the track — catches the vehicle if it falls off-track
 	const roadHalf = groundSize / 2;
@@ -347,10 +504,14 @@ async function init() {
 		await network.connect();
 		multiplayer = true;
 
-		// Wait for welcome message before continuing
+		// Wait for welcome message before continuing (5s timeout to avoid hanging)
 		await new Promise( ( resolve, reject ) => {
 
+			const timeout = setTimeout( () => reject( new Error( 'Server welcome timed out' ) ), 5000 );
+
 			network.onWelcome = ( data ) => {
+
+				clearTimeout( timeout );
 
 				try {
 
@@ -390,7 +551,6 @@ async function init() {
 
 	// Direct reference for debug panel compatibility
 	const vehicle = playerManager.localVehicle;
-	const vehicleGroup = vehicle.container;
 
 	const dirLightOffset = { x: 11.4, y: 15, z: - 5.3 };
 	let lastShadowX = 0, lastShadowZ = 0;
@@ -452,6 +612,7 @@ async function init() {
 	const intelCells = customCells ? deriveRampCells( activeCells ) : activeCells;
 	const trackIntel = new TrackIntel( intelCells );
 	raceMode.trackIntel = trackIntel;
+	vehicle.setTrackIntel( trackIntel );
 
 	const aiManager = new AIManager( scene, world, models, trackIntel, spawnPosition, spawnAngle, spawn.finishAngle );
 	aiManager.totalLaps = 3;
@@ -494,7 +655,7 @@ async function init() {
 
 	}
 
-	let debugSphere = null;
+	let debugCollider = null;
 	let wheelDebug = null;
 	let hudVisible = false;
 
@@ -519,17 +680,13 @@ async function init() {
 
 		}
 
-		// Physics body sphere — sized to encapsulate the whole vehicle frame
-		const vehicleBBox = new THREE.Box3().setFromObject( vehicleGroup );
-		const vehicleSize = vehicleBBox.getSize( new THREE.Vector3() );
-		const debugRadius = vehicleSize.length() * 0.5;
-
-		debugSphere = new THREE.Mesh(
-			new THREE.SphereGeometry( debugRadius, 16, 10 ),
+		// Vehicle physics collider: box with halfExtents [0.4, 0.3, 0.7] (from Physics.js)
+		debugCollider = new THREE.Mesh(
+			new THREE.BoxGeometry( 0.8, 0.6, 1.4 ),
 			new THREE.MeshBasicMaterial( { color: 0x00ff00, wireframe: true } )
 		);
-		debugSphere.visible = false;
-		scene.add( debugSphere );
+		debugCollider.visible = false;
+		scene.add( debugCollider );
 
 		// Per-wheel: yellow box + local axes (Red=X roll, Green=Y steer, Blue=Z) + labels
 		wheelDebug = vehicle.wheels.map( ( w ) => {
@@ -593,7 +750,7 @@ async function init() {
 
 		debugMenu.addHeader( generalTab, 'Environment' );
 
-		debugMenu.addCheckbox( generalTab, 'Night mode', true, ( v ) => {
+		debugMenu.addCheckbox( generalTab, 'Night mode', false, ( v ) => {
 
 			applyLighting( v ? LIGHTING_NIGHT : LIGHTING_DAY );
 			for ( const hl of vehicle.headlights ) hl.visible = v;
@@ -633,15 +790,6 @@ async function init() {
 
 				playerModelIndex = truckNames.indexOf( select.value );
 				aiManager.playerModelIndex = playerModelIndex;
-
-				while ( vehicle.container.children.length > 0 ) {
-
-					const child = vehicle.container.children[ 0 ];
-					if ( child.isLight || child.isObject3D && child === vehicle.underglowLight ) break;
-					if ( child.isLight ) break;
-					vehicle.container.remove( child );
-
-				}
 
 				const oldLights = [ vehicle.underglowLight, ...vehicle.headlights ];
 				const oldTargets = vehicle.headlights.map( ( hl ) => hl.target );
@@ -684,7 +832,6 @@ async function init() {
 
 				} );
 
-				vehicle.wheelOrigY = vehicle.wheels.map( ( w ) => w.position.y );
 				vehicle.container.add( oldLights[ 0 ] );
 				for ( let i = 0; i < vehicle.headlights.length; i ++ ) {
 
@@ -703,9 +850,84 @@ async function init() {
 
 		debugMenu.addHeader( generalTab, 'Debug visuals' );
 
-		debugMenu.addCheckbox( generalTab, 'Show physics sphere', false, ( v ) => {
+		debugMenu.addCheckbox( generalTab, 'Show Vehicle Physics Collider', false, ( v ) => {
 
-			debugSphere.visible = v;
+			debugCollider.visible = v;
+
+		} );
+
+		debugMenu.addCheckbox( generalTab, 'Show wall colliders', false, ( v ) => {
+
+			wallDebugGroup.visible = v;
+
+		} );
+
+		debugMenu.addCheckbox( generalTab, 'Enable wall colliders', false, ( v ) => {
+
+			if ( v && ! wallCollidersEnabled ) {
+
+				buildWallColliders( world, null, renderCells );
+				wallCollidersEnabled = true;
+
+			}
+
+		} );
+
+		debugMenu.addCheckbox( generalTab, 'Show mesh outlines (cyan)', false, ( v ) => {
+
+			if ( v && meshDebugGroup.children.length === 0 ) rebuildMeshOutlines();
+			meshDebugGroup.visible = v;
+
+		} );
+
+		debugMenu.addCheckbox( generalTab, 'Show collider geometry (pink)', false, ( v ) => {
+
+			colliderDebugGroup.visible = v;
+
+		} );
+
+		debugMenu.addCheckbox( generalTab, 'Show tile names', false, ( v ) => {
+
+			if ( v && tileLabelsGroup.children.length === 0 ) buildTileLabels();
+			tileLabelsGroup.visible = v;
+
+		} );
+
+		debugMenu.addCheckbox( generalTab, 'Show Y heights', false, ( v ) => {
+
+			if ( v && heightLabelsGroup.children.length === 0 ) buildHeightLabels();
+			heightLabelsGroup.visible = v;
+
+		} );
+
+		debugMenu.addCheckbox( generalTab, 'Jitter diagnostic overlay', false, ( v ) => {
+
+			jitterDisplay.style.display = v ? 'block' : 'none';
+
+		} );
+
+		// Decoration layer toggles
+		const tg = scene.getObjectByName( 'trackGroup' );
+		const decoLayers = tg && tg.userData.decoLayers;
+		if ( decoLayers ) {
+
+			debugMenu.addHeader( generalTab, 'Decoration layers' );
+
+			debugMenu.addCheckbox( generalTab, 'buildings-1', true, ( v ) => { decoLayers[ 'buildings-1' ].visible = v; } );
+			debugMenu.addCheckbox( generalTab, 'buildings-2', true, ( v ) => { decoLayers[ 'buildings-2' ].visible = v; } );
+			debugMenu.addCheckbox( generalTab, 'empty-night', true, ( v ) => { decoLayers[ 'empty-night' ].visible = v; } );
+
+		}
+
+		debugMenu.addCheckbox( generalTab, 'Show ground plane indicator', false, ( v ) => {
+
+			groundIndicator.visible = v;
+
+		} );
+
+		debugMenu.addSlider( generalTab, 'FPS cap', 0, 240, 1, 0, ( v ) => {
+
+			fpsCapMs = v > 0 ? 1000 / v : 0;
 
 		} );
 
@@ -742,6 +964,13 @@ async function init() {
 				for ( const l of wd.labels ) l.visible = v;
 
 			}
+
+		} );
+
+		debugMenu.addCheckbox( generalTab, 'Show draft debug', false, ( v ) => {
+
+			draftIndicatorEnabled = v;
+			if ( ! v ) draftIndicator.style.display = 'none';
 
 		} );
 
@@ -1018,11 +1247,11 @@ async function init() {
 	dirLight.target = dirLightTarget;
 
 	buildLightingCache();
-	applyLighting( LIGHTING_NIGHT );
-	for ( const hl of vehicle.headlights ) hl.visible = true;
+	applyLighting( LIGHTING_DAY );
+	for ( const hl of vehicle.headlights ) hl.visible = false;
 
 	const cam = new Camera();
-	cam.targetPosition.copy( vehicle.spherePos );
+	cam.targetPosition.copy( vehicle.vehPos );
 
 	// Initialize PostProcessing now that cam is available
 	postFX = new PostProcessing( renderer, scene, cam.camera, bloomPass );
@@ -1030,7 +1259,8 @@ async function init() {
 
 	const settings = new Settings();
 	const controls = new Controls( settings, cam );
-	const settingsMenu = new SettingsMenu( settings, controls );
+	const settingsMenu = new SettingsMenu( settings, controls, audio );
+	const speedometer = new Speedometer( settings );
 
 	// Apply initial quality preset from settings
 	{
@@ -1063,6 +1293,13 @@ async function init() {
 
 	} );
 	document.body.appendChild( camToggleBtn );
+
+	// ─── Draft debug indicator (to the right of camera icon) ─────────────
+	const draftIndicator = document.createElement( 'div' );
+	draftIndicator.textContent = 'ACTIVE DRAFT';
+	draftIndicator.style.cssText = 'position:fixed;top:24px;left:68px;color:#00ffff;font:bold 14px/1 monospace;text-shadow:0 0 6px rgba(0,255,255,0.6);z-index:100;user-select:none;pointer-events:none;display:none;';
+	document.body.appendChild( draftIndicator );
+	let draftIndicatorEnabled = false;
 
 	// ─── React to settings changes ───────────────────────────────────────
 	window.addEventListener( 'settings-changed', ( e ) => {
@@ -1099,9 +1336,24 @@ async function init() {
 
 		}
 
+		if ( key === 'steeringAssist' ) {
+
+			vehicle.setSteeringAssist( value );
+
+		}
+
 	} );
 
 	audio.init( cam.camera );
+
+	// Apply saved volume settings
+	const savedSfxVol = settings.get( 'sfxVolume' );
+	if ( savedSfxVol !== undefined ) audio.setSfxVolume( savedSfxVol / 100 );
+	const savedMusicVol = settings.get( 'musicVolume' );
+	if ( savedMusicVol !== undefined ) audio.setMusicVolume( savedMusicVol / 100 );
+
+	// Apply saved steering assist
+	vehicle.setSteeringAssist( !! settings.get( 'steeringAssist' ) );
 
 	let lastImpactTime = 0;
 	let wasBoostActive = false;
@@ -1148,8 +1400,8 @@ async function init() {
 				const cd = vehicle.debug.bumpCooldown;
 				if ( now - vehicleA.lastBumpTime < cd && now - vehicleB.lastBumpTime < cd ) return;
 
-				const svA = vehicleA.sphereVel;
-				const svB = vehicleB.sphereVel;
+				const svA = vehicleA.vehVel;
+				const svB = vehicleB.vehVel;
 				const speedA = Math.sqrt( svA.x * svA.x + svA.z * svA.z );
 				const speedB = Math.sqrt( svB.x * svB.x + svB.z * svB.z );
 
@@ -1264,7 +1516,7 @@ async function init() {
 
 			}
 
-			const sv = vehicle.sphereVel;
+			const sv = vehicle.vehVel;
 			const speed = Math.sqrt( sv.x * sv.x + sv.z * sv.z );
 			if ( speed < 1.5 ) return;
 
@@ -1273,11 +1525,19 @@ async function init() {
 			if ( now - lastImpactTime < 0.3 ) return;
 			lastImpactTime = now;
 
+			// ── Wall normal ──────────────────────────────────────────────────
+			const normalSign = ( bodyA === vehicle.rigidBody ) ? - 1 : 1;
+			const nx = wn[ 0 ] * normalSign;
+			const nz = wn[ 2 ] * normalSign;
+
 			// Let crashcat's collision solver handle the wall bounce naturally.
-			// We just dampen linearSpeed and suppress vertical launch.
-			vehicle.linearSpeed *= 0.85;
+			// Scale damping by impact angle: glancing ~15% loss, head-on ~55% loss.
+			const dot = Math.abs( nx * sv.x + nz * sv.z ) / ( speed || 1 );
+			const dampFactor = THREE.MathUtils.lerp( 0.85, 0.45, dot );
+			vehicle.linearSpeed *= dampFactor;
 			vehicle._wallHitTime = now;
 			vehicle._verticalVelocity = 0;
+			audio.playImpact( speed );
 
 			// ── Feedback ─────────────────────────────────────────────────────
 			const normalSign = ( bodyA === vehicle.rigidBody ) ? - 1 : 1;
@@ -1454,7 +1714,7 @@ async function init() {
 
 		// Drafting detection and VFX
 		draftingSystem.update( dt, allActiveVehicles );
-		draftLines.update( dt, draftingSystem.getActiveDrafts() );
+		draftLines.update( dt, draftingSystem.getActiveDrafts(), draftingSystem.getProximityLeads() );
 
 		raceMode.update( dt, vehicle, allActiveVehicles, aiManager.getAIRaceData() );
 
@@ -1471,6 +1731,7 @@ async function init() {
 		}
 
 		hud.update( dt, raceMode.getDisplayState(), raceLobby.getDisplayState() );
+		speedometer.update( dt, vehicle.linearSpeed, vehicle.momentum, vehicle.boostActive, vehicle.effectiveTopSpeed, vehicle.debug.topSpeed );
 		minimap.update( allActiveVehicles, raceMode.getDisplayState().state );
 
 		// Send local state to server (throttled internally at 20Hz)
@@ -1482,9 +1743,15 @@ async function init() {
 		}
 
 		// ─── DEBUG updates (desktop only) ─────────────────────────────────────
-		if ( debugSphere && vehicle ) {
+		if ( debugCollider && vehicle ) {
 
-			debugSphere.position.copy( vehicle.spherePos );
+			const colliderY = ( vehicle._vehicleY || 0 ) + 0.8;
+			debugCollider.position.set( vehicle.vehPos.x, colliderY, vehicle.vehPos.z );
+			const yaw = Math.atan2(
+				2 * ( vehicle.container.quaternion.w * vehicle.container.quaternion.y ),
+				1 - 2 * ( vehicle.container.quaternion.y * vehicle.container.quaternion.y )
+			);
+			debugCollider.rotation.set( 0, yaw, 0 );
 			for ( const wd of wheelDebug ) wd.boxH.update();
 
 		}
@@ -1495,7 +1762,7 @@ async function init() {
 
 		if ( followVehicle ) {
 
-			const vehPos = followVehicle.spherePos;
+			const vehPos = followVehicle.vehPos;
 			const dsx = vehPos.x - lastShadowX;
 			const dsz = vehPos.z - lastShadowZ;
 			if ( dsx * dsx + dsz * dsz > 0.25 ) {
@@ -1511,7 +1778,7 @@ async function init() {
 
 			}
 
-			cam.update( dt, followVehicle.spherePos, followVehicle.container.quaternion, {
+			cam.update( dt, followVehicle.vehPos, followVehicle.container.quaternion, {
 				inputX: followVehicle.inputX,
 				linearSpeed: followVehicle.linearSpeed,
 				boostActive: followVehicle.boostActive,
@@ -1529,6 +1796,23 @@ async function init() {
 
 			const playerDraft = draftingSystem.getActiveDrafts().get( vehicle );
 			audio.updateDraft( playerDraft ? playerDraft.intensity : 0 );
+
+			// Draft debug indicator — only shows when actively boosting speed
+			if ( draftIndicatorEnabled ) {
+
+				if ( vehicle.draftSpeedMultiplier > 1.0 ) {
+
+					const pct = ( ( vehicle.draftSpeedMultiplier - 1.0 ) * 100 ).toFixed( 0 );
+					draftIndicator.textContent = 'ACTIVE DRAFT +' + pct + '%';
+					draftIndicator.style.display = 'block';
+
+				} else {
+
+					draftIndicator.style.display = 'none';
+
+				}
+
+			}
 
 		}
 

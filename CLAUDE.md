@@ -21,16 +21,15 @@ Port of the Kenney "Starter Kit Racing" Godot 4.6 project (in `_godot/`) to plai
 
 ## Key conventions
 
-- GridMap cell size: 9.99 units, scale: 1.0 (`CELL_RAW` and `GRID_SCALE` in `Track.js`)
-- Track group has `position.y = -0.5` offset
-- Godot vehicle models use `root_scale = 0.5`
-- Wall colliders: friction 0.0, restitution 0.1
-- Corner colliders: arc center at `(-CELL_HALF, +CELL_HALF)` in local space, outer wall radius `2*CELL_HALF - 0.25`
-- Orientation mapping from Godot GridMap indices: `{ 0: 0°, 10: 180°, 16: 90°, 22: 270° }`
-
-## Porting reference
-
-Godot collision shapes are defined in `_godot/models/Library/mesh-library.tscn` as `ConcavePolygonShape3D` vertex data. The JS port approximates these with crashcat cuboid colliders.
+- GridMap cell size: 10.0 units, scale: 1.0 (`CELL_RAW` and `GRID_SCALE` in `Track.js`)
+- Tile naming: `trk-straight`, `trk-corner-1x1`, `trk-finish`, `trk-curve-NxN-l`, `trk-elev-*`, `trk-ramp-*`
+- Track group at Y=0 (no offset), tiles placed at Y=0
+- Vehicle models use `root_scale = 0.5`
+- Wall colliders: friction 0.0, restitution 0.3, `WALL_X = 4.5` (inner face at 4.0 = road edge)
+- Corner colliders: arc center at `(-CELL_HALF, +CELL_HALF)` in local space, outer wall radius `9.0`, inner radius `1.5`
+- Multi-tile curve walls: `outerR = curveSize * CELL_RAW - 1.0`, `innerR = outerR - 7.5`
+- Orientation mapping: `{ 0: 0°, 10: 180°, 16: 90°, 22: 270° }` (ORIENT_ENCODE/ORIENT_DECODE in Track.js)
+- Vehicle collider: `vehPos`, `vehVel` (position/velocity), box halfExtents `[0.4, 0.3, 0.7]` at `vehPos.y + 0.8`
 
 ## Mobile testing
 

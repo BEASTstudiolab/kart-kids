@@ -9,9 +9,7 @@ export class FinishLine {
 		// World-space center of the finish line
 		this.position = new THREE.Vector3( position[ 0 ], 0, position[ 2 ] );
 
-		// The plane normal points in the "forward" racing direction through the finish
-		// Angle 0 in Godot = forward along -Z, but the finish cell's forward is the
-		// direction the player drives through it.
+		// The plane normal points in the "forward" racing direction through the finish cell.
 		this.normal = new THREE.Vector3(
 			- Math.sin( angle ),
 			0,

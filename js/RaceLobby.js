@@ -181,7 +181,7 @@ export class RaceLobby {
 
 	_isInZone( vehicle ) {
 
-		const pos = vehicle.spherePos;
+		const pos = vehicle.vehPos;
 		const dx = Math.abs( pos.x - this._zoneCenterX );
 		const dz = Math.abs( pos.z - this._zoneCenterZ );
 		return dx < this._zoneHalfExtent && dz < this._zoneHalfExtent;

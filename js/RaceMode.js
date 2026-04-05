@@ -244,7 +244,7 @@ export class RaceMode extends GameMode {
 
 		}
 
-		const pos = vehicle.spherePos;
+		const pos = vehicle.vehPos;
 		const myProgress = this._lap + this.trackIntel.getProgress(
 			pos.x, pos.z, this._lastSegmentHint
 		);
@@ -261,7 +261,7 @@ export class RaceMode extends GameMode {
 			for ( const ai of aiRaceData ) {
 
 				this._aiVehicleSet.add( ai.vehicle );
-				const vPos = ai.vehicle.spherePos;
+				const vPos = ai.vehicle.vehPos;
 				const vProgress = ai.lap + this.trackIntel.getProgress( vPos.x, vPos.z );
 				if ( vProgress > myProgress ) ahead ++;
 
@@ -276,7 +276,7 @@ export class RaceMode extends GameMode {
 			if ( v === vehicle ) continue;
 			if ( this._aiVehicleSet.has( v ) ) continue;
 
-			const vPos = v.spherePos;
+			const vPos = v.vehPos;
 			const vProgress = this.trackIntel.getProgress( vPos.x, vPos.z );
 
 			if ( vProgress > myProgress ) ahead ++;
@@ -291,7 +291,7 @@ export class RaceMode extends GameMode {
 
 		if ( ! this._finishLine || ! vehicle ) return;
 
-		const currPos = vehicle.spherePos;
+		const currPos = vehicle.vehPos;
 
 		if ( this._prevPos === null ) {
 

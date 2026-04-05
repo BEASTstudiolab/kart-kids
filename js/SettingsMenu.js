@@ -1,9 +1,10 @@
 export class SettingsMenu {
 
-	constructor( settings, controls ) {
+	constructor( settings, controls, audio ) {
 
 		this.settings = settings;
 		this.controls = controls;
+		this.audio = audio;
 		this._open = false;
 
 		this._injectCSS();
@@ -161,6 +162,26 @@ export class SettingsMenu {
 
 		panel.appendChild( gfx );
 
+		// ── Audio section ──
+
+		const aud = this._section( 'Audio' );
+
+		aud.appendChild( this._sliderRow( 'SFX Volume', 0, 100, 5, 100, ( v ) => {
+
+			if ( this.audio ) this.audio.setSfxVolume( v / 100 );
+			this.settings.set( 'sfxVolume', v );
+
+		} ) );
+
+		aud.appendChild( this._sliderRow( 'Music Volume', 0, 100, 5, 100, ( v ) => {
+
+			if ( this.audio ) this.audio.setMusicVolume( v / 100 );
+			this.settings.set( 'musicVolume', v );
+
+		} ) );
+
+		panel.appendChild( aud );
+
 		// ── Controls section ──
 
 		const ctrl = this._section( 'Controls' );
@@ -172,7 +193,20 @@ export class SettingsMenu {
 
 		ctrl.appendChild( this._toggleRow( 'Tilt Steering', 'accelerometer' ) );
 
+		ctrl.appendChild( this._toggleRow( 'Steering Assist', 'steeringAssist' ) );
+
 		panel.appendChild( ctrl );
+
+		// ── HUD section ──
+
+		const hudSec = this._section( 'HUD' );
+
+		hudSec.appendChild( this._selectRow( 'Speed Unit', 'speedUnit', [
+			{ label: 'km/h', value: 'kmh' },
+			{ label: 'mph', value: 'mph' }
+		] ) );
+
+		panel.appendChild( hudSec );
 
 		// ── AI Race section ──
 

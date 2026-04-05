@@ -28,8 +28,8 @@ export class AFKDetector {
 
 		if ( ! vehicle ) return;
 
-		const x = vehicle.spherePos.x;
-		const z = vehicle.spherePos.z;
+		const x = vehicle.vehPos.x;
+		const z = vehicle.vehPos.z;
 
 		if ( ! this._initialized ) {
 

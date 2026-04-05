@@ -561,22 +561,22 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 	const ORIENT_FLIP = { 0: 10, 10: 0, 16: 22, 22: 16 };
 
 	const AUTOTILE = [
-		[ 'track-straight-night', 0 ],    //  0: isolated
-		[ 'track-straight-night', 16 ],   //  1: W
-		[ 'track-straight-night', 16 ],   //  2: E
-		[ 'track-straight-night', 16 ],   //  3: E+W
-		[ 'track-straight-night', 0 ],    //  4: S
-		[ 'track-corner-night',   0 ],    //  5: S+W
-		[ 'track-corner-night',   16 ],   //  6: S+E
-		[ 'track-straight-night', 16 ],   //  7: S+E+W
-		[ 'track-straight-night', 0 ],    //  8: N
-		[ 'track-corner-night',   22 ],   //  9: N+W
-		[ 'track-corner-night',   10 ],   // 10: N+E
-		[ 'track-straight-night', 16 ],   // 11: N+E+W
-		[ 'track-straight-night', 0 ],    // 12: N+S
-		[ 'track-straight-night', 0 ],    // 13: N+S+W
-		[ 'track-straight-night', 0 ],    // 14: N+S+E
-		[ 'track-straight-night', 0 ],    // 15: N+S+E+W
+		[ 'trk-straight', 0 ],    //  0: isolated
+		[ 'trk-straight', 16 ],   //  1: W
+		[ 'trk-straight', 16 ],   //  2: E
+		[ 'trk-straight', 16 ],   //  3: E+W
+		[ 'trk-straight', 0 ],    //  4: S
+		[ 'trk-corner-1x1',   0 ],    //  5: S+W
+		[ 'trk-corner-1x1',   16 ],   //  6: S+E
+		[ 'trk-straight', 16 ],   //  7: S+E+W
+		[ 'trk-straight', 0 ],    //  8: N
+		[ 'trk-corner-1x1',   22 ],   //  9: N+W
+		[ 'trk-corner-1x1',   10 ],   // 10: N+E
+		[ 'trk-straight', 16 ],   // 11: N+E+W
+		[ 'trk-straight', 0 ],    // 12: N+S
+		[ 'trk-straight', 0 ],    // 13: N+S+W
+		[ 'trk-straight', 0 ],    // 14: N+S+E
+		[ 'trk-straight', 0 ],    // 15: N+S+E+W
 	];
 
 	// ─── State ────────────────────────────────────────────────
@@ -977,7 +977,7 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 
 				mmCtx.fillStyle = '#ffcc44';
 
-			} else if ( cell.type === 'track-corner-night' ) {
+			} else if ( cell.type === 'trk-corner-1x1' ) {
 
 				mmCtx.fillStyle = '#66aaff';
 
@@ -1022,13 +1022,13 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 
 	const loader = new GLTFLoader();
 	const modelNames = [
-		'track-straight-night', 'track-corner-night', 'track-bump', 'track-finish',
-		'track-curve-2x2-l',
-		'track-curve-3x3-l',
-		'track-curve-4x4-l',
-		'track-elev-2p5', 'track-elev-5',
-		'track-ramp-up-2p5', 'track-ramp-up-5',
-		'track-ramp-down-2p5', 'track-ramp-down-5',
+		'trk-straight', 'trk-corner-1x1', 'trk-finish',
+		'trk-curve-2x2-l',
+		'trk-curve-3x3-l',
+		'trk-curve-4x4-l',
+		'trk-elev-2p5', 'trk-elev-5',
+		'trk-ramp-up-2p5', 'trk-ramp-up-5',
+		'trk-ramp-down-2p5', 'trk-ramp-down-5',
 		'vehicle-truck-red'
 	];
 	const trackTileSet = getTrackTileSet( globalThis.location?.search ?? '' );
@@ -1153,7 +1153,7 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 		const t = cell.type;
 		const o = cell.orient;
 
-		if ( t === 'track-corner-night' ) {
+		if ( t === 'trk-corner-1x1' ) {
 
 			if ( o === 0 ) return 5;    // S+W
 			if ( o === 16 ) return 6;   // S+E
@@ -1335,8 +1335,8 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 
 				const exits = getCellExits( neighbor );
 				// Match the neighbor's running direction
-				if ( exits & 12 ) return [ 'track-straight-night', 0 ];  // neighbor runs N-S
-				if ( exits & 3 ) return [ 'track-straight-night', 16 ];  // neighbor runs E-W
+				if ( exits & 12 ) return [ 'trk-straight', 0 ];  // neighbor runs N-S
+				if ( exits & 3 ) return [ 'trk-straight', 16 ];  // neighbor runs E-W
 
 			}
 
@@ -1423,8 +1423,8 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 
 		}
 
-		// Finish cells use track-finish but only when resolved as straight
-		const type = ( cell.isFinish && baseType === 'track-straight-night' ) ? 'track-finish' : baseType;
+		// Finish cells use trk-finish but only when resolved as straight
+		const type = ( cell.isFinish && baseType === 'trk-straight' ) ? 'trk-finish' : baseType;
 
 		// Skip if nothing changed and mesh already exists
 		if ( cell.type === type && cell.orient === orient && cell.mesh ) return;
@@ -1475,7 +1475,7 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 				const key = cellKey( cgx, cgz );
 				const cell = grid.get( key );
 				if ( ! cell ) continue;
-				if ( cell.type !== 'track-corner-night' ) continue;
+				if ( cell.type !== 'trk-corner-1x1' ) continue;
 				if ( cell.curveOverride || cell.rotationOverride ) continue;
 
 				// Clear any previous curve metadata from this corner
@@ -1508,7 +1508,7 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 						const nk = cellKey( nx, nz );
 						const nc = grid.get( nk );
 						if ( ! nc ) break;
-						if ( nc.type !== 'track-straight-night' ) break;
+						if ( nc.type !== 'trk-straight' ) break;
 						keys.push( nk );
 						nx += ddx;
 						nz += ddz;
@@ -1612,6 +1612,779 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 					}
 
 				}
+
+			}
+
+			if ( ! footprintClear ) continue;
+
+			// Assign curve metadata
+			cell.curveSize = cand.curveSize;
+			cell.curveConsumed = cand.consumed;
+
+			// Mark all consumed cells + corner as claimed
+			claimed.add( cand.key );
+			for ( const ck of cand.consumed ) {
+
+				claimed.add( ck );
+
+			}
+
+			console.log( `[detectCurves] Corner at (${ cand.gx },${ cand.gz }) → ${ cand.curveSize }x${ cand.curveSize } curve, consumed: [${ [ ...cand.consumed ].join( '; ' ) }]` );
+
+		}
+
+	}
+
+	// ─── Curve Rendering ─────────────────────────────────────
+
+	// Orient → left/right turn direction for curve model selection
+	// Orient 0 (S+W exits) → left, Orient 16 (S+E) → right,
+	// Orient 10 (N+E) → left, Orient 22 (N+W) → right
+	// L/R selection now via getCurveLR() from TileMetadata.js
+
+	function renderCurves() {
+
+		for ( const [ key, cell ] of grid ) {
+
+			// --- Clean up cells that no longer have a curve ---
+			if ( cell.curveMesh && ( cell.curveSize == null || cell.curveSize < 2 ) ) {
+
+				trackGroup.remove( cell.curveMesh );
+				cell.curveMesh.traverse( ( c ) => {
+
+					if ( c.isMesh && c.geometry ) c.geometry.dispose();
+
+				} );
+				cell.curveMesh = null;
+
+				// Restore visibility of the corner cell's own mesh
+				if ( cell.mesh ) cell.mesh.visible = true;
+
+				// Restore visibility of previously consumed cells
+				if ( cell._prevConsumed ) {
+
+					for ( const ck of cell._prevConsumed ) {
+
+						const cc = grid.get( ck );
+						if ( cc && cc.mesh ) cc.mesh.visible = true;
+
+					}
+
+					cell._prevConsumed = null;
+
+				}
+
+			}
+
+			// --- Render cells that have a curve ---
+			if ( cell.curveSize >= 2 ) {
+
+				const curveConfig = getCurveConfig( cell.orient, null, cell.curveSize );
+				const lr = curveConfig.lr || getCurveLR( cell.orient );
+
+				const modelName = `trk-curve-${ cell.curveSize }x${ cell.curveSize }-${ lr }`;
+				const src = models[ modelName ];
+				if ( ! src ) {
+
+					console.warn( `[renderCurves] Model not found: ${ modelName }` );
+					continue;
+
+				}
+
+				// Hide consumed cells' meshes
+				if ( cell.curveConsumed ) {
+
+					for ( const ck of cell.curveConsumed ) {
+
+						const cc = grid.get( ck );
+						if ( cc && cc.mesh ) cc.mesh.visible = false;
+
+					}
+
+				}
+
+				// Hide the corner cell's own mesh
+				if ( cell.mesh ) cell.mesh.visible = false;
+
+				// Remove previous curve mesh if re-rendering
+				if ( cell.curveMesh ) {
+
+					trackGroup.remove( cell.curveMesh );
+
+				}
+
+				// Clone and position the curve model using verified tile metadata
+				const [ gx, gz ] = key.split( ',' ).map( Number );
+				const curveMesh = src.clone();
+
+				// curveConfig already computed above for lr selection
+
+				curveMesh.position.set(
+					( gx + 0.5 ) * CELL_RAW + curveConfig.offset.x,
+					0.5,
+					( gz + 0.5 ) * CELL_RAW + curveConfig.offset.z
+				);
+
+				// Rotation from TileMetadata — accounts for model's raw orientation
+				curveMesh.rotation.y = curveConfig.rotation;
+
+
+				curveMesh.traverse( ( c ) => {
+
+					if ( c.isMesh ) {
+
+						c.castShadow = true;
+						c.receiveShadow = true;
+
+					}
+
+				} );
+
+				trackGroup.add( curveMesh );
+				cell.curveMesh = curveMesh;
+
+				// Track consumed set for cleanup
+				cell._prevConsumed = cell.curveConsumed ? new Set( cell.curveConsumed ) : null;
+
+			}
+
+		}
+
+	}
+
+	// ─── Load-time derivation helpers ────────────────────────
+
+	function deriveRampsFromElevation() {
+
+		// After loading, scan all cells for elevation > 0 and re-derive ramp cells
+		for ( const [ key, cell ] of grid ) {
+
+			if ( ! cell.elevation || cell.elevation === 0 ) continue;
+			if ( cell.type === 'trk-corner-1x1' || cell.type === 'trk-finish' ) continue;
+
+			const [ gx, gz ] = key.split( ',' ).map( Number );
+
+			// Swap the elevated cell to the correct visual model
+			const elevModel = getElevationModelName( cell.elevation, 'flat' );
+			cell.type = elevModel;
+			placeMesh( gx, gz, cell );
+
+			// Derive ramp neighbors
+			const rampNeighbors = getRampNeighborKeys( gx, gz, cell.orient );
+
+			for ( const rn of rampNeighbors ) {
+
+				const rKey = cellKey( rn.gx, rn.gz );
+				const rCell = grid.get( rKey );
+				if ( ! rCell ) continue;
+
+				// Only place ramps on ground-level straights that aren't already ramped
+				if ( rCell.autoRamp ) continue;
+				if ( rCell.type !== 'trk-straight' ) continue;
+
+				rCell.autoRamp = true;
+				rCell.rampParent = key;
+				rCell.type = getElevationModelName( cell.elevation, rn.role );
+				// Both ramp GLBs have identical geometry (slope upward). Ramp-down needs
+				// 180° orient flip to face the opposite direction.
+				
+				rCell.orient = cell.orient;
+				placeMesh( rn.gx, rn.gz, rCell );
+
+			}
+
+		}
+
+	}
+
+	function deriveAllCurves() {
+
+		// Single-pass: clear ALL curve metadata first, then run detection once
+		for ( const [ , cell ] of grid ) {
+
+			if ( cell.type === 'trk-corner-1x1' ) {
+
+				cell.curveSize = undefined;
+				cell.curveConsumed = undefined;
+
+			}
+
+		}
+
+		// Collect all corner candidates in one pass (full grid scope)
+		const candidates = [];
+
+		for ( const [ key, cell ] of grid ) {
+
+			if ( cell.type !== 'trk-corner-1x1' ) continue;
+			if ( cell.curveOverride || cell.rotationOverride ) continue;
+
+			const [ cgx, cgz ] = key.split( ',' ).map( Number );
+			const exits = getCellExits( cell );
+
+			const dirBits = [];
+			for ( const bit of [ 8, 4, 2, 1 ] ) {
+
+				if ( exits & bit ) dirBits.push( bit );
+
+			}
+
+			if ( dirBits.length !== 2 ) continue;
+
+			const walks = [];
+			for ( const bit of dirBits ) {
+
+				const [ ddx, ddz ] = DIR_DELTA[ bit ];
+				const keys = [];
+				let nx = cgx + ddx;
+				let nz = cgz + ddz;
+
+				while ( true ) {
+
+					const nk = cellKey( nx, nz );
+					const nc = grid.get( nk );
+					if ( ! nc ) break;
+					if ( nc.type !== 'trk-straight' ) break;
+					keys.push( nk );
+					nx += ddx;
+					nz += ddz;
+
+				}
+
+				walks.push( { count: keys.length, keys } );
+
+			}
+
+			const curveSize = Math.min( walks[ 0 ].count, walks[ 1 ].count, 4 );
+			if ( curveSize < 2 ) continue;
+
+			const consumed = new Set();
+			for ( const walk of walks ) {
+
+				for ( let i = 0; i < curveSize - 1; i ++ ) {
+
+					consumed.add( walk.keys[ i ] );
+
+				}
+
+			}
+
+			candidates.push( { gx: cgx, gz: cgz, key, curveSize, consumed } );
+
+		}
+
+		// Sort greedily — largest first, ties by key string
+		candidates.sort( ( a, b ) => {
+
+			if ( b.curveSize !== a.curveSize ) return b.curveSize - a.curveSize;
+			return a.key < b.key ? - 1 : a.key > b.key ? 1 : 0;
+
+		} );
+
+		// Assign curves, preventing overlap
+		const claimed = new Set();
+
+		for ( const cand of candidates ) {
+
+			if ( claimed.has( cand.key ) ) continue;
+
+			let blocked = false;
+			for ( const ck of cand.consumed ) {
+
+				if ( claimed.has( ck ) ) { blocked = true; break; }
+
+			}
+
+			if ( blocked ) continue;
+
+			const cell = grid.get( cand.key );
+			const orient = cell.orient;
+			let fpDx, fpDz;
+
+			if ( orient === 0 ) { fpDx = - 1; fpDz = 1; }
+			else if ( orient === 16 ) { fpDx = 1; fpDz = 1; }
+			else if ( orient === 10 ) { fpDx = 1; fpDz = - 1; }
+			else if ( orient === 22 ) { fpDx = - 1; fpDz = - 1; }
+			else continue;
+
+			let footprintClear = true;
+			for ( let fx = 0; fx < cand.curveSize && footprintClear; fx ++ ) {
+
+				for ( let fz = 0; fz < cand.curveSize && footprintClear; fz ++ ) {
+
+					if ( fx === 0 && fz === 0 ) continue;
+
+					const fpKey = cellKey( cand.gx + fx * fpDx, cand.gz + fz * fpDz );
+
+					if ( grid.has( fpKey ) && ! cand.consumed.has( fpKey ) ) {
+
+						footprintClear = false;
+
+					}
+
+					if ( claimed.has( fpKey ) ) {
+
+						footprintClear = false;
+
+					}
+
+				}
+
+			}
+
+			if ( ! footprintClear ) continue;
+
+			cell.curveSize = cand.curveSize;
+			cell.curveConsumed = cand.consumed;
+
+			claimed.add( cand.key );
+			for ( const ck of cand.consumed ) {
+
+				claimed.add( ck );
+
+			}
+
+		}
+
+		renderCurves();
+
+	}
+
+	// ─── Elevation ───────────────────────────────────────────
+
+	function getElevationModelName( elevation, role ) {
+
+		// role: 'flat', 'ramp-up', 'ramp-down'
+		const suffix = elevation === 1 ? '2p5' : '5';
+		if ( role === 'flat' ) return 'trk-elev-' + suffix;
+		if ( role === 'ramp-up' ) return 'trk-ramp-up-' + suffix;
+		if ( role === 'ramp-down' ) return 'trk-ramp-down-' + suffix;
+		return 'trk-straight';
+
+	}
+
+	function getRampNeighborKeys( gx, gz, orient ) {
+
+		// After PI/2 base rotation, ramp-up has HIGH at -Z (north) and LOW at +Z (south).
+		// So ramp-up must be placed SOUTH of the elevated cell (its HIGH north edge meets elevated).
+		// Ramp-down has HIGH at +Z (south), placed NORTH (its HIGH south edge meets elevated).
+		if ( orient === 0 || orient === 10 ) {
+
+			return [
+				{ gx, gz: gz - 1, role: 'ramp-down' },
+				{ gx, gz: gz + 1, role: 'ramp-up' },
+			];
+
+		}
+
+		return [
+			{ gx: gx - 1, gz, role: 'ramp-down' },
+			{ gx: gx + 1, gz, role: 'ramp-up' },
+		];
+
+	}
+
+	function clearElevationGroup( parentKey ) {
+
+		const parentCell = grid.get( parentKey );
+		if ( ! parentCell ) return;
+
+		const [ pgx, pgz ] = parentKey.split( ',' ).map( Number );
+		const rampNeighbors = getRampNeighborKeys( pgx, pgz, parentCell.orient );
+
+		// Restore parent to ground straight
+		parentCell.elevation = 0;
+		parentCell.type = 'trk-straight';
+		placeMesh( pgx, pgz, parentCell );
+
+		// Restore ramp cells to normal straights
+		for ( const rn of rampNeighbors ) {
+
+			const rKey = cellKey( rn.gx, rn.gz );
+			const rCell = grid.get( rKey );
+			if ( rCell && rCell.autoRamp && rCell.rampParent === parentKey ) {
+
+				rCell.autoRamp = false;
+				delete rCell.rampParent;
+				rCell.type = 'trk-straight';
+				rCell.orient = parentCell.orient; // Restore original orient (undo ramp-down flip)
+				placeMesh( rn.gx, rn.gz, rCell );
+
+			}
+
+		}
+
+	}
+
+	function cycleElevation( gx, gz ) {
+
+		const key = cellKey( gx, gz );
+		const cell = grid.get( key );
+
+		// Reject: no cell
+		if ( ! cell ) {
+
+			showToast( 'No tile here' );
+			return;
+
+		}
+
+		// Reject: not a straight
+		if ( cell.type !== 'trk-straight' && cell.type !== 'trk-elev-2p5' && cell.type !== 'trk-elev-5' ) {
+
+			showToast( 'Only straights can be elevated' );
+			return;
+
+		}
+
+		// Reject: finish tile
+		if ( cell.isFinish ) {
+
+			showToast( 'Cannot elevate finish tile' );
+			return;
+
+		}
+
+		// Reject: consumed by a curve
+		for ( const [ , cc ] of grid ) {
+
+			if ( cc.curveConsumed && cc.curveConsumed.has( key ) ) {
+
+				showToast( 'Curves cannot be elevated' );
+				return;
+
+			}
+
+		}
+
+		// Reject: is a curve corner itself
+		if ( cell.curveSize >= 2 ) {
+
+			showToast( 'Curves cannot be elevated' );
+			return;
+
+		}
+
+		// Reject: auto-ramp tile (managed by parent)
+		if ( cell.autoRamp ) {
+
+			showToast( 'Ramp is auto-managed' );
+			return;
+
+		}
+
+		// Current and next elevation
+		const currentElev = cell.elevation || 0;
+		const ELEV_CYCLE = { 0: 1, 1: 2, 2: 0 };
+		const nextElev = ELEV_CYCLE[ currentElev ];
+
+		const rampNeighbors = getRampNeighborKeys( gx, gz, cell.orient );
+
+		if ( nextElev > 0 ) {
+
+			// Going UP: validate full chain
+			for ( const rn of rampNeighbors ) {
+
+				const rKey = cellKey( rn.gx, rn.gz );
+				const rCell = grid.get( rKey );
+
+				// Ramp neighbor must exist
+				if ( ! rCell ) {
+
+					showToast( 'No room for ramps' );
+					return;
+
+				}
+
+				// Allow re-using ramp cells already belonging to this group (cycling 1→2)
+				const isOwnRamp = rCell.autoRamp && rCell.rampParent === key;
+
+				if ( ! isOwnRamp ) {
+
+					// Must be a ground-level straight
+					if ( rCell.type !== 'trk-straight' ) {
+
+						showToast( 'No room for ramps' );
+						return;
+
+					}
+
+					if ( rCell.elevation && rCell.elevation !== 0 ) {
+
+						showToast( 'No room for ramps' );
+						return;
+
+					}
+
+					if ( rCell.isFinish ) {
+
+						showToast( 'No room for ramps' );
+						return;
+
+					}
+
+					// Must not be consumed by a curve
+					for ( const [ , cc ] of grid ) {
+
+						if ( cc.curveConsumed && cc.curveConsumed.has( rKey ) ) {
+
+							showToast( 'No room for ramps' );
+							return;
+
+						}
+
+					}
+
+					// Must not be an autoRamp for another group
+					if ( rCell.autoRamp ) {
+
+						showToast( 'No room for ramps' );
+						return;
+
+					}
+
+				}
+
+				// Ground tile beyond each ramp must exist and be at ground level
+				const beyondGx = rn.gx + ( rn.gx - gx );
+				const beyondGz = rn.gz + ( rn.gz - gz );
+				const beyondKey = cellKey( beyondGx, beyondGz );
+				const beyondCell = grid.get( beyondKey );
+
+				if ( ! beyondCell ) {
+
+					showToast( 'No room for ramps' );
+					return;
+
+				}
+
+				if ( beyondCell.elevation && beyondCell.elevation !== 0 ) {
+
+					showToast( 'No room for ramps' );
+					return;
+
+				}
+
+			}
+
+			// Validation passed — apply atomically
+			pushUndo();
+
+			// Set target cell elevation and swap mesh
+			cell.elevation = nextElev;
+			cell.type = getElevationModelName( nextElev, 'flat' );
+			placeMesh( gx, gz, cell );
+
+			// Set ramp cells
+			for ( const rn of rampNeighbors ) {
+
+				const rKey = cellKey( rn.gx, rn.gz );
+				const rCell = grid.get( rKey );
+
+				rCell.autoRamp = true;
+				rCell.rampParent = key;
+				rCell.type = getElevationModelName( nextElev, rn.role );
+				rCell.orient = cell.orient;
+
+				// Ramp-up role is the exit side — flip orient 180° so it slopes down from elevated
+				if ( rn.role === 'ramp-up' ) {
+
+					rCell.orient = ORIENT_FLIP[ cell.orient ] ?? cell.orient;
+
+				}
+
+				placeMesh( rn.gx, rn.gz, rCell );
+
+			}
+
+			showToast( 'Elevation: ' + ( nextElev === 1 ? '2.5m' : '5m' ) );
+
+		} else {
+
+			// Going DOWN to ground (cycle wraps: 2→0)
+			pushUndo();
+			clearElevationGroup( key );
+			showToast( 'Elevation: ground' );
+
+		}
+
+		save();
+
+	}
+
+	}
+
+	// ─── Smart Corner Detection ──────────────────────────────
+
+	// Direction deltas: N=8, S=4, E=2, W=1
+	const DIR_DELTA = {
+		8: [ 0, - 1 ],  // N
+		4: [ 0, 1 ],    // S
+		2: [ 1, 0 ],    // E
+		1: [ - 1, 0 ],  // W
+	};
+
+	function detectCurves( changedGx, changedGz ) {
+
+		const SCAN_RADIUS = 5;
+
+		// --- Phase 1: Collect candidate corners near the changed cell ---
+		const candidates = [];
+
+		for ( let dx = - SCAN_RADIUS; dx <= SCAN_RADIUS; dx ++ ) {
+
+			for ( let dz = - SCAN_RADIUS; dz <= SCAN_RADIUS; dz ++ ) {
+
+				const cgx = changedGx + dx;
+				const cgz = changedGz + dz;
+				const key = cellKey( cgx, cgz );
+				const cell = grid.get( key );
+				if ( ! cell ) continue;
+				if ( cell.type !== 'track-corner-night' ) continue;
+				if ( cell.curveOverride || cell.rotationOverride ) continue;
+
+				// Clear any previous curve metadata from this corner
+				cell.curveSize = undefined;
+				cell.curveConsumed = undefined;
+
+		pushUndo();
+		grid.set( key, { type: 'trk-straight', orient: 0, isFinish: false, mesh: null } );
+		resolveCellAndNeighbors( gx, gz );
+		save();
+		updateStats();
+
+				// Extract the two exit direction bits
+				const dirBits = [];
+				for ( const bit of [ 8, 4, 2, 1 ] ) {
+
+					if ( exits & bit ) dirBits.push( bit );
+
+		const cell = { type: 'trk-finish', orient: 0, isFinish: true, mesh: null };
+		grid.set( cellKey( 0, 0 ), cell );
+		placeMesh( 0, 0, cell );
+
+				if ( dirBits.length !== 2 ) continue;
+
+				// Walk each exit direction counting consecutive straights
+				const walks = [];
+				for ( const bit of dirBits ) {
+
+					const [ ddx, ddz ] = DIR_DELTA[ bit ];
+					const keys = [];
+					let nx = cgx + ddx;
+					let nz = cgz + ddz;
+
+					while ( true ) {
+
+						const nk = cellKey( nx, nz );
+						const nc = grid.get( nk );
+						if ( ! nc ) break;
+						if ( nc.type !== 'track-straight-night' ) break;
+						keys.push( nk );
+						nx += ddx;
+						nz += ddz;
+
+					}
+
+					walks.push( { count: keys.length, keys } );
+
+				}
+
+				const curveSize = Math.min( walks[ 0 ].count, walks[ 1 ].count, 4 );
+				if ( curveSize < 2 ) continue;
+
+				// Collect consumed cell keys (only up to curveSize - 1 straights per arm)
+				const consumed = new Set();
+				for ( const walk of walks ) {
+
+					for ( let i = 0; i < curveSize - 1; i ++ ) {
+
+						consumed.add( walk.keys[ i ] );
+
+					}
+
+				}
+
+				candidates.push( { gx: cgx, gz: cgz, key, curveSize, consumed } );
+
+			}
+
+		}
+
+		// --- Phase 2: Sort greedily — largest first, ties by key string ---
+		candidates.sort( ( a, b ) => {
+
+			if ( b.curveSize !== a.curveSize ) return b.curveSize - a.curveSize;
+			return a.key < b.key ? - 1 : a.key > b.key ? 1 : 0;
+
+		} );
+
+		// --- Phase 3: Assign curves, preventing overlap ---
+		const claimed = new Set();
+
+		for ( const cand of candidates ) {
+
+			// Check that corner cell itself is not claimed by another curve
+			if ( claimed.has( cand.key ) ) continue;
+
+			// Check that none of the consumed cells are already claimed
+			let blocked = false;
+			for ( const ck of cand.consumed ) {
+
+				if ( claimed.has( ck ) ) {
+
+					blocked = true;
+					break;
+
+				}
+
+			}
+
+			if ( blocked ) continue;
+
+			// Verify NxN footprint is clear
+			// The footprint is the curveSize x curveSize area anchored at the corner.
+			// Corner orient determines which quadrant the footprint extends into:
+			//   orient 0 (S+W): corner is NE of footprint → footprint extends -x, +z
+			//   orient 16 (S+E): corner is NW → footprint extends +x, +z
+			//   orient 10 (N+E): corner is SW → footprint extends +x, -z
+			//   orient 22 (N+W): corner is SE → footprint extends -x, -z
+			const cell = grid.get( cand.key );
+			const orient = cell.orient;
+			let fpDx, fpDz; // direction the footprint extends from the corner
+
+			if ( orient === 0 ) { fpDx = - 1; fpDz = 1; }
+			else if ( orient === 16 ) { fpDx = 1; fpDz = 1; }
+			else if ( orient === 10 ) { fpDx = 1; fpDz = - 1; }
+			else if ( orient === 22 ) { fpDx = - 1; fpDz = - 1; }
+			else continue;
+
+			let footprintClear = true;
+			for ( let fx = 0; fx < cand.curveSize && footprintClear; fx ++ ) {
+
+		// Temporarily insert ghost cell into grid
+		const ghostCell = { type: 'trk-straight', orient: 0, isFinish: false, mesh: null };
+		grid.set( key, ghostCell );
+
+					if ( fx === 0 && fz === 0 ) continue; // the corner cell itself
+
+					const fpKey = cellKey( cand.gx + fx * fpDx, cand.gz + fz * fpDz );
+
+					// Cell must be empty or part of this curve's consumed set
+					if ( grid.has( fpKey ) && ! cand.consumed.has( fpKey ) ) {
+
+						footprintClear = false;
+
+					}
+
+					// Also check it's not claimed by another curve
+					if ( claimed.has( fpKey ) ) {
+
+						footprintClear = false;
+
+					}
+
+			const finalType = ( nCell.isFinish && newType === 'trk-straight' ) ? 'trk-finish' : newType;
 
 			}
 
@@ -2763,6 +3536,385 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 
 		// Straight (non-finish, non-curve, non-ramp) → elevate
 		if ( ! cell.isFinish && ! cell.autoRamp && cell.curveSize == null &&
+			( cell.type === 'trk-straight' || cell.type === 'trk-elev-2p5' || cell.type === 'trk-elev-5' ) ) {
+
+			// Also check not consumed by a curve
+			let consumedByCurve = false;
+			for ( const [ , cc ] of grid ) {
+
+				if ( cc.curveConsumed && cc.curveConsumed.has( key ) ) {
+
+					consumedByCurve = true;
+					break;
+
+				}
+
+			}
+
+			if ( ! consumedByCurve ) actions.push( 'elevate' );
+
+		}
+
+		return actions;
+
+	}
+
+	function showRadialMenu( gx, gz ) {
+
+		const actions = getRadialActions( gx, gz );
+		if ( actions.length === 0 ) {
+
+			hideRadialMenu();
+			return;
+
+		}
+
+		radialGx = gx;
+		radialGz = gz;
+
+		const screen = gridToScreen( gx, gz );
+
+		radialMenu.style.left = screen.x + 'px';
+		radialMenu.style.top = screen.y + 'px';
+		radialMenu.classList.add( 'visible' );
+
+		// Hide all first
+		radialRotate.classList.remove( 'shown' );
+		radialCurve.classList.remove( 'shown' );
+		radialElevate.classList.remove( 'shown' );
+
+		// Position buttons radially around center
+		const radius = 36;
+		const buttons = [];
+		if ( actions.includes( 'rotate' ) ) buttons.push( radialRotate );
+		if ( actions.includes( 'curve' ) ) buttons.push( radialCurve );
+		if ( actions.includes( 'elevate' ) ) buttons.push( radialElevate );
+
+		// Update curve button state
+		if ( actions.includes( 'curve' ) ) {
+
+			const key = cellKey( gx, gz );
+			const cell = grid.get( key );
+			// Check if this cell or its curve parent has curveOverride
+			let isOverridden = cell && cell.curveOverride;
+			if ( ! isOverridden ) {
+
+				for ( const [ , cc ] of grid ) {
+
+					if ( cc.curveConsumed && cc.curveConsumed.has( key ) && cc.curveOverride ) {
+
+						isOverridden = true;
+						break;
+
+					}
+
+				}
+
+			}
+
+			// Spline icon for auto-curve, corner icon for hard corner
+			const curveIcon = document.getElementById( 'radial-curve-icon' );
+			if ( isOverridden ) {
+
+				curveIcon.innerHTML = '<polyline points="9 17 9 5"/><polyline points="15 17 15 13"/><path d="M5 21h14"/>';
+
+			} else {
+
+				curveIcon.innerHTML = '<path d="M21 20c-2 0-4-.5-6-2s-4-4-6-4-4 .5-6 2"/>';
+
+			}
+
+			radialCurve.dataset.tip = isOverridden ? 'Hard corner' : 'Auto curve';
+			radialCurve.classList.toggle( 'radial-active', isOverridden );
+
+		}
+
+		// Update elevate button state
+		if ( actions.includes( 'elevate' ) ) {
+
+			const cell = grid.get( cellKey( gx, gz ) );
+			const elev = cell ? ( cell.elevation || 0 ) : 0;
+			radialElevate.classList.toggle( 'radial-active', elev > 0 );
+			radialElevate.dataset.tip = elev === 0 ? 'Elevate' : elev === 1 ? 'Half height' : 'Full height';
+
+		}
+
+		// Distribute around the cell center
+		if ( buttons.length === 1 ) {
+
+			// Single: above
+			buttons[ 0 ].style.left = '-16px';
+			buttons[ 0 ].style.top = ( - radius - 16 ) + 'px';
+			buttons[ 0 ].classList.add( 'shown' );
+
+		} else if ( buttons.length === 2 ) {
+
+			// Two: left and right
+			buttons[ 0 ].style.left = ( - radius - 16 ) + 'px';
+			buttons[ 0 ].style.top = '-16px';
+			buttons[ 0 ].classList.add( 'shown' );
+
+			buttons[ 1 ].style.left = ( radius - 16 ) + 'px';
+			buttons[ 1 ].style.top = '-16px';
+			buttons[ 1 ].classList.add( 'shown' );
+
+		} else {
+
+			// Three: top, bottom-left, bottom-right
+			buttons[ 0 ].style.left = '-16px';
+			buttons[ 0 ].style.top = ( - radius - 16 ) + 'px';
+			buttons[ 0 ].classList.add( 'shown' );
+
+			buttons[ 1 ].style.left = ( - radius * 0.87 - 16 ) + 'px';
+			buttons[ 1 ].style.top = ( radius * 0.5 - 16 ) + 'px';
+			buttons[ 1 ].classList.add( 'shown' );
+
+			buttons[ 2 ].style.left = ( radius * 0.87 - 16 ) + 'px';
+			buttons[ 2 ].style.top = ( radius * 0.5 - 16 ) + 'px';
+			buttons[ 2 ].classList.add( 'shown' );
+
+		}
+
+	}
+
+	function hideRadialMenu() {
+
+		radialMenu.classList.remove( 'visible' );
+		radialRotate.classList.remove( 'shown' );
+		radialCurve.classList.remove( 'shown' );
+		radialElevate.classList.remove( 'shown' );
+		radialGx = null;
+		radialGz = null;
+
+	}
+
+	// ─── Radial button click handlers ─────────────────────────
+
+	radialRotate.addEventListener( 'click', ( e ) => {
+
+		e.stopPropagation();
+		if ( radialGx == null ) return;
+
+		const key = cellKey( radialGx, radialGz );
+		const cell = grid.get( key );
+		if ( ! cell || ! cell.isFinish ) return;
+
+		pushUndo();
+		cell.orient = ORIENT_FLIP[ cell.orient ] ?? cell.orient;
+		placeMesh( radialGx, radialGz, cell );
+		save();
+		updateFinishCar();
+		showToast( 'Finish rotated' );
+
+	} );
+
+	radialCurve.addEventListener( 'click', ( e ) => {
+
+		e.stopPropagation();
+		if ( radialGx == null ) return;
+
+		const key = cellKey( radialGx, radialGz );
+		const cell = grid.get( key );
+		if ( ! cell ) return;
+
+		// Find the curve corner cell (might be this cell or a parent)
+		let cornerKey = null, cornerCell = null, cornerGx, cornerGz;
+
+		if ( cell.curveSize >= 2 || cell.curveOverride ) {
+
+			cornerKey = key;
+			cornerCell = cell;
+			cornerGx = radialGx;
+			cornerGz = radialGz;
+
+		} else {
+
+			for ( const [ ck, cc ] of grid ) {
+
+				if ( cc.curveConsumed && cc.curveConsumed.has( key ) ) {
+
+					cornerKey = ck;
+					cornerCell = cc;
+					const parts = ck.split( ',' ).map( Number );
+					cornerGx = parts[ 0 ];
+					cornerGz = parts[ 1 ];
+					break;
+
+				}
+
+			}
+
+		}
+
+		if ( ! cornerCell ) return;
+
+		pushUndo();
+
+		if ( cornerCell.curveOverride ) {
+
+			delete cornerCell.curveOverride;
+			showToast( 'Auto curve' );
+
+		} else {
+
+			cornerCell.curveOverride = true;
+			showToast( 'Hard corner' );
+
+		}
+
+		detectCurves( cornerGx, cornerGz );
+		renderCurves();
+		save();
+
+		// Refresh menu state
+		showRadialMenu( radialGx, radialGz );
+
+	} );
+
+	radialElevate.addEventListener( 'click', ( e ) => {
+
+		e.stopPropagation();
+		if ( radialGx == null ) return;
+
+		cycleElevation( radialGx, radialGz );
+
+		// Refresh menu state
+		showRadialMenu( radialGx, radialGz );
+
+	} );
+
+	// Prevent radial clicks from reaching the canvas
+	radialMenu.addEventListener( 'pointerdown', ( e ) => e.stopPropagation() );
+
+	// ─── Persistence ──────────────────────────────────────────
+
+	let debugMode = false;
+	const debugTooltip = document.getElementById( 'debug-tooltip' );
+
+	window.addEventListener( 'keydown', ( e ) => {
+
+		if ( e.code === 'KeyD' ) {
+
+			debugMode = ! debugMode;
+			if ( ! debugMode ) debugTooltip.style.display = 'none';
+
+		}
+
+	} );
+
+	function updateDebugTooltip( gx, gz, clientX, clientY ) {
+
+		if ( ! debugMode ) {
+
+			debugTooltip.style.display = 'none';
+			return;
+
+		}
+
+		const key = cellKey( gx, gz );
+		const cell = grid.get( key );
+
+		if ( ! cell ) {
+
+			debugTooltip.style.display = 'block';
+			debugTooltip.innerHTML = `<span class="dt-dim">(${ gx }, ${ gz }) empty</span>`;
+			debugTooltip.style.left = ( clientX + 16 ) + 'px';
+			debugTooltip.style.top = ( clientY + 16 ) + 'px';
+			return;
+
+		}
+
+		const orientDeg = ORIENT_DEG[ cell.orient ] || 0;
+		const modelConfig = getTrackModelConfig( cell.type, trackTileSet );
+		const elev = cell.elevation || 0;
+		const flags = [];
+		if ( cell.isFinish ) flags.push( 'finish' );
+		if ( cell.rotationOverride ) flags.push( 'rot-override' );
+		if ( cell.curveOverride ) flags.push( 'curve-override' );
+		if ( cell.curveSize ) flags.push( 'curve-' + cell.curveSize + 'x' + cell.curveSize );
+		if ( cell.autoRamp ) flags.push( 'auto-ramp' );
+
+		debugTooltip.innerHTML =
+			`<div class="dt-title">${ cell.type }</div>` +
+			`grid:    (${ gx }, ${ gz })\n` +
+			`orient:  ${ cell.orient } → ${ orientDeg }°\n` +
+			`model:   ${ modelConfig.path }\n` +
+			`elev:    ${ elev }\n` +
+			( flags.length ? `flags:   ${ flags.join( ', ' ) }\n` : '' );
+
+		debugTooltip.style.display = 'block';
+		debugTooltip.style.left = ( clientX + 16 ) + 'px';
+		debugTooltip.style.top = ( clientY + 16 ) + 'px';
+
+	}
+
+	function hideDebugTooltip() {
+
+		debugTooltip.style.display = 'none';
+
+	}
+
+	// ─── Radial context menu ──────────────────────────────────
+
+	const radialMenu = document.getElementById( 'radial-menu' );
+	const radialRotate = document.getElementById( 'radial-rotate' );
+	const radialCurve = document.getElementById( 'radial-curve' );
+	const radialElevate = document.getElementById( 'radial-elevate' );
+	let radialGx = null, radialGz = null;
+
+	function gridToScreen( gx, gz ) {
+
+		const pos = new THREE.Vector3(
+			( gx + 0.5 ) * cellWorld,
+			0.5,
+			( gz + 0.5 ) * cellWorld
+		);
+		pos.project( camera );
+
+		return {
+			x: ( pos.x * 0.5 + 0.5 ) * window.innerWidth,
+			y: ( - pos.y * 0.5 + 0.5 ) * window.innerHeight
+		};
+
+	}
+
+	function getRadialActions( gx, gz ) {
+
+		const key = cellKey( gx, gz );
+		const cell = grid.get( key );
+		if ( ! cell ) return [];
+
+		const actions = [];
+
+		// Finish tile → rotate
+		if ( cell.isFinish ) {
+
+			actions.push( 'rotate' );
+
+		}
+
+		// Curve corner or consumed by curve → toggle curve
+		if ( cell.curveSize >= 2 || cell.curveOverride ) {
+
+			actions.push( 'curve' );
+
+		} else {
+
+			for ( const [ , cc ] of grid ) {
+
+				if ( cc.curveConsumed && cc.curveConsumed.has( key ) ) {
+
+					actions.push( 'curve' );
+					break;
+
+				}
+
+			}
+
+		}
+
+		// Straight (non-finish, non-curve, non-ramp) → elevate
+		if ( ! cell.isFinish && ! cell.autoRamp && cell.curveSize == null &&
 			( cell.type === 'track-straight-night' || cell.type === 'track-elev-2p5' || cell.type === 'track-elev-5' ) ) {
 
 			// Also check not consumed by a curve
@@ -3036,7 +4188,7 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 
 			for ( const [ gx, gz, type, orient, flags ] of arr ) {
 
-				const isFinish = ( type === 'track-finish' );
+				const isFinish = ( type === 'trk-finish' );
 				const cell = { type, orient, isFinish, mesh: null };
 
 				// Restore flags if present
@@ -3138,7 +4290,7 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 
 			for ( const [ gx, gz, type, orient, flags ] of arr ) {
 
-				const isFinish = ( type === 'track-finish' );
+				const isFinish = ( type === 'trk-finish' );
 				const cell = { type, orient, isFinish, mesh: null };
 
 				// Restore flags if present
@@ -3420,7 +4572,7 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 		for ( const [ , cell ] of grid ) {
 
 			pieces ++;
-			if ( cell.type === 'track-corner-night' ) corners ++;
+			if ( cell.type === 'trk-corner-1x1' ) corners ++;
 			else straights ++;
 
 		}
@@ -3489,9 +4641,9 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 			// For encoding, use the base type name for elevated cells
 			let typeName = cell.type;
 			if ( cell.elevation && cell.elevation > 0 &&
-				( typeName === 'track-elev-2p5' || typeName === 'track-elev-5' ) ) {
+				( typeName === 'trk-elev-2p5' || typeName === 'trk-elev-5' ) ) {
 
-				typeName = 'track-straight-night';
+				typeName = 'trk-straight';
 
 			}
 

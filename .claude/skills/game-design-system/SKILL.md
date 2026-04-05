@@ -11,8 +11,8 @@ When this skill is invoked:
 ## 1. Parse Arguments & Validate
 
 A system name argument is **required**. If missing, fail with:
-> "Usage: `/design-system <system-name>` — e.g., `/design-system combat-system`
-> Run `/map-systems` first to create the systems index, then use this skill
+> "Usage: `/game-design-system <system-name>` — e.g., `/game-design-system combat-system`
+> Run `/game-map-systems` first to create the systems index, then use this skill
 > to write individual system GDDs."
 
 Normalize the system name to kebab-case for the filename (e.g., "combat system"
@@ -28,9 +28,9 @@ primary advantage over ad-hoc design — it arrives informed.
 ### 2a: Required Reads
 
 - **Game concept**: Read `design/gdd/game-concept.md` — fail if missing:
-  > "No game concept found. Run `/brainstorm` first."
+  > "No game concept found. Run `/game-brainstorm` first."
 - **Systems index**: Read `design/gdd/systems-index.md` — fail if missing:
-  > "No systems index found. Run `/map-systems` first to map your systems."
+  > "No systems index found. Run `/game-map-systems` first to map your systems."
 - **Target system**: Find the system in the index. If not listed, warn:
   > "[system-name] is not in the systems index. Would you like to add it, or
   > design it as an off-index system?"
@@ -390,7 +390,7 @@ Present a completion summary:
 > - Cross-system conflicts found: [list or "none"]
 
 Use `AskUserQuestion`:
-- "Run `/design-review` now to validate the GDD?"
+- "Run `/game-design-review` now to validate the GDD?"
   - Options: "Yes, run review now", "I'll review it myself first", "Skip review"
 
 If yes, invoke the design-review skill on the completed file.
@@ -427,7 +427,7 @@ Use `AskUserQuestion`:
     - "Design next system ([next-in-order])" — if undesigned systems remain
     - "Fix review findings" — if design-review flagged issues
     - "Stop here for this session"
-    - "Run `/gate-check`" — if enough MVP systems are designed
+    - "Run `/game-gate-check`" — if enough MVP systems are designed
 
 ---
 
