@@ -7,7 +7,7 @@ import { CELL_RAW, GRID_SCALE, ORIENT_DEG } from './Track.js';
 
 const EDGES = { N: [ 0, -1 ], S: [ 0, 1 ], E: [ 1, 0 ], W: [ -1, 0 ] };
 
-// Rotation per 90° step (matches Godot/three.js Y-axis rotation):
+// Rotation per 90° step (Y-axis rotation):
 // S→E, E→N, N→W, W→S
 const ROTATE_STEP = { N: 'W', W: 'S', S: 'E', E: 'N' };
 
@@ -22,13 +22,27 @@ function rotateEdge( edge, degrees ) {
 
 // Base connectivity at orientation 0°
 const BASE_CONNECTIVITY = {
+<<<<<<< Updated upstream
 	'track-straight-night': [ 'N', 'S' ],
 	'track-finish':         [ 'N', 'S' ],
 	'track-corner-night':   [ 'S', 'W' ],
 	'track-bump':           null, // handled specially — all 4 edges open
+=======
+	'trk-straight': [ 'N', 'S' ],
+	'trk-finish':         [ 'N', 'S' ],
+	'trk-corner-1x1':   [ 'S', 'W' ],
+
+	// Elevation tiles — same connectivity as straights
+	'trk-elev-2p5':       [ 'N', 'S' ],
+	'trk-elev-5':         [ 'N', 'S' ],
+	'trk-ramp-up-2p5':    [ 'N', 'S' ],
+	'trk-ramp-up-5':      [ 'N', 'S' ],
+	'trk-ramp-down-2p5':  [ 'N', 'S' ],
+	'trk-ramp-down-5':    [ 'N', 'S' ],
+>>>>>>> Stashed changes
 };
 
-function getOpenEdges( pieceType, godotOrient ) {
+function getOpenEdges( pieceType, cellOrient ) {
 
 	const base = BASE_CONNECTIVITY[ pieceType ];
 	if ( base === undefined ) {
@@ -39,7 +53,7 @@ function getOpenEdges( pieceType, godotOrient ) {
 
 	if ( base === null ) return null; // bump — all edges
 
-	const deg = ORIENT_DEG[ godotOrient ] ?? 0;
+	const deg = ORIENT_DEG[ cellOrient ] ?? 0;
 	return base.map( e => rotateEdge( e, deg ) );
 
 }
@@ -62,7 +76,7 @@ export class TrackIntel {
 		let finishCell = null;
 		for ( const cell of cells ) {
 
-			if ( cell[ 2 ] === 'track-finish' ) {
+			if ( cell[ 2 ] === 'trk-finish' ) {
 
 				finishCell = cell;
 				break;
@@ -73,7 +87,7 @@ export class TrackIntel {
 
 		if ( ! finishCell ) {
 
-			throw new Error( 'TrackIntel: No track-finish cell found in cells array' );
+			throw new Error( 'TrackIntel: No trk-finish cell found in cells array' );
 
 		}
 

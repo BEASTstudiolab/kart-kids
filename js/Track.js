@@ -8,6 +8,7 @@ export const GRID_SCALE = 1.0; // was 0.75 — temporarily disabled for testing
 const _dummy = new THREE.Object3D();
 
 export const TRACK_CELLS = [
+<<<<<<< Updated upstream
 	[ -3, -3, 'track-corner-night',   16 ],
 	[ -2, -3, 'track-straight-night', 22 ],
 	[ -1, -3, 'track-straight-night', 22 ],
@@ -24,12 +25,27 @@ export const TRACK_CELLS = [
 	[ -2,  2, 'track-corner-night',   10 ],
 	[ -1,  2, 'track-straight-night', 16 ],
 	[  0,  2, 'track-corner-night',   22 ],
+=======
+	[ -3, -3, 'trk-corner-1x1',    0 ],
+	[ -2, -3, 'trk-straight',  0 ],
+	[ -1, -3, 'trk-straight',  0 ],
+	[  0, -3, 'trk-corner-1x1',    0 ],
+	[ -3, -2, 'trk-straight',  0 ],
+	[  0, -2, 'trk-straight',  0 ],
+	[ -3, -1, 'trk-corner-1x1',    0 ],
+	[ -2, -1, 'trk-corner-1x1',    0 ],
+	[  0, -1, 'trk-straight',  0 ],
+	[ -2,  0, 'trk-straight',  0 ],
+	[  0,  0, 'trk-finish',          0 ],
+	[ -2,  1, 'trk-straight',  0 ],
+	[  0,  1, 'trk-straight',  0 ],
+	[ -2,  2, 'trk-corner-1x1',    0 ],
+	[ -1,  2, 'trk-straight',  0 ],
+	[  0,  2, 'trk-corner-1x1',    0 ],
+>>>>>>> Stashed changes
 ];
 
 const DECO_CELLS = [
-	[ -4, -2, 'decoration-tents', 10 ],
-	[ -1, -4, 'decoration-tents', 22 ],
-	[ -1,  1, 'decoration-tents', 22 ],
 	[ -8, -9, 'decoration-buildings-1', 0 ], [ -7, -9, 'decoration-buildings-2', 0 ],
 	[ -6, -9, 'decoration-buildings-1', 0 ], [ -5, -9, 'decoration-buildings-2', 0 ],
 	[ -4, -9, 'decoration-buildings-1', 0 ], [ -3, -9, 'decoration-buildings-2', 0 ],
@@ -113,7 +129,8 @@ const DECO_CELLS = [
 export function buildTrack( scene, models, customCells ) {
 
 	const trackGroup = new THREE.Group();
-	trackGroup.position.y = -0.5;
+	trackGroup.name = 'trackGroup';
+	trackGroup.position.y = 0;
 
 	const trackPieceGroup = new THREE.Group();
 	const decoGroup = new THREE.Group();
@@ -132,6 +149,23 @@ export function buildTrack( scene, models, customCells ) {
 
 	for ( const key in cellsByType ) {
 
+<<<<<<< Updated upstream
+=======
+		if ( key.startsWith( 'trk-curve-' ) ) {
+
+			// Multi-tile curves use individual meshes (too few per track for instancing)
+			for ( const [ gx, gz, orient, flags ] of cellsByType[ key ] ) {
+
+				const curveSize = parseInt( key.match( /(\d+)x\d+/ )?.[ 1 ] ) || 3;
+				curveEntries.push( { key, gx, gz, orient, flags, curveSize } );
+
+			}
+
+			continue;
+
+		}
+
+>>>>>>> Stashed changes
 		const src = models[ key ];
 		if ( ! src ) continue;
 
@@ -151,7 +185,14 @@ export function buildTrack( scene, models, customCells ) {
 				const [ gx, gz, orient ] = entries[ i ];
 				const deg = ORIENT_DEG[ orient ] ?? 0;
 
+<<<<<<< Updated upstream
 				_dummy.position.set( ( gx + 0.5 ) * CELL_RAW, 0.5, ( gz + 0.5 ) * CELL_RAW );
+=======
+				// Elevated tiles use the straight model with a Y offset
+				const elev = flags?.elevation || 0;
+				const elevY = elev === 1 ? 2.416 : elev === 2 ? 4.832 : 0;
+				_dummy.position.set( ( gx + 0.5 ) * CELL_RAW, elevY, ( gz + 0.5 ) * CELL_RAW );
+>>>>>>> Stashed changes
 				_dummy.rotation.set( 0, THREE.MathUtils.degToRad( deg ), 0 );
 				_dummy.updateMatrix();
 				inst.setMatrixAt( i, _dummy.matrix );
@@ -164,6 +205,43 @@ export function buildTrack( scene, models, customCells ) {
 
 	}
 
+<<<<<<< Updated upstream
+=======
+	// Place multi-tile curve meshes individually
+	for ( const entry of curveEntries ) {
+
+		const src = models[ entry.key ];
+		if ( ! src ) continue;
+
+		const curveMesh = src.clone();
+
+		// Use verified tile metadata for position + rotation
+		const lr = entry.key.includes( '-l' ) ? 'l' : 'r';
+		const curveConfig = getCurveConfig( entry.orient, lr, entry.curveSize || 3 );
+
+		curveMesh.position.set(
+			( entry.gx + 0.5 ) * CELL_RAW + curveConfig.offset.x,
+			0,
+			( entry.gz + 0.5 ) * CELL_RAW + curveConfig.offset.z
+		);
+		curveMesh.rotation.y = curveConfig.rotation;
+
+		curveMesh.traverse( ( c ) => {
+
+			if ( c.isMesh ) {
+
+				c.castShadow = false;
+				c.receiveShadow = true;
+
+			}
+
+		} );
+
+		trackPieceGroup.add( curveMesh );
+
+	}
+
+>>>>>>> Stashed changes
 	if ( ! customCells ) {
 
 		// Place hand-authored decorations for the default track
@@ -209,10 +287,12 @@ export function buildTrack( scene, models, customCells ) {
 		}
 
 		const pad = 3;
-		const emptyPositions = [];
 		const buildingPositions1 = [];
+		const buildingRotations1 = [];
 		const buildingPositions2 = [];
-		const tentPositions = [];
+		const buildingRotations2 = [];
+		const emptyPositions = [];
+		const emptyRotations = [];
 
 		// Simple hash for deterministic pseudo-random placement
 		function hash( gx, gz ) {
@@ -223,43 +303,34 @@ export function buildTrack( scene, models, customCells ) {
 
 		}
 
+		const ROTATIONS = [ 0, Math.PI * 0.5, Math.PI, Math.PI * 1.5 ];
+
 		for ( let gz = minZ - pad; gz <= maxZ + pad; gz ++ ) {
 
 			for ( let gx = minX - pad; gx <= maxX + pad; gx ++ ) {
 
 				if ( occupied.has( gx + ',' + gz ) ) continue;
 
-				const distX = gx < minX ? minX - gx : gx > maxX ? gx - maxX : 0;
-				const distZ = gz < minZ ? minZ - gz : gz > maxZ ? gz - maxZ : 0;
-				const dist = Math.max( distX, distZ );
-
 				const x = ( gx + 0.5 ) * CELL_RAW;
 				const z = ( gz + 0.5 ) * CELL_RAW;
+				const typeHash = hash( gx, gz ) % 3;
+				const rotHash = hash( gx, gz + 7919 ) % 4;
+				const rot = ROTATIONS[ rotHash ];
 
-				if ( dist <= 1 ) {
+				if ( typeHash === 0 ) {
 
-					// ~15% chance of tents in the empty ring
-					if ( hash( gx, gz ) % 7 === 0 ) {
+					buildingPositions1.push( x, z );
+					buildingRotations1.push( rot );
 
-						tentPositions.push( x, z, hash( gx, gz ) % 4 );
+				} else if ( typeHash === 1 ) {
 
-					} else {
-
-						emptyPositions.push( x, z );
-
-					}
+					buildingPositions2.push( x, z );
+					buildingRotations2.push( rot );
 
 				} else {
 
-					if ( hash( gx, gz ) % 2 === 0 ) {
-
-						buildingPositions1.push( x, z );
-
-					} else {
-
-						buildingPositions2.push( x, z );
-
-					}
+					emptyPositions.push( x, z );
+					emptyRotations.push( rot );
 
 				}
 
@@ -267,11 +338,16 @@ export function buildTrack( scene, models, customCells ) {
 
 		}
 
-		function createInstances( src, positions ) {
+		const _color = new THREE.Color();
+		const decoLayers = {};
+
+		function createInstances( src, positions, rotations, baseHue, label ) {
 
 			if ( positions.length === 0 || ! src ) return;
 
 			const count = positions.length / 2;
+			const layerGroup = new THREE.Group();
+			layerGroup.name = label;
 
 			src.traverse( ( child ) => {
 
@@ -280,14 +356,18 @@ export function buildTrack( scene, models, customCells ) {
 				const inst = new THREE.InstancedMesh( child.geometry, child.material, count );
 				inst.castShadow = true;
 				inst.receiveShadow = true;
+				inst.instanceColor = new THREE.InstancedBufferAttribute(
+					new Float32Array( count * 3 ), 3
+				);
 
 				for ( let i = 0; i < count; i ++ ) {
 
-					_dummy.position.set( positions[ i * 2 ], 0.5, positions[ i * 2 + 1 ] );
-					_dummy.rotation.set( 0, 0, 0 );
+					_dummy.position.set( positions[ i * 2 ], 0, positions[ i * 2 + 1 ] );
+					_dummy.rotation.set( 0, rotations[ i ], 0 );
 					_dummy.updateMatrix();
 					inst.setMatrixAt( i, _dummy.matrix );
 
+<<<<<<< Updated upstream
 				}
 
 				decoGroup.add( inst );
@@ -321,14 +401,30 @@ export function buildTrack( scene, models, customCells ) {
 					_dummy.rotation.y = tentPositions[ i * 3 + 2 ] * Math.PI / 2;
 					_dummy.updateMatrix();
 					inst.setMatrixAt( i, _dummy.matrix );
+=======
+					const hueShift = ( ( positions[ i * 2 ] * 0.013 + positions[ i * 2 + 1 ] * 0.017 ) % 1 + 1 ) % 1;
+					_color.setHSL( ( baseHue + hueShift * 0.08 ) % 1, 0.9, 0.5 );
+					inst.setColorAt( i, _color );
+>>>>>>> Stashed changes
 
 				}
 
-				decoGroup.add( inst );
+				layerGroup.add( inst );
 
 			} );
 
+			decoGroup.add( layerGroup );
+			decoLayers[ label ] = layerGroup;
+
 		}
+
+		createInstances( models[ 'decoration-buildings-1' ], buildingPositions1, buildingRotations1, 0.0, 'buildings-1' );
+		createInstances( models[ 'decoration-buildings-2' ], buildingPositions2, buildingRotations2, 0.33, 'buildings-2' );
+		createInstances( models[ 'decoration-empty-night' ], emptyPositions, emptyRotations, 0.66, 'empty-night' );
+
+		// Expose for debug toggling
+		trackGroup.userData.decoLayers = decoLayers;
+
 
 	}
 
@@ -360,7 +456,7 @@ export function placePiece( models, key, gx, gz, orient ) {
 	if ( ! src ) return null;
 
 	const piece = src.clone();
-	piece.position.set( ( gx + 0.5 ) * CELL_RAW, 0.5, ( gz + 0.5 ) * CELL_RAW );
+	piece.position.set( ( gx + 0.5 ) * CELL_RAW, 0, ( gz + 0.5 ) * CELL_RAW );
 
 	const deg = ORIENT_DEG[ orient ] ?? 0;
 	piece.rotation.y = THREE.MathUtils.degToRad( deg );
@@ -371,14 +467,14 @@ export function placePiece( models, key, gx, gz, orient ) {
 
 // ─── Track Codec ──────────────────────────────────────────
 
-const TYPE_NAMES = [ 'track-straight-night', 'track-corner-night', 'track-bump', 'track-finish' ];
+// track-bump kept at index 2 for backwards compatibility with saved tracks —
+// decoded as trk-straight since the bump tile was removed.
+const TYPE_NAMES = [ 'trk-straight', 'trk-corner-1x1', 'trk-straight', 'trk-finish' ];
 const TYPE_INDEX = {};
 for ( let i = 0; i < TYPE_NAMES.length; i ++ ) TYPE_INDEX[ TYPE_NAMES[ i ] ] = i;
 
-const ORIENT_TO_GODOT = [ 0, 16, 10, 22 ];
-const GODOT_TO_ORIENT = { 0: 0, 16: 1, 10: 2, 22: 3 };
-
-export { TYPE_NAMES };
+const ORIENT_ENCODE = [ 0, 16, 10, 22 ];
+const ORIENT_DECODE = { 0: 0, 16: 1, 10: 2, 22: 3 };
 
 export function encodeCells( cells ) {
 
@@ -386,9 +482,15 @@ export function encodeCells( cells ) {
 
 	for ( let i = 0; i < cells.length; i ++ ) {
 
+<<<<<<< Updated upstream
 		const [ gx, gz, name, godotOrient ] = cells[ i ];
+=======
+	for ( let i = 0; i < filtered.length; i ++ ) {
+
+		const [ gx, gz, name, cellOrient, flags ] = filtered[ i ];
+>>>>>>> Stashed changes
 		const ti = TYPE_INDEX[ name ] ?? 0;
-		const oi = GODOT_TO_ORIENT[ godotOrient ] ?? 0;
+		const oi = ORIENT_DECODE[ cellOrient ] ?? 0;
 
 		bytes[ i * 3 ] = gx + 128;
 		bytes[ i * 3 + 1 ] = gz + 128;
@@ -413,7 +515,18 @@ export function decodeCells( str ) {
 		const ti = ( packed >> 2 ) & 0x03;
 		const oi = packed & 0x03;
 
+<<<<<<< Updated upstream
 		cells.push( [ gx, gz, TYPE_NAMES[ ti ], ORIENT_TO_GODOT[ oi ] ] );
+=======
+		// Unpack flags from upper 4 bits
+		const flagBits = ( packed >> 4 ) & 0x0F;
+		const elevation = flagBits & 0x03;
+		const curveOverride = !! ( flagBits & 0x04 );
+		const rotationOverride = !! ( flagBits & 0x08 );
+
+		const flags = { elevation, curveOverride, rotationOverride };
+		cells.push( [ gx, gz, TYPE_NAMES[ ti ], ORIENT_ENCODE[ oi ], flags ] );
+>>>>>>> Stashed changes
 
 	}
 
@@ -427,7 +540,7 @@ export function computeSpawnPosition( cells ) {
 
 	for ( const c of cells ) {
 
-		if ( c[ 2 ] === 'track-finish' ) {
+		if ( c[ 2 ] === 'trk-finish' ) {
 
 			cell = c;
 			break;
@@ -436,7 +549,7 @@ export function computeSpawnPosition( cells ) {
 
 	}
 
-	if ( ! cell ) return { position: [ 3.5, 0.5, 5 ], angle: 0 };
+	if ( ! cell ) return { position: [ 3.5, 0, 5 ], angle: 0 };
 
 	const gx = cell[ 0 ];
 	const gz = cell[ 1 ];
@@ -448,7 +561,7 @@ export function computeSpawnPosition( cells ) {
 
 	// spawnAngle: rotated 180° so the vehicle model (forward = +Z) faces the racing direction
 	// finishAngle: the raw track orientation for finish line normal computation
-	return { position: [ x, 0.5, z ], angle: trackAngle + Math.PI, finishAngle: trackAngle };
+	return { position: [ x, 0, z ], angle: trackAngle + Math.PI, finishAngle: trackAngle };
 
 }
 
@@ -478,6 +591,342 @@ export function computeTrackBounds( cells ) {
 
 }
 
+<<<<<<< Updated upstream
+=======
+// ─── Transform Cells (derive elevation/ramps/curves for rendering) ───
+
+// Orient → exit direction bits (N=8, S=4, E=2, W=1)
+const CORNER_EXITS = {
+	0: 5,    // S+W
+	16: 6,   // S+E
+	10: 10,  // N+E
+	22: 9,   // N+W
+};
+
+const DIR_DELTA = {
+	8: [ 0, - 1 ],  // N
+	4: [ 0, 1 ],    // S
+	2: [ 1, 0 ],    // E
+	1: [ - 1, 0 ],  // W
+};
+
+// L/R selection now via getCurveLR() from TileMetadata.js
+
+function getRampNeighborKeys( gx, gz, orient ) {
+
+	// After PI/2 base rotation: ramp-up HIGH at -Z/north, ramp-down HIGH at +Z/south.
+	// Place ramp-down NORTH (HIGH south edge meets elevated), ramp-up SOUTH (HIGH north edge meets elevated).
+	if ( orient === 0 || orient === 10 ) {
+
+		return [
+			{ gx, gz: gz - 1, role: 'ramp-down' },
+			{ gx, gz: gz + 1, role: 'ramp-up' },
+		];
+
+	}
+
+	return [
+		{ gx: gx - 1, gz, role: 'ramp-down' },
+		{ gx: gx + 1, gz, role: 'ramp-up' },
+	];
+
+}
+
+function getElevationModelName( elevation, role ) {
+
+	const suffix = elevation === 1 ? '2p5' : '5';
+	if ( role === 'flat' ) return 'track-elev-' + suffix;
+	if ( role === 'ramp-up' ) return 'track-ramp-up-' + suffix;
+	if ( role === 'ramp-down' ) return 'track-ramp-down-' + suffix;
+	return 'trk-straight';
+
+}
+
+/**
+ * Derives ramp cells from elevation flags without modifying curves.
+ * Returns all original cells (base types) plus ramp type changes.
+ * Used by TrackIntel for connectivity walking — keeps all cells intact.
+ */
+export function deriveRampCells( decodedCells ) {
+
+	const grid = new Map();
+
+	for ( const cell of decodedCells ) {
+
+		const [ gx, gz, type, orient, flags ] = cell;
+		grid.set( gx + ',' + gz, {
+			gx, gz, type, orient,
+			flags: flags ? { ...flags } : { elevation: 0, curveOverride: false, rotationOverride: false },
+		} );
+
+	}
+
+	for ( const [ , cell ] of grid ) {
+
+		const elev = cell.flags.elevation;
+		if ( ! elev || elev === 0 ) continue;
+		if ( cell.type === 'trk-corner-1x1' || cell.type === 'trk-finish' ) continue;
+
+		cell.type = getElevationModelName( elev, 'flat' );
+
+		const ramps = getRampNeighborKeys( cell.gx, cell.gz, cell.orient );
+
+		for ( const rn of ramps ) {
+
+			const rKey = rn.gx + ',' + rn.gz;
+			const rCell = grid.get( rKey );
+			if ( ! rCell ) continue;
+			if ( rCell.flags.autoRamp ) continue;
+			if ( rCell.type !== 'trk-straight' ) continue;
+
+			rCell.type = getElevationModelName( elev, rn.role );
+			rCell.orient = cell.orient;
+
+			if ( rn.role === 'ramp-up' ) {
+
+				const ORIENT_FLIP = { 0: 10, 10: 0, 16: 22, 22: 16 };
+				rCell.orient = ORIENT_FLIP[ cell.orient ] ?? cell.orient;
+
+			}
+
+			rCell.flags.autoRamp = true;
+
+		}
+
+	}
+
+	return Array.from( grid.values() ).map( c => [ c.gx, c.gz, c.type, c.orient, c.flags ] );
+
+}
+
+/**
+ * Transforms decoded cells into a render-ready array:
+ * 1. Derives elevation: replaces elevated cells with visual model names, inserts ramp cells
+ * 2. Derives curves: detects multi-tile corners, replaces with curve types, removes consumed cells
+ *
+ * Returns a new array — does not mutate the input.
+ * Each entry: [ gx, gz, visualTypeName, orient, flags ]
+ * Multi-tile curves add a `_curveSize` property on the flags object.
+ */
+export function transformCells( decodedCells ) {
+
+	// Build a mutable working map: key → { gx, gz, type, orient, flags }
+	const grid = new Map();
+
+	for ( const cell of decodedCells ) {
+
+		const [ gx, gz, type, orient, flags ] = cell;
+		grid.set( gx + ',' + gz, {
+			gx, gz,
+			type,
+			orient,
+			flags: flags ? { ...flags } : { elevation: 0, curveOverride: false, rotationOverride: false },
+		} );
+
+	}
+
+	// ── Pass 1: Derive elevation & ramps ──────────────────────
+
+	for ( const [ key, cell ] of grid ) {
+
+		const elev = cell.flags.elevation;
+		if ( ! elev || elev === 0 ) continue;
+		if ( cell.type === 'trk-corner-1x1' || cell.type === 'trk-finish' ) continue;
+
+		// Replace elevated cell with visual model
+		cell.type = getElevationModelName( elev, 'flat' );
+
+		// Insert ramp neighbors
+		const ramps = getRampNeighborKeys( cell.gx, cell.gz, cell.orient );
+
+		for ( const rn of ramps ) {
+
+			const rKey = rn.gx + ',' + rn.gz;
+			const rCell = grid.get( rKey );
+			if ( ! rCell ) continue;
+			if ( rCell.flags.autoRamp ) continue;
+			if ( rCell.type !== 'trk-straight' ) continue;
+
+			rCell.type = getElevationModelName( elev, rn.role );
+			rCell.orient = cell.orient;
+
+			// Ramp-up role is the exit side — flip orient 180° so it slopes down from elevated
+			if ( rn.role === 'ramp-up' ) {
+
+				const ORIENT_FLIP = { 0: 10, 10: 0, 16: 22, 22: 16 };
+				rCell.orient = ORIENT_FLIP[ cell.orient ] ?? cell.orient;
+
+			}
+			rCell.flags.autoRamp = true;
+
+		}
+
+	}
+
+	// ── Pass 2: Derive curves ─────────────────────────────────
+
+	// Collect all corner candidates
+	const candidates = [];
+
+	for ( const [ key, cell ] of grid ) {
+
+		if ( cell.type !== 'trk-corner-1x1' ) continue;
+		if ( cell.flags.curveOverride || cell.flags.rotationOverride ) continue;
+
+		const exits = CORNER_EXITS[ cell.orient ];
+		if ( exits === undefined ) continue;
+
+		// Extract exit direction bits
+		const dirBits = [];
+		for ( const bit of [ 8, 4, 2, 1 ] ) {
+
+			if ( exits & bit ) dirBits.push( bit );
+
+		}
+
+		if ( dirBits.length !== 2 ) continue;
+
+		// Walk each exit direction counting consecutive straights
+		const walks = [];
+		for ( const bit of dirBits ) {
+
+			const [ ddx, ddz ] = DIR_DELTA[ bit ];
+			const keys = [];
+			let nx = cell.gx + ddx;
+			let nz = cell.gz + ddz;
+
+			while ( true ) {
+
+				const nk = nx + ',' + nz;
+				const nc = grid.get( nk );
+				if ( ! nc ) break;
+				if ( nc.type !== 'trk-straight' ) break;
+				keys.push( nk );
+				nx += ddx;
+				nz += ddz;
+
+			}
+
+			walks.push( { count: keys.length, keys } );
+
+		}
+
+		const curveSize = Math.min( walks[ 0 ].count, walks[ 1 ].count, 4 );
+		console.log( `[curve] corner (${cell.gx},${cell.gz}) orient=${cell.orient} walks=[${walks[0].count},${walks[1].count}] → curveSize=${curveSize}` );
+		if ( curveSize < 2 ) continue;
+
+		// Collect consumed cell keys (curveSize - 1 straights per arm)
+		const consumed = new Set();
+		for ( const walk of walks ) {
+
+			for ( let i = 0; i < curveSize - 1; i ++ ) {
+
+				consumed.add( walk.keys[ i ] );
+
+			}
+
+		}
+
+		// Footprint check: verify NxN area is clear
+		let fpDx, fpDz;
+		if ( cell.orient === 0 ) { fpDx = - 1; fpDz = 1; }
+		else if ( cell.orient === 16 ) { fpDx = 1; fpDz = 1; }
+		else if ( cell.orient === 10 ) { fpDx = 1; fpDz = - 1; }
+		else if ( cell.orient === 22 ) { fpDx = - 1; fpDz = - 1; }
+		else continue;
+
+		let footprintClear = true;
+		for ( let fx = 0; fx < curveSize && footprintClear; fx ++ ) {
+
+			for ( let fz = 0; fz < curveSize && footprintClear; fz ++ ) {
+
+				if ( fx === 0 && fz === 0 ) continue;
+				const fpKey = ( cell.gx + fx * fpDx ) + ',' + ( cell.gz + fz * fpDz );
+				if ( grid.has( fpKey ) && ! consumed.has( fpKey ) ) footprintClear = false;
+
+			}
+
+		}
+
+		if ( ! footprintClear ) continue;
+
+		candidates.push( { gx: cell.gx, gz: cell.gz, key, orient: cell.orient, curveSize, consumed } );
+
+	}
+
+	// Sort: largest first, ties by key string
+	candidates.sort( ( a, b ) => {
+
+		if ( b.curveSize !== a.curveSize ) return b.curveSize - a.curveSize;
+		return a.key < b.key ? - 1 : a.key > b.key ? 1 : 0;
+
+	} );
+
+	// Assign curves, preventing overlap
+	const claimed = new Set();
+	const curveCorners = new Map(); // key → { curveSize, consumed }
+
+	for ( const cand of candidates ) {
+
+		if ( claimed.has( cand.key ) ) continue;
+
+		let blocked = false;
+		for ( const ck of cand.consumed ) {
+
+			if ( claimed.has( ck ) ) { blocked = true; break; }
+
+		}
+
+		if ( blocked ) continue;
+
+		claimed.add( cand.key );
+		for ( const ck of cand.consumed ) claimed.add( ck );
+
+		curveCorners.set( cand.key, { curveSize: cand.curveSize, consumed: cand.consumed } );
+
+	}
+
+	// ── Build output array ────────────────────────────────────
+
+	const result = [];
+	const consumedKeys = new Set();
+
+	// Gather all consumed keys
+	for ( const [ , info ] of curveCorners ) {
+
+		for ( const ck of info.consumed ) consumedKeys.add( ck );
+
+	}
+
+	for ( const [ key, cell ] of grid ) {
+
+		// Skip consumed cells — they're part of a multi-tile curve
+		if ( consumedKeys.has( key ) ) continue;
+
+		const curveInfo = curveCorners.get( key );
+
+		if ( curveInfo ) {
+
+			// Replace corner with curve visual type — use lr from getCurveConfig
+			const curveConf = getCurveConfig( cell.orient, null, curveInfo.curveSize );
+			const lr = curveConf.lr || getCurveLR( cell.orient );
+			const visualType = `trk-curve-${ curveInfo.curveSize }x${ curveInfo.curveSize }-${ lr }`;
+			const flags = { ...cell.flags, _curveSize: curveInfo.curveSize };
+			result.push( [ cell.gx, cell.gz, visualType, cell.orient, flags ] );
+
+		} else {
+
+			result.push( [ cell.gx, cell.gz, cell.type, cell.orient, cell.flags ] );
+
+		}
+
+	}
+
+	return result;
+
+}
+
+>>>>>>> Stashed changes
 function bytesToBase64url( bytes ) {
 
 	let binary = '';

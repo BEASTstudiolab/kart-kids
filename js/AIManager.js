@@ -177,9 +177,9 @@ export class AIManager {
 		if ( this.rubberBandIntensity === 0 || ! playerVehicle ) return 1.0;
 
 		const ti = this.trackIntel;
-		const playerProgress = playerLap + ti.getProgress( playerVehicle.spherePos.x, playerVehicle.spherePos.z );
-		ai.segmentHint = ti.getNearestWaypoint( ai.vehicle.spherePos.x, ai.vehicle.spherePos.z, ai.segmentHint );
-		const aiProgress = ai.lap + ti.getProgress( ai.vehicle.spherePos.x, ai.vehicle.spherePos.z, ai.segmentHint );
+		const playerProgress = playerLap + ti.getProgress( playerVehicle.vehPos.x, playerVehicle.vehPos.z );
+		ai.segmentHint = ti.getNearestWaypoint( ai.vehicle.vehPos.x, ai.vehicle.vehPos.z, ai.segmentHint );
+		const aiProgress = ai.lap + ti.getProgress( ai.vehicle.vehPos.x, ai.vehicle.vehPos.z, ai.segmentHint );
 
 		// Positive diff = AI is behind player
 		const diff = playerProgress - aiProgress;
@@ -206,7 +206,7 @@ export class AIManager {
 
 	_checkFinishLine( ai ) {
 
-		const currPos = ai.vehicle.spherePos;
+		const currPos = ai.vehicle.vehPos;
 
 		if ( ! ai.prevPos ) {
 
@@ -294,7 +294,7 @@ export class AIManager {
 
 	_teleportVehicle( vehicle, gridPos ) {
 
-		vehicle.spherePos.set( gridPos.x, gridPos.y, gridPos.z );
+		vehicle.vehPos.set( gridPos.x, gridPos.y, gridPos.z );
 		vehicle.groundHeight = gridPos.y;
 		vehicle.prevModelPos.set( gridPos.x, gridPos.y, gridPos.z );
 		vehicle.container.position.set( gridPos.x, gridPos.y, gridPos.z );

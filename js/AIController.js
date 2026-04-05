@@ -30,7 +30,7 @@ export class AIController {
 	update( dt, vehicle ) {
 
 		const trackIntel = this._trackIntel;
-		const pos = vehicle.spherePos;
+		const pos = vehicle.vehPos;
 		const p = this._profile;
 
 		// ── Stuck detection ──────────────────────────────────────

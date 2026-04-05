@@ -99,8 +99,8 @@ export class ItemBoxManager {
 			// Check pickup against local vehicle only (R10: per-player item state)
 			if ( ! localVehicle ) continue;
 
-			const dx = localVehicle.spherePos.x - box.x;
-			const dz = localVehicle.spherePos.z - box.z;
+			const dx = localVehicle.vehPos.x - box.x;
+			const dz = localVehicle.vehPos.z - box.z;
 
 			if ( dx * dx + dz * dz < PICKUP_RADIUS * PICKUP_RADIUS ) {
 

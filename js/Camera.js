@@ -8,9 +8,9 @@ export class Camera {
 
 	constructor() {
 
-		this.camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 0.1, 60 );
+		this.camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1.5, 200 );
 
-		// Matches Godot View: 45° azimuth, 35° elevation, distance 16
+		// Default chase cam: 45° azimuth, 35° elevation, distance 16
 		this.baseOffset = new THREE.Vector3( 9.27, 9.18, 9.27 );
 		this.zoom = 1.0;
 		this.offset = new THREE.Vector3();
@@ -69,7 +69,7 @@ export class Camera {
 
 			this.zoom = THREE.MathUtils.clamp(
 				this.zoom * ( 1 + e.deltaY * 0.001 ),
-				0.5,
+				0.35,
 				3.0
 			);
 
@@ -79,11 +79,11 @@ export class Camera {
 
 			if ( e.key === '+' || e.key === '=' ) {
 
-				this.zoom = THREE.MathUtils.clamp( this.zoom - 0.1, 0.5, 3.0 );
+				this.zoom = THREE.MathUtils.clamp( this.zoom - 0.1, 0.35, 3.0 );
 
 			} else if ( e.key === '-' || e.key === '_' ) {
 
-				this.zoom = THREE.MathUtils.clamp( this.zoom + 0.1, 0.5, 3.0 );
+				this.zoom = THREE.MathUtils.clamp( this.zoom + 0.1, 0.35, 3.0 );
 
 			}
 
@@ -106,7 +106,7 @@ export class Camera {
 
 			if ( ! this.dragging ) return;
 			const dx = e.clientX - this.dragStartX;
-			this.orbitAngle -= dx * 0.005;
+			this.orbitAngle -= dx * 0.0025;
 			this.dragStartX = e.clientX;
 
 		} );
@@ -152,13 +152,33 @@ export class Camera {
 
 		if ( this.mode === 'chase' && vehicleQuaternion ) {
 
+<<<<<<< Updated upstream
 			// Dynamic height: 0 at closest zoom (0.5), chaseHeight at default zoom (1.0)
 			const zoomT = THREE.MathUtils.clamp( ( this.zoom - 0.5 ) / 0.5, 0, 1 );
 			const dynamicHeight = this.chaseHeight * zoomT;
+=======
+			// Auto-return orbit angle when not dragging
+			if ( ! this.dragging && this.orbitAngle !== 0 ) {
+
+				this.orbitAngle *= Math.exp( - 5 * dt );
+				if ( Math.abs( this.orbitAngle ) < 0.001 ) this.orbitAngle = 0;
+
+			}
+
+			// Dynamic height: minimum 1.0 at closest zoom (0.35), chaseHeight at default zoom (1.0)
+			const zoomT = THREE.MathUtils.clamp( ( this.zoom - 0.35 ) / 0.65, 0, 1 );
+			const dynamicHeight = THREE.MathUtils.lerp( 1.0, this.chaseHeight, zoomT );
+>>>>>>> Stashed changes
+
+			// Dynamic near clip: smaller when zoomed in (avoids frame clipping),
+			// larger when zoomed out (hides geometry the camera clips into)
+			this.camera.near = THREE.MathUtils.lerp( 0.3, 1.5, zoomT );
+			this.camera.updateProjectionMatrix();
 
 			// Behind offset: -Z is forward in Three.js convention, so backward is +Z (local)
 			_chaseOffset.set( 0, dynamicHeight, - this.chaseDistance );
 			_chaseOffset.applyQuaternion( vehicleQuaternion );
+			_chaseOffset.applyAxisAngle( this.yAxis, this.orbitAngle );
 			_chaseOffset.multiplyScalar( this.zoom );
 			_chaseOffset.add( target );
 
@@ -184,6 +204,7 @@ export class Camera {
 
 			// Look ahead of the vehicle
 			_forward.set( 0, 0, this.chaseLookAhead ).applyQuaternion( vehicleQuaternion );
+			_forward.applyAxisAngle( this.yAxis, this.orbitAngle );
 			_lookTarget.copy( target ).add( _forward );
 			_lookTarget.y += 1;
 			this.camera.lookAt( _lookTarget );
