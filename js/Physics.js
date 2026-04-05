@@ -15,18 +15,14 @@ function addDebugBox( group, halfExtents, position, quaternion ) {
 
 }
 
-export function buildWallColliders( world, debugGroup, customCells, { skipPhysics = false } = {} ) {
+export function buildWallColliders( world, debugGroup, customCells ) {
 
 	const S = GRID_SCALE;
 	const CELL_HALF = CELL_RAW / 2;
 
-	// Constants aligned to kartkids_base_trk_* model geometry:
-	// - Road surface: X ±4.0 from cell center (8-unit-wide road)
-	// - Visual curbs: X ±4.0 to ±5.0
-	// - Wall collider inner face should sit at ±4.0 (road edge)
-	const WALL_HALF_THICK = 0.5;
-	const WALL_X = 4.5;          // center of wall box: inner face at 4.0 (road edge)
-	const WALL_HALF_H = 2.5;
+	const WALL_HALF_THICK = 0.25;
+	const WALL_X = 4.75;
+	const WALL_HALF_H = 1.5;
 
 	const wallY = ( 0.5 + WALL_HALF_H ) * S - 0.5;
 	const hThick = WALL_HALF_THICK * S;
@@ -36,15 +32,11 @@ export function buildWallColliders( world, debugGroup, customCells, { skipPhysic
 	const ARC_SPAN = - Math.PI / 2;
 	const ARC_CENTER_X = - CELL_HALF;
 	const ARC_CENTER_Z = CELL_HALF;
-	// Corner outer wall: road surface extends 9.0 units from arc center (-5,+5)
-	// (cell edge at +4.0 from center = 9.0 from arc corner)
-	const OUTER_R = 9.0;
-	const OUTER_SEG = 10;
+	const OUTER_R = 2 * CELL_HALF - WALL_HALF_THICK;
+	const OUTER_SEG = 8;
 	const OUTER_SEG_HALF_LEN = ( OUTER_R * ( Math.PI / 2 ) / OUTER_SEG / 2 ) * S;
-	// Corner inner wall: inner road surface at ~1.45 from arc center
-	// (model shows inner curb starting at 1.45 units from corner)
-	const INNER_R = 1.5;
-	const INNER_SEG = 4;
+	const INNER_R = WALL_HALF_THICK;
+	const INNER_SEG = 3;
 	const INNER_SEG_HALF_LEN = ( INNER_R * ( Math.PI / 2 ) / INNER_SEG / 2 ) * S;
 
 	function addArcWall( wcx, wcz, arcStart, radius, numSeg, segHalfLen ) {
@@ -60,19 +52,15 @@ export function buildWallColliders( world, debugGroup, customCells, { skipPhysic
 			];
 			const quaternion = [ 0, Math.sin( - aMid / 2 ), 0, Math.cos( - aMid / 2 ) ];
 
-			if ( ! skipPhysics ) {
-
-				rigidBody.create( world, {
-					shape: box.create( { halfExtents } ),
-					motionType: MotionType.STATIC,
-					objectLayer: world._OL_STATIC,
-					position,
-					quaternion,
-					friction: 0.0,
-					restitution: 0.3,
-				} );
-
-			}
+			rigidBody.create( world, {
+				shape: box.create( { halfExtents } ),
+				motionType: MotionType.STATIC,
+				objectLayer: world._OL_STATIC,
+				position,
+				quaternion,
+				friction: 0.0,
+				restitution: 0.1,
+			} );
 
 			if ( debugGroup ) addDebugBox( debugGroup, halfExtents, position, quaternion );
 
@@ -84,7 +72,7 @@ export function buildWallColliders( world, debugGroup, customCells, { skipPhysic
 
 	for ( const [ gx, gz, key, orient ] of cells ) {
 
-		if ( ! key ) continue;
+		if ( key === 'track-bump' ) continue;
 
 		const cx = ( gx + 0.5 ) * CELL_RAW * S;
 		const cz = ( gz + 0.5 ) * CELL_RAW * S;
@@ -93,7 +81,8 @@ export function buildWallColliders( world, debugGroup, customCells, { skipPhysic
 		const rad = deg * Math.PI / 180;
 		const cr = Math.cos( rad ), sr = Math.sin( rad );
 
-		if ( key === 'trk-straight' || key === 'trk-finish'
+		if ( key === 'track-straight-night' || key === 'track-straight' || key === 'trk-straight' || key === 'track-finish' || key === 'trk-finish'
+			|| key.startsWith( 'track-elev-' ) || key.startsWith( 'track-ramp-' )
 			|| key.startsWith( 'trk-elev-' ) || key.startsWith( 'trk-ramp-' ) ) {
 
 			for ( const side of [ - 1, 1 ] ) {
@@ -105,25 +94,21 @@ export function buildWallColliders( world, debugGroup, customCells, { skipPhysic
 				const position = [ wx, wallY, wz ];
 				const quaternion = [ 0, Math.sin( rad / 2 ), 0, Math.cos( rad / 2 ) ];
 
-				if ( ! skipPhysics ) {
-
-					rigidBody.create( world, {
-						shape: box.create( { halfExtents } ),
-						motionType: MotionType.STATIC,
-						objectLayer: world._OL_STATIC,
-						position,
-						quaternion,
-						friction: 0.0,
-						restitution: 0.3,
-					} );
-
-				}
+				rigidBody.create( world, {
+					shape: box.create( { halfExtents } ),
+					motionType: MotionType.STATIC,
+					objectLayer: world._OL_STATIC,
+					position,
+					quaternion,
+					friction: 0.0,
+					restitution: 0.1,
+				} );
 
 				if ( debugGroup ) addDebugBox( debugGroup, halfExtents, position, quaternion );
 
 			}
 
-		} else if ( key === 'trk-corner-1x1' ) {
+		} else if ( key === 'track-corner-night' || key === 'trk-corner-1x1' ) {
 
 			const wcx = cx + ( ARC_CENTER_X * cr + ARC_CENTER_Z * sr ) * S;
 			const wcz = cz + ( - ARC_CENTER_X * sr + ARC_CENTER_Z * cr ) * S;
@@ -132,21 +117,22 @@ export function buildWallColliders( world, debugGroup, customCells, { skipPhysic
 			addArcWall( wcx, wcz, arcStart, OUTER_R, OUTER_SEG, OUTER_SEG_HALF_LEN );
 			addArcWall( wcx, wcz, arcStart, INNER_R, INNER_SEG, INNER_SEG_HALF_LEN );
 
-		} else if ( key.startsWith( 'trk-curve-' ) ) {
+		} else if ( key.startsWith( 'track-curve-' ) || key.startsWith( 'trk-curve-' ) ) {
 
-			// Multi-tile curves: generate arc walls matching model geometry.
-			// Model road edge is 1.0 unit inset from bounding box edge, road width ~7.5 units.
-			// Formula: outerR = curveSize * CELL_RAW - 1.0, innerR = outerR - 7.5
+			// Multi-tile curves: generate arc walls with scaled radii
+			// Extract curve size from key (e.g., 'track-curve-3x3-l' → 3)
 			const sizeMatch = key.match( /(\d+)x\d+/ );
 			const curveSize = sizeMatch ? parseInt( sizeMatch[ 1 ] ) : 2;
 
-			const curveOuterR = curveSize * CELL_RAW - 1.0;
-			const curveOuterSeg = OUTER_SEG + ( curveSize - 1 ) * 4;
+			// Outer arc radius scales with curve size
+			const curveOuterR = curveSize * CELL_HALF - WALL_HALF_THICK;
+			const curveOuterSeg = OUTER_SEG * curveSize;
 			const curveOuterSegHalfLen = ( curveOuterR * ( Math.PI / 2 ) / curveOuterSeg / 2 ) * S;
 
-			const curveInnerR = curveOuterR - 7.5;
-			const curveInnerSeg = INNER_SEG + ( curveSize - 1 ) * 2;
-			const curveInnerSegHalfLen = ( curveInnerR * ( Math.PI / 2 ) / curveInnerSeg / 2 ) * S;
+			// Inner arc — scales with curve size
+			const curveInnerR = ( curveSize - 1 ) * CELL_HALF + WALL_HALF_THICK;
+			const curveInnerSeg = INNER_SEG * curveSize;
+			const curveInnerSegHalfLen = ( curveInnerR * ( Math.PI / 2 ) / ( curveInnerSeg ) / 2 ) * S;
 
 			// Arc center scales with curve size
 			const arcCX = - curveSize * CELL_HALF;
@@ -175,7 +161,7 @@ export function buildTrackColliders( world, models, customCells ) {
 	const dummy = new THREE.Object3D();
 	const childMat = new THREE.Matrix4();
 	const combinedMat = new THREE.Matrix4();
-	const GROUP_Y_OFFSET = 0;
+	const GROUP_Y_OFFSET = - 0.5;
 
 	// Collect all positions and indices across all tiles
 	const allPositions = [];
@@ -195,15 +181,7 @@ export function buildTrackColliders( world, models, customCells ) {
 		let posX = ( gx + 0.5 ) * CELL_RAW;
 		let posZ = ( gz + 0.5 ) * CELL_RAW;
 
-		if ( key.startsWith( 'track-curve-' ) ) {
-
-			const modelConfig = getTrackModelConfig( key );
-			if ( modelConfig.offset ) {
-
-				posX += modelConfig.offset.x;
-				posZ += modelConfig.offset.z;
-
-		if ( key.startsWith( 'trk-curve-' ) ) {
+		if ( key.startsWith( 'track-curve-' ) || key.startsWith( 'trk-curve-' ) ) {
 
 			const modelConfig = getTrackModelConfig( key );
 			if ( modelConfig.offset ) {
@@ -219,7 +197,7 @@ export function buildTrackColliders( world, models, customCells ) {
 		const elev = flags.elevation || 0;
 		const elevY = elev === 1 ? 2.416 : elev === 2 ? 4.832 : 0;
 
-		dummy.position.set( posX, elevY, posZ );
+		dummy.position.set( posX, 0.5 + elevY, posZ );
 		dummy.rotation.set( 0, THREE.MathUtils.degToRad( deg ), 0 );
 		dummy.updateMatrix();
 
@@ -357,7 +335,7 @@ export function createVehicleBody( world, spawnPos ) {
 		shape: box.create( { halfExtents: [ 0.4, 0.3, 0.7 ] } ),
 		motionType: MotionType.DYNAMIC,
 		objectLayer: world._OL_MOVING,
-		position: spawnPos || [ 3.5, 0.3, 5 ],
+		position: spawnPos || [ 3.5, 0.8, 5 ],
 		mass: 800.0,
 		friction: 1.5,
 		restitution: 0.3,

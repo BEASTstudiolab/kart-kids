@@ -728,7 +728,7 @@ export function transformCells( decodedCells ) {
 	for ( const [ key, cell ] of grid ) {
 
 		if ( cell.type !== 'trk-corner-1x1' ) continue;
-		if ( cell.flags.curveOverride || cell.flags.rotationOverride ) continue;
+		if ( cell.flags.curveVariant || cell.flags.rotationOverride ) continue;
 
 		const exits = CORNER_EXITS[ cell.orient ];
 		if ( exits === undefined ) continue;
@@ -864,10 +864,27 @@ export function transformCells( decodedCells ) {
 
 		if ( curveInfo ) {
 
-			// Replace corner with curve visual type — use lr from getCurveConfig
-			const curveConf = getCurveConfig( cell.orient, null, curveInfo.curveSize );
-			const lr = curveConf.lr || getCurveLR( cell.orient );
-			const visualType = `trk-curve-${ curveInfo.curveSize }x${ curveInfo.curveSize }-${ lr }`;
+			// Replace corner with curve visual type
+			// If editor saved a curveVariant, use the variant-specific model name
+			const VARIANT_MODEL = {
+				'2x2-wide': 'trk-curve-2x2-l',
+				'2x2-tight': 'trk-curve-2x2-tight-l',
+				'3x3': 'trk-curve-3x3-l',
+				'3x3-wide': 'trk-curve-3x3-wide-l',
+			};
+			const variant = cell.flags.curveVariant;
+			let visualType;
+			if ( variant && VARIANT_MODEL[ variant ] ) {
+
+				visualType = VARIANT_MODEL[ variant ];
+
+			} else {
+
+				const curveConf = getCurveConfig( cell.orient, null, curveInfo.curveSize );
+				const lr = curveConf.lr || getCurveLR( cell.orient );
+				visualType = `trk-curve-${ curveInfo.curveSize }x${ curveInfo.curveSize }-${ lr }`;
+
+			}
 			const flags = { ...cell.flags, _curveSize: curveInfo.curveSize };
 			result.push( [ cell.gx, cell.gz, visualType, cell.orient, flags ] );
 

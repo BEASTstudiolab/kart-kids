@@ -29,9 +29,9 @@ export function getRampRole( orient, isLowerCoord ) {
 // CURVE L 3x3 (520): raw openings at west+north (NW corner arc)
 // CURVE R 3x3 (510): raw openings at east+north (NE corner arc)
 
-export function getCurveConfig( orient, lr, curveSize ) {
+export function getCurveConfig( orient, variant, curveSize ) {
 
-		// Empirically verified via curve-rotation-test.html:
+	// Empirically verified via curve-rotation-test.html:
 	//   orient 0  (S+W) → rot=180°,  NE corner of track
 	//   orient 16 (S+E) → rot=-90°,  NW corner of track
 	//   orient 10 (N+E) → rot=0°,    SW corner of track
@@ -54,10 +54,14 @@ export function getCurveConfig( orient, lr, curveSize ) {
 		22: { x: - halfShift, z: - halfShift },
 	};
 
+	// Variant-specific offset overrides (if needed after calibration)
+	// Currently 2x2-wide and 2x2-tight share the same offset formula.
+	// Override here if tight model needs different positioning.
+
 	return {
 		rotation: rotations[ orient ] ?? 0,
 		offset: offsets[ orient ] ?? { x: 0, z: 0 },
-		lr: 'l', // Always CURVE L — rotation handles all 4 directions
+		lr: 'l',
 	};
 
 }

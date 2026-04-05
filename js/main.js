@@ -161,8 +161,9 @@ const modelNames = [
 	'vehicle-truck-yellow', 'vehicle-truck-green', 'vehicle-truck-purple', 'vehicle-truck-red',
 	'trk-straight', 'trk-corner-1x1', 'trk-finish',
 	'trk-curve-2x2-l',
+	'trk-curve-2x2-tight-l',
 	'trk-curve-3x3-l',
-	'trk-curve-4x4-l',
+	'trk-curve-3x3-wide-l',
 	'trk-elev-2p5', 'trk-elev-5',
 	'trk-ramp-up-2p5', 'trk-ramp-up-5',
 	'trk-ramp-down-2p5', 'trk-ramp-down-5',
@@ -214,7 +215,7 @@ async function loadModels() {
 				}
 				resolve();
 
-			}, undefined, reject );
+			}, undefined, ( err ) => { console.error( '[model] FAILED:', name, err ); reject( err ); } );
 
 		} )
 	);
@@ -1262,6 +1263,28 @@ async function init() {
 	const settingsMenu = new SettingsMenu( settings, controls, audio );
 	const speedometer = new Speedometer( settings );
 
+	// ── Debug toggle in hamburger menu ───────────────────────────────────
+	{
+
+		const debugSec = settingsMenu._section( 'Developer' );
+		debugSec.appendChild( settingsMenu._toggleRowCustom( 'Debug Panel', false, ( v ) => {
+
+			if ( v ) {
+
+				debugMenu.show();
+				settingsMenu.close();
+
+			} else {
+
+				debugMenu.hide();
+
+			}
+
+		} ) );
+		settingsMenu.addSection( debugSec );
+
+	}
+
 	// Apply initial quality preset from settings
 	{
 
@@ -1540,10 +1563,6 @@ async function init() {
 			audio.playImpact( speed );
 
 			// ── Feedback ─────────────────────────────────────────────────────
-			const normalSign = ( bodyA === vehicle.rigidBody ) ? - 1 : 1;
-			const nx = wn[ 0 ] * normalSign;
-			const nz = wn[ 2 ] * normalSign;
-			audio.playImpact( speed );
 			cam.applyShake( nx, nz, speed );
 			wallSparks.emit( vehicle.container.position, nx, nz, speed );
 			haptics.impulse( speed / 10 );

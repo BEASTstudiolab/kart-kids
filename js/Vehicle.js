@@ -321,14 +321,6 @@ export class Vehicle {
 			this.wheelBR ? this.wheelBR.position.y : 0,
 		];
 
-		// Store original Y for the 4 named wheel nodes (used for suspension)
-		this._namedWheelOrigY = [
-			this.wheelFL ? this.wheelFL.position.y : 0,
-			this.wheelFR ? this.wheelFR.position.y : 0,
-			this.wheelBL ? this.wheelBL.position.y : 0,
-			this.wheelBR ? this.wheelBR.position.y : 0,
-		];
-
 		// ─── Underglow ────────────────────────────────────────────────────────
 		this.underglowLight = new THREE.PointLight( 0x00ffff, 1, 3 );
 		this.underglowLight.position.set( 0, - 0.1, 0 );
@@ -516,31 +508,6 @@ export class Vehicle {
 				}
 
 			} else {
-
-				this._grounded = true;
-
-			}
-
-			// Compute centroid, excluding wheels that went off-edge.
-			// Use the current ground plane to predict where each wheel SHOULD be.
-			// Wheels that deviate below the prediction are off the surface.
-			const EDGE_THRESHOLD = 0.4;
-			const n = this.groundNormal;
-			let cx = 0, cy = 0, cz = 0, hitWheelCount = 0;
-
-			for ( let i = 0; i < 4; i ++ ) {
-
-				this._wheelOnSurface[ i ] = false;
-
-				if ( this._wheelMissedFrames[ i ] !== 0 ) continue;
-
-				// Predicted height at this wheel from the previous frame's ground plane
-				const localOff = this._wheelOffsets[ i ];
-				_forward.copy( localOff ).applyQuaternion( this.container.quaternion );
-				const predictedY = this.groundHeight - ( n.x * _forward.x + n.z * _forward.z ) / ( n.y || 1 );
-
-				// Accept if hit is near the prediction (on the same surface)
-				if ( this._wheelRawHitY[ i ] > predictedY - EDGE_THRESHOLD ) {
 
 				this._grounded = true;
 
@@ -972,17 +939,6 @@ export class Vehicle {
 			if ( direction === 0 ) direction = Math.abs( this.inputZ ) > 0.1 ? Math.sign( this.inputZ ) : 1;
 
 			if ( this.drivingState === DrivingState.DRIFTING ) {
-
-				// During drift: arc rotation + minor steer adjustment
-				this.driftArcAngle += this.inputX * this.debug.driftSteerInfluence * dt;
-				this.angularSpeed = this.driftDirection * this.debug.driftArcSpeed
-					+ this.inputX * this.debug.driftSteerInfluence;
-
-			} else {
-
-				// Normal: snappy arcade steering with fast lerp (no speed-dependent grip reduction)
-				const targetAngular = - this.inputX * this.debug.steeringMultiplier * direction;
-				this.angularSpeed = THREE.MathUtils.lerp( this.angularSpeed, targetAngular, dt * this.debug.steeringLerp );
 
 				// JDM drift: slip-angle-based steering with counter-steer control
 				const d = this.debug;
@@ -1468,43 +1424,6 @@ export class Vehicle {
 			this.driftIntensity = 0;
 
 		}
-
-		// Drift boost timer
-		if ( this.driftBoostTimer > 0 ) {
-
-			this.driftBoostTimer -= dt;
-
-			if ( this.driftBoostTimer <= 0 ) {
-
-				this.driftBoostTimer = 0;
-				this.driftBoostMultiplier = 1.0;
-
-				} else {
-
-					this.driftTimer += dt;
-					if ( this.driftTimer >= this.debug.driftPurpleTier ) this.driftSparkTier = 3;
-					else if ( this.driftTimer >= this.debug.driftOrangeTier ) this.driftSparkTier = 2;
-					else if ( this.driftTimer >= this.debug.driftBlueTier ) this.driftSparkTier = 1;
-
-				}
-				break;
-
-		}
-
-		// Airborne state tracking (supplements above, doesn't override drift)
-		if ( ! this._grounded && this.drivingState === DrivingState.NORMAL ) {
-
-			this.drivingState = DrivingState.AIRBORNE;
-
-		} else if ( this._grounded && this.drivingState === DrivingState.AIRBORNE ) {
-
-			this.drivingState = DrivingState.NORMAL;
-
-		}
-
-		// Legacy field sync (keeps DriftSparks, BoostFlame, Audio, Network working)
-		this.driftStage = this.driftSparkTier;
-		this.driftIntensity = this.driftActive ? 1.0 + this.driftSparkTier : 0;
 
 		// Drift boost timer
 		if ( this.driftBoostTimer > 0 ) {

@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Tile Rotation Calibrator</title>
+	<style>
+		* { margin: 0; padding: 0; box-sizing: border-box; }
+		body { background: #1a1a2e; color: #fff; font-family: monospace; overflow: hidden; }
+		#panel {
+			position: absolute; top: 0; left: 0; bottom: 0; width: 300px;
+			z-index: 10; background: rgba(0,0,0,0.85);
+			padding: 16px; overflow-y: auto;
+		}
+		#panel h2 { margin-bottom: 12px; color: #8cf; }
+		.tile-btn {
+			display: block; width: 100%; text-align: left;
+			padding: 8px 12px; margin: 4px 0; border: none; border-radius: 6px;
+			background: #333; color: #ccc; cursor: pointer; font-family: monospace; font-size: 13px;
+		}
+		.tile-btn:hover { background: #555; }
+		.tile-btn.active { background: #4a9; color: #fff; }
+		.tile-btn .saved { float: right; color: #4c6; font-size: 11px; }
+		#controls {
+			margin-top: 16px; padding-top: 12px; border-top: 1px solid #444;
+		}
+		#controls button {
+			padding: 8px 16px; margin: 4px; border: none; border-radius: 6px;
+			background: #555; color: #fff; cursor: pointer; font-family: monospace; font-size: 14px;
+		}
+		#controls button:hover { background: #777; }
+		#controls button.primary { background: #4a9; }
+		#controls button.primary:hover { background: #5cb; }
+		#info {
+			margin-top: 16px; padding-top: 12px; border-top: 1px solid #444;
+			font-size: 12px; color: #aaa; line-height: 1.6;
+		}
+		#info .val { color: #fff; }
+		#saved-list {
+			margin-top: 16px; padding-top: 12px; border-top: 1px solid #444;
+		}
+		#saved-list h3 { color: #4c6; margin-bottom: 8px; }
+		#saved-list .entry { font-size: 12px; color: #8cf; margin: 2px 0; }
+		#compass {
+			position: absolute; bottom: 20px; right: 20px;
+			z-index: 10; background: rgba(0,0,0,0.7);
+			padding: 16px; border-radius: 8px; text-align: center; font-size: 14px;
+		}
+		#compass .dir { color: #888; }
+		#compass .dir.n { color: #4cf; }
+	</style>
+</head>
+<body>
+	<div id="panel">
+		<h2>Tile Calibrator</h2>
+		<div>Select a tile, rotate it until the road points the right way, then Save.</div>
+		<div id="tile-list"></div>
+		<div id="controls">
+			<button onclick="rotateCW()">Rotate 90 CW</button>
+			<button onclick="rotateCCW()">Rotate 90 CCW</button>
+			<br>
+			<button class="primary" onclick="saveRotation()">Save This Rotation</button>
+		</div>
+		<div id="info"></div>
+		<div id="saved-list">
+			<h3>Saved Rotations</h3>
+			<div id="saved-entries"></div>
+		</div>
+	</div>
+	<div id="compass">
+		<div class="dir n">N (-Z)</div>
+		<div><span class="dir">W (-X)</span> &nbsp;&nbsp;+&nbsp;&nbsp; <span class="dir">E (+X)</span></div>
+		<div class="dir">S (+Z)</div>
+	</div>
+
+	<script type="importmap">
+	{
+		"imports": {
+			"three": "./node_modules/three/build/three.module.js",
+			"three/addons/": "./node_modules/three/examples/jsm/"
+		}
+	}
+	</script>
+
+	<script type="module">
+	import * as THREE from 'three';
+	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+	import { getTrackModelConfig, getTrackTileSet } from './js/TrackModelConfig.js';
+	import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMode.js';
+
+	// ─── Renderer ────────────────────────────────────────────
+	const renderer = new THREE.WebGLRenderer( { antialias: true } );
+	renderer.setSize( window.innerWidth - 300, window.innerHeight );
+	renderer.setPixelRatio( window.devicePixelRatio );
+	renderer.shadowMap.enabled = true;
+	renderer.toneMapping = THREE.ACESFilmicToneMapping;
+	renderer.domElement.style.marginLeft = '300px';
+	document.body.appendChild( renderer.domElement );
+
+	const scene = new THREE.Scene();
+	scene.background = new THREE.Color( 0xadb2ba );
+
+	const dirLight = new THREE.DirectionalLight( 0xffffff, 5 );
+	dirLight.position.set( 11.4, 15, -5.3 );
+	dirLight.castShadow = true;
+	dirLight.shadow.mapSize.setScalar( 2048 );
+	const sc = dirLight.shadow.camera;
+	sc.near=0.5; sc.far=100; sc.left=-30; sc.right=30; sc.top=30; sc.bottom=-30;
+	scene.add( dirLight );
+	scene.add( new THREE.HemisphereLight( 0xc8d8e8, 0x7a8a5a, 1.5 ) );
+
+	// Ground
+	const ground = new THREE.Mesh(
+		new THREE.PlaneGeometry( 60, 60 ),
+		new THREE.MeshStandardMaterial( { color: 0x369069 } )
+	);
+	ground.rotation.x = -Math.PI / 2;
+	ground.position.y = -0.14;
+	ground.receiveShadow = true;
+	scene.add( ground );
+
+	// Grid lines at cell boundary (10x10)
+	const gridH = new THREE.GridHelper( 10, 1, 0xff4444, 0xff4444 );
+	gridH.position.set( 0, 0.02, 0 );
+	scene.add( gridH );
+
+	// Axis helper at origin
+	const axes = new THREE.AxesHelper( 4 );
+	axes.position.set( 0, 0.5, 0 );
+	scene.add( axes );
+
+	// N/S/E/W labels as small colored cubes
+	function addLabel( x, z, color ) {
+		const m = new THREE.Mesh(
+			new THREE.BoxGeometry( 0.4, 0.4, 0.4 ),
+			new THREE.MeshBasicMaterial( { color } )
+		);
+		m.position.set( x, 0.5, z );
+		scene.add( m );
+	}
+	addLabel( 0, -6.5, 0x44ccff );  // N = cyan
+	addLabel( 0, 6.5, 0xff8844 );   // S = orange
+	addLabel( 6.5, 0, 0xff4444 );   // E = red
+	addLabel( -6.5, 0, 0x44ff44 );  // W = green
+
+	// ─── Camera (fixed top-down) ─────────────────────────────
+	const vw = window.innerWidth - 300;
+	const vh = window.innerHeight;
+	const aspect = vw / vh;
+	const frustum = 12;
+	const camera = new THREE.OrthographicCamera(
+		-frustum * aspect, frustum * aspect, frustum, -frustum, 0.1, 200
+	);
+	camera.position.set( 0, 50, 0 );
+	camera.lookAt( 0, 0, 0 );
+
+	// ─── Tile group ──────────────────────────────────────────
+	const tileGroup = new THREE.Group();
+	scene.add( tileGroup );
+
+	// ─── Load models ─────────────────────────────────────────
+	const loader = new GLTFLoader();
+	const tileNames = [
+		// ─── 1x1 base tiles ───────────────────────────
+		{ name: 'trk-straight', path: 'standard-map/kartkids_base_trk_010_rd_straight_1x1.gltf', cat: '1x1 Base' },
+		{ name: 'trk-corner-1x1', path: 'standard-map/kartkids_base_trk_020_trn_90_l_1x1.gltf', cat: '1x1 Base' },
+		{ name: 'trk-finish', path: 'track-finish.glb', cat: '1x1 Base' },
+
+		// ─── Ramps ────────────────────────────────────
+		{ name: 'ramp-up-2p5', path: 'standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.gltf', cat: 'Ramps' },
+		{ name: 'ramp-up-5', path: 'standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.gltf', cat: 'Ramps' },
+		{ name: 'ramp-trans-flat-to-up-2p5', path: 'standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.gltf', cat: 'Ramps' },
+		{ name: 'ramp-trans-flat-to-down-2p5', path: 'standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb', cat: 'Ramps' },
+		{ name: 'ramp-trans-down-to-flat-2p5', path: 'standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb', cat: 'Ramps' },
+		{ name: 'ramp-trans-flat-to-up-5', path: 'standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.gltf', cat: 'Ramps' },
+		{ name: 'ramp-trans-flat-to-down-5', path: 'standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb', cat: 'Ramps' },
+		{ name: 'ramp-trans-down-to-flat-5', path: 'standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb', cat: 'Ramps' },
+
+		// ─── Multi-tile curves ────────────────────────
+		{ name: 'curve-2x2-l', path: 'standard-map/kartkids_base_trk_530_trn_90_l_2x2.gltf', cat: 'Curves' },
+		{ name: 'curve-3x3-l', path: 'standard-map/kartkids_base_trk_520_trn_90_l_3x3.gltf', cat: 'Curves' },
+		{ name: 'curve-4x4-l', path: 'standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb', cat: 'Curves' },
+		{ name: 'curve-widest-3x3', path: 'standard-map/kartkids_base_trk_100_trn_widest_l_3x3.gltf', cat: 'Curves' },
+		{ name: 's-turn-chicane', path: 'standard-map/3x3_s_turn_chicane.glb', cat: 'Curves' },
+
+		// ─── Junctions ────────────────────────────────
+		{ name: 'jct-ysplit-3x3', path: 'standard-map/kartkids_base_trk_140_jct_ysplit_3x3.gltf', cat: 'Junctions' },
+		{ name: 'jct-tjunction-3x3', path: 'standard-map/kartkids_base_trk_150_jct_tjunction_3x3.gltf', cat: 'Junctions' },
+		{ name: 'jct-4way-3x3', path: 'standard-map/kartkids_base_trk_160_jct_4way_3x3.gltf', cat: 'Junctions' },
+
+		// ─── Bridges & tunnels ────────────────────────
+		{ name: 'bridge-entry', path: 'standard-map/kartkids_base_trk_390_brg_entry_1x1.gltf', cat: 'Structures' },
+		{ name: 'bridge-mid', path: 'standard-map/kartkids_base_trk_400_brg_mid_1x1.gltf', cat: 'Structures' },
+		{ name: 'tunnel-entry', path: 'standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.gltf', cat: 'Structures' },
+		{ name: 'tunnel-mid', path: 'standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.gltf', cat: 'Structures' },
+		{ name: 'tunnel-exit', path: 'standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.gltf', cat: 'Structures' },
+		{ name: 'tunnel-openframe', path: 'standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.gltf', cat: 'Structures' },
+
+		// ─── Jumps ────────────────────────────────────
+		{ name: 'jump-short', path: 'standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.gltf', cat: 'Jumps' },
+		{ name: 'jump-mid-railed', path: 'standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.gltf', cat: 'Jumps' },
+		{ name: 'jump-long', path: 'standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.gltf', cat: 'Jumps' },
+
+		// ─── Start/finish ─────────────────────────────
+		{ name: 'start-finish-arch', path: 'standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.gltf', cat: 'Start/Finish' },
+
+		// ─── Wide curves (legacy?) ────────────────────
+		{ name: 'curve-wide-2x2', path: 'standard-map/kartkids_base_trk_080_trn_wide_l_2x2.gltf', cat: 'Curves' },
+	];
+	const trackTileSet = getTrackTileSet( '' );
+	const asphaltMode = getTrackAsphaltMode( '' );
+	const rawModels = {}; // no rotationY wrapper — raw model
+
+	async function loadModels() {
+		await Promise.all( tileNames.map( tile =>
+			new Promise( ( resolve, reject ) => {
+				loader.load( `models/${ tile.path }`, gltf => {
+					gltf.scene.traverse( c => {
+						if ( c.isMesh ) {
+							c.material.side = THREE.FrontSide;
+							applyTrackAsphaltMode( c.material, { asphaltMode } );
+						}
+					} );
+					rawModels[ tile.name ] = gltf.scene;
+					resolve();
+				}, undefined, ( err ) => {
+					console.warn( `Failed to load ${tile.name}: ${tile.path}`, err );
+					resolve(); // don't block others
+				} );
+			} )
+		) );
+	}
+
+	// ─── State ───────────────────────────────────────────────
+	let currentTile = 'trk-straight';
+	let currentRotDeg = 0;
+	let currentMesh = null;
+	const savedRotations = {}; // name → degrees
+
+	function showTile() {
+		// Clear
+		while ( tileGroup.children.length ) tileGroup.remove( tileGroup.children[0] );
+
+		const src = rawModels[ currentTile ];
+		if ( !src ) return;
+
+		currentMesh = src.clone();
+		currentMesh.position.set( 0, 0.5, 0 );
+		currentMesh.rotation.y = THREE.MathUtils.degToRad( currentRotDeg );
+		currentMesh.traverse( c => { if(c.isMesh){ c.castShadow=true; c.receiveShadow=true; } } );
+		tileGroup.add( currentMesh );
+
+		updateInfo();
+		updateButtons();
+	}
+
+	function updateInfo() {
+		const el = document.getElementById( 'info' );
+		const radians = ( currentRotDeg * Math.PI / 180 );
+		const tile = tileNames.find( t => t.name === currentTile );
+		el.innerHTML = `
+			<div>Tile: <span class="val">${currentTile}</span></div>
+			<div>File: <span class="val" style="font-size:10px">${tile ? tile.path.split('/').pop() : '?'}</span></div>
+			<div>Rotation: <span class="val">${currentRotDeg} deg</span></div>
+			<div>Radians: <span class="val">${radians.toFixed(4)}</span></div>
+			<br>
+			<div style="color:#4cf">Cyan = North (-Z)</div>
+			<div style="color:#f84">Orange = South (+Z)</div>
+			<div style="color:#f44">Red = East (+X)</div>
+			<div style="color:#4f4">Green = West (-X)</div>
+		`;
+	}
+
+	function updateButtons() {
+		document.querySelectorAll( '.tile-btn' ).forEach( btn => {
+			btn.classList.toggle( 'active', btn.dataset.tile === currentTile );
+		} );
+	}
+
+	function updateSavedList() {
+		const el = document.getElementById( 'saved-entries' );
+		const entries = Object.entries( savedRotations );
+		if ( entries.length === 0 ) {
+			el.innerHTML = '<div style="color:#666">No rotations saved yet</div>';
+			return;
+		}
+		el.innerHTML = entries.map( ([name, deg]) =>
+			`<div class="entry">${name}: ${deg}deg (${(deg * Math.PI / 180).toFixed(4)} rad)</div>`
+		).join('');
+
+		// Also update button labels
+		document.querySelectorAll( '.tile-btn' ).forEach( btn => {
+			const saved = btn.querySelector('.saved');
+			if ( saved ) saved.textContent = savedRotations[ btn.dataset.tile ] != null
+				? savedRotations[ btn.dataset.tile ] + 'deg'
+				: '';
+		} );
+	}
+
+	// ─── Controls ────────────────────────────────────────────
+
+	function selectTile( name ) {
+		currentTile = name;
+		currentRotDeg = savedRotations[ name ] || 0;
+		showTile();
+	}
+
+	function rotateCW() {
+		currentRotDeg = ( currentRotDeg + 90 ) % 360;
+		showTile();
+	}
+	window.rotateCW = rotateCW;
+
+	function rotateCCW() {
+		currentRotDeg = ( currentRotDeg - 90 + 360 ) % 360;
+		showTile();
+	}
+	window.rotateCCW = rotateCCW;
+
+	function saveRotation() {
+		savedRotations[ currentTile ] = currentRotDeg;
+		updateSavedList();
+		// Persist to localStorage so I can read it
+		localStorage.setItem( 'tile-rotations', JSON.stringify( savedRotations ) );
+		updateButtons();
+	}
+	window.saveRotation = saveRotation;
+
+	// ─── Build UI ────────────────────────────────────────────
+
+	const listEl = document.getElementById( 'tile-list' );
+	let lastCat = '';
+	for ( const tile of tileNames ) {
+		if ( tile.cat !== lastCat ) {
+			lastCat = tile.cat;
+			const h = document.createElement( 'div' );
+			h.style.cssText = 'color:#666; font-size:11px; margin:10px 0 4px; text-transform:uppercase; letter-spacing:0.1em;';
+			h.textContent = tile.cat;
+			listEl.appendChild( h );
+		}
+		const btn = document.createElement( 'button' );
+		btn.className = 'tile-btn';
+		btn.dataset.tile = tile.name;
+		btn.innerHTML = `${tile.name} <span class="saved"></span>`;
+		btn.addEventListener( 'click', () => selectTile( tile.name ) );
+		listEl.appendChild( btn );
+	}
+
+	// ─── Init ────────────────────────────────────────────────
+
+	await loadModels();
+
+	// Load any previously saved rotations
+	const prev = localStorage.getItem( 'tile-rotations' );
+	if ( prev ) Object.assign( savedRotations, JSON.parse( prev ) );
+	updateSavedList();
+
+	selectTile( 'trk-straight' );
+
+	function animate() {
+		requestAnimationFrame( animate );
+		renderer.render( scene, camera );
+	}
+	animate();
+
+	window.addEventListener( 'resize', () => {
+		const vw = window.innerWidth - 300;
+		const a = vw / window.innerHeight;
+		camera.left = -frustum * a; camera.right = frustum * a;
+		camera.top = frustum; camera.bottom = -frustum;
+		camera.updateProjectionMatrix();
+		renderer.setSize( vw, window.innerHeight );
+	} );
+
+	</script>
+</body>
+</html>

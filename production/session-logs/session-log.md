@@ -10622,3 +10622,751 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260405_201014
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+---
+
+## Session End: 20260405_201759
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_203342
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_204338
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_204952
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_205040
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_210030
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_210348
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_210533
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_210641
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_210844
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_211012
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_211050
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_211403
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_211443
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_211843
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_211933
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_212104
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_212213
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_212304
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_212505
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_212722
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_213159
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_213434
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_213504
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_213558
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_213615
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_213711
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_214229
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_214446
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_214601
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_220712
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/TileMetadata.js
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_220843
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/TileMetadata.js
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_221148
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/TileMetadata.js
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_222026
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/TileMetadata.js
+js/TrackModelConfig.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_222210
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/TileMetadata.js
+js/TrackModelConfig.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_222609
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/TileMetadata.js
+js/TrackModelConfig.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_222932
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_223050
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_223456
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_223733
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_223937
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_224434
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_224658
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_224802
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_225045
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_225226
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_225717
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_230030
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_230421
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_231527
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_232312
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_233329
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_233557
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_234933
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+---
+
+## Session End: 20260405_235931
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_000353
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_000649
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_001152
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_001305
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_001454
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_003238
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_004042
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_004126
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_004248
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
