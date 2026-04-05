@@ -165,6 +165,29 @@
 			transform: translateX(-50%) scale(1);
 		}
 
+		/* ─── Debug tile tooltip ──────────────────────────────── */
+
+		#debug-tooltip {
+			position: absolute;
+			z-index: 25;
+			pointer-events: none;
+			background: rgba(10, 10, 20, 0.92);
+			backdrop-filter: blur(10px);
+			-webkit-backdrop-filter: blur(10px);
+			border: 1px solid rgba(255,255,255,0.12);
+			border-radius: 8px;
+			padding: 8px 12px;
+			color: #eee;
+			font-size: 11px;
+			display: none;
+			max-width: 300px;
+			white-space: nowrap;
+			font-family: monospace;
+			line-height: 1.5;
+		}
+		#debug-tooltip .dt-title { font-weight: 600; font-size: 12px; color: #8cf; margin-bottom: 2px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+		#debug-tooltip .dt-dim { color: #888; }
+
 		/* ─── Radial context menu ─────────────────────────────── */
 
 		#radial-menu {
@@ -478,6 +501,7 @@
 
 	<div id="toast"></div>
 
+	<div id="debug-tooltip"></div>
 	<div id="radial-menu">
 		<button id="radial-rotate" class="radial-btn" data-tip="Rotate">
 			<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
@@ -999,9 +1023,9 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 	const loader = new GLTFLoader();
 	const modelNames = [
 		'track-straight-night', 'track-corner-night', 'track-bump', 'track-finish',
-		'track-curve-2x2-l', 'track-curve-2x2-r',
-		'track-curve-3x3-l', 'track-curve-3x3-r',
-		'track-curve-4x4-l', 'track-curve-4x4-r',
+		'track-curve-2x2-l',
+		'track-curve-3x3-l',
+		'track-curve-4x4-l',
 		'track-elev-2p5', 'track-elev-5',
 		'track-ramp-up-2p5', 'track-ramp-up-5',
 		'track-ramp-down-2p5', 'track-ramp-down-5',
@@ -1017,7 +1041,7 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 			new Promise( ( resolve, reject ) => {
 
 				const modelConfig = getTrackModelConfig( name, trackTileSet );
-                loader.load( `models/${ modelConfig.path }.glb`, ( gltf ) => {
+                loader.load( `models/${ modelConfig.path }`, ( gltf ) => {
 
 					gltf.scene.traverse( ( child ) => {
 
@@ -1330,7 +1354,9 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 		if ( ! src ) return;
 
 		const mesh = src.clone();
-		mesh.position.set( ( gx + 0.5 ) * CELL_RAW, 0.5, ( gz + 0.5 ) * CELL_RAW );
+		const elev = cell.elevation || 0;
+		const elevY = elev === 1 ? 2.416 : elev === 2 ? 4.832 : 0;
+		mesh.position.set( ( gx + 0.5 ) * CELL_RAW, 0.5 + elevY, ( gz + 0.5 ) * CELL_RAW );
 		mesh.rotation.y = THREE.MathUtils.degToRad( ORIENT_DEG[ cell.orient ] || 0 );
 		mesh.traverse( ( c ) => {
 
@@ -1493,7 +1519,7 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 
 				}
 
-				const curveSize = Math.min( walks[ 0 ].count, walks[ 1 ].count, 3 ); // Cap at 3 — 4x4 GLBs are undersized (20x20 not 40x40)
+				const curveSize = Math.min( walks[ 0 ].count, walks[ 1 ].count, 4 );
 				if ( curveSize < 2 ) continue;
 
 				// Collect consumed cell keys (only up to curveSize - 1 straights per arm)
@@ -1829,7 +1855,7 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 
 			}
 
-			const curveSize = Math.min( walks[ 0 ].count, walks[ 1 ].count, 3 ); // Cap at 3 — 4x4 GLBs are undersized (20x20 not 40x40)
+			const curveSize = Math.min( walks[ 0 ].count, walks[ 1 ].count, 4 );
 			if ( curveSize < 2 ) continue;
 
 			const consumed = new Set();
@@ -2159,6 +2185,14 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 				rCell.rampParent = key;
 				rCell.type = getElevationModelName( nextElev, rn.role );
 				rCell.orient = cell.orient;
+
+				// Ramp-up role is the exit side — flip orient 180° so it slopes down from elevated
+				if ( rn.role === 'ramp-up' ) {
+
+					rCell.orient = ORIENT_FLIP[ cell.orient ] ?? cell.orient;
+
+				}
+
 				placeMesh( rn.gx, rn.gz, rCell );
 
 			}
@@ -2597,6 +2631,74 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 
 		cellIndicator.visible = false;
 		cellOutline.visible = false;
+
+	}
+
+	// ─── Debug mode ──────────────────────────────────────────
+
+	let debugMode = false;
+	const debugTooltip = document.getElementById( 'debug-tooltip' );
+
+	window.addEventListener( 'keydown', ( e ) => {
+
+		if ( e.code === 'KeyD' ) {
+
+			debugMode = ! debugMode;
+			if ( ! debugMode ) debugTooltip.style.display = 'none';
+
+		}
+
+	} );
+
+	function updateDebugTooltip( gx, gz, clientX, clientY ) {
+
+		if ( ! debugMode ) {
+
+			debugTooltip.style.display = 'none';
+			return;
+
+		}
+
+		const key = cellKey( gx, gz );
+		const cell = grid.get( key );
+
+		if ( ! cell ) {
+
+			debugTooltip.style.display = 'block';
+			debugTooltip.innerHTML = `<span class="dt-dim">(${ gx }, ${ gz }) empty</span>`;
+			debugTooltip.style.left = ( clientX + 16 ) + 'px';
+			debugTooltip.style.top = ( clientY + 16 ) + 'px';
+			return;
+
+		}
+
+		const orientDeg = ORIENT_DEG[ cell.orient ] || 0;
+		const modelConfig = getTrackModelConfig( cell.type, trackTileSet );
+		const elev = cell.elevation || 0;
+		const flags = [];
+		if ( cell.isFinish ) flags.push( 'finish' );
+		if ( cell.rotationOverride ) flags.push( 'rot-override' );
+		if ( cell.curveOverride ) flags.push( 'curve-override' );
+		if ( cell.curveSize ) flags.push( 'curve-' + cell.curveSize + 'x' + cell.curveSize );
+		if ( cell.autoRamp ) flags.push( 'auto-ramp' );
+
+		debugTooltip.innerHTML =
+			`<div class="dt-title">${ cell.type }</div>` +
+			`grid:    (${ gx }, ${ gz })\n` +
+			`orient:  ${ cell.orient } → ${ orientDeg }°\n` +
+			`model:   ${ modelConfig.path }\n` +
+			`elev:    ${ elev }\n` +
+			( flags.length ? `flags:   ${ flags.join( ', ' ) }\n` : '' );
+
+		debugTooltip.style.display = 'block';
+		debugTooltip.style.left = ( clientX + 16 ) + 'px';
+		debugTooltip.style.top = ( clientY + 16 ) + 'px';
+
+	}
+
+	function hideDebugTooltip() {
+
+		debugTooltip.style.display = 'none';
 
 	}
 
@@ -3668,6 +3770,7 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 				updateGhost( cell.gx, cell.gz );
 				updateCellIndicator( cell.gx, cell.gz );
 				showRadialMenu( cell.gx, cell.gz );
+				updateDebugTooltip( cell.gx, cell.gz, e.clientX, e.clientY );
 
 			} else {
 
@@ -3675,6 +3778,7 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 				clearGhost();
 				hideCellIndicator();
 				hideRadialMenu();
+				hideDebugTooltip();
 
 			}
 

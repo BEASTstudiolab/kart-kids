@@ -12,22 +12,22 @@ const _childMat = new THREE.Matrix4();
 const _combinedMat = new THREE.Matrix4();
 
 export const TRACK_CELLS = [
-	[ -3, -3, 'track-corner-night',   16 ],
-	[ -2, -3, 'track-straight-night', 22 ],
-	[ -1, -3, 'track-straight-night', 22 ],
+	[ -3, -3, 'track-corner-night',    0 ],
+	[ -2, -3, 'track-straight-night',  0 ],
+	[ -1, -3, 'track-straight-night',  0 ],
 	[  0, -3, 'track-corner-night',    0 ],
 	[ -3, -2, 'track-straight-night',  0 ],
 	[  0, -2, 'track-straight-night',  0 ],
-	[ -3, -1, 'track-corner-night',   10 ],
+	[ -3, -1, 'track-corner-night',    0 ],
 	[ -2, -1, 'track-corner-night',    0 ],
 	[  0, -1, 'track-straight-night',  0 ],
-	[ -2,  0, 'track-straight-night', 10 ],
-	[  0,  0, 'track-finish',    0 ],
-	[ -2,  1, 'track-straight-night', 10 ],
+	[ -2,  0, 'track-straight-night',  0 ],
+	[  0,  0, 'track-finish',          0 ],
+	[ -2,  1, 'track-straight-night',  0 ],
 	[  0,  1, 'track-straight-night',  0 ],
-	[ -2,  2, 'track-corner-night',   10 ],
-	[ -1,  2, 'track-straight-night', 16 ],
-	[  0,  2, 'track-corner-night',   22 ],
+	[ -2,  2, 'track-corner-night',    0 ],
+	[ -1,  2, 'track-straight-night',  0 ],
+	[  0,  2, 'track-corner-night',    0 ],
 ];
 
 const DECO_CELLS = [
@@ -179,9 +179,10 @@ export function buildTrack( scene, models, customCells ) {
 				const [ gx, gz, orient, flags ] = entries[ i ];
 				const deg = ORIENT_DEG[ orient ] ?? 0;
 
-				// Elevation Y is baked into GLB geometry (elev models at z2p5/z5, ramps slope from 0)
-				// No manual Y offset needed
-				_dummy.position.set( ( gx + 0.5 ) * CELL_RAW, 0.5, ( gz + 0.5 ) * CELL_RAW );
+				// Elevated tiles use the straight model with a Y offset
+				const elev = flags?.elevation || 0;
+				const elevY = elev === 1 ? 2.416 : elev === 2 ? 4.832 : 0;
+				_dummy.position.set( ( gx + 0.5 ) * CELL_RAW, 0.5 + elevY, ( gz + 0.5 ) * CELL_RAW );
 				_dummy.rotation.set( 0, THREE.MathUtils.degToRad( deg ), 0 );
 				_dummy.updateMatrix();
 
@@ -619,6 +620,63 @@ function getElevationModelName( elevation, role ) {
 }
 
 /**
+ * Derives ramp cells from elevation flags without modifying curves.
+ * Returns all original cells (base types) plus ramp type changes.
+ * Used by TrackIntel for connectivity walking — keeps all cells intact.
+ */
+export function deriveRampCells( decodedCells ) {
+
+	const grid = new Map();
+
+	for ( const cell of decodedCells ) {
+
+		const [ gx, gz, type, orient, flags ] = cell;
+		grid.set( gx + ',' + gz, {
+			gx, gz, type, orient,
+			flags: flags ? { ...flags } : { elevation: 0, curveOverride: false, rotationOverride: false },
+		} );
+
+	}
+
+	for ( const [ , cell ] of grid ) {
+
+		const elev = cell.flags.elevation;
+		if ( ! elev || elev === 0 ) continue;
+		if ( cell.type === 'track-corner-night' || cell.type === 'track-finish' ) continue;
+
+		cell.type = getElevationModelName( elev, 'flat' );
+
+		const ramps = getRampNeighborKeys( cell.gx, cell.gz, cell.orient );
+
+		for ( const rn of ramps ) {
+
+			const rKey = rn.gx + ',' + rn.gz;
+			const rCell = grid.get( rKey );
+			if ( ! rCell ) continue;
+			if ( rCell.flags.autoRamp ) continue;
+			if ( rCell.type !== 'track-straight-night' ) continue;
+
+			rCell.type = getElevationModelName( elev, rn.role );
+			rCell.orient = cell.orient;
+
+			if ( rn.role === 'ramp-up' ) {
+
+				const ORIENT_FLIP = { 0: 10, 10: 0, 16: 22, 22: 16 };
+				rCell.orient = ORIENT_FLIP[ cell.orient ] ?? cell.orient;
+
+			}
+
+			rCell.flags.autoRamp = true;
+
+		}
+
+	}
+
+	return Array.from( grid.values() ).map( c => [ c.gx, c.gz, c.type, c.orient, c.flags ] );
+
+}
+
+/**
  * Transforms decoded cells into a render-ready array:
  * 1. Derives elevation: replaces elevated cells with visual model names, inserts ramp cells
  * 2. Derives curves: detects multi-tile corners, replaces with curve types, removes consumed cells
@@ -667,9 +725,15 @@ export function transformCells( decodedCells ) {
 			if ( rCell.type !== 'track-straight-night' ) continue;
 
 			rCell.type = getElevationModelName( elev, rn.role );
-			// Both ramp GLBs have identical geometry (slope upward). Ramp-down needs 180° flip.
-			
 			rCell.orient = cell.orient;
+
+			// Ramp-up role is the exit side — flip orient 180° so it slopes down from elevated
+			if ( rn.role === 'ramp-up' ) {
+
+				const ORIENT_FLIP = { 0: 10, 10: 0, 16: 22, 22: 16 };
+				rCell.orient = ORIENT_FLIP[ cell.orient ] ?? cell.orient;
+
+			}
 			rCell.flags.autoRamp = true;
 
 		}
@@ -724,7 +788,8 @@ export function transformCells( decodedCells ) {
 
 		}
 
-		const curveSize = Math.min( walks[ 0 ].count, walks[ 1 ].count, 3 ); // Cap at 3 — 4x4 GLBs are undersized
+		const curveSize = Math.min( walks[ 0 ].count, walks[ 1 ].count, 4 );
+		console.log( `[curve] corner (${cell.gx},${cell.gz}) orient=${cell.orient} walks=[${walks[0].count},${walks[1].count}] → curveSize=${curveSize}` );
 		if ( curveSize < 2 ) continue;
 
 		// Collect consumed cell keys (curveSize - 1 straights per arm)

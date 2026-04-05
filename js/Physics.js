@@ -167,8 +167,10 @@ export function buildTrackColliders( world, models, customCells ) {
 	const allIndices = [];
 	let vertexOffset = 0;
 
-	for ( const [ gx, gz, key, orient ] of cells ) {
+	for ( const cell of cells ) {
 
+		const [ gx, gz, key, orient ] = cell;
+		const flags = cell[ 4 ] || {};
 		const src = models[ key ];
 		if ( ! src ) continue;
 
@@ -190,7 +192,11 @@ export function buildTrackColliders( world, models, customCells ) {
 
 		}
 
-		dummy.position.set( posX, 0.5, posZ );
+		// Elevated tiles use straight model with Y offset
+		const elev = flags.elevation || 0;
+		const elevY = elev === 1 ? 2.416 : elev === 2 ? 4.832 : 0;
+
+		dummy.position.set( posX, 0.5 + elevY, posZ );
 		dummy.rotation.set( 0, THREE.MathUtils.degToRad( deg ), 0 );
 		dummy.updateMatrix();
 

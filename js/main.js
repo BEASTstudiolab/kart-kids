@@ -6,7 +6,7 @@ import { getTrackModelConfig, getTrackTileSet } from './TrackModelConfig.js';
 import { getTrackAsphaltMode, applyTrackAsphaltMode } from './TrackAsphaltMode.js';
 import { Camera } from './Camera.js';
 import { Controls } from './Controls.js';
-import { buildTrack, decodeCells, transformCells, computeSpawnPosition, computeTrackBounds, TRACK_CELLS, CELL_RAW, GRID_SCALE } from './Track.js';
+import { buildTrack, decodeCells, transformCells, deriveRampCells, computeSpawnPosition, computeTrackBounds, TRACK_CELLS, CELL_RAW, GRID_SCALE } from './Track.js';
 import { RaceLobby } from './RaceLobby.js';
 import { AFKDetector } from './AFKDetector.js';
 import { buildWallColliders, buildTrackColliders } from './Physics.js';
@@ -159,9 +159,9 @@ const loader = new GLTFLoader();
 const modelNames = [
 	'vehicle-truck-yellow', 'vehicle-truck-green', 'vehicle-truck-purple', 'vehicle-truck-red',
 	'track-straight-night', 'track-corner-night', 'track-bump', 'track-finish',
-	'track-curve-2x2-l', 'track-curve-2x2-r',
-	'track-curve-3x3-l', 'track-curve-3x3-r',
-	'track-curve-4x4-l', 'track-curve-4x4-r',
+	'track-curve-2x2-l',
+	'track-curve-3x3-l',
+	'track-curve-4x4-l',
 	'track-elev-2p5', 'track-elev-5',
 	'track-ramp-up-2p5', 'track-ramp-up-5',
 	'track-ramp-down-2p5', 'track-ramp-down-5',
@@ -178,7 +178,7 @@ async function loadModels() {
 		new Promise( ( resolve, reject ) => {
 
 			const modelConfig = getTrackModelConfig( name, trackTileSet );
-            loader.load( `models/${ modelConfig.path }.glb`, ( gltf ) => {
+            loader.load( `models/${ modelConfig.path }`, ( gltf ) => {
 
 				gltf.scene.traverse( ( child ) => {
 
@@ -449,7 +449,8 @@ async function init() {
 		() => raceLobby.setReady( playerManager.localId )
 	);
 
-	const trackIntel = new TrackIntel( activeCells );
+	const intelCells = customCells ? deriveRampCells( activeCells ) : activeCells;
+	const trackIntel = new TrackIntel( intelCells );
 	raceMode.trackIntel = trackIntel;
 
 	const aiManager = new AIManager( scene, world, models, trackIntel, spawnPosition, spawnAngle, spawn.finishAngle );

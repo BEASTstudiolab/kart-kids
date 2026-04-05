@@ -31,21 +31,20 @@ export function getRampRole( orient, isLowerCoord ) {
 
 export function getCurveConfig( orient, lr, curveSize ) {
 
-	// CURVE L raw model: road connects WEST edge ↔ NORTH edge, arc at NW corner.
-	// Rotating 90° maps the connected edges:
-	//   rot=0°:   west+north = N+W → orient 22
-	//   rot=90°:  south+west = S+W → orient 0
-	//   rot=180°: east+south = S+E → orient 16
-	//   rot=-90°: north+east = N+E → orient 10
+		// Empirically verified via curve-rotation-test.html:
+	//   orient 0  (S+W) → rot=180°,  NE corner of track
+	//   orient 16 (S+E) → rot=-90°,  NW corner of track
+	//   orient 10 (N+E) → rot=0°,    SW corner of track
+	//   orient 22 (N+W) → rot=90°,   SE corner of track
 	// ALL 4 orients use CURVE L at different rotations.
 
 	const halfShift = ( curveSize - 1 ) / 2 * CELL;
 
 	const rotations = {
-		0: PI / 2,     // S+W
-		16: PI,        // S+E
-		10: - PI / 2,  // N+E
-		22: 0,         // N+W
+		0:  PI,         // S+W (rot=180°)
+		16: - PI / 2,   // S+E (rot=-90°)
+		10: 0,          // N+E (rot=0°)
+		22: PI / 2,     // N+W (rot=90°)
 	};
 
 	const offsets = {

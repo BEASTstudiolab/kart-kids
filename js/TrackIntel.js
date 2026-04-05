@@ -26,6 +26,14 @@ const BASE_CONNECTIVITY = {
 	'track-finish':         [ 'N', 'S' ],
 	'track-corner-night':   [ 'S', 'W' ],
 	'track-bump':           null, // handled specially — all 4 edges open
+
+	// Elevation tiles — same connectivity as straights
+	'track-elev-2p5':       [ 'N', 'S' ],
+	'track-elev-5':         [ 'N', 'S' ],
+	'track-ramp-up-2p5':    [ 'N', 'S' ],
+	'track-ramp-up-5':      [ 'N', 'S' ],
+	'track-ramp-down-2p5':  [ 'N', 'S' ],
+	'track-ramp-down-5':    [ 'N', 'S' ],
 };
 
 function getOpenEdges( pieceType, godotOrient ) {
