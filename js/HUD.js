@@ -122,6 +122,17 @@ export class HUD {
 		this._boostContainer.appendChild( this._boostTrack );
 		document.body.appendChild( this._boostContainer );
 
+		// ── Drift tier indicator ─────────────────────────────────────────────
+		this._driftEl = document.createElement( 'div' );
+		this._driftEl.style.cssText = [
+			'position:fixed', 'bottom:60px', 'left:50%', 'transform:translateX(-50%)',
+			'font:bold 18px sans-serif', 'padding:4px 16px',
+			'border-radius:6px', 'z-index:1000',
+			'pointer-events:none', 'user-select:none', 'display:none',
+			'text-align:center', 'text-shadow:0 0 8px currentColor',
+		].join( ';' );
+		document.body.appendChild( this._driftEl );
+
 		// ── Powerup indicator ────────────────────────────────────────────────
 		this._powerupEl = document.createElement( 'div' );
 		this._powerupEl.style.cssText = [
@@ -234,6 +245,7 @@ export class HUD {
 				this._lapLine.style.transform = `scale(${ lapScale })`;
 
 				this._updateBoostBar( displayState );
+				this._updateDriftIndicator( displayState );
 				this._updatePowerupIndicator( dt, displayState );
 				break;
 
@@ -315,6 +327,33 @@ export class HUD {
 			this._boostFill.style.animation = 'none';
 
 		}
+
+	}
+
+	_updateDriftIndicator( displayState ) {
+
+		const tier = displayState.driftSparkTier || 0;
+		const active = displayState.driftActive || false;
+
+		if ( ! active || tier === 0 ) {
+
+			this._driftEl.style.display = 'none';
+			return;
+
+		}
+
+		this._driftEl.style.display = 'block';
+
+		const TIER_CONFIG = [
+			null,
+			{ text: 'DRIFT!', color: '#4488ff' },
+			{ text: 'DRIFT!!', color: '#ff8800' },
+			{ text: 'DRIFT!!!', color: '#aa44ff' },
+		];
+
+		const cfg = TIER_CONFIG[ tier ];
+		this._driftEl.textContent = cfg.text;
+		this._driftEl.style.color = cfg.color;
 
 	}
 

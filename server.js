@@ -14,6 +14,8 @@ const MIME = {
 	'.css': 'text/css',
 	'.json': 'application/json',
 	'.glb': 'model/gltf-binary',
+	'.gltf': 'model/gltf+json',
+	'.bin': 'application/octet-stream',
 	'.png': 'image/png',
 	'.jpg': 'image/jpeg',
 	'.mp3': 'audio/mpeg',

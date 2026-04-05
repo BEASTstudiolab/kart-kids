@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 const MAX_SEGMENTS = 4000;
 const VERTS_PER_SEGMENT = 6; // 2 triangles
-const BASE_WIDTH = 0.04;
+const BASE_WIDTH = 0.12;
 
 const _posL = new THREE.Vector3();
 const _posR = new THREE.Vector3();

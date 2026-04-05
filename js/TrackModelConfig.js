@@ -30,11 +30,12 @@ export function getTrackModelConfig( name, tileSet = 'standard' ) {
 		if ( name === 'trk-ramp-down-5' ) return { path: 'standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.gltf', rotationY: 0 };
 
 		// ─── Multi-tile curves ──────────────────────────────────
-		// Curve models are pre-aligned — no base rotation needed
+		// All curves calibrated to 270deg (-PI/2)
 
-		if ( name === 'trk-curve-2x2-l' ) return { path: 'standard-map/kartkids_base_trk_080_trn_wide_l_2x2.gltf', rotationY: 0 };
-		if ( name === 'trk-curve-3x3-l' ) return { path: 'standard-map/kartkids_base_trk_520_trn_90_l_3x3.gltf', rotationY: 0 };
-		if ( name === 'trk-curve-4x4-l' ) return { path: 'standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb', rotationY: 0 };
+		if ( name === 'trk-curve-2x2-l' ) return { path: 'standard-map/kartkids_base_trk_080_trn_wide_l_2x2.gltf', rotationY: Math.PI };
+		if ( name === 'trk-curve-2x2-tight-l' ) return { path: 'standard-map/kartkids_base_trk_530_trn_90_l_2x2.gltf', rotationY: Math.PI };
+		if ( name === 'trk-curve-3x3-l' ) return { path: 'standard-map/kartkids_base_trk_520_trn_90_l_3x3.gltf', rotationY: Math.PI };
+		if ( name === 'trk-curve-3x3-wide-l' ) return { path: 'standard-map/kartkids_base_trk_100_trn_widest_l_3x3.gltf', rotationY: Math.PI };
 
 	}
 

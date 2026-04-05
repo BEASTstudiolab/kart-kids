@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { rigidBody, castRay, createClosestCastRayCollector, createDefaultCastRaySettings, CastRayStatus, filter } from 'crashcat';
+import { SpringAnimator } from './SpringAnimator.js';
 
 const _tmpVec = new THREE.Vector3();
 const _forward = new THREE.Vector3();
@@ -7,8 +8,10 @@ const _zAxis = new THREE.Vector3();
 const _newZ = new THREE.Vector3();
 const _mat4 = new THREE.Matrix4();
 const _quat = new THREE.Quaternion();
-const _up = new THREE.Vector3( 0, 1, 0 );
+const _edge1 = new THREE.Vector3();
+const _edge2 = new THREE.Vector3();
 
+export const DrivingState = { NORMAL: 0, DRIFTING: 1, AIRBORNE: 2 };
 
 function lerpAngle( a, b, t ) {
 
@@ -27,10 +30,6 @@ export class Vehicle {
 		this.angularSpeed = 0;
 		this.acceleration = 0;
 
-<<<<<<< Updated upstream
-		this.spherePos = new THREE.Vector3( 3.5, 0.5, 5 );
-		this.sphereVel = new THREE.Vector3();
-=======
 		// Momentum: builds when sustaining high speed, adds bonus toward 150 km/h display
 		this.momentum = 0; // 0–1, builds slowly at high speed
 
@@ -41,7 +40,6 @@ export class Vehicle {
 
 		this.vehPos = new THREE.Vector3( 3.5, 0, 5 );
 		this.vehVel = new THREE.Vector3();
->>>>>>> Stashed changes
 
 		this.rigidBody = null;
 		this.physicsWorld = null;
@@ -94,7 +92,7 @@ export class Vehicle {
 			lockY: false,
 			lockZ: false,
 			wheelHeight: 0,
-			bodyHeight: 0.2,
+			bodyHeight: 0.35,
 			underbodyOffset: - 0.5,
 			accelerationRate: 1,
 			topSpeed: 250,
@@ -117,17 +115,6 @@ export class Vehicle {
 			boostDuration: 4,
 			boostTopSpeed: 350,
 			driftThreshold: 1.0,
-<<<<<<< Updated upstream
-			// Drift state machine (implements R10-R15 from gameplay-juice-pass-plan)
-			driftStageThreshold: 0.3,
-			stage0Duration: 0.15,
-			stage1Duration: 1.0,
-			stage2Duration: 1.5,
-			miniBoostStage2Speed: 300,
-			miniBoostStage3Speed: 325,
-			miniBoostStage2Duration: 1.5,
-			miniBoostStage3Duration: 2.0,
-=======
 			// Arcade drift
 			driftArcSpeed: 3.5,
 			driftMinSpeed: 0.2,
@@ -156,14 +143,11 @@ export class Vehicle {
 			driftOrangeBoostDuration: 1.5,
 			driftPurpleBoostMult: 2.0,
 			driftPurpleBoostDuration: 2.0,
->>>>>>> Stashed changes
 			// Body lean
 			bodyLeanPitch: 6,
 			bodyLeanRoll: 5,
 			// Suspension
 			rideHeight: 0,
-<<<<<<< Updated upstream
-=======
 			suspStiffness: 200,
 			suspDamping: 25,
 			suspMaxCompress: 0.05,
@@ -180,7 +164,6 @@ export class Vehicle {
 			curbDragClampDist: 0.5,     // below this distance, hard-clamp speed
 			curbDragClampSpeed: 0.3,    // max linearSpeed when within clamp distance
 			wallRepulsionForce: 3.0,    // outward push velocity when touching/near wall
->>>>>>> Stashed changes
 		};
 
 		// Raycast ground detection
@@ -188,8 +171,6 @@ export class Vehicle {
 		this.groundNormal = new THREE.Vector3( 0, 1, 0 );
 		this._targetNormal = new THREE.Vector3( 0, 1, 0 );
 		this._prevGroundHeight = 0;
-<<<<<<< Updated upstream
-=======
 		this._verticalVelocity = 0;
 		this._vehicleY = 0;
 		this._airborneTimer = 0;
@@ -200,7 +181,6 @@ export class Vehicle {
 		this._wallProximityLeft = 0;   // 0 = far, 1 = touching wall
 		this._wallProximityRight = 0;
 
->>>>>>> Stashed changes
 		this._rayCollector = null;
 		this._raySettings = null;
 		this._rayFilter = null;
@@ -214,21 +194,31 @@ export class Vehicle {
 			new THREE.Vector3( 0.35, 0, - 0.55 ),   // BR
 		];
 		this._wheelGroundHeights = [ 0, 0, 0, 0 ];
+		this._wheelOnSurface = [ true, true, true, true ];
+
+		// Per-wheel spring suspension
+		this._wheelSprings = [
+			new SpringAnimator( 200, 25 ),  // FL
+			new SpringAnimator( 200, 25 ),  // FR
+			new SpringAnimator( 200, 25 ),  // BL
+			new SpringAnimator( 200, 25 ),  // BR
+		];
+		this._wheelContactY = [ 0, 0, 0, 0 ];
+		this._wheelRawHitY = [ 0, 0, 0, 0 ];
+		this._wheelMissedFrames = [ 0, 0, 0, 0 ];
 
 		// Boost / nitro state
 		this.boostMeter = 0;
 		this.boostActive = false;
 		this.boostTimer = 0;
 
-		// Drift state machine (implements R10-R15 from gameplay-juice-pass-plan)
+		// Drift state machine (legacy fields kept for DriftSparks, BoostFlame, Audio, Network compat)
 		this.driftStage = 0;
 		this.driftStageTimer = 0;
 		this.miniBoostTimer = 0;
 		this.miniBoostTopSpeed = 0;
 		this.effectiveTopSpeed = 250;
 
-<<<<<<< Updated upstream
-=======
 		// Arcade drift state
 		this.drivingState = DrivingState.NORMAL;
 		this.driftActive = false;
@@ -250,7 +240,6 @@ export class Vehicle {
 		this.driftExiting = false;
 		this.driftExitTimer = 0;
 
->>>>>>> Stashed changes
 		// Powerup state
 		this.shieldActive = false;
 		this.shieldTimer = 0;
@@ -267,7 +256,7 @@ export class Vehicle {
 
 		const allNodeNames = [];
 
-		// Find body and wheel nodes
+		// Find body and wheel nodes — only assign named wheels once (top-level group)
 		vehicleModel.traverse( ( child ) => {
 
 			const name = child.name.toLowerCase();
@@ -281,13 +270,28 @@ export class Vehicle {
 
 			} else if ( name.includes( 'wheel' ) && ! name.includes( 'steering' ) ) {
 
-				child.rotation.order = 'YXZ';
-				this.wheels.push( child );
+				// Only assign named wheel refs to the first (top-level) match
+				if ( ! this.wheelFL && name.includes( 'front' ) && name.includes( 'left' ) ) {
 
-				if ( name.includes( 'front' ) && name.includes( 'left' ) ) this.wheelFL = child;
-				if ( name.includes( 'front' ) && name.includes( 'right' ) ) this.wheelFR = child;
-				if ( name.includes( 'back' ) && name.includes( 'left' ) ) this.wheelBL = child;
-				if ( name.includes( 'back' ) && name.includes( 'right' ) ) this.wheelBR = child;
+					child.rotation.order = 'YXZ';
+					this.wheelFL = child;
+
+				} else if ( ! this.wheelFR && name.includes( 'front' ) && name.includes( 'right' ) ) {
+
+					child.rotation.order = 'YXZ';
+					this.wheelFR = child;
+
+				} else if ( ! this.wheelBL && name.includes( 'back' ) && name.includes( 'left' ) ) {
+
+					child.rotation.order = 'YXZ';
+					this.wheelBL = child;
+
+				} else if ( ! this.wheelBR && name.includes( 'back' ) && name.includes( 'right' ) ) {
+
+					child.rotation.order = 'YXZ';
+					this.wheelBR = child;
+
+				}
 
 			}
 
@@ -309,9 +313,6 @@ export class Vehicle {
 
 		}
 
-<<<<<<< Updated upstream
-		this.wheelOrigY = this.wheels.map( ( w ) => w.position.y );
-=======
 		// Store original Y for the 4 named wheel nodes (used for suspension)
 		this._namedWheelOrigY = [
 			this.wheelFL ? this.wheelFL.position.y : 0,
@@ -319,7 +320,6 @@ export class Vehicle {
 			this.wheelBL ? this.wheelBL.position.y : 0,
 			this.wheelBR ? this.wheelBR.position.y : 0,
 		];
->>>>>>> Stashed changes
 
 		// ─── Underglow ────────────────────────────────────────────────────────
 		this.underglowLight = new THREE.PointLight( 0x00ffff, 1, 3 );
@@ -363,6 +363,16 @@ export class Vehicle {
 		filter.disableObjectLayer( this._rayFilter, world.settings.layers, world._OL_MOVING );
 
 		this._prevGroundHeight = this.groundHeight;
+		this._vehicleY = this.groundHeight;
+		this._verticalVelocity = 0;
+
+		// Initialize springs to current ground height so they don't start at 0
+		for ( let i = 0; i < 4; i ++ ) {
+
+			this._wheelSprings[ i ].reset( this.groundHeight );
+			this._wheelContactY[ i ] = this.groundHeight;
+
+		}
 
 		// Read actual wheel X/Z offsets from model nodes if available
 		const wheelNodes = [ this.wheelFL, this.wheelFR, this.wheelBL, this.wheelBR ];
@@ -384,12 +394,23 @@ export class Vehicle {
 
 		if ( ! this._rayCollector || ! this.physicsWorld ) return;
 
-		const RAY_LENGTH = 5.0;
+		const RAY_LENGTH = 10.0;
 		const origin = [ 0, 0, 0 ];
 		const direction = [ 0, - 1, 0 ];
 
-		let totalHeight = 0;
-		let hitCount = 0;
+		// Sync spring params from debug (allows real-time tuning)
+		for ( let i = 0; i < 4; i ++ ) {
+
+			this._wheelSprings[ i ].k = this.debug.suspStiffness;
+			this._wheelSprings[ i ].d = this.debug.suspDamping;
+
+		}
+
+		let anyHit = false;
+
+		// Store world XZ per wheel for proper normal computation
+		const wheelWorldX = [ 0, 0, 0, 0 ];
+		const wheelWorldZ = [ 0, 0, 0, 0 ];
 
 		for ( let i = 0; i < 4; i ++ ) {
 
@@ -397,18 +418,14 @@ export class Vehicle {
 			const localOff = this._wheelOffsets[ i ];
 			_forward.copy( localOff ).applyQuaternion( this.container.quaternion );
 
-<<<<<<< Updated upstream
-			origin[ 0 ] = this.spherePos.x + _forward.x;
-			// Cast from above the current ground height — adapts to elevation changes
-			origin[ 1 ] = Math.max( this.spherePos.y, this.groundHeight ) + 3.0;
-			origin[ 2 ] = this.spherePos.z + _forward.z;
-=======
 			origin[ 0 ] = this.vehPos.x + _forward.x;
 			// Cast from above the highest known position — prevents sinking cascade
 			// when wheels go off tile edges, but stays low enough to avoid ceiling hits
 			origin[ 1 ] = Math.max( this._vehicleY, this.groundHeight ) + 2.0;
 			origin[ 2 ] = this.vehPos.z + _forward.z;
->>>>>>> Stashed changes
+
+			wheelWorldX[ i ] = origin[ 0 ];
+			wheelWorldZ[ i ] = origin[ 2 ];
 
 			// Reset collector fully for reuse
 			this._rayCollector.hit.status = CastRayStatus.NOT_COLLIDING;
@@ -422,11 +439,6 @@ export class Vehicle {
 				const hitDist = this._rayCollector.hit.fraction * RAY_LENGTH;
 				const hitY = origin[ 1 ] - hitDist;
 
-<<<<<<< Updated upstream
-				this._wheelGroundHeights[ i ] = hitY;
-				totalHeight += hitY;
-				hitCount ++;
-=======
 				// Reject ceiling hits — accept any surface below the ray origin
 				// (previous threshold of _vehicleY+1.0 rejected steep ramps at speed)
 				const isAboveOrigin = hitY > origin[ 1 ];
@@ -456,47 +468,47 @@ export class Vehicle {
 					}
 
 				}
->>>>>>> Stashed changes
 
 			} else {
 
-				// No ground hit — use previous height
-				this._wheelGroundHeights[ i ] = this.groundHeight;
+				// Per-wheel miss handling: hold for 3 frames, then descend
+				this._wheelMissedFrames[ i ] ++;
+
+				if ( this._wheelMissedFrames[ i ] > 3 ) {
+
+					// Wheel is airborne — descend target with gravity
+					this._wheelSprings[ i ].setTarget( this._wheelSprings[ i ].target - 9.81 * dt );
+
+				}
+				// Otherwise hold last target (covers tile-boundary seams)
 
 			}
 
+			// Update spring to get damped contact Y
+			this._wheelContactY[ i ] = this._wheelSprings[ i ].update( dt );
+
 		}
 
-		if ( hitCount > 0 ) {
+		if ( anyHit ) {
 
-			this._grounded = true;
-			this._missedFrames = 0;
+			// Only re-ground when falling and near the surface — prevents mid-air snap
+			if ( this._launchCooldown > 0 ) {
 
-			const targetHeight = totalHeight / hitCount;
+				const aboveSurface = this._vehicleY - this.groundHeight;
+				const frontBackOnSurface = this._wheelOnSurface[ 0 ] || this._wheelOnSurface[ 1 ];
+				if ( aboveSurface < 0 || ( frontBackOnSurface && aboveSurface < 0.5 ) || ( this._verticalVelocity < 0 && aboveSurface < 0.5 ) ) {
 
-			// Simple lerp — stable, no oscillation
-			this.groundHeight = THREE.MathUtils.lerp( this.groundHeight, targetHeight, 1 - Math.exp( - 15 * dt ) );
+					this._grounded = true;
+					this._launchCooldown = 0;
 
-			// Compute surface normal from wheel contact points
-			const fl = this._wheelGroundHeights[ 0 ];
-			const fr = this._wheelGroundHeights[ 1 ];
-			const bl = this._wheelGroundHeights[ 2 ];
-			const br = this._wheelGroundHeights[ 3 ];
+				} else {
 
-			const frontAvg = ( fl + fr ) / 2;
-			const backAvg = ( bl + br ) / 2;
-			const wheelbase = Math.abs( this._wheelOffsets[ 0 ].z - this._wheelOffsets[ 2 ].z ) || 1;
+					this._grounded = false;
 
-			const leftAvg = ( fl + bl ) / 2;
-			const rightAvg = ( fr + br ) / 2;
-			const track = Math.abs( this._wheelOffsets[ 0 ].x - this._wheelOffsets[ 1 ].x ) || 1;
+				}
 
-			const slopeForward = ( frontAvg - backAvg ) / wheelbase;
-			const slopeLateral = ( rightAvg - leftAvg ) / track;
+			} else {
 
-<<<<<<< Updated upstream
-			this._targetNormal.set( - slopeLateral, 1, - slopeForward ).normalize();
-=======
 				this._grounded = true;
 
 			}
@@ -612,27 +624,38 @@ export class Vehicle {
 
 			// Ensure normal points upward
 			if ( this._targetNormal.y < 0 ) this._targetNormal.negate();
->>>>>>> Stashed changes
 
 		} else {
 
-			// Hold ground height for a few frames before entering airborne
-			// This prevents single-frame ray misses from causing stuttering
-			this._missedFrames = ( this._missedFrames || 0 ) + 1;
+			// All 4 wheels missed — check if fully airborne
+			const allMissed = this._wheelMissedFrames[ 0 ] > 3 &&
+				this._wheelMissedFrames[ 1 ] > 3 &&
+				this._wheelMissedFrames[ 2 ] > 3 &&
+				this._wheelMissedFrames[ 3 ] > 3;
 
-			if ( this._missedFrames > 5 ) {
+			if ( allMissed ) {
 
 				this._grounded = false;
-				this._targetNormal.set( 0, 1, 0 );
-				this.groundHeight -= 5.0 * dt;
+
+				// Gradual nose-down pitch while airborne — mimics real kart weight distribution
+				const airTime = this._airborneTimer || 0;
+				const pitchAmount = Math.min( airTime * 0.3, 0.4 );  // ramps up over time, caps at ~22°
+				_forward.set( 0, 0, 1 ).applyQuaternion( this.container.quaternion );
+				_forward.y = 0;
+				_forward.normalize();
+				this._targetNormal.set( _forward.x * pitchAmount, 1, _forward.z * pitchAmount ).normalize();
+
+				this.groundHeight -= 9.81 * dt;
 
 			}
-			// Otherwise keep _grounded true and hold last groundHeight
 
 		}
 
-		// Smooth normal blending
-		this.groundNormal.lerp( this._targetNormal, 1 - Math.exp( - 8 * dt ) );
+		// Adaptive normal blend: slow on flat ground (suppresses triangle noise),
+		// fast on slopes (responsive to ramps)
+		const slopeAmount = 1 - this._targetNormal.y;  // 0 on flat, ~0.3 on ramp
+		const normalRate = THREE.MathUtils.lerp( 5, 15, Math.min( slopeAmount * 5, 1 ) );
+		this.groundNormal.lerp( this._targetNormal, 1 - Math.exp( - normalRate * dt ) );
 		this.groundNormal.normalize();
 
 	}
@@ -879,11 +902,13 @@ export class Vehicle {
 		this.driftIntensity = THREE.MathUtils.lerp( this.driftIntensity, this._targetDrift, t );
 		this.acceleration = this.linearSpeed;
 
-		// Derive synthetic drift stage from interpolated driftIntensity for remote visuals
-		if ( this.driftIntensity >= 2.5 ) this.driftStage = 3;
-		else if ( this.driftIntensity >= 1.5 ) this.driftStage = 2;
-		else if ( this.driftIntensity >= ( this.debug.driftStageThreshold || 0.5 ) ) this.driftStage = 1;
-		else this.driftStage = 0;
+		// Derive synthetic drift state from interpolated driftIntensity for remote visuals
+		if ( this.driftIntensity >= 2.5 ) this.driftSparkTier = 3;
+		else if ( this.driftIntensity >= 1.5 ) this.driftSparkTier = 2;
+		else if ( this.driftIntensity >= 0.5 ) this.driftSparkTier = 1;
+		else this.driftSparkTier = 0;
+		this.driftActive = this.driftSparkTier > 0;
+		this.driftStage = this.driftSparkTier;
 
 		// Sync remote boost and powerup state
 		this.boostActive = this._targetBoostActive || false;
@@ -913,12 +938,8 @@ export class Vehicle {
 			let direction = Math.sign( this.linearSpeed );
 			if ( direction === 0 ) direction = Math.abs( this.inputZ ) > 0.1 ? Math.sign( this.inputZ ) : 1;
 
-			const steeringGrip = THREE.MathUtils.clamp( Math.abs( this.linearSpeed ), this.debug.steeringGripMin, this.debug.steeringGripMax );
+			if ( this.drivingState === DrivingState.DRIFTING ) {
 
-<<<<<<< Updated upstream
-			const targetAngular = - this.inputX * steeringGrip * this.debug.steeringMultiplier * direction;
-			this.angularSpeed = THREE.MathUtils.lerp( this.angularSpeed, targetAngular, dt * this.debug.steeringLerp );
-=======
 				// JDM drift: slip-angle-based steering with counter-steer control
 				const d = this.debug;
 
@@ -1001,7 +1022,6 @@ export class Vehicle {
 				this.angularSpeed = THREE.MathUtils.lerp( this.angularSpeed, targetAngular, dt * this.debug.steeringLerp );
 
 			}
->>>>>>> Stashed changes
 
 			this.container.rotateY( this.angularSpeed * dt );
 
@@ -1062,25 +1082,15 @@ export class Vehicle {
 		// Raycast ground detection
 		this.raycastGround( dt );
 
-		// Align vehicle orientation to surface normal
+		// Align vehicle orientation to surface normal — adaptive rate matches normal blend
 		const targetQuat = this.alignWithY( this.container.quaternion, this.groundNormal );
-		this.container.quaternion.slerp( targetQuat, 1 - Math.exp( - 8 * dt ) );
+		const quatRate = THREE.MathUtils.lerp( 5, 15, Math.min( ( 1 - this.groundNormal.y ) * 5, 1 ) );
+		this.container.quaternion.slerp( targetQuat, 1 - Math.exp( - quatRate * dt ) );
 
 		if ( this.rigidBody ) {
 
-			// Read position after last physics step (walls may have pushed it)
+			// Read XZ position from physics (walls may have pushed it), but keep Y from our system
 			const pos = this.rigidBody.position;
-<<<<<<< Updated upstream
-			this.spherePos.set( pos[ 0 ], pos[ 1 ], pos[ 2 ] );
-
-			const vel = this.rigidBody.motionProperties.linearVelocity;
-			this.sphereVel.set( vel[ 0 ], vel[ 1 ], vel[ 2 ] );
-
-			// Keep collider tracking vehicle — Y above ground, rotation matching heading
-			rigidBody.setPosition( this.physicsWorld, this.rigidBody,
-				[ this.spherePos.x, this.groundHeight + this.debug.rideHeight + 0.5, this.spherePos.z ], false );
-			const q = this.container.quaternion;
-=======
 			this.vehPos.set( pos[ 0 ], this._vehicleY, pos[ 2 ] );
 
 			const vel = this.rigidBody.motionProperties.linearVelocity;
@@ -1124,9 +1134,8 @@ export class Vehicle {
 			rigidBody.setPosition( this.physicsWorld, this.rigidBody,
 				[ this.vehPos.x, colliderY, this.vehPos.z ], false );
 
->>>>>>> Stashed changes
 			rigidBody.setQuaternion( this.physicsWorld, this.rigidBody,
-				[ q.x, q.y, q.z, q.w ], false );
+				[ 0, Math.sin( yaw / 2 ), 0, Math.cos( yaw / 2 ) ], false );
 
 		}
 
@@ -1146,15 +1155,11 @@ export class Vehicle {
 
 			}
 
-<<<<<<< Updated upstream
-			this.spherePos.set( 3.5, 0.5, 5 );
-			this.sphereVel.set( 0, 0, 0 );
-=======
 			this.vehPos.set( 3.5, 0, 5 );
 			this.vehVel.set( 0, 0, 0 );
 			this._bumpVel.set( 0, 0, 0 );
->>>>>>> Stashed changes
 			this.groundHeight = 0.5;
+			this._vehicleY = 0.5;
 			this._groundVelocity = 0;
 			this.linearSpeed = 0;
 			this.angularSpeed = 0;
@@ -1163,17 +1168,17 @@ export class Vehicle {
 			this.shieldTimer = 0;
 			this.starActive = false;
 			this.starTimer = 0;
+			this.drivingState = DrivingState.NORMAL;
+			this.driftActive = false;
+			this.driftTimer = 0;
+			this.driftSparkTier = 0;
+			this.driftBoostTimer = 0;
+			this.driftBoostMultiplier = 1.0;
 			this.container.rotation.set( 0, 0, 0 );
 			this.container.quaternion.identity();
 
 		}
 
-<<<<<<< Updated upstream
-		this.container.position.set(
-			this.spherePos.x,
-			this.groundHeight + this.debug.rideHeight,
-			this.spherePos.z
-=======
 		// Vertical positioning: grounded spring when wheels touch, gravity when airborne
 		const GRAVITY = 9.81;
 		const targetY = this.groundHeight + this.debug.rideHeight;
@@ -1263,8 +1268,47 @@ export class Vehicle {
 			this.vehPos.x,
 			this._vehicleY,
 			this.vehPos.z
->>>>>>> Stashed changes
 		);
+
+		// ── Always-on jitter tracker — stores recent spikes for diagnosis ──
+		{
+
+			const yDelta = this._vehicleY - ( this._prevDebugY || this._vehicleY );
+			const rawY = this._wheelRawHitY;
+			const rawAvg = ( rawY[ 0 ] + rawY[ 1 ] + rawY[ 2 ] + rawY[ 3 ] ) / 4;
+
+			if ( ! this._jitterLog ) this._jitterLog = [];
+
+			// Track every frame's key values
+			if ( Math.abs( yDelta ) > 0.005 ) {
+
+				this._jitterLog.push( {
+					t: performance.now(),
+					vehY: this._vehicleY,
+					gndH: this.groundHeight,
+					rawAvg,
+					delta: yDelta,
+					grounded: this._grounded,
+					speed: this.linearSpeed,
+				} );
+
+				// Keep last 20 spikes
+				if ( this._jitterLog.length > 20 ) this._jitterLog.shift();
+
+			}
+
+			this._prevDebugY = this._vehicleY;
+
+			// Expose for debug overlay
+			this.debugJitterInfo = {
+				lastDelta: yDelta,
+				rawAvg,
+				spikeCount: this._jitterLog ? this._jitterLog.length : 0,
+				lastSpike: this._jitterLog && this._jitterLog.length > 0
+					? this._jitterLog[ this._jitterLog.length - 1 ] : null,
+			};
+
+		}
 
 		if ( dt > 0 ) {
 
@@ -1276,20 +1320,13 @@ export class Vehicle {
 		this.updateBody( dt );
 		this.updateWheels( dt );
 
-		this.driftIntensity = Math.abs( this.linearSpeed - this.acceleration ) +
-			( this.bodyNode ? Math.abs( this.bodyNode.rotation.z ) * 2 : 0 );
+		// ── Arcade drift state machine ──���───────────────────────────────────
+		switch ( this.drivingState ) {
 
-		// ── Drift state machine (R10-R13 from gameplay-juice-pass-plan) ────────
-		const stageDurations = [
-			this.debug.stage0Duration,
-			this.debug.stage1Duration,
-			this.debug.stage2Duration,
-			Infinity,
-		];
+			case DrivingState.NORMAL:
+				if ( controlsInput.drift && Math.abs( this.inputX ) > 0.1
+					&& Math.abs( this.linearSpeed ) > this.debug.driftMinSpeed && this._grounded ) {
 
-<<<<<<< Updated upstream
-		if ( this.driftIntensity >= this.debug.driftStageThreshold ) {
-=======
 					this.drivingState = DrivingState.DRIFTING;
 					this.driftActive = true;
 					this.driftDirection = - Math.sign( this.inputX );
@@ -1313,16 +1350,13 @@ export class Vehicle {
 					this.driftForwardDir.set( 0, 0, 1 ).applyQuaternion( this.container.quaternion );
 					this.driftForwardDir.y = 0;
 					this.driftForwardDir.normalize();
->>>>>>> Stashed changes
 
-			this.driftStageTimer += dt;
+				}
+				break;
 
-			if ( this.driftStage < 3 && this.driftStageTimer >= stageDurations[ this.driftStage ] ) {
+			case DrivingState.DRIFTING:
+				if ( ! controlsInput.drift || Math.abs( this.linearSpeed ) < 0.01 ) {
 
-<<<<<<< Updated upstream
-				this.driftStage ++;
-				this.driftStageTimer = 0;
-=======
 					this._applyDriftBoost();
 					this.drivingState = DrivingState.NORMAL;
 					this.driftActive = false;
@@ -1400,30 +1434,12 @@ export class Vehicle {
 
 				this.driftBoostTimer = 0;
 				this.driftBoostMultiplier = 1.0;
->>>>>>> Stashed changes
 
 			}
-
-		} else if ( this.driftStage > 0 ) {
-
-			// Drift release — grant mini-boost if Stage 2+
-			if ( this.driftStage >= 2 ) {
-
-				this.miniBoostTopSpeed = this.driftStage === 3
-					? this.debug.miniBoostStage3Speed
-					: this.debug.miniBoostStage2Speed;
-				this.miniBoostTimer = this.driftStage === 3
-					? this.debug.miniBoostStage3Duration
-					: this.debug.miniBoostStage2Duration;
-
-			}
-
-			this.driftStage = 0;
-			this.driftStageTimer = 0;
 
 		}
 
-		// Mini-boost timer
+		// Mini-boost timer (used by item box speed powerup)
 		if ( this.miniBoostTimer > 0 ) {
 
 			this.miniBoostTimer -= dt;
@@ -1482,15 +1498,15 @@ export class Vehicle {
 			// Fill meter
 			let fillRate = dt / this.debug.boostFillTime;
 
-			if ( this.driftIntensity > this.debug.driftThreshold ) {
+			if ( this.driftActive ) {
 
 				fillRate *= this.debug.boostDriftMultiplier;
 
 			}
 
-			// R14: faster nitro fill at higher drift stages
+			// Faster nitro fill at higher drift tiers
 			const stageFillMultiplier = [ 1.0, 1.0, 1.5, 2.0 ];
-			fillRate *= stageFillMultiplier[ this.driftStage ];
+			fillRate *= stageFillMultiplier[ this.driftSparkTier ];
 
 			this.boostMeter = Math.min( 1, this.boostMeter + fillRate );
 
@@ -1510,6 +1526,7 @@ export class Vehicle {
 		this.effectiveTopSpeed = Math.max(
 			this.debug.topSpeed * ( this.externalTopSpeedMultiplier || 1 ) * ( this.draftSpeedMultiplier || 1 ),
 			this.boostActive ? this.debug.boostTopSpeed : 0,
+			this.driftBoostTimer > 0 ? this.debug.topSpeed * this.driftBoostMultiplier : 0,
 			this.miniBoostTimer > 0 ? this.miniBoostTopSpeed : 0,
 			this.starActive ? this.debug.boostTopSpeed : 0
 		);
@@ -1517,10 +1534,6 @@ export class Vehicle {
 		// ── Drive force — apply velocity toward desired speed ─────────────────
 		if ( this.rigidBody ) {
 
-<<<<<<< Updated upstream
-			// Compute desired forward velocity using effectiveTopSpeed
-			_forward.set( 0, 0, 1 ).applyQuaternion( this.container.quaternion );
-=======
 			// Horizontal drive direction (Y handled by raycast ground system, not drive force)
 			if ( this.drivingState === DrivingState.DRIFTING || this.driftExiting ) {
 
@@ -1555,22 +1568,20 @@ export class Vehicle {
 			const slopeGravity = - 9.81 * _forward.y * 0.5;
 
 			// Project drive to horizontal plane
->>>>>>> Stashed changes
 			_forward.y = 0;
 			_forward.normalize();
 
-			// topSpeed was an angular accumulation rate in the old system;
-			// divide by speedScale to get a sensible linear velocity (~12 units/sec max)
 			const desiredSpeed = this.linearSpeed * this.effectiveTopSpeed / this.debug.speedScale;
+			const slopeAdjustedSpeed = desiredSpeed + slopeGravity;
 
-			// Blend desired velocity with physics velocity to preserve wall collision response
-			const blendRate = 1 - Math.exp( - this.debug.velocityBlendRate * dt );
-			const newVelX = this.sphereVel.x + ( _forward.x * desiredSpeed - this.sphereVel.x ) * blendRate;
-			const newVelZ = this.sphereVel.z + ( _forward.z * desiredSpeed - this.sphereVel.z ) * blendRate;
+			// Drain _bumpVel as a consumed impulse spread over several frames.
+			// Each frame we apply a fraction and subtract it — no accumulation.
+			const bumpApply = 1 - Math.exp( - 12 * dt );
+			const bumpDeltaX = this._bumpVel.x * bumpApply;
+			const bumpDeltaZ = this._bumpVel.z * bumpApply;
+			this._bumpVel.x -= bumpDeltaX;
+			this._bumpVel.z -= bumpDeltaZ;
 
-<<<<<<< Updated upstream
-			rigidBody.setLinearVelocity( this.physicsWorld, this.rigidBody, [ newVelX, this.sphereVel.y, newVelZ ] );
-=======
 			// Kill tiny residual
 			if ( this._bumpVel.x * this._bumpVel.x + this._bumpVel.z * this._bumpVel.z < 0.0001 ) {
 
@@ -1640,15 +1651,12 @@ export class Vehicle {
 			// Always zero Y velocity — vertical position is managed entirely by raycasts,
 			// never by the physics body (gravityFactor=0).
 			rigidBody.setLinearVelocity( this.physicsWorld, this.rigidBody, [ newVelX, 0, newVelZ ] );
->>>>>>> Stashed changes
 			rigidBody.setAngularVelocity( this.physicsWorld, this.rigidBody, [ 0, 0, 0 ] );
 
 		}
 
 	}
 
-<<<<<<< Updated upstream
-=======
 	_getYaw() {
 
 		const q = this.container.quaternion;
@@ -1673,7 +1681,6 @@ export class Vehicle {
 
 	}
 
->>>>>>> Stashed changes
 	alignWithY( quaternion, newY ) {
 
 		_zAxis.set( 0, 0, 1 ).applyQuaternion( quaternion );
@@ -1689,15 +1696,43 @@ export class Vehicle {
 
 		if ( ! this.bodyNode ) return;
 
+		// Suspension-driven body tilt from plane-relative deviations only
+		// (absolute slope is already handled by alignWithY on the container)
+		let suspPitch = 0;
+		let suspRoll = 0;
+
+		if ( this._grounded ) {
+
+			const n = this._targetNormal;
+			const rawCentroidY = ( this._wheelRawHitY[ 0 ] + this._wheelRawHitY[ 1 ] +
+				this._wheelRawHitY[ 2 ] + this._wheelRawHitY[ 3 ] ) / 4;
+			const devs = [ 0, 0, 0, 0 ];
+
+			for ( let i = 0; i < 4; i ++ ) {
+
+				const localOff = this._wheelOffsets[ i ];
+				_forward.copy( localOff ).applyQuaternion( this.container.quaternion );
+				const expectedY = rawCentroidY - ( n.x * _forward.x + n.z * _forward.z ) / ( n.y || 1 );
+				devs[ i ] = this._wheelRawHitY[ i ] - expectedY;
+
+			}
+
+			// Pitch from deviation: front deviated up vs back = nose up
+			suspPitch = ( ( devs[ 0 ] + devs[ 1 ] ) / 2 - ( devs[ 2 ] + devs[ 3 ] ) / 2 ) * 3.0;
+
+			// Roll from deviation: right deviated up vs left = roll left
+			suspRoll = ( ( devs[ 1 ] + devs[ 3 ] ) / 2 - ( devs[ 0 ] + devs[ 2 ] ) / 2 ) * 3.0;
+
+		}
+
+		// Combine acceleration lean + suspension-driven tilt
+		const accelPitch = - ( this.linearSpeed - this.acceleration ) / this.debug.bodyLeanPitch;
 		this.bodyNode.rotation.x = lerpAngle(
 			this.bodyNode.rotation.x,
-			-( this.linearSpeed - this.acceleration ) / this.debug.bodyLeanPitch,
+			accelPitch + suspPitch,
 			dt * 10
 		);
 
-<<<<<<< Updated upstream
-		// R15: body lean roll scales with drift stage for more aggressive cornering feel
-=======
 		// Combine steering lean + suspension-driven roll
 		let steerRoll;
 		if ( this.driftActive ) {
@@ -1712,31 +1747,66 @@ export class Vehicle {
 			steerRoll = - ( this.inputX / ( this.debug.bodyLeanRoll / ( 1 + this.driftStage * 0.3 ) ) ) * this.linearSpeed;
 
 		}
->>>>>>> Stashed changes
 		this.bodyNode.rotation.z = lerpAngle(
 			this.bodyNode.rotation.z,
-			-( this.inputX / ( this.debug.bodyLeanRoll / ( 1 + this.driftStage * 0.3 ) ) ) * this.linearSpeed,
+			steerRoll + suspRoll,
 			dt * 5
 		);
 
-		this.bodyNode.position.y = THREE.MathUtils.lerp( this.bodyNode.position.y, 0.2 + this.debug.bodyHeight, dt * 5 );
+		this.bodyNode.position.y = THREE.MathUtils.lerp( this.bodyNode.position.y, 0.2 + this.debug.bodyHeight, dt * 3 );
 
 	}
 
 	updateWheels( dt ) {
 
-		for ( let i = 0; i < this.wheels.length; i ++ ) {
+		// Use the 4 named wheel nodes — these are the top-level groups
+		// (this.wheels from traverse may include sub-meshes, so don't use it for suspension)
+		const wheelNodes = [ this.wheelFL, this.wheelFR, this.wheelBL, this.wheelBR ];
 
-			const wheel = this.wheels[ i ];
+		for ( let i = 0; i < 4; i ++ ) {
 
-			wheel.rotation.x += this.acceleration;
+			if ( ! wheelNodes[ i ] ) continue;
 
-			wheel.position.y = ( this.wheelOrigY[ i ] || 0 ) + this.debug.wheelHeight;
+			// Rolling animation
+			wheelNodes[ i ].rotation.x += this.acceleration;
+
+			// Suspension offset: only for wheels still on the surface.
+			// Off-edge wheels get zero offset (neutral position).
+			let suspOffset = 0;
+
+			if ( this._wheelOnSurface[ i ] ) {
+
+				const localOff = this._wheelOffsets[ i ];
+				_forward.copy( localOff ).applyQuaternion( this.container.quaternion );
+
+				// Compute centroid from on-surface wheels only
+				let onSurfaceCentroidY = 0, onSurfaceCount = 0;
+				for ( let j = 0; j < 4; j ++ ) {
+
+					if ( this._wheelOnSurface[ j ] ) {
+
+						onSurfaceCentroidY += this._wheelRawHitY[ j ];
+						onSurfaceCount ++;
+
+					}
+
+				}
+
+				onSurfaceCentroidY /= ( onSurfaceCount || 1 );
+
+				const n = this._targetNormal;
+				const expectedY = onSurfaceCentroidY - ( n.x * _forward.x + n.z * _forward.z ) / ( n.y || 1 );
+
+				suspOffset = this._wheelRawHitY[ i ] - expectedY;
+				suspOffset = Math.max( - this.debug.suspMaxExtend,
+					Math.min( this.debug.suspMaxCompress, suspOffset ) );
+
+			}
+
+			wheelNodes[ i ].position.y = this._namedWheelOrigY[ i ] + this.debug.wheelHeight + suspOffset;
 
 		}
 
-<<<<<<< Updated upstream
-=======
 		// Front wheel steering — rotates the entire wheel group (tire + rim together)
 		// During drift, front wheels show counter-steer angle for the JDM look
 		let wheelSteerAngle;
@@ -1751,7 +1821,6 @@ export class Vehicle {
 
 		}
 
->>>>>>> Stashed changes
 		if ( this.wheelFL ) {
 
 			this.wheelFL.rotation.y = lerpAngle( this.wheelFL.rotation.y, wheelSteerAngle, dt * 10 );

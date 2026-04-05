@@ -9,26 +9,42 @@
 		body { margin: 0; overflow: hidden; background: #000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
 		canvas { display: block; touch-action: none; }
 
-		#toolbar {
+		#toolbar-row {
 			position: absolute;
 			bottom: 20px;
 			left: 50%;
 			transform: translateX(-50%);
 			display: flex;
 			align-items: center;
-			gap: 6px;
-			padding: 8px 10px;
-			background: rgba(20, 20, 30, 0.85);
-			backdrop-filter: blur(12px);
-			-webkit-backdrop-filter: blur(12px);
-			border-radius: 14px;
-			border: 1px solid rgba(255, 255, 255, 0.1);
-			box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+			gap: 8px;
 			z-index: 10;
 		}
 
-		#toolbar button {
-			padding: 8px 16px;
+		.toolbar-group {
+			display: flex;
+			align-items: center;
+			gap: 4px;
+			padding: 6px 8px;
+			background: rgba(20, 20, 30, 0.85);
+			backdrop-filter: blur(12px);
+			-webkit-backdrop-filter: blur(12px);
+			border-radius: 12px;
+			border: 1px solid rgba(255, 255, 255, 0.1);
+			box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+		}
+
+		.toolbar-group .group-label {
+			font-size: 9px;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.05em;
+			color: rgba(255, 255, 255, 0.3);
+			padding: 0 6px;
+			pointer-events: none;
+		}
+
+		.toolbar-group button {
+			padding: 8px;
 			border: none;
 			border-radius: 8px;
 			background: transparent;
@@ -38,12 +54,19 @@
 			cursor: pointer;
 			transition: all 0.15s;
 			white-space: nowrap;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 6px;
 		}
-		#toolbar button:hover {
+		.toolbar-group button svg {
+			flex-shrink: 0;
+		}
+		.toolbar-group button:hover {
 			background: rgba(255, 255, 255, 0.1);
 			color: #fff;
 		}
-		#toolbar button.active {
+		.toolbar-group button.active {
 			background: rgba(255, 255, 255, 0.18);
 			color: #fff;
 		}
@@ -56,27 +79,165 @@
 			flex-shrink: 0;
 		}
 
-		#toolbar button.action {
+		.toolbar-group button.action {
 			background: rgba(80, 180, 80, 0.25);
 			color: rgba(140, 255, 140, 0.9);
 		}
-		#toolbar button.action:hover {
+		.toolbar-group button.action:hover {
 			background: rgba(80, 180, 80, 0.4);
 			color: #fff;
 		}
 
-		#toolbar button.danger {
+		.toolbar-group button.danger {
 			color: rgba(255, 255, 255, 0.45);
 		}
-		#toolbar button.danger:hover {
+		.toolbar-group button.danger:hover {
 			background: rgba(220, 80, 80, 0.25);
 			color: rgba(255, 140, 140, 0.9);
 		}
 
-		#toolbar button:disabled {
+		.toolbar-group button:disabled {
 			opacity: 0.3;
 			cursor: default;
 			pointer-events: none;
+		}
+
+		/* ─── Tooltips ────────────────────────────────────────── */
+
+		.toolbar-group button {
+			position: relative;
+		}
+		.toolbar-group button::after {
+			content: attr(data-tip);
+			position: absolute;
+			bottom: calc(100% + 8px);
+			left: 50%;
+			transform: translateX(-50%) scale(0.9);
+			padding: 5px 10px;
+			background: rgba(20, 20, 30, 0.95);
+			backdrop-filter: blur(12px);
+			-webkit-backdrop-filter: blur(12px);
+			border: 1px solid rgba(255, 255, 255, 0.12);
+			border-radius: 6px;
+			color: rgba(255, 255, 255, 0.9);
+			font-size: 11px;
+			font-weight: 500;
+			white-space: nowrap;
+			pointer-events: none;
+			opacity: 0;
+			transition: opacity 0.15s, transform 0.15s;
+			z-index: 30;
+		}
+		.toolbar-group button:hover::after {
+			opacity: 1;
+			transform: translateX(-50%) scale(1);
+		}
+		.toolbar-group button:disabled::after {
+			display: none;
+		}
+		.toolbar-group button:not([data-tip])::after {
+			display: none;
+		}
+
+		.radial-btn::after {
+			content: attr(data-tip);
+			position: absolute;
+			bottom: calc(100% + 6px);
+			left: 50%;
+			transform: translateX(-50%) scale(0.9);
+			padding: 4px 8px;
+			background: rgba(20, 20, 30, 0.95);
+			backdrop-filter: blur(12px);
+			-webkit-backdrop-filter: blur(12px);
+			border: 1px solid rgba(255, 255, 255, 0.12);
+			border-radius: 5px;
+			color: rgba(255, 255, 255, 0.9);
+			font-size: 10px;
+			font-weight: 500;
+			white-space: nowrap;
+			pointer-events: none;
+			opacity: 0;
+			transition: opacity 0.15s, transform 0.15s;
+			z-index: 30;
+		}
+		.radial-btn:hover::after {
+			opacity: 1;
+			transform: translateX(-50%) scale(1);
+		}
+
+		/* ─── Debug tile tooltip ──────────────────────────────── */
+
+		#debug-tooltip {
+			position: absolute;
+			z-index: 25;
+			pointer-events: none;
+			background: rgba(10, 10, 20, 0.92);
+			backdrop-filter: blur(10px);
+			-webkit-backdrop-filter: blur(10px);
+			border: 1px solid rgba(255,255,255,0.12);
+			border-radius: 8px;
+			padding: 8px 12px;
+			color: #eee;
+			font-size: 11px;
+			display: none;
+			max-width: 300px;
+			white-space: nowrap;
+			font-family: monospace;
+			line-height: 1.5;
+		}
+		#debug-tooltip .dt-title { font-weight: 600; font-size: 12px; color: #8cf; margin-bottom: 2px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+		#debug-tooltip .dt-dim { color: #888; }
+
+		/* ─── Radial context menu ─────────────────────────────── */
+
+		#radial-menu {
+			position: absolute;
+			pointer-events: none;
+			z-index: 15;
+			display: none;
+		}
+		#radial-menu.visible { display: block; }
+
+		.radial-btn {
+			position: absolute;
+			width: 32px;
+			height: 32px;
+			border: none;
+			border-radius: 50%;
+			background: rgba(20, 20, 30, 0.9);
+			backdrop-filter: blur(12px);
+			-webkit-backdrop-filter: blur(12px);
+			border: 1px solid rgba(255, 255, 255, 0.15);
+			box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+			color: rgba(255, 255, 255, 0.85);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+			pointer-events: auto;
+			transition: transform 0.12s, background 0.12s, opacity 0.15s;
+			transform: scale(0);
+			opacity: 0;
+		}
+		.radial-btn svg {
+			flex-shrink: 0;
+		}
+		#radial-menu.visible .radial-btn.shown {
+			transform: scale(1);
+			opacity: 1;
+		}
+		.radial-btn:hover {
+			background: rgba(60, 60, 80, 0.95);
+			transform: scale(1.15) !important;
+			color: #fff;
+		}
+		.radial-btn:active {
+			transform: scale(0.95) !important;
+		}
+		.radial-btn.radial-active {
+			background: rgba(80, 180, 80, 0.4);
+			border-color: rgba(140, 255, 140, 0.4);
+			color: rgba(140, 255, 140, 0.95);
 		}
 
 		#toast {
@@ -103,8 +264,8 @@
 
 		#minimap {
 			position: absolute;
-			bottom: 80px;
-			right: 16px;
+			top: 16px;
+			left: 16px;
 			width: 180px;
 			height: 180px;
 			background: rgba(20, 20, 30, 0.75);
@@ -274,31 +435,84 @@
 	</script>
 </head>
 <body>
-	<div id="toolbar">
-		<button id="btn-road" class="active">Road</button>
-		<button id="btn-erase">Erase</button>
-		<div class="separator"></div>
-		<button id="btn-undo" disabled title="Undo (Ctrl+Z)">Undo</button>
-		<button id="btn-redo" disabled title="Redo (Ctrl+Shift+Z)">Redo</button>
-		<div class="separator"></div>
-		<button id="btn-play" class="action">Play</button>
-		<button id="btn-share" class="action">Share</button>
-		<div class="separator"></div>
-		<button id="btn-save">Save</button>
-		<button id="btn-load">Load</button>
-		<div class="separator"></div>
-		<button id="btn-validate">Validate</button>
-		<div class="separator"></div>
-		<button id="btn-view-top" class="active" title="Top-down (0)">Top</button>
-		<button id="btn-view-iso" title="Isometric">Iso</button>
-		<button id="btn-view-front" title="Front view">Front</button>
-		<div class="separator"></div>
-		<button id="btn-tod" title="Time of day">Day</button>
-		<div class="separator"></div>
-		<button id="btn-clear" class="danger">Clear</button>
+	<div id="toolbar-row">
+		<div class="toolbar-group" id="toolbar-tools">
+			<span class="group-label">Tools</span>
+			<button id="btn-road" class="active" data-tip="Draw road">
+				<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
+			</button>
+			<button id="btn-erase" data-tip="Erase">
+				<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg>
+			</button>
+			<button id="btn-elevate" data-tip="Elevate">
+				<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></svg>
+			</button>
+			<div class="separator"></div>
+			<button id="btn-undo" disabled data-tip="Undo (⌘Z)">
+				<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>
+			</button>
+			<button id="btn-redo" disabled data-tip="Redo (⌘⇧Z)">
+				<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5A5.5 5.5 0 0 0 9.5 20H13"/></svg>
+			</button>
+		</div>
+		<div class="toolbar-group" id="toolbar-view">
+			<span class="group-label">View</span>
+			<button id="btn-view-top" class="active" data-tip="Top-down">
+				<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 12h18"/><path d="M12 3v18"/></svg>
+			</button>
+			<button id="btn-view-iso" data-tip="Isometric">
+				<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+			</button>
+			<button id="btn-view-front" data-tip="Front">
+				<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/></svg>
+			</button>
+			<div class="separator"></div>
+			<button id="btn-tod" data-tip="Time of day">
+				<svg id="icon-tod" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+			</button>
+		</div>
+		<div class="toolbar-group" id="toolbar-file">
+			<span class="group-label">File</span>
+			<button id="btn-save" data-tip="Save">
+				<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg>
+			</button>
+			<button id="btn-load" data-tip="Load">
+				<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/></svg>
+			</button>
+			<div class="separator"></div>
+			<button id="btn-validate" data-tip="Validate">
+				<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
+			</button>
+			<div class="separator"></div>
+			<button id="btn-clear" class="danger" data-tip="Clear all">
+				<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+			</button>
+		</div>
+		<div class="toolbar-group" id="toolbar-play">
+			<span class="group-label">Play</span>
+			<button id="btn-play" class="action" data-tip="Play">
+				<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+			</button>
+			<button id="btn-share" class="action" data-tip="Share link">
+				<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
+			</button>
+		</div>
 	</div>
 
 	<div id="toast"></div>
+
+	<div id="debug-tooltip"></div>
+	<div id="radial-menu">
+		<button id="radial-rotate" class="radial-btn" data-tip="Rotate">
+			<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+		</button>
+		<button id="radial-curve" class="radial-btn" data-tip="Toggle curve">
+			<svg id="radial-curve-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 20c-2 0-4-.5-6-2s-4-4-6-4-4 .5-6 2"/></svg>
+		</button>
+		<button id="radial-elevate" class="radial-btn" data-tip="Elevate">
+			<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
+		</button>
+	</div>
 	<div id="minimap"></div>
 
 	<div id="stats-panel">
@@ -336,6 +550,9 @@
 	import * as THREE from 'three';
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 	import { ORIENT_DEG, CELL_RAW, GRID_SCALE, encodeCells, decodeCells } from './js/Track.js';
+import { getTrackModelConfig, getTrackTileSet } from './js/TrackModelConfig.js';
+import { getCurveConfig, getCurveLR } from './js/TileMetadata.js';
+import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMode.js';
 
 	// ─── Auto-tile lookup ─────────────────────────────────────
 	// Bitmask: N=8 S=4 E=2 W=1
@@ -365,7 +582,7 @@
 	// ─── State ────────────────────────────────────────────────
 
 	const grid = new Map(); // "gx,gz" → { type, orient, isFinish, mesh }
-	let tool = 'road'; // 'road', 'erase'
+	let tool = 'road'; // 'road', 'erase', 'elevate'
 
 	function cellKey( gx, gz ) { return gx + ',' + gz; }
 
@@ -381,7 +598,15 @@
 		for ( const [ key, cell ] of grid ) {
 
 			const [ gx, gz ] = key.split( ',' ).map( Number );
-			snap.push( [ gx, gz, cell.type, cell.orient, cell.isFinish ] );
+			const entry = { gx, gz, type: cell.type, orient: cell.orient, isFinish: cell.isFinish };
+			if ( cell.curveSize != null ) entry.curveSize = cell.curveSize;
+			if ( cell.curveConsumed ) entry.curveConsumed = [ ...cell.curveConsumed ];
+			if ( cell.curveVariant ) entry.curveVariant = cell.curveVariant;
+			if ( cell.rotationOverride ) entry.rotationOverride = true;
+			if ( cell.elevation != null && cell.elevation !== 0 ) entry.elevation = cell.elevation;
+			if ( cell.autoRamp ) entry.autoRamp = true;
+			if ( cell.rampParent ) entry.rampParent = cell.rampParent;
+			snap.push( entry );
 
 		}
 
@@ -391,22 +616,45 @@
 
 	function restoreSnapshot( snap ) {
 
-		// Remove all existing meshes
+		// Remove all existing meshes (including curve meshes)
 		for ( const [ , cell ] of grid ) {
 
 			if ( cell.mesh ) trackGroup.remove( cell.mesh );
+			if ( cell.curveMesh ) trackGroup.remove( cell.curveMesh );
 
 		}
 
 		grid.clear();
 
-		for ( const [ gx, gz, type, orient, isFinish ] of snap ) {
+		for ( const entry of snap ) {
 
-			const cell = { type, orient, isFinish, mesh: null };
-			grid.set( cellKey( gx, gz ), cell );
-			placeMesh( gx, gz, cell );
+			const cell = {
+				type: entry.type,
+				orient: entry.orient,
+				isFinish: entry.isFinish,
+				mesh: null,
+			};
+			if ( entry.curveSize != null ) cell.curveSize = entry.curveSize;
+			if ( entry.curveConsumed ) cell.curveConsumed = new Set( entry.curveConsumed );
+			if ( entry.curveVariant ) cell.curveVariant = entry.curveVariant;
+			// Migration: old saves with curveSize but no curveVariant
+			if ( cell.curveSize >= 2 && ! cell.curveVariant ) {
+				if ( cell.curveSize === 2 ) cell.curveVariant = '2x2-wide';
+				else cell.curveVariant = '3x3'; // cap at 3x3 (no 4x4 model)
+				if ( cell.curveSize > 3 ) cell.curveSize = 3;
+			}
+			if ( entry.rotationOverride ) cell.rotationOverride = true;
+			if ( entry.elevation != null ) cell.elevation = entry.elevation;
+			if ( entry.autoRamp ) cell.autoRamp = true;
+			if ( entry.rampParent ) cell.rampParent = entry.rampParent;
+
+			grid.set( cellKey( entry.gx, entry.gz ), cell );
+			placeMesh( entry.gx, entry.gz, cell );
 
 		}
+
+		// Re-render curves from restored metadata
+		renderCurves();
 
 		save();
 		updateStats();
@@ -780,19 +1028,18 @@
 
 	const loader = new GLTFLoader();
 	const modelNames = [
-<<<<<<< Updated upstream
-		'track-straight-night', 'track-corner-night', 'track-bump', 'track-finish',
-=======
 		'trk-straight', 'trk-corner-1x1', 'trk-finish',
 		'trk-curve-2x2-l',
+		'trk-curve-2x2-tight-l',
 		'trk-curve-3x3-l',
-		'trk-curve-4x4-l',
+		'trk-curve-3x3-wide-l',
 		'trk-elev-2p5', 'trk-elev-5',
 		'trk-ramp-up-2p5', 'trk-ramp-up-5',
 		'trk-ramp-down-2p5', 'trk-ramp-down-5',
->>>>>>> Stashed changes
 		'vehicle-truck-red'
 	];
+	const trackTileSet = getTrackTileSet( globalThis.location?.search ?? '' );
+	const asphaltMode = getTrackAsphaltMode( globalThis.location?.search ?? '' );
 	const models = {};
 
 	async function loadModels() {
@@ -800,11 +1047,15 @@
 		const promises = modelNames.map( ( name ) =>
 			new Promise( ( resolve, reject ) => {
 
-				loader.load( `models/${ name }.glb`, ( gltf ) => {
+				const modelConfig = getTrackModelConfig( name, trackTileSet );
+                loader.load( `models/${ modelConfig.path }`, ( gltf ) => {
 
 					gltf.scene.traverse( ( child ) => {
 
-						if ( child.isMesh ) child.material.side = THREE.FrontSide;
+						if ( child.isMesh ) {
+							child.material.side = THREE.FrontSide;
+							applyTrackAsphaltMode( child.material, { asphaltMode } );
+						}
 
 					} );
 
@@ -814,7 +1065,18 @@
 
 					}
 
-					models[ name ] = gltf.scene;
+					if ( modelConfig.rotationY !== 0 ) {
+
+						const wrapper = new THREE.Group();
+						gltf.scene.rotation.y = modelConfig.rotationY;
+						wrapper.add( gltf.scene );
+						models[ name ] = wrapper;
+
+					} else {
+
+						models[ name ] = gltf.scene;
+
+					}
 					resolve();
 
 				}, undefined, reject );
@@ -1099,7 +1361,9 @@
 		if ( ! src ) return;
 
 		const mesh = src.clone();
-		mesh.position.set( ( gx + 0.5 ) * CELL_RAW, 0.5, ( gz + 0.5 ) * CELL_RAW );
+		const elev = cell.elevation || 0;
+		const elevY = elev === 1 ? 2.416 : elev === 2 ? 4.832 : 0;
+		mesh.position.set( ( gx + 0.5 ) * CELL_RAW, 0.5 + elevY, ( gz + 0.5 ) * CELL_RAW );
 		mesh.rotation.y = THREE.MathUtils.degToRad( ORIENT_DEG[ cell.orient ] || 0 );
 		mesh.traverse( ( c ) => {
 
@@ -1122,6 +1386,22 @@
 		const key = cellKey( gx, gz );
 		const cell = grid.get( key );
 		if ( ! cell ) return;
+
+		// Manual rotation override: keep current type/orient, just ensure mesh exists
+		if ( cell.rotationOverride ) {
+
+			if ( ! cell.mesh ) placeMesh( gx, gz, cell );
+			return;
+
+		}
+
+		// Auto-ramp and elevated cells: don't auto-resolve
+		if ( cell.autoRamp || ( cell.elevation && cell.elevation > 0 ) ) {
+
+			if ( ! cell.mesh ) placeMesh( gx, gz, cell );
+			return;
+
+		}
 
 		let baseType, orient;
 
@@ -1171,14 +1451,11 @@
 		resolveCell( gx + 1, gz );
 		resolveCell( gx - 1, gz );
 
-<<<<<<< Updated upstream
-=======
-		detectCurves( gx, gz );
 		renderCurves();
 
 	}
 
-	// ─── Smart Corner Detection ──────────────────────────────
+	// ─── Curve Utilities ─────────────────────────────────────
 
 	// Direction deltas: N=8, S=4, E=2, W=1
 	const DIR_DELTA = {
@@ -1188,183 +1465,126 @@
 		1: [ - 1, 0 ],  // W
 	};
 
-	function detectCurves( changedGx, changedGz ) {
+	// ─── Available Curve Options ─────────────────────────────
 
-		const SCAN_RADIUS = 5;
+	// Returns array of { variant, curveSize, consumed } for a corner cell.
+	// Counts consecutive straights on each arm (skipping consumed ones),
+	// validates NxN footprint, and returns only sizes that fit.
 
-		// --- Phase 1: Collect candidate corners near the changed cell ---
-		const candidates = [];
+	function getAvailableCurveOptions( gx, gz ) {
 
-		for ( let dx = - SCAN_RADIUS; dx <= SCAN_RADIUS; dx ++ ) {
+		const cell = grid.get( cellKey( gx, gz ) );
+		if ( ! cell || cell.type !== 'trk-corner-1x1' ) return [];
 
-			for ( let dz = - SCAN_RADIUS; dz <= SCAN_RADIUS; dz ++ ) {
+		const exits = getCellExits( cell );
+		const dirBits = [ 8, 4, 2, 1 ].filter( b => exits & b );
+		if ( dirBits.length !== 2 ) return [];
 
-				const cgx = changedGx + dx;
-				const cgz = changedGz + dz;
-				const key = cellKey( cgx, cgz );
-				const cell = grid.get( key );
-				if ( ! cell ) continue;
-				if ( cell.type !== 'trk-corner-1x1' ) continue;
-				if ( cell.curveOverride || cell.rotationOverride ) continue;
+		// Collect all consumed keys across the grid (for other curves)
+		const globalConsumed = new Set();
+		for ( const [ , c ] of grid ) {
 
-				// Clear any previous curve metadata from this corner
-				cell.curveSize = undefined;
-				cell.curveConsumed = undefined;
+			if ( c.curveConsumed && c !== cell ) {
 
-				const exits = getCellExits( cell );
-
-				// Extract the two exit direction bits
-				const dirBits = [];
-				for ( const bit of [ 8, 4, 2, 1 ] ) {
-
-					if ( exits & bit ) dirBits.push( bit );
-
-				}
-
-				if ( dirBits.length !== 2 ) continue;
-
-				// Walk each exit direction counting consecutive straights
-				const walks = [];
-				for ( const bit of dirBits ) {
-
-					const [ ddx, ddz ] = DIR_DELTA[ bit ];
-					const keys = [];
-					let nx = cgx + ddx;
-					let nz = cgz + ddz;
-
-					while ( true ) {
-
-						const nk = cellKey( nx, nz );
-						const nc = grid.get( nk );
-						if ( ! nc ) break;
-						if ( nc.type !== 'trk-straight' ) break;
-						keys.push( nk );
-						nx += ddx;
-						nz += ddz;
-
-					}
-
-					walks.push( { count: keys.length, keys } );
-
-				}
-
-				const curveSize = Math.min( walks[ 0 ].count, walks[ 1 ].count, 4 );
-				if ( curveSize < 2 ) continue;
-
-				// Collect consumed cell keys (only up to curveSize - 1 straights per arm)
-				const consumed = new Set();
-				for ( const walk of walks ) {
-
-					for ( let i = 0; i < curveSize - 1; i ++ ) {
-
-						consumed.add( walk.keys[ i ] );
-
-					}
-
-				}
-
-				candidates.push( { gx: cgx, gz: cgz, key, curveSize, consumed } );
+				for ( const ck of c.curveConsumed ) globalConsumed.add( ck );
 
 			}
 
 		}
 
-		// --- Phase 2: Sort greedily — largest first, ties by key string ---
-		candidates.sort( ( a, b ) => {
+		// Walk each arm counting consecutive straights
+		const walks = dirBits.map( bit => {
 
-			if ( b.curveSize !== a.curveSize ) return b.curveSize - a.curveSize;
-			return a.key < b.key ? - 1 : a.key > b.key ? 1 : 0;
+			const [ ddx, ddz ] = DIR_DELTA[ bit ];
+			const keys = [];
+			let nx = gx + ddx, nz = gz + ddz;
+
+			while ( true ) {
+
+				const nk = cellKey( nx, nz );
+				const nc = grid.get( nk );
+				if ( ! nc ) break;
+				if ( nc.type !== 'trk-straight' ) break;
+				if ( globalConsumed.has( nk ) ) break; // already consumed by another curve
+				keys.push( nk );
+				nx += ddx;
+				nz += ddz;
+
+			}
+
+			return keys;
 
 		} );
 
-		// --- Phase 3: Assign curves, preventing overlap ---
-		const claimed = new Set();
+		const maxSize = Math.min( walks[ 0 ].length, walks[ 1 ].length, 4 );
 
-		for ( const cand of candidates ) {
+		// Footprint direction based on corner orient
+		let fpDx, fpDz;
+		if ( cell.orient === 0 ) { fpDx = - 1; fpDz = 1; }
+		else if ( cell.orient === 16 ) { fpDx = 1; fpDz = 1; }
+		else if ( cell.orient === 10 ) { fpDx = 1; fpDz = - 1; }
+		else if ( cell.orient === 22 ) { fpDx = - 1; fpDz = - 1; }
+		else return [];
 
-			// Check that corner cell itself is not claimed by another curve
-			if ( claimed.has( cand.key ) ) continue;
+		const options = [];
 
-			// Check that none of the consumed cells are already claimed
-			let blocked = false;
-			for ( const ck of cand.consumed ) {
+		// Variant-to-size mapping
+		const variants = [
+			{ variant: '2x2-wide', curveSize: 2 },
+			{ variant: '2x2-tight', curveSize: 2 },
+			{ variant: '3x3', curveSize: 3 },
+			{ variant: '3x3-wide', curveSize: 3 },
+		];
 
-				if ( claimed.has( ck ) ) {
+		for ( const v of variants ) {
 
-					blocked = true;
-					break;
+			if ( v.curveSize - 1 > maxSize ) continue; // not enough straights
 
-				}
+			// Build consumed set for this size
+			const consumed = new Set();
+			for ( const walk of walks ) {
 
-			}
+				for ( let i = 0; i < v.curveSize - 1; i ++ ) {
 
-			if ( blocked ) continue;
-
-			// Verify NxN footprint is clear
-			// The footprint is the curveSize x curveSize area anchored at the corner.
-			// Corner orient determines which quadrant the footprint extends into:
-			//   orient 0 (S+W): corner is NE of footprint → footprint extends -x, +z
-			//   orient 16 (S+E): corner is NW → footprint extends +x, +z
-			//   orient 10 (N+E): corner is SW → footprint extends +x, -z
-			//   orient 22 (N+W): corner is SE → footprint extends -x, -z
-			const cell = grid.get( cand.key );
-			const orient = cell.orient;
-			let fpDx, fpDz; // direction the footprint extends from the corner
-
-			if ( orient === 0 ) { fpDx = - 1; fpDz = 1; }
-			else if ( orient === 16 ) { fpDx = 1; fpDz = 1; }
-			else if ( orient === 10 ) { fpDx = 1; fpDz = - 1; }
-			else if ( orient === 22 ) { fpDx = - 1; fpDz = - 1; }
-			else continue;
-
-			let footprintClear = true;
-			for ( let fx = 0; fx < cand.curveSize && footprintClear; fx ++ ) {
-
-				for ( let fz = 0; fz < cand.curveSize && footprintClear; fz ++ ) {
-
-					if ( fx === 0 && fz === 0 ) continue; // the corner cell itself
-
-					const fpKey = cellKey( cand.gx + fx * fpDx, cand.gz + fz * fpDz );
-
-					// Cell must be empty or part of this curve's consumed set
-					if ( grid.has( fpKey ) && ! cand.consumed.has( fpKey ) ) {
-
-						footprintClear = false;
-
-					}
-
-					// Also check it's not claimed by another curve
-					if ( claimed.has( fpKey ) ) {
-
-						footprintClear = false;
-
-					}
+					consumed.add( walk[ i ] );
 
 				}
 
 			}
 
-			if ( ! footprintClear ) continue;
+			// Footprint check: NxN area must be clear
+			let clear = true;
+			for ( let fx = 0; fx < v.curveSize && clear; fx ++ ) {
 
-			// Assign curve metadata
-			cell.curveSize = cand.curveSize;
-			cell.curveConsumed = cand.consumed;
+				for ( let fz = 0; fz < v.curveSize && clear; fz ++ ) {
 
-			// Mark all consumed cells + corner as claimed
-			claimed.add( cand.key );
-			for ( const ck of cand.consumed ) {
+					if ( fx === 0 && fz === 0 ) continue;
+					const fpKey = cellKey( gx + fx * fpDx, gz + fz * fpDz );
+					if ( grid.has( fpKey ) && ! consumed.has( fpKey ) ) clear = false;
+					if ( globalConsumed.has( fpKey ) ) clear = false;
 
-				claimed.add( ck );
+				}
 
 			}
 
-			console.log( `[detectCurves] Corner at (${ cand.gx },${ cand.gz }) → ${ cand.curveSize }x${ cand.curveSize } curve, consumed: [${ [ ...cand.consumed ].join( '; ' ) }]` );
+			if ( ! clear ) continue;
+
+			options.push( { variant: v.variant, curveSize: v.curveSize, consumed } );
 
 		}
+
+		return options;
 
 	}
 
 	// ─── Curve Rendering ─────────────────────────────────────
+
+	const VARIANT_MODEL = {
+		'2x2-wide': 'trk-curve-2x2-l',
+		'2x2-tight': 'trk-curve-2x2-tight-l',
+		'3x3': 'trk-curve-3x3-l',
+		'3x3-wide': 'trk-curve-3x3-wide-l',
+	};
 
 	// Orient → left/right turn direction for curve model selection
 	// Orient 0 (S+W exits) → left, Orient 16 (S+E) → right,
@@ -1408,10 +1628,10 @@
 			// --- Render cells that have a curve ---
 			if ( cell.curveSize >= 2 ) {
 
-				const curveConfig = getCurveConfig( cell.orient, null, cell.curveSize );
-				const lr = curveConfig.lr || getCurveLR( cell.orient );
+				const curveConfig = getCurveConfig( cell.orient, cell.curveVariant, cell.curveSize );
 
-				const modelName = `trk-curve-${ cell.curveSize }x${ cell.curveSize }-${ lr }`;
+				const modelName = VARIANT_MODEL[ cell.curveVariant ];
+				if ( ! modelName ) { console.warn( 'Unknown curve variant:', cell.curveVariant ); continue; }
 				const src = models[ modelName ];
 				if ( ! src ) {
 
@@ -1546,7 +1766,7 @@
 		for ( const [ key, cell ] of grid ) {
 
 			if ( cell.type !== 'trk-corner-1x1' ) continue;
-			if ( cell.curveOverride || cell.rotationOverride ) continue;
+			if ( cell.rotationOverride ) continue;
 
 			const [ cgx, cgz ] = key.split( ',' ).map( Number );
 			const exits = getCellExits( cell );
@@ -1939,7 +2159,6 @@
 
 		save();
 
->>>>>>> Stashed changes
 	}
 
 	// ─── Cell operations ──────────────────────────────────────
@@ -1948,9 +2167,25 @@
 
 		const key = cellKey( gx, gz );
 
+		// Elevation tool mode: delegate to cycleElevation
+		if ( tool === 'elevate' ) {
+
+			cycleElevation( gx, gz );
+			return;
+
+		}
+
 		if ( grid.has( key ) ) {
 
 			const cell = grid.get( key );
+
+			// Reject clicks on auto-managed ramp tiles
+			if ( cell.autoRamp ) {
+
+				showToast( 'Ramp is auto-managed' );
+				return;
+
+			}
 
 			// Click on finish tile → flip direction (rotate 180°)
 			if ( cell.isFinish ) {
@@ -1960,9 +2195,11 @@
 				placeMesh( gx, gz, cell );
 				save();
 				updateFinishCar();
+				return;
 
 			}
 
+			// Curve toggle handled by radial menu — no click action on curves
 			return;
 
 		}
@@ -1992,15 +2229,96 @@
 		const cell = grid.get( key );
 		if ( cell.isFinish ) return;
 
-		pushUndo();
+		// If erasing an auto-ramp cell, cascade-delete the entire elevation group first
+		if ( cell.autoRamp && cell.rampParent ) {
+
+			pushUndo();
+			clearElevationGroup( cell.rampParent );
+			showToast( 'Elevation group removed' );
+			// Now continue to erase the originally targeted cell (which is now a normal straight)
+
+		} else if ( cell.elevation && cell.elevation > 0 ) {
+
+			// Erasing an elevated parent cell: clear the whole group first
+			pushUndo();
+			clearElevationGroup( key );
+			showToast( 'Elevation group removed' );
+			// Now continue to erase the originally targeted cell
+
+		} else {
+
+			pushUndo();
+
+		}
+
+		// If this cell is a curve corner, clean up the curve
+		if ( cell.curveMesh ) {
+
+			trackGroup.remove( cell.curveMesh );
+			cell.curveMesh = null;
+
+		}
+
+		if ( cell.curveConsumed ) {
+
+			for ( const ck of cell.curveConsumed ) {
+
+				const cc = grid.get( ck );
+				if ( cc && cc.mesh ) cc.mesh.visible = true;
+
+			}
+
+			cell.curveSize = undefined;
+			cell.curveConsumed = undefined;
+			cell.curveVariant = undefined;
+			cell._prevConsumed = null;
+
+		}
+
+		// If this cell is consumed by another corner's curve, dissolve that curve
+		for ( const [ ck, cc ] of grid ) {
+
+			if ( cc.curveConsumed && cc.curveConsumed.has( key ) ) {
+
+				// Restore all consumed cells' visibility
+				for ( const consumedKey of cc.curveConsumed ) {
+
+					const consumedCell = grid.get( consumedKey );
+					if ( consumedCell && consumedCell.mesh ) consumedCell.mesh.visible = true;
+
+				}
+
+				// Restore corner cell's own mesh visibility
+				if ( cc.mesh ) cc.mesh.visible = true;
+
+				// Remove the curve mesh
+				if ( cc.curveMesh ) {
+
+					trackGroup.remove( cc.curveMesh );
+					cc.curveMesh = null;
+
+				}
+
+				cc.curveSize = undefined;
+				cc.curveConsumed = undefined;
+				cc.curveVariant = undefined;
+				cc._prevConsumed = null;
+				break; // a cell can only be consumed by one curve
+
+			}
+
+		}
+
 		if ( cell.mesh ) trackGroup.remove( cell.mesh );
 		grid.delete( key );
 
-		// Re-resolve neighbors
+		// Re-resolve neighbors (also re-detects curves)
 		resolveCell( gx, gz - 1 );
 		resolveCell( gx, gz + 1 );
 		resolveCell( gx + 1, gz );
 		resolveCell( gx - 1, gz );
+
+		renderCurves();
 
 		save();
 		updateStats();
@@ -2014,6 +2332,7 @@
 		for ( const [ , cell ] of grid ) {
 
 			if ( cell.mesh ) trackGroup.remove( cell.mesh );
+			if ( cell.curveMesh ) trackGroup.remove( cell.curveMesh );
 
 		}
 
@@ -2061,7 +2380,7 @@
 
 		clearGhost();
 
-		if ( tool === 'erase' ) return;
+		if ( tool === 'erase' || tool === 'elevate' ) return;
 
 		const key = cellKey( gx, gz );
 		if ( grid.has( key ) ) return; // already occupied
@@ -2189,13 +2508,14 @@
 
 		} else if ( existing ) {
 
-			indicatorMat.color.setHex( tool === 'erase' ? 0xff4444 : 0x888888 );
-			outlineMat.color.setHex( tool === 'erase' ? 0xff4444 : 0x888888 );
+			const color = tool === 'erase' ? 0xff4444 : tool === 'elevate' ? 0x44ccff : 0x888888;
+			indicatorMat.color.setHex( color );
+			outlineMat.color.setHex( color );
 
 		} else {
 
-			indicatorMat.color.setHex( 0x44ff88 );
-			outlineMat.color.setHex( 0x44ff88 );
+			indicatorMat.color.setHex( tool === 'elevate' ? 0x44ccff : 0x44ff88 );
+			outlineMat.color.setHex( tool === 'elevate' ? 0x44ccff : 0x44ff88 );
 
 		}
 
@@ -2208,8 +2528,6 @@
 
 	}
 
-<<<<<<< Updated upstream
-=======
 	// ─── Debug mode ──────────────────────────────────────────
 
 	let debugMode = false;
@@ -2254,7 +2572,7 @@
 		const flags = [];
 		if ( cell.isFinish ) flags.push( 'finish' );
 		if ( cell.rotationOverride ) flags.push( 'rot-override' );
-		if ( cell.curveOverride ) flags.push( 'curve-override' );
+		if ( cell.curveVariant ) flags.push( cell.curveVariant );
 		if ( cell.curveSize ) flags.push( 'curve-' + cell.curveSize + 'x' + cell.curveSize );
 		if ( cell.autoRamp ) flags.push( 'auto-ramp' );
 
@@ -2317,13 +2635,15 @@
 
 		}
 
-		// Curve corner or consumed by curve → toggle curve
-		if ( cell.curveSize >= 2 || cell.curveOverride ) {
+		// Corner with available curves → cycle curve variants
+		if ( cell.type === 'trk-corner-1x1' ) {
 
-			actions.push( 'curve' );
+			const opts = getAvailableCurveOptions( gx, gz );
+			if ( opts.length > 0 || cell.curveVariant ) actions.push( 'curve' );
 
 		} else {
 
+			// If hovering a consumed straight, show curve action to allow reverting
 			for ( const [ , cc ] of grid ) {
 
 				if ( cc.curveConsumed && cc.curveConsumed.has( key ) ) {
@@ -2393,20 +2713,21 @@
 		if ( actions.includes( 'curve' ) ) buttons.push( radialCurve );
 		if ( actions.includes( 'elevate' ) ) buttons.push( radialElevate );
 
-		// Update curve button state
+		// Update curve button state — show current variant
 		if ( actions.includes( 'curve' ) ) {
 
 			const key = cellKey( gx, gz );
 			const cell = grid.get( key );
-			// Check if this cell or its curve parent has curveOverride
-			let isOverridden = cell && cell.curveOverride;
-			if ( ! isOverridden ) {
+			let variant = cell ? cell.curveVariant : null;
+
+			// If hovering a consumed straight, get variant from parent corner
+			if ( ! variant && cell ) {
 
 				for ( const [ , cc ] of grid ) {
 
-					if ( cc.curveConsumed && cc.curveConsumed.has( key ) && cc.curveOverride ) {
+					if ( cc.curveConsumed && cc.curveConsumed.has( key ) ) {
 
-						isOverridden = true;
+						variant = cc.curveVariant;
 						break;
 
 					}
@@ -2415,20 +2736,19 @@
 
 			}
 
-			// Spline icon for auto-curve, corner icon for hard corner
 			const curveIcon = document.getElementById( 'radial-curve-icon' );
-			if ( isOverridden ) {
-
-				curveIcon.innerHTML = '<polyline points="9 17 9 5"/><polyline points="15 17 15 13"/><path d="M5 21h14"/>';
-
-			} else {
+			if ( variant ) {
 
 				curveIcon.innerHTML = '<path d="M21 20c-2 0-4-.5-6-2s-4-4-6-4-4 .5-6 2"/>';
 
+			} else {
+
+				curveIcon.innerHTML = '<polyline points="9 17 9 5"/><polyline points="15 17 15 13"/><path d="M5 21h14"/>';
+
 			}
 
-			radialCurve.dataset.tip = isOverridden ? 'Hard corner' : 'Auto curve';
-			radialCurve.classList.toggle( 'radial-active', isOverridden );
+			radialCurve.dataset.tip = variant || '1x1 corner';
+			radialCurve.classList.toggle( 'radial-active', !! variant );
 
 		}
 
@@ -2520,12 +2840,11 @@
 		const cell = grid.get( key );
 		if ( ! cell ) return;
 
-		// Find the curve corner cell (might be this cell or a parent)
-		let cornerKey = null, cornerCell = null, cornerGx, cornerGz;
+		// Find the curve corner cell (might be this cell or a consumed straight's parent)
+		let cornerCell = null, cornerGx, cornerGz;
 
-		if ( cell.curveSize >= 2 || cell.curveOverride ) {
+		if ( cell.type === 'trk-corner-1x1' ) {
 
-			cornerKey = key;
 			cornerCell = cell;
 			cornerGx = radialGx;
 			cornerGz = radialGz;
@@ -2536,7 +2855,6 @@
 
 				if ( cc.curveConsumed && cc.curveConsumed.has( key ) ) {
 
-					cornerKey = ck;
 					cornerCell = cc;
 					const parts = ck.split( ',' ).map( Number );
 					cornerGx = parts[ 0 ];
@@ -2553,19 +2871,43 @@
 
 		pushUndo();
 
-		if ( cornerCell.curveOverride ) {
+		// Cycle through available curve variants
+		const options = getAvailableCurveOptions( cornerGx, cornerGz );
+		const cycleOrder = [ null, '2x2-wide', '2x2-tight', '3x3', '3x3-wide' ];
+		const currentVariant = cornerCell.curveVariant || null;
+		const rawIdx = cycleOrder.indexOf( currentVariant );
+		const currentIdx = rawIdx === - 1 ? 0 : rawIdx; // unknown variant → start from beginning
 
-			delete cornerCell.curveOverride;
-			showToast( 'Auto curve' );
+		// Find next available variant in cycle order
+		let nextVariant = null;
+		for ( let i = 1; i <= cycleOrder.length; i ++ ) {
 
-		} else {
-
-			cornerCell.curveOverride = true;
-			showToast( 'Hard corner' );
+			const candidate = cycleOrder[ ( currentIdx + i ) % cycleOrder.length ];
+			if ( candidate === null ) { nextVariant = null; break; }
+			const opt = options.find( o => o.variant === candidate );
+			if ( opt ) { nextVariant = candidate; break; }
 
 		}
 
-		detectCurves( cornerGx, cornerGz );
+		// Apply the selected variant
+		if ( nextVariant === null ) {
+
+			// Revert to 1x1 corner
+			cornerCell.curveVariant = undefined;
+			cornerCell.curveSize = undefined;
+			cornerCell.curveConsumed = undefined;
+			showToast( '1x1 corner' );
+
+		} else {
+
+			const opt = options.find( o => o.variant === nextVariant );
+			cornerCell.curveVariant = nextVariant;
+			cornerCell.curveSize = opt.curveSize;
+			cornerCell.curveConsumed = opt.consumed;
+			showToast( nextVariant );
+
+		}
+
 		renderCurves();
 		save();
 
@@ -2589,20 +2931,11 @@
 	// Prevent radial clicks from reaching the canvas
 	radialMenu.addEventListener( 'pointerdown', ( e ) => e.stopPropagation() );
 
->>>>>>> Stashed changes
 	// ─── Persistence ──────────────────────────────────────────
 
 	function save() {
 
-		const arr = [];
-		for ( const [ key, cell ] of grid ) {
-
-			const [ gx, gz ] = key.split( ',' ).map( Number );
-			arr.push( [ gx, gz, cell.type, cell.orient ] );
-
-		}
-
-		const encoded = encodeCells( arr );
+		const encoded = encodeCells( getCellsArray() );
 		localStorage.setItem( 'racing-editor-cells', encoded );
 
 	}
@@ -2619,14 +2952,30 @@
 
 			const arr = decodeCells( encoded );
 
-			for ( const [ gx, gz, type, orient ] of arr ) {
+			for ( const [ gx, gz, type, orient, flags ] of arr ) {
 
 				const isFinish = ( type === 'trk-finish' );
 				const cell = { type, orient, isFinish, mesh: null };
+
+				// Restore flags if present
+				if ( flags ) {
+
+					if ( flags.elevation ) cell.elevation = flags.elevation;
+					if ( flags.curveVariant ) cell.curveVariant = flags.curveVariant;
+					if ( flags.rotationOverride ) cell.rotationOverride = true;
+
+				}
+
 				grid.set( cellKey( gx, gz ), cell );
 				placeMesh( gx, gz, cell );
 
 			}
+
+			// Re-derive ramps from elevated cells
+			deriveRampsFromElevation();
+
+			// Re-derive curves
+			deriveAllCurves();
 
 		} catch ( e ) {
 
@@ -2695,6 +3044,7 @@
 		for ( const [ , cell ] of grid ) {
 
 			if ( cell.mesh ) trackGroup.remove( cell.mesh );
+			if ( cell.curveMesh ) trackGroup.remove( cell.curveMesh );
 
 		}
 
@@ -2704,14 +3054,30 @@
 
 			const arr = decodeCells( encoded );
 
-			for ( const [ gx, gz, type, orient ] of arr ) {
+			for ( const [ gx, gz, type, orient, flags ] of arr ) {
 
 				const isFinish = ( type === 'trk-finish' );
 				const cell = { type, orient, isFinish, mesh: null };
+
+				// Restore flags if present
+				if ( flags ) {
+
+					if ( flags.elevation ) cell.elevation = flags.elevation;
+					if ( flags.curveVariant ) cell.curveVariant = flags.curveVariant;
+					if ( flags.rotationOverride ) cell.rotationOverride = true;
+
+				}
+
 				grid.set( cellKey( gx, gz ), cell );
 				placeMesh( gx, gz, cell );
 
 			}
+
+			// Re-derive ramps from elevated cells
+			deriveRampsFromElevation();
+
+			// Re-derive curves
+			deriveAllCurves();
 
 		} catch ( e ) {
 
@@ -3010,17 +3376,20 @@
 
 	const btnRoad = document.getElementById( 'btn-road' );
 	const btnErase = document.getElementById( 'btn-erase' );
+	const btnElevate = document.getElementById( 'btn-elevate' );
 
 	function selectTool( t ) {
 
 		tool = t;
 		btnRoad.classList.toggle( 'active', t === 'road' );
 		btnErase.classList.toggle( 'active', t === 'erase' );
+		btnElevate.classList.toggle( 'active', t === 'elevate' );
 
 	}
 
 	btnRoad.addEventListener( 'click', () => selectTool( 'road' ) );
 	btnErase.addEventListener( 'click', () => selectTool( 'erase' ) );
+	btnElevate.addEventListener( 'click', () => selectTool( 'elevate' ) );
 
 	document.getElementById( 'btn-undo' ).addEventListener( 'click', undo );
 	document.getElementById( 'btn-redo' ).addEventListener( 'click', redo );
@@ -3030,10 +3399,10 @@
 		const arr = [];
 		for ( const [ key, cell ] of grid ) {
 
+			// Skip autoRamp cells — they are derived from elevated cells at load time
+			if ( cell.autoRamp ) continue;
+
 			const [ gx, gz ] = key.split( ',' ).map( Number );
-<<<<<<< Updated upstream
-			arr.push( [ gx, gz, cell.type, cell.orient ] );
-=======
 
 			// For encoding, use the base type name for elevated cells
 			let typeName = cell.type;
@@ -3046,12 +3415,11 @@
 
 			const flags = {
 				elevation: cell.elevation || 0,
-				curveOverride: !! cell.curveOverride,
+				curveVariant: cell.curveVariant || null,
 				rotationOverride: !! cell.rotationOverride,
 			};
 
 			arr.push( [ gx, gz, typeName, cell.orient, flags ] );
->>>>>>> Stashed changes
 
 		}
 
@@ -3167,6 +3535,7 @@
 
 		el.setPointerCapture( e.pointerId );
 		pointers.set( e.pointerId, { x: e.clientX, y: e.clientY } );
+		hideRadialMenu();
 
 		// Two pointers → switch to pan/pinch
 		if ( pointers.size === 2 ) {
@@ -3318,12 +3687,16 @@
 				hoveredCell = cell;
 				updateGhost( cell.gx, cell.gz );
 				updateCellIndicator( cell.gx, cell.gz );
+				showRadialMenu( cell.gx, cell.gz );
+				updateDebugTooltip( cell.gx, cell.gz, e.clientX, e.clientY );
 
 			} else {
 
 				hoveredCell = null;
 				clearGhost();
 				hideCellIndicator();
+				hideRadialMenu();
+				hideDebugTooltip();
 
 			}
 
@@ -3401,6 +3774,10 @@
 
 			selectTool( 'erase' );
 
+		} else if ( e.key === '3' ) {
+
+			selectTool( 'elevate' );
+
 		} else if ( e.key === '0' ) {
 
 			setView( 'top' );
@@ -3414,6 +3791,30 @@
 
 			e.preventDefault();
 			undo();
+
+		} else if ( e.key === 'r' || e.key === 'R' ) {
+
+			// Manual rotation: cycle orient 90° clockwise
+			if ( hoveredCell ) {
+
+				const key = cellKey( hoveredCell.gx, hoveredCell.gz );
+				const cell = grid.get( key );
+				if ( cell ) {
+
+					pushUndo();
+
+					// Clockwise cycle: 0 (0°) → 16 (90°) → 10 (180°) → 22 (270°) → 0
+					const ORIENT_CYCLE = { 0: 16, 16: 10, 10: 22, 22: 0 };
+					cell.orient = ORIENT_CYCLE[ cell.orient ] ?? 0;
+					cell.rotationOverride = true;
+
+					placeMesh( hoveredCell.gx, hoveredCell.gz, cell );
+					renderCurves();
+					save();
+
+				}
+
+			}
 
 		} else if ( e.key === '+' || e.key === '=' ) {
 
@@ -3466,3 +3867,12 @@
 	</script>
 </body>
 </html>
+<script>
+// DEBUG: Press 'T' to place a test curve at origin with surrounding straights
+window.__debugCurveTest = function() {
+    const scene = document.querySelector('canvas').__scene;
+    if (!scene) { console.log('no scene'); return; }
+    // This function is called from the main module scope via a global reference
+    console.log('Use the existing test - press T in the editor');
+};
+</script>

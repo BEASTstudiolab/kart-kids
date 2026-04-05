@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Tile Tester - Kart Kids</title>
+	<style>
+		body { margin: 0; overflow: hidden; background: #1a1a2e; }
+		canvas { display: block; }
+		#hud {
+			position: absolute;
+			top: 16px;
+			left: 16px;
+			color: #fff;
+			font: 16px/1.5 monospace;
+			background: rgba(0,0,0,0.7);
+			padding: 12px 18px;
+			border-radius: 8px;
+			z-index: 10;
+			pointer-events: none;
+		}
+		#hud .tile-name { font-size: 14px; color: #adf; }
+		#hud .controls { font-size: 12px; color: #888; margin-top: 8px; }
+		#back-link {
+			position: absolute;
+			bottom: 12px;
+			left: 16px;
+			color: #fff;
+			font: 14px sans-serif;
+			text-decoration: none;
+			background: rgba(0,0,0,0.5);
+			padding: 8px 14px;
+			border-radius: 6px;
+			z-index: 10;
+		}
+		#back-link:hover { background: rgba(0,0,0,0.7); }
+	</style>
+	<script type="importmap">
+	{
+		"imports": {
+			"three": "./node_modules/three/build/three.module.js",
+			"three/addons/": "./node_modules/three/examples/jsm/",
+			"crashcat": "https://esm.sh/crashcat@0.0.2"
+		}
+	}
+	</script>
+</head>
+<body>
+	<div id="hud">
+		<div id="tile-index">1 / 46</div>
+		<div id="tile-name" class="tile-name">loading...</div>
+		<div class="controls">
+			[ ] = prev/next tile<br>
+			WASD = drive | Space = brake<br>
+			R = respawn on tile<br>
+			B = toggle body bounds<br>
+			T = toggle all tire bounds<br>
+			1-4 = toggle individual tire (FL FR BL BR)<br>
+			+/- = adjust body height<br>
+			P = pause/unpause<br>
+			G = run ramp auto-test<br>
+			J = run jump tile test (tiles 35-37)<br>
+			F = run jitter diagnostic<br>
+			H = toggle debug overlay
+		</div>
+	</div>
+	<div id="debug-overlay" style="
+		position:absolute; bottom:50px; left:16px;
+		color:#0f0; font:12px/1.6 monospace;
+		background:rgba(0,0,0,0.7); padding:8px 12px;
+		border-radius:6px; z-index:10; pointer-events:none;
+		white-space:pre;
+	"></div>
+	<a id="back-link" href="index.html">Back to game</a>
+	<script type="module" src="js/TileTester.js"></script>
+</body>
+</html>

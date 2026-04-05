@@ -237,6 +237,8 @@ export class SettingsMenu {
 		overlay.appendChild( panel );
 		document.body.appendChild( overlay );
 		this._overlay = overlay;
+		this._panel = panel;
+		this._closeBtn = closeBtn;
 
 	}
 
@@ -250,6 +252,31 @@ export class SettingsMenu {
 		h3.textContent = title;
 		sec.appendChild( h3 );
 		return sec;
+
+	}
+
+	_toggleRowCustom( label, initialValue, onChange ) {
+
+		const row = document.createElement( 'div' );
+		row.className = 'settings-row';
+
+		const lbl = document.createElement( 'span' );
+		lbl.className = 'settings-label';
+		lbl.textContent = label;
+
+		const toggle = document.createElement( 'div' );
+		toggle.className = 'settings-toggle' + ( initialValue ? ' on' : '' );
+		toggle.addEventListener( 'pointerup', () => {
+
+			const newVal = ! toggle.classList.contains( 'on' );
+			toggle.classList.toggle( 'on', newVal );
+			onChange( newVal );
+
+		} );
+
+		row.appendChild( lbl );
+		row.appendChild( toggle );
+		return row;
 
 	}
 
@@ -351,6 +378,14 @@ export class SettingsMenu {
 		row.appendChild( lbl );
 		row.appendChild( wrap );
 		return row;
+
+	}
+
+	// ─── Public: insert a section before the close button ────────────────────
+
+	addSection( sectionEl ) {
+
+		this._panel.insertBefore( sectionEl, this._closeBtn );
 
 	}
 

@@ -2970,11 +2970,706 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260403_140135
 ## Session End: 20260403_135127
 ### Commits
 741958b kart-kids-v0.21-claude-skills-update
 d217699 kart-kids-v0.20
 ### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+---
+
+## Session End: 20260403_140814
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_141009
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_141146
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_141327
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_141409
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_141655
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_141855
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_142204
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_142538
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_143118
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_143549
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_143959
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_144655
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_145048
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_145214
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_145449
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_145755
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_150057
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_150759
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_150957
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_151211
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_151256
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_151519
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_152016
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_152710
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_153008
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_153120
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_153812
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_154154
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_154322
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_154501
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_154904
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_155408
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_155452
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_155708
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_160211
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_160457
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_160609
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_160725
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_160951
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_161226
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_161456
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_162340
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_162437
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_162758
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_162936
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_163103
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_163208
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_163432
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_163715
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_163928
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_164845
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_165051
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_170305
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_170619
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_170827
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_171038
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_171800
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_172153
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_181148
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
 .claude/docs/CLAUDE-local-template.md
 .claude/docs/agent-coordination-map.md
 .claude/docs/hooks-reference.md
@@ -3017,6 +3712,59 @@ ae67cfa feat(editor-v2): glb→gltf migration, smart curves, elevation, TrackInt
 js/Physics.js
 js/Vehicle.js
 js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_184528
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+d217699 kart-kids-v0.20
 production/session-logs/agent-audit.log
 ---
 
@@ -3027,10 +3775,107 @@ ae67cfa feat(editor-v2): glb→gltf migration, smart curves, elevation, TrackInt
 js/Physics.js
 js/Vehicle.js
 js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260403_213908
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_021510
 ### Commits
 ae67cfa feat(editor-v2): glb→gltf migration, smart curves, elevation, TrackIntel fix
@@ -3043,6 +3888,58 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260403_214042
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_021703
 ### Commits
 ae67cfa feat(editor-v2): glb→gltf migration, smart curves, elevation, TrackIntel fix
@@ -3055,6 +3952,385 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260403_214728
+### Commits
+741958b kart-kids-v0.21-claude-skills-update
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_215027
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_215218
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_215318
+### Uncommitted Changes
+js/Physics.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_215454
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_215623
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260403_215842
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_022500
 ### Commits
 ae67cfa feat(editor-v2): glb→gltf migration, smart curves, elevation, TrackIntel fix
@@ -3069,6 +4345,57 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260403_220007
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_022609
 ### Commits
 ae67cfa feat(editor-v2): glb→gltf migration, smart curves, elevation, TrackIntel fix
@@ -3083,6 +4410,57 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260403_220234
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_022707
 ### Commits
 ae67cfa feat(editor-v2): glb→gltf migration, smart curves, elevation, TrackIntel fix
@@ -3098,6 +4476,57 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260403_220353
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_023427
 ### Commits
 ae67cfa feat(editor-v2): glb→gltf migration, smart curves, elevation, TrackIntel fix
@@ -3113,6 +4542,57 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260403_220427
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_023810
 ### Commits
 ae67cfa feat(editor-v2): glb→gltf migration, smart curves, elevation, TrackIntel fix
@@ -3128,6 +4608,57 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260403_220456
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_023943
 ### Commits
 ae67cfa feat(editor-v2): glb→gltf migration, smart curves, elevation, TrackIntel fix
@@ -3143,6 +4674,57 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260403_220528
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_024427
 ### Commits
 ae67cfa feat(editor-v2): glb→gltf migration, smart curves, elevation, TrackIntel fix
@@ -3159,6 +4741,57 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260403_220544
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_025014
 ### Commits
 ae67cfa feat(editor-v2): glb→gltf migration, smart curves, elevation, TrackIntel fix
@@ -3175,6 +4808,57 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260403_220659
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_025458
 ### Uncommitted Changes
 CLAUDE.md
@@ -3189,6 +4873,57 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260403_220932
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_025732
 ### Uncommitted Changes
 CLAUDE.md
@@ -3209,6 +4944,58 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260403_221211
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_030341
 ### Uncommitted Changes
 CLAUDE.md
@@ -3231,6 +5018,58 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260403_221355
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_030429
 ### Uncommitted Changes
 CLAUDE.md
@@ -3253,6 +5092,58 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260403_221523
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_030545
 ### Uncommitted Changes
 CLAUDE.md
@@ -3275,6 +5166,58 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260403_221818
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_030924
 ### Uncommitted Changes
 CLAUDE.md
@@ -3297,6 +5240,58 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260403_222019
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_031025
 ### Uncommitted Changes
 CLAUDE.md
@@ -3319,6 +5314,58 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_012343
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_031440
 ### Uncommitted Changes
 CLAUDE.md
@@ -3341,6 +5388,61 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_014537
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_031445
 ### Uncommitted Changes
 CLAUDE.md
@@ -3363,6 +5465,61 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_014703
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_031651
 ### Uncommitted Changes
 CLAUDE.md
@@ -3385,6 +5542,61 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_015141
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_032024
 ### Uncommitted Changes
 CLAUDE.md
@@ -3407,6 +5619,61 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_015318
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_032852
 ### Uncommitted Changes
 CLAUDE.md
@@ -3432,6 +5699,61 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_015646
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_033022
 ### Uncommitted Changes
 CLAUDE.md
@@ -3457,6 +5779,61 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_020056
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_033126
 ### Uncommitted Changes
 CLAUDE.md
@@ -3482,6 +5859,61 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_020254
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_033658
 ### Uncommitted Changes
 CLAUDE.md
@@ -3508,6 +5940,61 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_020432
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_034006
 ### Uncommitted Changes
 CLAUDE.md
@@ -3534,6 +6021,61 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_020731
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_034107
 ### Uncommitted Changes
 CLAUDE.md
@@ -3560,6 +6102,61 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_021129
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_034446
 ### Uncommitted Changes
 CLAUDE.md
@@ -3587,6 +6184,61 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_021309
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_035035
 ### Uncommitted Changes
 CLAUDE.md
@@ -3626,6 +6278,61 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_021457
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_040556
 ### Uncommitted Changes
 CLAUDE.md
@@ -3666,6 +6373,61 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_021702
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_040603
 ### Uncommitted Changes
 CLAUDE.md
@@ -3706,6 +6468,61 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_021730
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_040801
 ### Uncommitted Changes
 CLAUDE.md
@@ -3745,6 +6562,61 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_022043
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_040920
 ### Uncommitted Changes
 CLAUDE.md
@@ -3784,6 +6656,62 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_022117
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_041234
 ### Uncommitted Changes
 CLAUDE.md
@@ -3824,6 +6752,62 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_023225
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_041657
 ### Uncommitted Changes
 CLAUDE.md
@@ -3864,6 +6848,62 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_023545
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_041931
 ### Uncommitted Changes
 CLAUDE.md
@@ -3904,6 +6944,62 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_023914
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_042745
 ### Uncommitted Changes
 CLAUDE.md
@@ -3944,6 +7040,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_024130
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_043031
 ### Uncommitted Changes
 CLAUDE.md
@@ -3984,6 +7137,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_025447
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_043600
 ### Uncommitted Changes
 CLAUDE.md
@@ -4026,6 +7236,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_030051
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_043742
 ### Uncommitted Changes
 CLAUDE.md
@@ -4069,6 +7336,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_031628
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_044013
 ### Uncommitted Changes
 CLAUDE.md
@@ -4112,6 +7436,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_031711
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_044357
 ### Uncommitted Changes
 CLAUDE.md
@@ -4153,6 +7534,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_031831
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_044530
 ### Uncommitted Changes
 CLAUDE.md
@@ -4194,6 +7632,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_032420
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_044836
 ### Uncommitted Changes
 CLAUDE.md
@@ -4235,6 +7730,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_032747
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_045009
 ### Uncommitted Changes
 CLAUDE.md
@@ -4276,6 +7828,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_033018
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_045638
 ### Uncommitted Changes
 CLAUDE.md
@@ -4317,6 +7926,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_033121
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_045732
 ### Uncommitted Changes
 CLAUDE.md
@@ -4358,6 +8024,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_033228
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_050214
 ### Uncommitted Changes
 CLAUDE.md
@@ -4399,6 +8122,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_033500
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_050228
 ### Uncommitted Changes
 CLAUDE.md
@@ -4440,6 +8220,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_033543
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_050502
 ### Uncommitted Changes
 CLAUDE.md
@@ -4481,6 +8318,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_033731
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_050625
 ### Uncommitted Changes
 CLAUDE.md
@@ -4522,6 +8416,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_035010
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_051106
 ### Uncommitted Changes
 CLAUDE.md
@@ -4563,6 +8514,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_035247
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_051227
 ### Uncommitted Changes
 CLAUDE.md
@@ -4604,6 +8612,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_035442
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_052032
 ### Uncommitted Changes
 CLAUDE.md
@@ -4645,6 +8710,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_035528
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_052219
 ### Uncommitted Changes
 CLAUDE.md
@@ -4686,6 +8808,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_035709
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_052808
 ### Uncommitted Changes
 CLAUDE.md
@@ -4727,6 +8906,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_035802
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_054036
 ### Uncommitted Changes
 CLAUDE.md
@@ -4768,6 +9004,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_040349
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_054944
 ### Uncommitted Changes
 CLAUDE.md
@@ -4810,6 +9103,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_040927
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_055033
 ### Uncommitted Changes
 CLAUDE.md
@@ -4852,6 +9202,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_041237
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_055221
 ### Uncommitted Changes
 CLAUDE.md
@@ -4894,6 +9301,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_041610
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_055541
 ### Uncommitted Changes
 CLAUDE.md
@@ -4936,6 +9400,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_043307
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_055823
 ### Uncommitted Changes
 CLAUDE.md
@@ -4978,6 +9499,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_043338
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_055825
 ### Uncommitted Changes
 CLAUDE.md
@@ -5020,6 +9598,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_043520
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_055952
 ### Uncommitted Changes
 CLAUDE.md
@@ -5062,6 +9697,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_043751
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_060230
 ### Uncommitted Changes
 CLAUDE.md
@@ -5104,6 +9796,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_044006
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_060748
 ### Uncommitted Changes
 CLAUDE.md
@@ -5146,6 +9895,63 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_044314
+### Uncommitted Changes
+editor.html
+js/BoostFlame.js
+js/Camera.js
+js/Controls.js
+js/Particles.js
+js/Physics.js
+js/TireMarks.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+models/standard-map/3x3_s_turn_chicane.glb
+models/standard-map/3x3_turn.glb
+models/standard-map/6x6_turn.glb
+models/standard-map/kartkids_base_trk_010_rd_straight_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_l_1x1.glb
+models/standard-map/kartkids_base_trk_020_trn_90_r_1x1.glb
+models/standard-map/kartkids_base_trk_040_trn_180_l_2x2.glb
+models/standard-map/kartkids_base_trk_080_trn_wide_l_2x2.glb
+models/standard-map/kartkids_base_trk_090_trn_wide_r_2x2.glb
+models/standard-map/kartkids_base_trk_100_trn_widest_l_3x3.glb
+models/standard-map/kartkids_base_trk_110_trn_widest_r_3x3.glb
+models/standard-map/kartkids_base_trk_120_chn_scurve_l_2x1.glb
+models/standard-map/kartkids_base_trk_130_chn_scurve_r_2x1.glb
+models/standard-map/kartkids_base_trk_140_jct_ysplit_3x3.glb
+models/standard-map/kartkids_base_trk_150_jct_tjunction_3x3.glb
+models/standard-map/kartkids_base_trk_160_jct_4way_3x3.glb
+models/standard-map/kartkids_base_trk_170_elv_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_180_elv_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.glb
+models/standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.glb
+models/standard-map/kartkids_base_trk_210_rmp_down_1x1_z2p5_to_z0.glb
+models/standard-map/kartkids_base_trk_220_rmp_down_1x1_z5_to_z0.glb
+models/standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_240_rmp_transition_up_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb
+models/standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.glb
+models/standard-map/kartkids_base_trk_280_rmp_transition_up_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb
+models/standard-map/kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb
+models/standard-map/kartkids_base_trk_390_brg_entry_1x1.glb
+models/standard-map/kartkids_base_trk_400_brg_mid_1x1.glb
+models/standard-map/kartkids_base_trk_410_brg_exit_1x1.glb
+models/standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.glb
+models/standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.glb
+models/standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.glb
+models/standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.glb
+models/standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.glb
+models/standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.glb
+models/standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.glb
+models/standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.glb
+models/standard-map/kartkids_base_trk_510_trn_90_r_3x3.glb
+models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.glb
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+models/standard-map/kartkids_base_trk_530_trn_90_r_4x4.glb
 ## Session End: 20260405_061234
 ### Uncommitted Changes
 CLAUDE.md
@@ -5188,6 +9994,214 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260404_051024
+### Commits
+223a3d0 burrito-v0.1
+### Uncommitted Changes
+js/AIManager.js
+js/AIProfiles.js
+js/TrackMaterialTuning.js
+js/TrackModelConfig.js
+js/TrackTester.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+tests/tile-seam-config.test.mjs
+tests/track-material-tuning.test.mjs
+tests/track-model-selection.test.mjs
+---
+
+## Session End: 20260404_051201
+### Commits
+223a3d0 burrito-v0.1
+### Uncommitted Changes
+js/AIManager.js
+js/AIProfiles.js
+js/TrackMaterialTuning.js
+js/TrackModelConfig.js
+js/TrackTester.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/tile-seam-config.test.mjs
+tests/track-material-tuning.test.mjs
+tests/track-model-selection.test.mjs
+---
+
+## Session End: 20260404_051435
+### Commits
+223a3d0 burrito-v0.1
+### Uncommitted Changes
+js/AIManager.js
+js/AIProfiles.js
+js/TrackMaterialTuning.js
+js/TrackModelConfig.js
+js/TrackTester.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/tile-seam-config.test.mjs
+tests/track-material-tuning.test.mjs
+tests/track-model-selection.test.mjs
+---
+
+## Session End: 20260404_051645
+### Commits
+223a3d0 burrito-v0.1
+### Uncommitted Changes
+js/AIManager.js
+js/AIProfiles.js
+js/TrackMaterialTuning.js
+js/TrackModelConfig.js
+js/TrackTester.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/tile-seam-config.test.mjs
+tests/track-material-tuning.test.mjs
+tests/track-model-selection.test.mjs
+---
+
+## Session End: 20260404_051750
+### Commits
+223a3d0 burrito-v0.1
+### Uncommitted Changes
+js/AIManager.js
+js/AIProfiles.js
+js/TrackMaterialTuning.js
+js/TrackModelConfig.js
+js/TrackTester.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/tile-seam-config.test.mjs
+tests/track-material-tuning.test.mjs
+tests/track-model-selection.test.mjs
+---
+
+## Session End: 20260404_052706
+### Commits
+223a3d0 burrito-v0.1
+### Uncommitted Changes
+js/AIManager.js
+js/AIProfiles.js
+js/Controls.js
+js/RaceMode.js
+js/TrackMaterialTuning.js
+js/TrackModelConfig.js
+js/TrackTester.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/tile-seam-config.test.mjs
+tests/track-material-tuning.test.mjs
+tests/track-model-selection.test.mjs
+---
+
+## Session End: 20260404_053616
+### Commits
+223a3d0 burrito-v0.1
+### Uncommitted Changes
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Camera.js
+js/Controls.js
+js/DriftSparks.js
+js/HUD.js
+js/Particles.js
+js/RaceMode.js
+js/TrackMaterialTuning.js
+js/TrackModelConfig.js
+js/TrackTester.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/tile-seam-config.test.mjs
+tests/track-material-tuning.test.mjs
+tests/track-model-selection.test.mjs
+---
+
+## Session End: 20260404_053823
+### Commits
+223a3d0 burrito-v0.1
+### Uncommitted Changes
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Camera.js
+js/Controls.js
+js/DriftSparks.js
+js/HUD.js
+js/Particles.js
+js/RaceMode.js
+js/TrackMaterialTuning.js
+js/TrackModelConfig.js
+js/TrackTester.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/tile-seam-config.test.mjs
+tests/track-material-tuning.test.mjs
+tests/track-model-selection.test.mjs
+---
+
+## Session End: 20260404_054222
+### Commits
+223a3d0 burrito-v0.1
+### Uncommitted Changes
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Camera.js
+js/Controls.js
+js/DriftSparks.js
+js/HUD.js
+js/Particles.js
+js/RaceMode.js
+js/TrackMaterialTuning.js
+js/TrackModelConfig.js
+js/TrackTester.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/tile-seam-config.test.mjs
+tests/track-material-tuning.test.mjs
+tests/track-model-selection.test.mjs
+---
+
+## Session End: 20260404_054350
+### Commits
+223a3d0 burrito-v0.1
+### Uncommitted Changes
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Camera.js
+js/Controls.js
+js/DriftSparks.js
+js/HUD.js
+js/Particles.js
+js/Physics.js
+js/RaceMode.js
+js/TrackMaterialTuning.js
+js/TrackModelConfig.js
+js/TrackTester.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/tile-seam-config.test.mjs
+tests/track-material-tuning.test.mjs
+tests/track-model-selection.test.mjs
 ## Session End: 20260405_061412
 ### Uncommitted Changes
 CLAUDE.md
@@ -5604,6 +10618,754 @@ models/decoration-tents.glb
 models/track-bump.glb
 models/track-straight-night-rise-2p5.glb
 models/track-tents.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_201014
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+---
+
+## Session End: 20260405_201759
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_203342
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_204338
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_204952
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_205040
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_210030
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_210348
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_210533
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_210641
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_210844
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_211012
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_211050
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_211403
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_211443
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_211843
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_211933
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_212104
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_212213
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_212304
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_212505
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_212722
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_213159
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_213434
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_213504
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_213558
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_213615
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_213711
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+11df542 kart-kids-v0.23-wall-coliders-fix-shadow-line-fix-drift-fix
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_214229
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_214446
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_214601
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_220712
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/TileMetadata.js
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_220843
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/TileMetadata.js
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_221148
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/TileMetadata.js
+js/TrackModelConfig.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_222026
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/TileMetadata.js
+js/TrackModelConfig.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_222210
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/TileMetadata.js
+js/TrackModelConfig.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_222609
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/TileMetadata.js
+js/TrackModelConfig.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_222932
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_223050
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_223456
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_223733
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_223937
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_224434
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_224658
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_224802
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_225045
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_225226
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_225717
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_230030
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_230421
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_231527
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_232312
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_233329
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_233557
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/SettingsMenu.js
+js/TileMetadata.js
+js/TrackModelConfig.js
+js/main.js
+models/standard-map/kartkids_base_trk_530_trn_90_l_4x4.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260405_234933
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+---
+
+## Session End: 20260405_235931
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_000353
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_000649
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_001152
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_001305
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_001454
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_003238
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_004042
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_004126
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_004248
+### Commits
+1ef3630 Merge origin/master (v0.23) into feat/editor-v2-smart-curves
+### Uncommitted Changes
+editor.html
+js/Physics.js
+js/Track.js
+js/Vehicle.js
+js/main.js
 production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---

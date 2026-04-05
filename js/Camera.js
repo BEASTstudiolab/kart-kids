@@ -152,11 +152,6 @@ export class Camera {
 
 		if ( this.mode === 'chase' && vehicleQuaternion ) {
 
-<<<<<<< Updated upstream
-			// Dynamic height: 0 at closest zoom (0.5), chaseHeight at default zoom (1.0)
-			const zoomT = THREE.MathUtils.clamp( ( this.zoom - 0.5 ) / 0.5, 0, 1 );
-			const dynamicHeight = this.chaseHeight * zoomT;
-=======
 			// Auto-return orbit angle when not dragging
 			if ( ! this.dragging && this.orbitAngle !== 0 ) {
 
@@ -168,7 +163,6 @@ export class Camera {
 			// Dynamic height: minimum 1.0 at closest zoom (0.35), chaseHeight at default zoom (1.0)
 			const zoomT = THREE.MathUtils.clamp( ( this.zoom - 0.35 ) / 0.65, 0, 1 );
 			const dynamicHeight = THREE.MathUtils.lerp( 1.0, this.chaseHeight, zoomT );
->>>>>>> Stashed changes
 
 			// Dynamic near clip: smaller when zoomed in (avoids frame clipping),
 			// larger when zoomed out (hides geometry the camera clips into)
@@ -217,9 +211,15 @@ export class Camera {
 				const linearSpeed = vehicleState.linearSpeed ?? 0;
 				const bodyLeanRoll = vehicleState.bodyLeanRoll ?? 5;
 				const boostActive = vehicleState.boostActive ?? false;
+				const driftActive = vehicleState.driftActive ?? false;
+				const driftDirection = vehicleState.driftDirection ?? 0;
 
 				// Cornering lean signal: same formula as Vehicle.js updateBody()
-				const rawLean = -( inputX / bodyLeanRoll ) * linearSpeed;
+				let rawLean = -( inputX / bodyLeanRoll ) * linearSpeed;
+
+				// Drift camera: extra lean in drift direction
+				if ( driftActive ) rawLean += driftDirection * 0.15;
+
 				const targetRoll = rawLean * this.rollIntensity;
 
 				// Asymmetric smoothing: fast attack, slow release

@@ -22,12 +22,6 @@ function rotateEdge( edge, degrees ) {
 
 // Base connectivity at orientation 0°
 const BASE_CONNECTIVITY = {
-<<<<<<< Updated upstream
-	'track-straight-night': [ 'N', 'S' ],
-	'track-finish':         [ 'N', 'S' ],
-	'track-corner-night':   [ 'S', 'W' ],
-	'track-bump':           null, // handled specially — all 4 edges open
-=======
 	'trk-straight': [ 'N', 'S' ],
 	'trk-finish':         [ 'N', 'S' ],
 	'trk-corner-1x1':   [ 'S', 'W' ],
@@ -39,7 +33,6 @@ const BASE_CONNECTIVITY = {
 	'trk-ramp-up-5':      [ 'N', 'S' ],
 	'trk-ramp-down-2p5':  [ 'N', 'S' ],
 	'trk-ramp-down-5':    [ 'N', 'S' ],
->>>>>>> Stashed changes
 };
 
 function getOpenEdges( pieceType, cellOrient ) {
@@ -47,7 +40,8 @@ function getOpenEdges( pieceType, cellOrient ) {
 	const base = BASE_CONNECTIVITY[ pieceType ];
 	if ( base === undefined ) {
 
-		throw new Error( `TrackIntel: Unknown piece type: ${pieceType}` );
+		console.warn( `TrackIntel: Unknown piece type: ${pieceType} — returning null` );
+		return null;
 
 	}
 

@@ -1,31 +1,17 @@
 import * as THREE from 'three';
+import { getTrackModelConfig } from './TrackModelConfig.js';
+import { getCurveConfig, getCurveLR } from './TileMetadata.js';
 
 export const ORIENT_DEG = { 0: 0, 10: 180, 16: 90, 22: 270 };
 
-export const CELL_RAW = 9.99;
+export const CELL_RAW = 10.0;
 export const GRID_SCALE = 1.0; // was 0.75 — temporarily disabled for testing
 
 const _dummy = new THREE.Object3D();
+const _childMat = new THREE.Matrix4();
+const _combinedMat = new THREE.Matrix4();
 
 export const TRACK_CELLS = [
-<<<<<<< Updated upstream
-	[ -3, -3, 'track-corner-night',   16 ],
-	[ -2, -3, 'track-straight-night', 22 ],
-	[ -1, -3, 'track-straight-night', 22 ],
-	[  0, -3, 'track-corner-night',    0 ],
-	[ -3, -2, 'track-straight-night',  0 ],
-	[  0, -2, 'track-straight-night',  0 ],
-	[ -3, -1, 'track-corner-night',   10 ],
-	[ -2, -1, 'track-corner-night',    0 ],
-	[  0, -1, 'track-straight-night',  0 ],
-	[ -2,  0, 'track-straight-night', 10 ],
-	[  0,  0, 'track-finish',    0 ],
-	[ -2,  1, 'track-straight-night', 10 ],
-	[  0,  1, 'track-straight-night',  0 ],
-	[ -2,  2, 'track-corner-night',   10 ],
-	[ -1,  2, 'track-straight-night', 16 ],
-	[  0,  2, 'track-corner-night',   22 ],
-=======
 	[ -3, -3, 'trk-corner-1x1',    0 ],
 	[ -2, -3, 'trk-straight',  0 ],
 	[ -1, -3, 'trk-straight',  0 ],
@@ -42,7 +28,6 @@ export const TRACK_CELLS = [
 	[ -2,  2, 'trk-corner-1x1',    0 ],
 	[ -1,  2, 'trk-straight',  0 ],
 	[  0,  2, 'trk-corner-1x1',    0 ],
->>>>>>> Stashed changes
 ];
 
 const DECO_CELLS = [
@@ -140,17 +125,18 @@ export function buildTrack( scene, models, customCells ) {
 	// Group track cells by tile type for instancing
 	const cellsByType = {};
 
-	for ( const [ gx, gz, key, orient ] of cells ) {
+	for ( const [ gx, gz, key, orient, flags ] of cells ) {
 
 		if ( ! cellsByType[ key ] ) cellsByType[ key ] = [];
-		cellsByType[ key ].push( [ gx, gz, orient ] );
+		cellsByType[ key ].push( [ gx, gz, orient, flags ] );
 
 	}
 
+	// Separate multi-tile curves from instanced tiles
+	const curveEntries = []; // [ { key, gx, gz, orient, flags } ]
+
 	for ( const key in cellsByType ) {
 
-<<<<<<< Updated upstream
-=======
 		if ( key.startsWith( 'trk-curve-' ) ) {
 
 			// Multi-tile curves use individual meshes (too few per track for instancing)
@@ -165,37 +151,42 @@ export function buildTrack( scene, models, customCells ) {
 
 		}
 
->>>>>>> Stashed changes
 		const src = models[ key ];
 		if ( ! src ) continue;
 
 		const entries = cellsByType[ key ];
 		const count = entries.length;
 
+		// Update world matrices so child.matrixWorld includes wrapper corrections
+		src.updateMatrixWorld( true );
+		const srcInverse = src.matrixWorld.clone().invert();
+
 		src.traverse( ( child ) => {
 
 			if ( ! child.isMesh ) return;
 
+			// Full relative matrix: includes wrapper correction rotation + mesh local position
+			_childMat.copy( child.matrixWorld ).premultiply( srcInverse );
+
 			const inst = new THREE.InstancedMesh( child.geometry, child.material, count );
-			inst.castShadow = true;
+			inst.castShadow = false;
 			inst.receiveShadow = true;
 
 			for ( let i = 0; i < count; i ++ ) {
 
-				const [ gx, gz, orient ] = entries[ i ];
+				const [ gx, gz, orient, flags ] = entries[ i ];
 				const deg = ORIENT_DEG[ orient ] ?? 0;
 
-<<<<<<< Updated upstream
-				_dummy.position.set( ( gx + 0.5 ) * CELL_RAW, 0.5, ( gz + 0.5 ) * CELL_RAW );
-=======
 				// Elevated tiles use the straight model with a Y offset
 				const elev = flags?.elevation || 0;
 				const elevY = elev === 1 ? 2.416 : elev === 2 ? 4.832 : 0;
 				_dummy.position.set( ( gx + 0.5 ) * CELL_RAW, elevY, ( gz + 0.5 ) * CELL_RAW );
->>>>>>> Stashed changes
 				_dummy.rotation.set( 0, THREE.MathUtils.degToRad( deg ), 0 );
 				_dummy.updateMatrix();
-				inst.setMatrixAt( i, _dummy.matrix );
+
+				// Compose: placement × child correction
+				_combinedMat.multiplyMatrices( _dummy.matrix, _childMat );
+				inst.setMatrixAt( i, _combinedMat );
 
 			}
 
@@ -205,8 +196,6 @@ export function buildTrack( scene, models, customCells ) {
 
 	}
 
-<<<<<<< Updated upstream
-=======
 	// Place multi-tile curve meshes individually
 	for ( const entry of curveEntries ) {
 
@@ -241,7 +230,6 @@ export function buildTrack( scene, models, customCells ) {
 
 	}
 
->>>>>>> Stashed changes
 	if ( ! customCells ) {
 
 		// Place hand-authored decorations for the default track
@@ -354,7 +342,7 @@ export function buildTrack( scene, models, customCells ) {
 				if ( ! child.isMesh ) return;
 
 				const inst = new THREE.InstancedMesh( child.geometry, child.material, count );
-				inst.castShadow = true;
+				inst.castShadow = false;
 				inst.receiveShadow = true;
 				inst.instanceColor = new THREE.InstancedBufferAttribute(
 					new Float32Array( count * 3 ), 3
@@ -367,45 +355,9 @@ export function buildTrack( scene, models, customCells ) {
 					_dummy.updateMatrix();
 					inst.setMatrixAt( i, _dummy.matrix );
 
-<<<<<<< Updated upstream
-				}
-
-				decoGroup.add( inst );
-
-			} );
-
-		}
-
-		createInstances( models[ 'decoration-empty-night' ], emptyPositions );
-		createInstances( models[ 'decoration-buildings-1' ], buildingPositions1 );
-		createInstances( models[ 'decoration-buildings-2' ], buildingPositions2 );
-
-		// Place tents with random rotations
-		const tentSrc = models[ 'decoration-tents' ];
-
-		if ( tentSrc && tentPositions.length > 0 ) {
-
-			const tentCount = tentPositions.length / 3;
-
-			tentSrc.traverse( ( child ) => {
-
-				if ( ! child.isMesh ) return;
-
-				const inst = new THREE.InstancedMesh( child.geometry, child.material, tentCount );
-				inst.castShadow = true;
-				inst.receiveShadow = true;
-
-				for ( let i = 0; i < tentCount; i ++ ) {
-
-					_dummy.position.set( tentPositions[ i * 3 ], 0.5, tentPositions[ i * 3 + 1 ] );
-					_dummy.rotation.y = tentPositions[ i * 3 + 2 ] * Math.PI / 2;
-					_dummy.updateMatrix();
-					inst.setMatrixAt( i, _dummy.matrix );
-=======
 					const hueShift = ( ( positions[ i * 2 ] * 0.013 + positions[ i * 2 + 1 ] * 0.017 ) % 1 + 1 ) % 1;
 					_color.setHSL( ( baseHue + hueShift * 0.08 ) % 1, 0.9, 0.5 );
 					inst.setColorAt( i, _color );
->>>>>>> Stashed changes
 
 				}
 
@@ -440,7 +392,7 @@ export function buildTrack( scene, models, customCells ) {
 
 		if ( child.isMesh ) {
 
-			child.castShadow = true;
+			child.castShadow = false;
 			child.receiveShadow = true;
 
 		}
@@ -478,23 +430,34 @@ const ORIENT_DECODE = { 0: 0, 16: 1, 10: 2, 22: 3 };
 
 export function encodeCells( cells ) {
 
-	const bytes = new Uint8Array( cells.length * 3 );
+	// Filter out autoRamp cells — they are derived from elevated cells at load time
+	const filtered = cells.filter( c => ! c[ 4 ]?.autoRamp );
 
-	for ( let i = 0; i < cells.length; i ++ ) {
+	const bytes = new Uint8Array( filtered.length * 3 );
 
-<<<<<<< Updated upstream
-		const [ gx, gz, name, godotOrient ] = cells[ i ];
-=======
 	for ( let i = 0; i < filtered.length; i ++ ) {
 
 		const [ gx, gz, name, cellOrient, flags ] = filtered[ i ];
->>>>>>> Stashed changes
 		const ti = TYPE_INDEX[ name ] ?? 0;
 		const oi = ORIENT_DECODE[ cellOrient ] ?? 0;
 
+		// Pack flags into upper 4 bits of byte 2:
+		// bits 4-5: elevLevel (2 bits: 0=ground, 1=2.5m, 2=5m)
+		// bit 6: curveOverride (1=force hard corner)
+		// bit 7: rotationOverride (1=manual rotation)
+		let flagBits = 0;
+		if ( flags ) {
+
+			const elev = flags.elevation ?? 0;
+			const curve = flags.curveOverride ? 1 : 0;
+			const rot = flags.rotationOverride ? 1 : 0;
+			flagBits = ( elev & 0x03 ) | ( curve << 2 ) | ( rot << 3 );
+
+		}
+
 		bytes[ i * 3 ] = gx + 128;
 		bytes[ i * 3 + 1 ] = gz + 128;
-		bytes[ i * 3 + 2 ] = ( ti << 2 ) | oi;
+		bytes[ i * 3 + 2 ] = ( flagBits << 4 ) | ( ti << 2 ) | oi;
 
 	}
 
@@ -515,9 +478,6 @@ export function decodeCells( str ) {
 		const ti = ( packed >> 2 ) & 0x03;
 		const oi = packed & 0x03;
 
-<<<<<<< Updated upstream
-		cells.push( [ gx, gz, TYPE_NAMES[ ti ], ORIENT_TO_GODOT[ oi ] ] );
-=======
 		// Unpack flags from upper 4 bits
 		const flagBits = ( packed >> 4 ) & 0x0F;
 		const elevation = flagBits & 0x03;
@@ -526,7 +486,6 @@ export function decodeCells( str ) {
 
 		const flags = { elevation, curveOverride, rotationOverride };
 		cells.push( [ gx, gz, TYPE_NAMES[ ti ], ORIENT_ENCODE[ oi ], flags ] );
->>>>>>> Stashed changes
 
 	}
 
@@ -591,8 +550,6 @@ export function computeTrackBounds( cells ) {
 
 }
 
-<<<<<<< Updated upstream
-=======
 // ─── Transform Cells (derive elevation/ramps/curves for rendering) ───
 
 // Orient → exit direction bits (N=8, S=4, E=2, W=1)
@@ -771,7 +728,7 @@ export function transformCells( decodedCells ) {
 	for ( const [ key, cell ] of grid ) {
 
 		if ( cell.type !== 'trk-corner-1x1' ) continue;
-		if ( cell.flags.curveOverride || cell.flags.rotationOverride ) continue;
+		if ( cell.flags.curveVariant || cell.flags.rotationOverride ) continue;
 
 		const exits = CORNER_EXITS[ cell.orient ];
 		if ( exits === undefined ) continue;
@@ -907,10 +864,27 @@ export function transformCells( decodedCells ) {
 
 		if ( curveInfo ) {
 
-			// Replace corner with curve visual type — use lr from getCurveConfig
-			const curveConf = getCurveConfig( cell.orient, null, curveInfo.curveSize );
-			const lr = curveConf.lr || getCurveLR( cell.orient );
-			const visualType = `trk-curve-${ curveInfo.curveSize }x${ curveInfo.curveSize }-${ lr }`;
+			// Replace corner with curve visual type
+			// If editor saved a curveVariant, use the variant-specific model name
+			const VARIANT_MODEL = {
+				'2x2-wide': 'trk-curve-2x2-l',
+				'2x2-tight': 'trk-curve-2x2-tight-l',
+				'3x3': 'trk-curve-3x3-l',
+				'3x3-wide': 'trk-curve-3x3-wide-l',
+			};
+			const variant = cell.flags.curveVariant;
+			let visualType;
+			if ( variant && VARIANT_MODEL[ variant ] ) {
+
+				visualType = VARIANT_MODEL[ variant ];
+
+			} else {
+
+				const curveConf = getCurveConfig( cell.orient, null, curveInfo.curveSize );
+				const lr = curveConf.lr || getCurveLR( cell.orient );
+				visualType = `trk-curve-${ curveInfo.curveSize }x${ curveInfo.curveSize }-${ lr }`;
+
+			}
 			const flags = { ...cell.flags, _curveSize: curveInfo.curveSize };
 			result.push( [ cell.gx, cell.gz, visualType, cell.orient, flags ] );
 
@@ -926,7 +900,6 @@ export function transformCells( decodedCells ) {
 
 }
 
->>>>>>> Stashed changes
 function bytesToBase64url( bytes ) {
 
 	let binary = '';
@@ -946,3 +919,4 @@ function base64urlToBytes( str ) {
 	return bytes;
 
 }
+

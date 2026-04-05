@@ -17,7 +17,7 @@ const VEHICLE_MODEL_NAMES = [
 	'vehicle-truck-red',
 ];
 
-const ZERO_INPUT = { x: 0, z: 0, touchActive: false, boost: false, gas: false, brake: false };
+const ZERO_INPUT = { x: 0, z: 0, touchActive: false, boost: false, drift: false, gas: false, brake: false };
 
 const COL_OFFSETS = [ - 2.5, 0, 2.5 ];
 const ROW_OFFSETS = [ 0, - 3.0, - 6.0 ];
@@ -90,6 +90,7 @@ export class AIManager {
 		this.scene.add( vehicle.container );
 
 		const profile = AI_PROFILES[ index % AI_PROFILES.length ];
+		vehicle.weight = profile.weight || 5;
 		const controller = new AIController( this.trackIntel, index, profile );
 
 		const finishLine = new FinishLine( {

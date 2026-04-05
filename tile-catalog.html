@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Tile Catalog - Kart Kids</title>
+	<style>
+		* { box-sizing: border-box; margin: 0; }
+		body { overflow: hidden; background: #1a1a2e; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+		canvas { display: block; }
+
+		/* ── Nav buttons ─────────────────────────────────────── */
+
+		#nav {
+			position: absolute;
+			bottom: 20px;
+			left: 50%;
+			transform: translateX(-50%);
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			z-index: 10;
+			background: rgba(10, 10, 20, 0.85);
+			backdrop-filter: blur(12px);
+			-webkit-backdrop-filter: blur(12px);
+			padding: 6px 10px;
+			border-radius: 12px;
+			border: 1px solid rgba(255,255,255,0.1);
+			box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+		}
+		#nav button {
+			padding: 8px 14px;
+			border: none;
+			border-radius: 8px;
+			background: rgba(255,255,255,0.08);
+			color: rgba(255,255,255,0.7);
+			font-size: 13px;
+			font-weight: 500;
+			cursor: pointer;
+			transition: all 0.15s;
+		}
+		#nav button:hover { background: rgba(255,255,255,0.15); color: #fff; }
+		#nav .counter {
+			font-size: 13px;
+			color: rgba(255,255,255,0.5);
+			padding: 0 8px;
+			min-width: 60px;
+			text-align: center;
+		}
+		#nav .sep {
+			width: 1px;
+			height: 20px;
+			background: rgba(255,255,255,0.15);
+			margin: 0 4px;
+		}
+		#nav .cat-filter {
+			font-size: 11px;
+			padding: 5px 10px;
+		}
+		#nav .cat-filter.active {
+			background: rgba(100,180,255,0.2);
+			color: #8cf;
+		}
+
+		/* ── View buttons ────────────────────────────────────── */
+
+		#view-btns {
+			position: absolute;
+			top: 16px;
+			right: 16px;
+			z-index: 10;
+			display: flex;
+			gap: 4px;
+		}
+		#view-btns button {
+			padding: 6px 12px;
+			border: 1px solid rgba(255,255,255,0.15);
+			border-radius: 6px;
+			background: rgba(255,255,255,0.05);
+			color: #aaa;
+			font-size: 12px;
+			cursor: pointer;
+			transition: all 0.15s;
+		}
+		#view-btns button:hover { background: rgba(255,255,255,0.1); color: #fff; }
+		#view-btns button.active { background: rgba(100,180,255,0.2); color: #8cf; border-color: rgba(100,180,255,0.4); }
+
+		/* ── Info panel ──────────────────────────────────────── */
+
+		#info-panel {
+			position: absolute;
+			top: 16px;
+			left: 16px;
+			z-index: 10;
+			background: rgba(10, 10, 20, 0.88);
+			backdrop-filter: blur(12px);
+			-webkit-backdrop-filter: blur(12px);
+			border: 1px solid rgba(255,255,255,0.1);
+			border-radius: 10px;
+			padding: 14px 16px;
+			color: #eee;
+			width: 340px;
+			max-height: calc(100vh - 100px);
+			overflow-y: auto;
+			box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+		}
+		#info-panel::-webkit-scrollbar { width: 4px; }
+		#info-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+
+		#info-panel h2 {
+			font-size: 16px;
+			font-weight: 600;
+			margin-bottom: 2px;
+		}
+		#info-panel .tile-file {
+			font-size: 10px;
+			color: #777;
+			font-family: monospace;
+			word-break: break-all;
+			margin-bottom: 10px;
+		}
+		#info-panel .section-label {
+			font-size: 10px;
+			font-weight: 700;
+			text-transform: uppercase;
+			letter-spacing: 0.08em;
+			color: #666;
+			margin-top: 10px;
+			margin-bottom: 4px;
+			border-top: 1px solid rgba(255,255,255,0.06);
+			padding-top: 8px;
+		}
+		#info-panel .section-label:first-of-type { border-top: none; padding-top: 0; margin-top: 6px; }
+		#info-panel .data-row {
+			display: flex;
+			justify-content: space-between;
+			font-size: 12px;
+			padding: 1px 0;
+		}
+		#info-panel .data-row .label { color: #999; }
+		#info-panel .data-row .value { color: #ddd; font-family: monospace; font-size: 11px; }
+		#info-panel .cat-badge {
+			display: inline-block;
+			font-size: 10px;
+			padding: 2px 8px;
+			border-radius: 4px;
+			margin-bottom: 6px;
+		}
+
+		/* ── Edge analysis ───────────────────────────────────── */
+
+		#info-panel .edge-grid {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 4px 8px;
+			font-size: 11px;
+			margin-top: 4px;
+		}
+		#info-panel .edge-item {
+			display: flex;
+			justify-content: space-between;
+			padding: 3px 6px;
+			background: rgba(255,255,255,0.03);
+			border-radius: 4px;
+		}
+		#info-panel .edge-item .dir { color: #8cf; font-weight: 600; }
+		#info-panel .edge-item .edge-val { color: #aaa; font-family: monospace; font-size: 10px; }
+		.edge-open { color: #6c6 !important; }
+		.edge-closed { color: #c66 !important; }
+
+		/* ── Vertex heatmap legend ───────────────────────────── */
+
+		#info-panel .legend {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			font-size: 10px;
+			color: #888;
+			margin-top: 6px;
+		}
+		#info-panel .legend .swatch {
+			width: 12px;
+			height: 12px;
+			border-radius: 2px;
+			display: inline-block;
+		}
+
+		/* ── Controls hint ───────────────────────────────────── */
+
+		#hint {
+			position: absolute;
+			bottom: 70px;
+			left: 50%;
+			transform: translateX(-50%);
+			font-size: 11px;
+			color: #555;
+			z-index: 10;
+			pointer-events: none;
+			text-align: center;
+		}
+	</style>
+	<script type="importmap">
+	{
+		"imports": {
+			"three": "./node_modules/three/build/three.module.js",
+			"three/addons/": "./node_modules/three/examples/jsm/"
+		}
+	}
+	</script>
+</head>
+<body>
+
+	<div id="info-panel">
+		<h2 id="tile-name">Loading...</h2>
+		<div class="tile-file" id="tile-file"></div>
+		<div id="tile-cat-badge" class="cat-badge"></div>
+		<div id="info-body"></div>
+	</div>
+
+	<div id="view-btns">
+		<button id="btn-top" class="active">Top</button>
+		<button id="btn-iso">Iso</button>
+		<button id="btn-front">Front</button>
+	</div>
+
+	<div id="nav">
+		<button id="btn-prev">Prev</button>
+		<div class="counter" id="counter">1 / 47</div>
+		<button id="btn-next">Next</button>
+		<div class="sep"></div>
+		<button class="cat-filter active" data-cat="">All</button>
+	</div>
+
+	<div id="hint">Scroll = zoom | Middle-drag = pan | Right-drag = orbit | [ ] = prev/next</div>
+
+	<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+// ── Tile manifest ────────────────────────────────────────────────────────
+
+const TILES = [
+	{ file: 'kartkids_base_trk_010_rd_straight_1x1.gltf', name: 'Straight', category: 'straight', size: '1x1' },
+	{ file: 'kartkids_base_trk_020_trn_90_l_1x1.gltf', name: '90 Turn L', category: 'turn', size: '1x1' },
+
+	{ file: 'kartkids_base_trk_080_trn_wide_l_2x2.gltf', name: 'Wide Turn L', category: 'turn', size: '2x2' },
+	{ file: 'kartkids_base_trk_100_trn_widest_l_3x3.gltf', name: 'Widest Turn L', category: 'turn', size: '3x3' },
+	{ file: 'kartkids_base_trk_520_trn_90_l_3x3.gltf', name: '90 Turn L (3x3)', category: 'turn', size: '3x3' },
+	{ file: 'kartkids_base_trk_530_trn_90_l_4x4.glb', name: '90 Turn L (4x4)', category: 'turn', size: '4x4' },
+
+	{ file: 'kartkids_base_trk_140_jct_ysplit_3x3.gltf', name: 'Y-Split', category: 'junction', size: '3x3' },
+	{ file: 'kartkids_base_trk_150_jct_tjunction_3x3.gltf', name: 'T-Junction', category: 'junction', size: '3x3' },
+	{ file: 'kartkids_base_trk_160_jct_4way_3x3.gltf', name: '4-Way Crossing', category: 'junction', size: '3x3' },
+	{ file: 'kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.gltf', name: 'Ramp Up 0-2.5', category: 'ramp', size: '1x1' },
+	{ file: 'kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.gltf', name: 'Ramp Up 0-5', category: 'ramp', size: '1x1' },
+	{ file: 'kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.gltf', name: 'Flat-Up z2.5', category: 'ramp', size: '1x1' },
+
+	{ file: 'kartkids_base_trk_250_rmp_transition_flat_to_down_1x1_z2p5.glb', name: 'Flat-Down z2.5', category: 'ramp', size: '1x1' },
+	{ file: 'kartkids_base_trk_260_rmp_transition_down_to_flat_1x1_z2p5.glb', name: 'Down-Flat z2.5', category: 'ramp', size: '1x1' },
+	{ file: 'kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.gltf', name: 'Flat-Up z5', category: 'ramp', size: '1x1' },
+
+	{ file: 'kartkids_base_trk_290_rmp_transition_flat_to_down_1x1_z5.glb', name: 'Flat-Down z5', category: 'ramp', size: '1x1' },
+	{ file: 'kartkids_base_trk_300_rmp_transition_down_to_flat_1x1_z5.glb', name: 'Down-Flat z5', category: 'ramp', size: '1x1' },
+	{ file: 'kartkids_base_trk_390_brg_entry_1x1.gltf', name: 'Bridge Entry', category: 'bridge', size: '1x1' },
+	{ file: 'kartkids_base_trk_400_brg_mid_1x1.gltf', name: 'Bridge Mid', category: 'bridge', size: '1x1' },
+
+	{ file: 'kartkids_base_trk_420_tun_closed_entry_1x1.gltf', name: 'Tunnel Entry', category: 'tunnel', size: '1x1' },
+	{ file: 'kartkids_base_trk_430_tun_closed_mid_1x1.gltf', name: 'Tunnel Mid', category: 'tunnel', size: '1x1' },
+	{ file: 'kartkids_base_trk_440_tun_closed_exit_1x1.gltf', name: 'Tunnel Exit', category: 'tunnel', size: '1x1' },
+	{ file: 'kartkids_base_trk_460_tun_openframe_mid_1x1.gltf', name: 'Open Frame', category: 'tunnel', size: '1x1' },
+	{ file: 'kartkids_base_trk_480_jmp_01_short_25pct_1x1.gltf', name: 'Jump Short 25%', category: 'jump', size: '1x1' },
+	{ file: 'kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.gltf', name: 'Jump Mid 50%', category: 'jump', size: '1x1' },
+	{ file: 'kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.gltf', name: 'Jump Long', category: 'jump', size: '1x1' },
+	{ file: 'kartkids_base_trk_510_srt_startfinish_arch_3x1.gltf', name: 'Start/Finish Arch', category: 'special', size: '3x1' },
+	{ file: '3x3_s_turn_chicane.glb', name: 'S-Turn Chicane', category: 'chicane', size: '3x3' },
+];
+
+const CAT_COLORS = {
+	straight: '#66aa66', turn: '#6688ff', chicane: '#cc88ff', junction: '#ffaa55',
+	elevation: '#ffff66', ramp: '#ffcc66', bridge: '#66cccc', tunnel: '#888888',
+	jump: '#ff6666', special: '#ff88aa',
+};
+
+// ── State ────────────────────────────────────────────────────────────────
+
+let currentIndex = 0;
+let currentModel = null;
+let filteredIndices = TILES.map( ( _, i ) => i ); // all by default
+let activeCategory = '';
+
+// ── Renderer ─────────────────────────────────────────────────────────────
+
+const renderer = new THREE.WebGLRenderer( { antialias: true } );
+renderer.setSize( window.innerWidth, window.innerHeight );
+renderer.setPixelRatio( Math.min( window.devicePixelRatio, 2 ) );
+renderer.shadowMap.enabled = true;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+document.body.appendChild( renderer.domElement );
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color( 0xadb2ba );
+scene.fog = new THREE.Fog( 0xadb2ba, 100, 200 );
+
+// ── Lighting (editor day) ────────────────────────────────────────────────
+
+const dirLight = new THREE.DirectionalLight( 0xffffff, 5 );
+dirLight.position.set( 11.4, 15, - 5.3 );
+dirLight.castShadow = true;
+dirLight.shadow.mapSize.set( 2048, 2048 );
+dirLight.shadow.camera.left = - 30;
+dirLight.shadow.camera.right = 30;
+dirLight.shadow.camera.top = 30;
+dirLight.shadow.camera.bottom = - 30;
+dirLight.shadow.bias = - 0.001;
+scene.add( dirLight );
+
+const hemiLight = new THREE.HemisphereLight( 0xc8d8e8, 0x7a8a5a, 1.5 );
+scene.add( hemiLight );
+
+// ── Ground + grid (editor-style) ─────────────────────────────────────────
+
+const CELL_RAW = 10;
+
+// Grid lines — 10-unit spacing, rendered above ground
+const gridSize = 30;
+const gridHelper = new THREE.GridHelper( gridSize * CELL_RAW, gridSize, 0x4a7a2a, 0x4a7a2a );
+gridHelper.position.y = 0.01;
+gridHelper.material.opacity = 0.4;
+gridHelper.material.transparent = true;
+gridHelper.material.depthWrite = false;
+scene.add( gridHelper );
+
+// Ground plane — below grid
+const groundMat = new THREE.MeshStandardMaterial( { color: 0x369069, metalness: 0 } );
+const ground = new THREE.Mesh( new THREE.PlaneGeometry( 600, 600 ), groundMat );
+ground.rotation.x = - Math.PI / 2;
+ground.position.y = 0;
+ground.receiveShadow = true;
+scene.add( ground );
+
+// ── Track group ──────────────────────────────────────────────────────────
+
+const trackGroup = new THREE.Group();
+scene.add( trackGroup );
+
+// ── Debug visuals group ──────────────────────────────────────────────────
+
+const debugGroup = new THREE.Group();
+scene.add( debugGroup );
+
+// ── Camera (orthographic, editor-style) ──────────────────────────────────
+
+const frustum = 15;
+const aspect = window.innerWidth / window.innerHeight;
+const camera = new THREE.OrthographicCamera(
+	- frustum * aspect, frustum * aspect,
+	frustum, - frustum,
+	0.1, 300
+);
+
+const camTarget = new THREE.Vector3( 0, 0, 0 );
+let orbitAngle = 0;
+let tiltAngle = Math.PI / 2;
+
+function updateCamera() {
+
+	const dist = 80;
+	camera.position.x = camTarget.x + dist * Math.cos( tiltAngle ) * Math.sin( orbitAngle );
+	camera.position.y = camTarget.y + dist * Math.sin( tiltAngle );
+	camera.position.z = camTarget.z + dist * Math.cos( tiltAngle ) * Math.cos( orbitAngle );
+	camera.lookAt( camTarget );
+
+}
+
+updateCamera();
+
+// ── View presets ─────────────────────────────────────────────────────────
+
+const btnTop = document.getElementById( 'btn-top' );
+const btnIso = document.getElementById( 'btn-iso' );
+const btnFront = document.getElementById( 'btn-front' );
+
+function setView( name ) {
+
+	if ( name === 'top' ) { orbitAngle = 0; tiltAngle = Math.PI / 2; }
+	else if ( name === 'iso' ) { orbitAngle = Math.PI / 4; tiltAngle = Math.PI / 5.1; }
+	else if ( name === 'front' ) { orbitAngle = 0; tiltAngle = 0.25; }
+
+	updateCamera();
+	btnTop.classList.toggle( 'active', name === 'top' );
+	btnIso.classList.toggle( 'active', name === 'iso' );
+	btnFront.classList.toggle( 'active', name === 'front' );
+
+}
+
+btnTop.addEventListener( 'click', () => setView( 'top' ) );
+btnIso.addEventListener( 'click', () => setView( 'iso' ) );
+btnFront.addEventListener( 'click', () => setView( 'front' ) );
+
+// ── Camera controls ──────────────────────────────────────────────────────
+
+let isPanning = false;
+let isOrbiting = false;
+let dragStart = { x: 0, y: 0 };
+let camTargetStart = { x: 0, z: 0 };
+let orbitAngleStart = 0;
+let tiltAngleStart = 0;
+
+function getCameraPanAxes() {
+
+	return {
+		right: new THREE.Vector3( Math.cos( orbitAngle ), 0, - Math.sin( orbitAngle ) ),
+		fwd: new THREE.Vector3( - Math.sin( orbitAngle ), 0, - Math.cos( orbitAngle ) ),
+	};
+
+}
+
+renderer.domElement.addEventListener( 'wheel', ( e ) => {
+
+	e.preventDefault();
+	camera.zoom = Math.max( 0.2, Math.min( 10, camera.zoom / ( 1 + e.deltaY * 0.001 ) ) );
+	camera.updateProjectionMatrix();
+
+}, { passive: false } );
+
+renderer.domElement.addEventListener( 'mousedown', ( e ) => {
+
+	if ( e.button === 1 || ( e.button === 0 && e.shiftKey ) ) {
+
+		isPanning = true;
+		dragStart = { x: e.clientX, y: e.clientY };
+		camTargetStart = { x: camTarget.x, z: camTarget.z };
+		e.preventDefault();
+
+	} else if ( e.button === 2 ) {
+
+		isOrbiting = true;
+		dragStart = { x: e.clientX, y: e.clientY };
+		orbitAngleStart = orbitAngle;
+		tiltAngleStart = tiltAngle;
+		e.preventDefault();
+
+	}
+
+} );
+
+window.addEventListener( 'mousemove', ( e ) => {
+
+	if ( isPanning ) {
+
+		const dx = e.clientX - dragStart.x;
+		const dy = e.clientY - dragStart.y;
+		const scale = ( frustum * 2 ) / ( window.innerHeight * camera.zoom );
+		const { right, fwd } = getCameraPanAxes();
+		camTarget.x = camTargetStart.x - dx * scale * right.x - dy * scale * fwd.x;
+		camTarget.z = camTargetStart.z - dx * scale * right.z - dy * scale * fwd.z;
+		updateCamera();
+
+	}
+
+	if ( isOrbiting ) {
+
+		orbitAngle = orbitAngleStart - ( e.clientX - dragStart.x ) * 0.005;
+		tiltAngle = Math.max( 0.1, Math.min( Math.PI / 2, tiltAngleStart + ( e.clientY - dragStart.y ) * 0.005 ) );
+		updateCamera();
+
+	}
+
+} );
+
+window.addEventListener( 'mouseup', () => { isPanning = false; isOrbiting = false; } );
+renderer.domElement.addEventListener( 'contextmenu', ( e ) => e.preventDefault() );
+
+// ── Keyboard nav ─────────────────────────────────────────────────────────
+
+window.addEventListener( 'keydown', ( e ) => {
+
+	if ( e.code === 'BracketRight' || e.code === 'ArrowRight' ) goNext();
+	if ( e.code === 'BracketLeft' || e.code === 'ArrowLeft' ) goPrev();
+
+} );
+
+// ── Geometry analysis ────────────────────────────────────────────────────
+
+function analyzeGeometry( model ) {
+
+	const bbox = new THREE.Box3().setFromObject( model );
+	const size = bbox.getSize( new THREE.Vector3() );
+	const center = bbox.getCenter( new THREE.Vector3() );
+
+	// Count verts and tris
+	let vertCount = 0;
+	let triCount = 0;
+	let meshCount = 0;
+	const materialNames = new Set();
+
+	// Edge sampling: find road openings by checking for vertices near each face
+	const SAMPLE_MARGIN = 0.5;
+	const edgeVerts = { north: 0, south: 0, east: 0, west: 0 };
+	const edgeYMin = { north: Infinity, south: Infinity, east: Infinity, west: Infinity };
+	const edgeYMax = { north: - Infinity, south: - Infinity, east: - Infinity, west: - Infinity };
+
+	// Height stats
+	let yMin = Infinity, yMax = - Infinity;
+	const allY = [];
+
+	model.traverse( ( child ) => {
+
+		if ( ! child.isMesh ) return;
+		meshCount ++;
+
+		const mat = child.material;
+		if ( mat ) materialNames.add( mat.name || '(unnamed)' );
+
+		const geo = child.geometry;
+		if ( ! geo ) return;
+
+		const posAttr = geo.attributes.position;
+		if ( ! posAttr ) return;
+
+		vertCount += posAttr.count;
+		triCount += geo.index ? geo.index.count / 3 : posAttr.count / 3;
+
+		// Transform vertices to world space
+		const worldMat = child.matrixWorld;
+		const v = new THREE.Vector3();
+
+		for ( let i = 0; i < posAttr.count; i ++ ) {
+
+			v.set( posAttr.getX( i ), posAttr.getY( i ), posAttr.getZ( i ) );
+			v.applyMatrix4( worldMat );
+
+			if ( v.y < yMin ) yMin = v.y;
+			if ( v.y > yMax ) yMax = v.y;
+			allY.push( v.y );
+
+			// Check edges
+			if ( v.z <= bbox.min.z + SAMPLE_MARGIN ) {
+
+				edgeVerts.north ++;
+				if ( v.y < edgeYMin.north ) edgeYMin.north = v.y;
+				if ( v.y > edgeYMax.north ) edgeYMax.north = v.y;
+
+			}
+
+			if ( v.z >= bbox.max.z - SAMPLE_MARGIN ) {
+
+				edgeVerts.south ++;
+				if ( v.y < edgeYMin.south ) edgeYMin.south = v.y;
+				if ( v.y > edgeYMax.south ) edgeYMax.south = v.y;
+
+			}
+
+			if ( v.x >= bbox.max.x - SAMPLE_MARGIN ) {
+
+				edgeVerts.east ++;
+				if ( v.y < edgeYMin.east ) edgeYMin.east = v.y;
+				if ( v.y > edgeYMax.east ) edgeYMax.east = v.y;
+
+			}
+
+			if ( v.x <= bbox.min.x + SAMPLE_MARGIN ) {
+
+				edgeVerts.west ++;
+				if ( v.y < edgeYMin.west ) edgeYMin.west = v.y;
+				if ( v.y > edgeYMax.west ) edgeYMax.west = v.y;
+
+			}
+
+		}
+
+	} );
+
+	return {
+		bbox, size, center,
+		vertCount, triCount, meshCount,
+		materialNames: [ ...materialNames ],
+		yMin, yMax,
+		edgeVerts, edgeYMin, edgeYMax,
+		gridCells: {
+			x: Math.round( size.x / CELL_RAW ) || 1,
+			z: Math.round( size.z / CELL_RAW ) || 1,
+		},
+	};
+
+}
+
+// ── Build debug visuals ──────────────────────────────────────────────────
+
+function buildDebugVisuals( analysis ) {
+
+	// Clear old
+	while ( debugGroup.children.length > 0 ) debugGroup.remove( debugGroup.children[ 0 ] );
+
+	const { bbox, center } = analysis;
+
+	// Bounding box wireframe
+	const boxHelper = new THREE.Box3Helper( bbox, 0x00ff00 );
+	debugGroup.add( boxHelper );
+
+	// Center cross
+	const crossMat = new THREE.LineBasicMaterial( { color: 0xff0000 } );
+	const crossSize = 0.5;
+	const crossGeo = new THREE.BufferGeometry().setFromPoints( [
+		new THREE.Vector3( center.x - crossSize, center.y, center.z ),
+		new THREE.Vector3( center.x + crossSize, center.y, center.z ),
+		new THREE.Vector3( center.x, center.y, center.z - crossSize ),
+		new THREE.Vector3( center.x, center.y, center.z + crossSize ),
+		new THREE.Vector3( center.x, center.y - crossSize, center.z ),
+		new THREE.Vector3( center.x, center.y + crossSize, center.z ),
+	] );
+	debugGroup.add( new THREE.LineSegments( crossGeo, crossMat ) );
+
+	// Origin marker (yellow cross at 0,0,0)
+	const originMat = new THREE.LineBasicMaterial( { color: 0xffff00 } );
+	const originGeo = new THREE.BufferGeometry().setFromPoints( [
+		new THREE.Vector3( - 0.3, 0, 0 ), new THREE.Vector3( 0.3, 0, 0 ),
+		new THREE.Vector3( 0, 0, - 0.3 ), new THREE.Vector3( 0, 0, 0.3 ),
+		new THREE.Vector3( 0, - 0.3, 0 ), new THREE.Vector3( 0, 0.3, 0 ),
+	] );
+	debugGroup.add( new THREE.LineSegments( originGeo, originMat ) );
+
+	// Edge opening indicators — colored lines on edges with road openings
+	const edgeY = bbox.max.y + 0.2; // float above the model
+	const edgeDirs = [
+		{ key: 'north', start: [ bbox.min.x, edgeY, bbox.min.z ], end: [ bbox.max.x, edgeY, bbox.min.z ] },
+		{ key: 'south', start: [ bbox.min.x, edgeY, bbox.max.z ], end: [ bbox.max.x, edgeY, bbox.max.z ] },
+		{ key: 'east',  start: [ bbox.max.x, edgeY, bbox.min.z ], end: [ bbox.max.x, edgeY, bbox.max.z ] },
+		{ key: 'west',  start: [ bbox.min.x, edgeY, bbox.min.z ], end: [ bbox.min.x, edgeY, bbox.max.z ] },
+	];
+
+	for ( const edge of edgeDirs ) {
+
+		const count = analysis.edgeVerts[ edge.key ];
+		const hasRoad = count > 20; // heuristic: edges with many verts likely have road geometry
+		const color = hasRoad ? 0x00ff88 : 0xff4444;
+
+		const geo = new THREE.BufferGeometry().setFromPoints( [
+			new THREE.Vector3( ...edge.start ),
+			new THREE.Vector3( ...edge.end ),
+		] );
+		const mat = new THREE.LineBasicMaterial( { color, linewidth: 2 } );
+		debugGroup.add( new THREE.LineSegments( geo, mat ) );
+
+	}
+
+	// Grid cell outlines (shows how many cells this tile occupies)
+	const cellOutlineMat = new THREE.LineBasicMaterial( {
+		color: 0xffffff,
+		opacity: 0.5,
+		transparent: true,
+		depthTest: false,
+	} );
+
+	const gx = analysis.gridCells.x;
+	const gz = analysis.gridCells.z;
+	const halfW = gx * CELL_RAW / 2;
+	const halfH = gz * CELL_RAW / 2;
+
+	const cellGridY = bbox.max.y + 0.3;
+
+	for ( let ix = 0; ix <= gx; ix ++ ) {
+
+		const x = - halfW + ix * CELL_RAW;
+		const pts = [ new THREE.Vector3( x, cellGridY, - halfH ), new THREE.Vector3( x, cellGridY, halfH ) ];
+		debugGroup.add( new THREE.LineSegments( new THREE.BufferGeometry().setFromPoints( pts ), cellOutlineMat ) );
+
+	}
+
+	for ( let iz = 0; iz <= gz; iz ++ ) {
+
+		const z = - halfH + iz * CELL_RAW;
+		const pts = [ new THREE.Vector3( - halfW, cellGridY, z ), new THREE.Vector3( halfW, cellGridY, z ) ];
+		debugGroup.add( new THREE.LineSegments( new THREE.BufferGeometry().setFromPoints( pts ), cellOutlineMat ) );
+
+	}
+
+}
+
+// ── Update info panel ────────────────────────────────────────────────────
+
+function updateInfoPanel( tile, analysis ) {
+
+	const { bbox, size, center, vertCount, triCount, meshCount, materialNames,
+		yMin, yMax, edgeVerts, edgeYMin, edgeYMax, gridCells } = analysis;
+
+	document.getElementById( 'tile-name' ).textContent = tile.name;
+	document.getElementById( 'tile-file' ).textContent = tile.file;
+
+	const catColor = CAT_COLORS[ tile.category ] || '#888';
+	const badge = document.getElementById( 'tile-cat-badge' );
+	badge.textContent = `${ tile.category } / ${ tile.size }`;
+	badge.style.color = catColor;
+	badge.style.background = catColor + '22';
+	badge.style.border = `1px solid ${ catColor }44`;
+
+	const f = ( v ) => v.toFixed( 2 );
+	const edgeStatus = ( key ) => {
+
+		const count = edgeVerts[ key ];
+		if ( count > 20 ) return `<span class="edge-open">OPEN</span> (${ count } verts)`;
+		return `<span class="edge-closed">WALL</span> (${ count } verts)`;
+
+	};
+
+	const edgeHeight = ( key ) => {
+
+		if ( edgeVerts[ key ] < 5 ) return '—';
+		return `${ f( edgeYMin[ key ] ) } → ${ f( edgeYMax[ key ] ) }`;
+
+	};
+
+	document.getElementById( 'info-body' ).innerHTML = `
+		<div class="section-label">Bounding Box</div>
+		<div class="data-row"><span class="label">Size X</span><span class="value">${ f( size.x ) }</span></div>
+		<div class="data-row"><span class="label">Size Y (height)</span><span class="value">${ f( size.y ) }</span></div>
+		<div class="data-row"><span class="label">Size Z</span><span class="value">${ f( size.z ) }</span></div>
+		<div class="data-row"><span class="label">Center</span><span class="value">${ f( center.x ) }, ${ f( center.y ) }, ${ f( center.z ) }</span></div>
+		<div class="data-row"><span class="label">Min corner</span><span class="value">${ f( bbox.min.x ) }, ${ f( bbox.min.y ) }, ${ f( bbox.min.z ) }</span></div>
+		<div class="data-row"><span class="label">Max corner</span><span class="value">${ f( bbox.max.x ) }, ${ f( bbox.max.y ) }, ${ f( bbox.max.z ) }</span></div>
+
+		<div class="section-label">Grid Footprint</div>
+		<div class="data-row"><span class="label">Grid cells</span><span class="value">${ gridCells.x } x ${ gridCells.z }</span></div>
+		<div class="data-row"><span class="label">Declared size</span><span class="value">${ tile.size }</span></div>
+		<div class="data-row"><span class="label">Cell size</span><span class="value">${ CELL_RAW } units</span></div>
+
+		<div class="section-label">Height Range</div>
+		<div class="data-row"><span class="label">Y min</span><span class="value">${ f( yMin ) }</span></div>
+		<div class="data-row"><span class="label">Y max</span><span class="value">${ f( yMax ) }</span></div>
+		<div class="data-row"><span class="label">Total height</span><span class="value">${ f( yMax - yMin ) }</span></div>
+
+		<div class="section-label">Edge Analysis (road openings)</div>
+		<div class="edge-grid">
+			<div class="edge-item"><span class="dir">N (-Z)</span><span class="edge-val">${ edgeStatus( 'north' ) }</span></div>
+			<div class="edge-item"><span class="dir">S (+Z)</span><span class="edge-val">${ edgeStatus( 'south' ) }</span></div>
+			<div class="edge-item"><span class="dir">E (+X)</span><span class="edge-val">${ edgeStatus( 'east' ) }</span></div>
+			<div class="edge-item"><span class="dir">W (-X)</span><span class="edge-val">${ edgeStatus( 'west' ) }</span></div>
+		</div>
+
+		<div class="section-label">Edge Heights (Y range at edge)</div>
+		<div class="edge-grid">
+			<div class="edge-item"><span class="dir">N</span><span class="edge-val">${ edgeHeight( 'north' ) }</span></div>
+			<div class="edge-item"><span class="dir">S</span><span class="edge-val">${ edgeHeight( 'south' ) }</span></div>
+			<div class="edge-item"><span class="dir">E</span><span class="edge-val">${ edgeHeight( 'east' ) }</span></div>
+			<div class="edge-item"><span class="dir">W</span><span class="edge-val">${ edgeHeight( 'west' ) }</span></div>
+		</div>
+
+		<div class="section-label">Mesh Stats</div>
+		<div class="data-row"><span class="label">Meshes</span><span class="value">${ meshCount }</span></div>
+		<div class="data-row"><span class="label">Vertices</span><span class="value">${ vertCount.toLocaleString() }</span></div>
+		<div class="data-row"><span class="label">Triangles</span><span class="value">${ Math.round( triCount ).toLocaleString() }</span></div>
+		<div class="data-row"><span class="label">Materials</span><span class="value">${ materialNames.join( ', ' ) }</span></div>
+
+		<div class="section-label">Debug Visuals</div>
+		<div class="legend"><span class="swatch" style="background:#0f8"></span> Green box = bounding box</div>
+		<div class="legend"><span class="swatch" style="background:#f00"></span> Red cross = center point</div>
+		<div class="legend"><span class="swatch" style="background:#ff0"></span> Yellow cross = model origin (0,0,0)</div>
+		<div class="legend"><span class="swatch" style="background:#0f8"></span> Green edge = road opening</div>
+		<div class="legend"><span class="swatch" style="background:#f44"></span> Red edge = wall / closed</div>
+		<div class="legend"><span class="swatch" style="background:rgba(255,255,255,0.3)"></span> White grid = cell boundaries</div>
+	`;
+
+}
+
+// ── Load and display a tile ──────────────────────────────────────────────
+
+const loader = new GLTFLoader();
+
+async function loadTile( index ) {
+
+	const tile = TILES[ index ];
+
+	// Remove old model
+	while ( trackGroup.children.length > 0 ) trackGroup.remove( trackGroup.children[ 0 ] );
+
+	document.getElementById( 'tile-name' ).textContent = 'Loading...';
+
+	try {
+
+		const gltf = await new Promise( ( resolve, reject ) => {
+
+			loader.load( `models/standard-map/${ tile.file }`, resolve, undefined, reject );
+
+		} );
+
+		currentModel = gltf.scene;
+		currentModel.traverse( ( c ) => {
+
+			if ( c.isMesh ) {
+
+				c.castShadow = true;
+				c.receiveShadow = true;
+				c.material.side = THREE.FrontSide;
+
+			}
+
+		} );
+
+		trackGroup.add( currentModel );
+
+		// Analyze and display
+		currentModel.updateMatrixWorld( true );
+		const analysis = analyzeGeometry( currentModel );
+		buildDebugVisuals( analysis );
+		updateInfoPanel( tile, analysis );
+
+		// Recenter camera on the tile
+		camTarget.copy( analysis.center );
+		camTarget.y = 0;
+		updateCamera();
+
+		// Fit zoom to tile size
+		const maxSpan = Math.max( analysis.size.x, analysis.size.z, 5 );
+		camera.zoom = Math.min( 2.5, ( frustum * 2 ) / ( maxSpan * 1.3 ) );
+		camera.updateProjectionMatrix();
+
+	} catch ( e ) {
+
+		document.getElementById( 'tile-name' ).textContent = 'LOAD ERROR';
+		document.getElementById( 'tile-file' ).textContent = tile.file;
+		document.getElementById( 'info-body' ).innerHTML = `<div style="color:#f66;margin-top:10px">Failed to load model</div>`;
+
+	}
+
+	// Update counter
+	const posInFiltered = filteredIndices.indexOf( index );
+	document.getElementById( 'counter' ).textContent = `${ posInFiltered + 1 } / ${ filteredIndices.length }`;
+
+}
+
+// ── Navigation ───────────────────────────────────────────────────────────
+
+function goNext() {
+
+	const pos = filteredIndices.indexOf( currentIndex );
+	const nextPos = ( pos + 1 ) % filteredIndices.length;
+	currentIndex = filteredIndices[ nextPos ];
+	loadTile( currentIndex );
+
+}
+
+function goPrev() {
+
+	const pos = filteredIndices.indexOf( currentIndex );
+	const prevPos = ( pos - 1 + filteredIndices.length ) % filteredIndices.length;
+	currentIndex = filteredIndices[ prevPos ];
+	loadTile( currentIndex );
+
+}
+
+document.getElementById( 'btn-next' ).addEventListener( 'click', goNext );
+document.getElementById( 'btn-prev' ).addEventListener( 'click', goPrev );
+
+// ── Category filter buttons ──────────────────────────────────────────────
+
+const nav = document.getElementById( 'nav' );
+const categories = [ ...new Set( TILES.map( t => t.category ) ) ];
+
+for ( const cat of categories ) {
+
+	const btn = document.createElement( 'button' );
+	btn.className = 'cat-filter';
+	btn.dataset.cat = cat;
+	btn.textContent = cat;
+	nav.appendChild( btn );
+
+}
+
+nav.addEventListener( 'click', ( e ) => {
+
+	if ( ! e.target.classList.contains( 'cat-filter' ) ) return;
+
+	const cat = e.target.dataset.cat;
+	activeCategory = cat;
+
+	// Update active state
+	for ( const btn of nav.querySelectorAll( '.cat-filter' ) ) {
+
+		btn.classList.toggle( 'active', btn.dataset.cat === cat );
+
+	}
+
+	// Rebuild filtered indices
+	if ( cat === '' ) {
+
+		filteredIndices = TILES.map( ( _, i ) => i );
+
+	} else {
+
+		filteredIndices = TILES.map( ( t, i ) => ( { t, i } ) )
+			.filter( ( { t } ) => t.category === cat )
+			.map( ( { i } ) => i );
+
+	}
+
+	// Jump to first tile in filter if current isn't in it
+	if ( ! filteredIndices.includes( currentIndex ) ) {
+
+		currentIndex = filteredIndices[ 0 ];
+
+	}
+
+	loadTile( currentIndex );
+
+} );
+
+// ── Resize ───────────────────────────────────────────────────────────────
+
+window.addEventListener( 'resize', () => {
+
+	const a = window.innerWidth / window.innerHeight;
+	camera.left = - frustum * a;
+	camera.right = frustum * a;
+	camera.updateProjectionMatrix();
+	renderer.setSize( window.innerWidth, window.innerHeight );
+
+} );
+
+// ── Render loop ──────────────────────────────────────────────────────────
+
+function animate() {
+
+	requestAnimationFrame( animate );
+	renderer.render( scene, camera );
+
+}
+
+animate();
+
+// ── Init: load first tile ────────────────────────────────────────────────
+
+loadTile( 0 );
+	</script>
+</body>
+</html>

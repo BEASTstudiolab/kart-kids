@@ -51,7 +51,12 @@ export class BoostFlame {
 		// Emit while nitro or mini-boost is active (miniBoostTimer added in Unit 3).
 		const isActive = vehicle.boostActive || ( vehicle.miniBoostTimer > 0 );
 
-		if ( isActive ) {
+		// Rate-limited emission: max 30 particles/sec
+		this._emitTimer = ( this._emitTimer || 0 ) + dt;
+
+		if ( isActive && this._emitTimer > 1 / 30 ) {
+
+			this._emitTimer = 0;
 
 			// Backward direction = negative vehicle forward.
 			_backward.set( 0, 0, - 1 ).applyQuaternion( vehicle.container.quaternion );

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html><head><title>Curve Offset Test</title>
+<style>
+body { margin: 0; background: #1a1a2e; overflow: hidden; }
+canvas { display: block; width: 100vw; height: 100vh; }
+#info { position: absolute; top: 10px; left: 10px; color: #fff; font-family: monospace;
+  background: rgba(0,0,0,0.7); padding: 12px 16px; border-radius: 6px; font-size: 14px; z-index: 10;
+  pointer-events: none; max-width: 520px; }
+#info b { color: #4f4; }
+#status { position: absolute; bottom: 10px; left: 10px; color: #ff0; font-family: monospace;
+  background: rgba(0,0,0,0.7); padding: 8px 12px; border-radius: 4px; font-size: 14px; z-index: 10;
+  pointer-events: none; white-space: pre; }
+</style>
+</head><body>
+<div id="info">
+  <b>Curve + Straight Offset Test</b><br>
+  <b>Click</b> any piece to select it (yellow ring).<br>
+  <b>Arrow keys</b> nudge position. <b>R</b> rotates 90°.<br>
+  <b>Tab</b> cycles selection. <b>Shift</b> = 10x nudge.<br>
+  <span style="color:#f88">Goal: align each curve's road with the straights.</span>
+</div>
+<div id="status"></div>
+<canvas id="c"></canvas>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.183.2/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.183.2/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const CELL = 10;
+const PI = Math.PI;
+const loader = new GLTFLoader();
+const ORIENT_DEG = { 0: 0, 10: 180, 16: 90, 22: 270 };
+const ORIENT_CYCLE = [0, 16, 10, 22];
+const ORIENT_NAMES = { 0: 'S+W', 10: 'N+E', 16: 'S+E', 22: 'N+W' };
+
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x7dba84);
+
+const dir = new THREE.DirectionalLight(0xffffff, 2);
+dir.position.set(10, 30, 10);
+scene.add(dir);
+scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+
+const grid = new THREE.GridHelper(200, 20, 0x555555, 0x444444);
+grid.position.y = -0.02;
+scene.add(grid);
+
+const frustum = 55;
+const aspect = window.innerWidth / window.innerHeight;
+const camera = new THREE.OrthographicCamera(-frustum*aspect, frustum*aspect, frustum, -frustum, 0.1, 200);
+camera.position.set(0, 50, 0);
+camera.lookAt(0, 0, 0);
+
+const controls = new OrbitControls(camera, canvas);
+
+// ─── Corrected curve rotations ──────────────────────────────────
+const CURVE_ROTATIONS = { 0: PI, 16: -PI/2, 10: 0, 22: PI/2 };
+
+// ─── All pieces: curves and straights ───────────────────────────
+// Each piece has: type, position (x,z), orientIdx, mesh
+const pieces = [];
+let curveBase = null;
+let straightBase = null;
+let selectedIdx = 0;
+
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+
+// Highlight ring
+const highlightGeo = new THREE.RingGeometry(6, 7, 32);
+highlightGeo.rotateX(-PI/2);
+const highlightMat = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.DoubleSide });
+const highlightMesh = new THREE.Mesh(highlightGeo, highlightMat);
+highlightMesh.position.y = 1.5;
+scene.add(highlightMesh);
+
+// ─── Initial layout ─────────────────────────────────────────────
+// 4 quadrants, each with 1 curve + 2 straights
+// All positions in world coords, all editable
+function initPieces() {
+  const H = 10; // halfShift for 3x3 curve
+  // Orient 16 (S+E) — NW corner area
+  pieces.push({ type: 'curve', x: -25 - H, z: -25 + H, orientIdx: 1, label: 'C:16(S+E)' });
+  pieces.push({ type: 'straight', x: -25, z: -25 + CELL, orientIdx: 0, label: 'S:south' });
+  pieces.push({ type: 'straight', x: -25 + CELL, z: -25, orientIdx: 3, label: 'S:east' });
+
+  // Orient 0 (S+W) — NE corner area
+  pieces.push({ type: 'curve', x: 25 + H, z: -25 + H, orientIdx: 0, label: 'C:0(S+W)' });
+  pieces.push({ type: 'straight', x: 25, z: -25 + CELL, orientIdx: 0, label: 'S:south' });
+  pieces.push({ type: 'straight', x: 25 - CELL, z: -25, orientIdx: 3, label: 'S:west' });
+
+  // Orient 10 (N+E) — SW corner area
+  pieces.push({ type: 'curve', x: -25 - H, z: 25 - H, orientIdx: 2, label: 'C:10(N+E)' });
+  pieces.push({ type: 'straight', x: -25, z: 25 - CELL, orientIdx: 0, label: 'S:north' });
+  pieces.push({ type: 'straight', x: -25 + CELL, z: 25, orientIdx: 3, label: 'S:east' });
+
+  // Orient 22 (N+W) — SE corner area
+  pieces.push({ type: 'curve', x: 25 + H, z: 25 - H, orientIdx: 3, label: 'C:22(N+W)' });
+  pieces.push({ type: 'straight', x: 25, z: 25 - CELL, orientIdx: 0, label: 'S:north' });
+  pieces.push({ type: 'straight', x: 25 - CELL, z: 25, orientIdx: 3, label: 'S:west' });
+}
+
+function placePiece(idx) {
+  const p = pieces[idx];
+  if (p.mesh) scene.remove(p.mesh);
+
+  const orient = ORIENT_CYCLE[p.orientIdx];
+  let model;
+
+  if (p.type === 'curve') {
+    model = curveBase.clone();
+    model.rotation.y = CURVE_ROTATIONS[orient];
+  } else {
+    model = straightBase.clone();
+    model.rotation.y = THREE.MathUtils.degToRad(ORIENT_DEG[orient]);
+  }
+
+  model.position.set(p.x, 0.5, p.z);
+  model.userData.pieceIdx = idx;
+  scene.add(model);
+  p.mesh = model;
+}
+
+function updateHighlight() {
+  const p = pieces[selectedIdx];
+  highlightMesh.position.set(p.x, 1.5, p.z);
+  highlightMesh.scale.setScalar(p.type === 'curve' ? 2 : 1);
+}
+
+function updateStatus() {
+  const lines = pieces.map((p, i) => {
+    const orient = ORIENT_CYCLE[p.orientIdx];
+    const sel = i === selectedIdx ? ' ◀' : '';
+    const tag = p.type === 'curve' ? 'CURVE' : 'STR';
+    return `${tag} ${p.label} orient=${orient} pos=(${p.x.toFixed(0)}, ${p.z.toFixed(0)})${sel}`;
+  });
+  document.getElementById('status').textContent = lines.join('\n');
+}
+
+initPieces();
+
+Promise.all([
+  new Promise(r => loader.load('models/standard-map/kartkids_base_trk_520_trn_90_l_3x3.gltf', r)),
+  new Promise(r => loader.load('models/standard-map/kartkids_base_trk_010_rd_straight_1x1.gltf', r)),
+]).then(([curveGltf, straightGltf]) => {
+  curveBase = curveGltf.scene;
+  straightBase = straightGltf.scene;
+
+  // Place anchor cell markers for each quadrant
+  [[-25,-25],[25,-25],[-25,25],[25,25]].forEach(([cx,cz]) => {
+    const marker = new THREE.Mesh(
+      new THREE.BoxGeometry(CELL, 0.2, CELL),
+      new THREE.MeshBasicMaterial({ color: 0x336633, transparent: true, opacity: 0.4 })
+    );
+    marker.position.set(cx, 0.1, cz);
+    scene.add(marker);
+  });
+
+  pieces.forEach((_, i) => placePiece(i));
+  updateHighlight();
+  updateStatus();
+  render();
+});
+
+// ─── Click to select ────────────────────────────────────────────
+let mouseDownPos = null;
+
+canvas.addEventListener('pointerdown', (e) => {
+  mouseDownPos = { x: e.clientX, y: e.clientY };
+});
+
+canvas.addEventListener('pointerup', (e) => {
+  if (!mouseDownPos) return;
+  const dx = e.clientX - mouseDownPos.x;
+  const dy = e.clientY - mouseDownPos.y;
+  if (Math.sqrt(dx*dx + dy*dy) > 5) return;
+
+  mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+  raycaster.setFromCamera(mouse, camera);
+  const hits = raycaster.intersectObjects(scene.children, true);
+
+  for (const hit of hits) {
+    let obj = hit.object;
+    while (obj) {
+      if (obj.userData.pieceIdx !== undefined) {
+        selectedIdx = obj.userData.pieceIdx;
+        updateHighlight();
+        updateStatus();
+        return;
+      }
+      obj = obj.parent;
+    }
+  }
+});
+
+// ─── Keyboard controls ─────────────────────────────────────────
+window.addEventListener('keydown', (e) => {
+  const p = pieces[selectedIdx];
+  if (!p) return;
+
+  const step = e.shiftKey ? 10 : 1;
+
+  // Arrow keys = nudge position
+  if (e.key === 'ArrowLeft')  { p.x -= step; e.preventDefault(); }
+  if (e.key === 'ArrowRight') { p.x += step; e.preventDefault(); }
+  if (e.key === 'ArrowUp')    { p.z -= step; e.preventDefault(); }
+  if (e.key === 'ArrowDown')  { p.z += step; e.preventDefault(); }
+
+  // R = rotate 90°
+  if (e.key === 'r' || e.key === 'R') {
+    p.orientIdx = (p.orientIdx + 1) % ORIENT_CYCLE.length;
+  }
+
+  if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','r','R'].includes(e.key)) {
+    placePiece(selectedIdx);
+    updateHighlight();
+    updateStatus();
+  }
+
+  // Tab = cycle selection
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    selectedIdx = (selectedIdx + 1) % pieces.length;
+    updateHighlight();
+    updateStatus();
+  }
+});
+
+function render() {
+  renderer.render(scene, camera);
+  requestAnimationFrame(render);
+}
+
+window.addEventListener('resize', () => {
+  const w = window.innerWidth, h = window.innerHeight;
+  const a = w / h;
+  camera.left = -frustum * a; camera.right = frustum * a;
+  camera.top = frustum; camera.bottom = -frustum;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+});
+</script>
+</body></html>

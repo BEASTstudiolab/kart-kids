@@ -2,18 +2,8 @@ import * as THREE from 'three';
 
 const POOL_SIZE = 64;
 
-<<<<<<< Updated upstream
-// Stage color palettes — embers get hotter at higher stages
-const STAGE_COLORS = [
-	[ 0xffaa22 ],                                // stage 0 — unused
-	[ 0xffaa22, 0xff8811, 0xffcc33 ],            // stage 1 — warm orange-yellow
-	[ 0xffcc33, 0xffdd44, 0xffee66, 0xff8811 ],  // stage 2 — brighter yellow-orange
-	[ 0xff6600, 0xff4400, 0xff8800, 0xffaa00 ],  // stage 3 — hot red-orange
-];
-=======
 // Yellow/orange spark palette
 const SPARK_COLORS = [ 0xffdd33, 0xffaa00, 0xff8800, 0xffee66 ];
->>>>>>> Stashed changes
 
 const _worldPos = new THREE.Vector3();
 
@@ -57,16 +47,11 @@ export class DriftSparks {
 
 	update( dt, vehicle ) {
 
-<<<<<<< Updated upstream
-		// Only emit while actively drifting, rate-limited to ~30 particles/sec
-		if ( vehicle.driftStage > 0 ) {
-=======
 		// Emit during drift OR hard turns
 		const isTurningHard = Math.abs( vehicle.inputX ) > 0.8 && Math.abs( vehicle.linearSpeed ) > 0.5;
 		const shouldEmit = ( vehicle.driftActive && vehicle.driftSparkTier > 0 ) || isTurningHard;
 
 		if ( shouldEmit ) {
->>>>>>> Stashed changes
 
 			this._emitTimer += dt;
 			const emitInterval = 1 / 12; // 12 emits/sec per wheel
@@ -74,10 +59,6 @@ export class DriftSparks {
 			if ( this._emitTimer >= emitInterval ) {
 
 				this._emitTimer -= emitInterval;
-<<<<<<< Updated upstream
-				const stage = Math.min( vehicle.driftStage, 3 );
-=======
->>>>>>> Stashed changes
 
 				if ( vehicle.wheelBL ) this._emitAtWheel( vehicle.wheelBL, vehicle );
 				if ( vehicle.wheelBR ) this._emitAtWheel( vehicle.wheelBR, vehicle );
