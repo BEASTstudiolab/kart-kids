@@ -15,7 +15,6 @@ export function getCellsArray( grid ) {
 	for ( const [ key, cell ] of grid ) {
 
 		if ( cell.autoRamp ) continue;
-		if ( cell.finishFlank ) continue; // flanking finish cells are re-derived, not saved
 
 		const [ gx, gz ] = key.split( ',' ).map( Number );
 
@@ -26,6 +25,9 @@ export function getCellsArray( grid ) {
 			typeName = 'trk-straight';
 
 		}
+
+		// Flanking finish cells save as straights (the arch is visual-only on the center cell)
+		if ( cell.finishFlank ) typeName = 'trk-straight';
 
 		const flags = {
 			elevation: cell.elevation || 0,
