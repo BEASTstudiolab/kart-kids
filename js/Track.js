@@ -462,6 +462,14 @@ export function encodeCells( cells ) {
 
 			if ( flags.rampStyle === 'smooth' ) flags2 |= 1;
 
+			// bits 1-3: curveVariant (0=none, 1=2x2-wide, 2=2x2-tight, 3=3x3, 4=3x3-wide)
+			const CURVE_VARIANT_ENCODE = { '2x2-wide': 1, '2x2-tight': 2, '3x3': 3, '3x3-wide': 4 };
+			if ( flags.curveVariant && CURVE_VARIANT_ENCODE[ flags.curveVariant ] ) {
+
+				flags2 |= ( CURVE_VARIANT_ENCODE[ flags.curveVariant ] << 1 );
+
+			}
+
 		}
 
 		bytes[ i * 4 ] = gx + 128;
@@ -500,7 +508,10 @@ export function decodeCells( str ) {
 
 			const rampStyle = ( flags2 & 1 ) ? 'smooth' : null;
 
-			const flags = { elevation, curveOverride, rotationOverride, rampStyle };
+			const CURVE_VARIANT_DECODE = [ null, '2x2-wide', '2x2-tight', '3x3', '3x3-wide' ];
+			const curveVariant = CURVE_VARIANT_DECODE[ ( flags2 >> 1 ) & 0x07 ] || null;
+
+			const flags = { elevation, curveOverride, rotationOverride, rampStyle, curveVariant };
 			cells.push( [ gx, gz, TYPE_NAMES[ ti ], ORIENT_ENCODE[ oi ], flags ] );
 
 		}
