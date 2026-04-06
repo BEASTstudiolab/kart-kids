@@ -1,8 +1,40 @@
 // ─── Elevation Logic ─────────────────────────────────────────────────
 // Elevation cycling, clearing, and load-time derivation.
 
-import { ORIENT_FLIP, cellKey } from './EditorState.js';
+import { ORIENT_FLIP, DIR_DELTA, cellKey } from './EditorState.js';
 import { getElevationModelName, getRampNeighborKeys, scanElevatedRun } from '../ElevationUtils.js';
+import { getCellExits } from './AutoTile.js';
+
+/**
+ * Derive elevation for a corner cell from its adjacent elevated straights.
+ * Sets cell._derivedElevation so placeMesh and renderCurves pick up the Y-offset.
+ */
+export function deriveCornerElevation( grid, gx, gz ) {
+
+	const key = cellKey( gx, gz );
+	const cell = grid.get( key );
+	if ( ! cell || cell.type !== 'trk-corner-1x1' ) return;
+
+	const exits = getCellExits( cell );
+	let maxElev = 0;
+
+	for ( const bit of [ 8, 4, 2, 1 ] ) {
+
+		if ( ! ( exits & bit ) ) continue;
+
+		const [ dx, dz ] = DIR_DELTA[ bit ];
+		const nKey = cellKey( gx + dx, gz + dz );
+		const nCell = grid.get( nKey );
+		if ( ! nCell ) continue;
+
+		const nElev = nCell.elevation || 0;
+		if ( nElev > maxElev ) maxElev = nElev;
+
+	}
+
+	cell._derivedElevation = maxElev;
+
+}
 
 /**
  * Load-time: scan all elevated cells and re-derive ramp neighbors.
@@ -31,13 +63,24 @@ export function deriveRampsFromElevation( grid, placeMesh ) {
 			if ( rCell.autoRamp ) continue;
 			if ( rCell.type !== 'trk-straight' ) continue;
 
+			const style = cell.rampStyle || 'steep';
 			rCell.autoRamp = true;
 			rCell.rampParent = key;
-			rCell.type = getElevationModelName( cell.elevation, rn.role );
+			rCell.type = getElevationModelName( cell.elevation, rn.role, style );
 			rCell.orient = cell.orient;
 			placeMesh( rn.gx, rn.gz, rCell );
 
 		}
+
+	}
+
+	// Derive elevation for all corner cells in the grid
+	for ( const [ cKey, cCell ] of grid ) {
+
+		if ( cCell.type !== 'trk-corner-1x1' ) continue;
+		const [ cgx, cgz ] = cKey.split( ',' ).map( Number );
+		deriveCornerElevation( grid, cgx, cgz );
+		placeMesh( cgx, cgz, cCell );
 
 	}
 
@@ -143,6 +186,31 @@ export function recalculateRunRamps( grid, placeMesh, gx, gz ) {
 		}
 
 		placeMesh( nx, nz, nCell );
+
+	}
+
+	// Derive elevation for any corners adjacent to tiles in the run
+	const cornerChecked = new Set();
+	for ( const tile of run ) {
+
+		for ( const bit of [ 8, 4, 2, 1 ] ) {
+
+			const [ dx, dz ] = DIR_DELTA[ bit ];
+			const nx2 = tile.gx + dx;
+			const nz2 = tile.gz + dz;
+			const nKey2 = cellKey( nx2, nz2 );
+			if ( cornerChecked.has( nKey2 ) ) continue;
+			cornerChecked.add( nKey2 );
+
+			const nCell2 = grid.get( nKey2 );
+			if ( nCell2 && nCell2.type === 'trk-corner-1x1' ) {
+
+				deriveCornerElevation( grid, nx2, nz2 );
+				placeMesh( nx2, nz2, nCell2 );
+
+			}
+
+		}
 
 	}
 

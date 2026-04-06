@@ -572,6 +572,7 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 		deriveAllCurves as _deriveAllCurves,
 	} from './js/editor/Curves.js';
 	import {
+		deriveCornerElevation as _deriveCornerElevation,
 		deriveRampsFromElevation as _deriveRampsFromElevation,
 		recalculateRunRamps as _recalculateRunRamps,
 		cycleElevation as _cycleElevation,
@@ -607,6 +608,7 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 	const renderCurves = () => _renderCurves( grid, models, trackGroup );
 	const getAvailableCurveOptions = ( gx, gz ) => _getAvailableCurveOptions( grid, gx, gz );
 	const deriveAllCurves = () => _deriveAllCurves( grid, models, trackGroup );
+	const deriveCornerElevation = ( gx, gz ) => _deriveCornerElevation( grid, gx, gz );
 	const deriveRampsFromElevation = () => _deriveRampsFromElevation( grid, placeMesh );
 	const recalculateRunRamps = ( gx, gz ) => _recalculateRunRamps( grid, placeMesh, gx, gz );
 	const cycleElevation = ( gx, gz ) => _cycleElevation( { grid, placeMesh, pushUndo, save, showToast }, gx, gz );
@@ -1162,6 +1164,22 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 		pushUndo();
 		grid.set( key, { type: 'trk-straight', orient: 0, isFinish: false, mesh: null } );
 		resolveCellAndNeighbors( gx, gz );
+
+		// Derive elevation for any corners in the neighborhood
+		const cornerOffsets = [ [ 0, 0 ], [ 0, - 1 ], [ 0, 1 ], [ 1, 0 ], [ - 1, 0 ] ];
+		for ( const [ cdx, cdz ] of cornerOffsets ) {
+
+			const ck = cellKey( gx + cdx, gz + cdz );
+			const cc = grid.get( ck );
+			if ( cc && cc.type === 'trk-corner-1x1' ) {
+
+				deriveCornerElevation( gx + cdx, gz + cdz );
+				placeMesh( gx + cdx, gz + cdz, cc );
+
+			}
+
+		}
+
 		save();
 		updateStats();
 

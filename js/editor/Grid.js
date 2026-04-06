@@ -23,7 +23,7 @@ export function placeMesh( grid, models, trackGroup, gx, gz, cell ) {
 	if ( ! src ) return;
 
 	const mesh = src.clone();
-	const elev = cell.elevation || 0;
+	const elev = cell.elevation || cell._derivedElevation || 0;
 	const elevY = elev === 1 ? 2.416 : elev === 2 ? 4.832 : 0;
 	mesh.position.set( ( gx + 0.5 ) * CELL_RAW, 0.5 + elevY, ( gz + 0.5 ) * CELL_RAW );
 	mesh.rotation.y = THREE.MathUtils.degToRad( ORIENT_DEG[ cell.orient ] || 0 );
@@ -137,6 +137,7 @@ export function snapshotGrid( grid ) {
 		if ( cell.curveVariant ) entry.curveVariant = cell.curveVariant;
 		if ( cell.rotationOverride ) entry.rotationOverride = true;
 		if ( cell.elevation != null && cell.elevation !== 0 ) entry.elevation = cell.elevation;
+		if ( cell.rampStyle ) entry.rampStyle = cell.rampStyle;
 		if ( cell.autoRamp ) entry.autoRamp = true;
 		if ( cell.rampParent ) entry.rampParent = cell.rampParent;
 		snap.push( entry );
@@ -181,6 +182,7 @@ export function restoreSnapshot( grid, models, trackGroup, snap, callbacks ) {
 
 		if ( entry.rotationOverride ) cell.rotationOverride = true;
 		if ( entry.elevation != null ) cell.elevation = entry.elevation;
+		if ( entry.rampStyle ) cell.rampStyle = entry.rampStyle;
 		if ( entry.autoRamp ) cell.autoRamp = true;
 		if ( entry.rampParent ) cell.rampParent = entry.rampParent;
 

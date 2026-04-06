@@ -192,9 +192,11 @@ export function renderCurves( grid, models, trackGroup ) {
 			const [ gx, gz ] = key.split( ',' ).map( Number );
 			const curveMesh = src.clone();
 
+			const elev = cell._derivedElevation || cell.elevation || 0;
+			const elevY = elev === 1 ? 2.416 : elev === 2 ? 4.832 : 0;
 			curveMesh.position.set(
 				( gx + 0.5 ) * CELL_RAW + curveConfig.offset.x,
-				0.5,
+				0.5 + elevY,
 				( gz + 0.5 ) * CELL_RAW + curveConfig.offset.z
 			);
 
