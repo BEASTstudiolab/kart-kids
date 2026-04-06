@@ -310,6 +310,36 @@ export function cycleElevation( ctx, gx, gz ) {
 		cell.type = 'trk-straight';
 		placeMesh( gx, gz, cell );
 
+		// Clear orphaned ramps that were parented to this cell
+		for ( const [ rKey, rCell ] of grid ) {
+
+			if ( rCell.autoRamp && rCell.rampParent === key ) {
+
+				rCell.autoRamp = false;
+				delete rCell.rampParent;
+				rCell.type = 'trk-straight';
+
+				const [ rx, rz ] = rKey.split( ',' ).map( Number );
+				placeMesh( rx, rz, rCell );
+
+			}
+
+		}
+
+		// Recalculate ramps for any elevated neighbors
+		for ( const bit of [ 8, 4, 2, 1 ] ) {
+
+			const [ dx, dz ] = DIR_DELTA[ bit ];
+			const nKey = cellKey( gx + dx, gz + dz );
+			const nCell = grid.get( nKey );
+			if ( nCell && nCell.elevation && nCell.elevation > 0 ) {
+
+				recalculateRunRamps( grid, placeMesh, gx + dx, gz + dz );
+
+			}
+
+		}
+
 		showToast( 'Elevation: ground' );
 
 	}

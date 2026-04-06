@@ -169,6 +169,7 @@ const modelNames = [
 	'trk-ramp-up-2p5', 'trk-ramp-up-5',
 	'trk-ramp-up-2p5-smooth', 'trk-ramp-up-5-smooth',
 	'trk-ramp-down-2p5', 'trk-ramp-down-5',
+	'trk-ramp-down-2p5-smooth', 'trk-ramp-down-5-smooth',
 	'decoration-empty-night', 'decoration-buildings-1', 'decoration-buildings-2',
 ];
 

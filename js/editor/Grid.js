@@ -193,6 +193,7 @@ export function restoreSnapshot( grid, models, trackGroup, snap, callbacks ) {
 
 	// Re-render curves from restored metadata
 	callbacks.renderCurves();
+	if ( callbacks.deriveElevation ) callbacks.deriveElevation();
 	callbacks.save();
 	callbacks.updateStats();
 	callbacks.updateFinishCar();

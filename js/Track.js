@@ -634,6 +634,13 @@ export function deriveRampCells( decodedCells ) {
 
 	}
 
+	// Copy flags.elevation → cell.elevation for scanElevatedRun compatibility
+	for ( const [ , cell ] of grid ) {
+
+		if ( cell.flags && cell.flags.elevation ) cell.elevation = cell.flags.elevation;
+
+	}
+
 	const processed = new Set();
 
 	for ( const [ key, cell ] of grid ) {
@@ -687,6 +694,11 @@ export function deriveRampCells( decodedCells ) {
 			if ( nCell.flags.autoRamp ) continue;
 			if ( nCell.type !== 'trk-straight' ) continue;
 
+			// Beyond-cell check: ensure a cell exists one tile further
+			const bKey = cellKeyFn( nx + dx * dir, nz + dz * dir );
+			const bCell = grid.get( bKey );
+			if ( ! bCell ) continue;
+
 			const role = dir === 1 ? 'ramp-up' : 'ramp-down';
 			const style = parentCell.flags.rampStyle || 'steep';
 
@@ -739,6 +751,14 @@ export function transformCells( decodedCells ) {
 
 	const ORIENT_FLIP = { 0: 10, 10: 0, 16: 22, 22: 16 };
 	const cellKeyFn = ( gx, gz ) => gx + ',' + gz;
+
+	// Copy flags.elevation → cell.elevation for scanElevatedRun compatibility
+	for ( const [ , cell ] of grid ) {
+
+		if ( cell.flags && cell.flags.elevation ) cell.elevation = cell.flags.elevation;
+
+	}
+
 	const processed = new Set();
 
 	for ( const [ key, cell ] of grid ) {
@@ -793,6 +813,11 @@ export function transformCells( decodedCells ) {
 			if ( nCell.flags.autoRamp ) continue;
 			if ( nCell.type !== 'trk-straight' ) continue;
 
+			// Beyond-cell check: ensure a cell exists one tile further
+			const bKey = cellKeyFn( nx + dx * dir, nz + dz * dir );
+			const bCell = grid.get( bKey );
+			if ( ! bCell ) continue;
+
 			const role = dir === 1 ? 'ramp-up' : 'ramp-down';
 			const style = parentCell.flags.rampStyle || 'steep';
 
@@ -812,13 +837,17 @@ export function transformCells( decodedCells ) {
 	}
 
 	// Corner elevation pass: derive elevation for corners adjacent to elevated tiles
+	// Only check neighbors in the corner's actual exit directions
+	const CORNER_EXIT_BITS = { 0: [ 4, 1 ], 16: [ 4, 2 ], 10: [ 8, 2 ], 22: [ 8, 1 ] };
 	for ( const [ key, cell ] of grid ) {
 
 		if ( cell.type !== 'trk-corner-1x1' ) continue;
 
-		// Check all 4 neighbors for elevation
+		const exitBits = CORNER_EXIT_BITS[ cell.orient ];
+		if ( ! exitBits ) continue;
+
 		let maxElev = 0;
-		for ( const bit of [ 8, 4, 2, 1 ] ) {
+		for ( const bit of exitBits ) {
 
 			const [ ddx, ddz ] = DIR_DELTA[ bit ];
 			const nKey = cellKeyFn( cell.gx + ddx, cell.gz + ddz );

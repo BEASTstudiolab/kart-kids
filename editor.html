@@ -620,7 +620,7 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 	const updateDebugTooltip = ( gx, gz, clientX, clientY ) => _updateDebugTooltip( grid, trackTileSet, gx, gz, clientX, clientY );
 	const resolveCellAndNeighbors = ( gx, gz ) => _resolveCellAndNeighbors( grid, models, trackGroup, gx, gz, renderCurves );
 	const snapshotGrid = () => _snapshotGrid( grid );
-	const restoreSnapshot = ( snap ) => _restoreSnapshot( grid, models, trackGroup, snap, { renderCurves, save, updateStats, updateFinishCar } );
+	const restoreSnapshot = ( snap ) => _restoreSnapshot( grid, models, trackGroup, snap, { renderCurves, save, updateStats, updateFinishCar, deriveElevation: deriveRampsFromElevation } );
 
 	// ─── Undo / Redo ─────────────────────────────────────────
 
@@ -1003,6 +1003,7 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 		'trk-ramp-up-2p5', 'trk-ramp-up-5',
 		'trk-ramp-up-2p5-smooth', 'trk-ramp-up-5-smooth',
 		'trk-ramp-down-2p5', 'trk-ramp-down-5',
+		'trk-ramp-down-2p5-smooth', 'trk-ramp-down-5-smooth',
 		'vehicle-truck-red'
 	];
 	const trackTileSet = getTrackTileSet( globalThis.location?.search ?? '' );
