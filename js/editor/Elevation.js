@@ -37,44 +37,59 @@ export function deriveCornerElevation( grid, gx, gz ) {
 }
 
 /**
- * Load-time: scan all elevated cells and re-derive ramp neighbors.
+ * Load-time: scan all elevated cells, derive ramps using run-scanning logic,
+ * and derive corner elevations.
+ *
+ * Pass 1: Clear all autoRamp cells (reset to trk-straight).
+ * Pass 2: For each elevated tile, call recalculateRunRamps once per run.
+ * Pass 3: Derive corner elevations for all corner cells.
  */
 export function deriveRampsFromElevation( grid, placeMesh ) {
+
+	// Pass 1: Clear all autoRamp cells
+	for ( const [ key, cell ] of grid ) {
+
+		if ( ! cell.autoRamp ) continue;
+
+		cell.autoRamp = false;
+		delete cell.rampParent;
+		cell.type = 'trk-straight';
+
+		const [ gx, gz ] = key.split( ',' ).map( Number );
+		placeMesh( gx, gz, cell );
+
+	}
+
+	// Pass 2: Process each elevated run exactly once
+	const processed = new Set();
 
 	for ( const [ key, cell ] of grid ) {
 
 		if ( ! cell.elevation || cell.elevation === 0 ) continue;
 		if ( cell.type === 'trk-corner-1x1' || cell.type === 'trk-finish' ) continue;
+		if ( processed.has( key ) ) continue;
 
 		const [ gx, gz ] = key.split( ',' ).map( Number );
 
+		// Ensure the elevated tile has the correct model type
 		const elevModel = getElevationModelName( cell.elevation, 'flat' );
 		cell.type = elevModel;
 		placeMesh( gx, gz, cell );
 
-		const rampNeighbors = getRampNeighborKeys( gx, gz, cell.orient );
+		// Scan the full run and mark all tiles as processed
+		const run = scanElevatedRun( grid, gx, gz, cellKey );
+		for ( const tile of run ) {
 
-		for ( const rn of rampNeighbors ) {
-
-			const rKey = cellKey( rn.gx, rn.gz );
-			const rCell = grid.get( rKey );
-			if ( ! rCell ) continue;
-
-			if ( rCell.autoRamp ) continue;
-			if ( rCell.type !== 'trk-straight' ) continue;
-
-			const style = cell.rampStyle || 'steep';
-			rCell.autoRamp = true;
-			rCell.rampParent = key;
-			rCell.type = getElevationModelName( cell.elevation, rn.role, style );
-			rCell.orient = cell.orient;
-			placeMesh( rn.gx, rn.gz, rCell );
+			processed.add( tile.key );
 
 		}
 
+		// Recalculate ramps for this run (harmless re-clear of already-cleared ramps)
+		recalculateRunRamps( grid, placeMesh, gx, gz );
+
 	}
 
-	// Derive elevation for all corner cells in the grid
+	// Pass 3: Derive elevation for all corner cells
 	for ( const [ cKey, cCell ] of grid ) {
 
 		if ( cCell.type !== 'trk-corner-1x1' ) continue;
