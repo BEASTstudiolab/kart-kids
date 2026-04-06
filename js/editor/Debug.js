@@ -6,9 +6,11 @@ import { cellKey } from './EditorState.js';
 import { getTrackModelConfig } from '../TrackModelConfig.js';
 
 let debugMode = false;
-const debugTooltip = document.getElementById( 'debug-tooltip' );
+let debugTooltip = null;
 
 export function initDebugMode() {
+
+	debugTooltip = document.getElementById( 'debug-tooltip' );
 
 	window.addEventListener( 'keydown', ( e ) => {
 
@@ -71,6 +73,6 @@ export function updateDebugTooltip( grid, trackTileSet, gx, gz, clientX, clientY
 
 export function hideDebugTooltip() {
 
-	debugTooltip.style.display = 'none';
+	if ( debugTooltip ) debugTooltip.style.display = 'none';
 
 }

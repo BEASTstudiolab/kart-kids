@@ -41,30 +41,3 @@ export const DIR_INFO = [
 ];
 
 export function cellKey( gx, gz ) { return gx + ',' + gz; }
-
-/**
- * Create the shared editor state object.
- * All modules receive this instead of relying on closure variables.
- */
-export function createEditorState( opts ) {
-
-	return {
-		grid: opts.grid,               // Map<string, cell>
-		models: opts.models,           // { modelName: THREE.Object3D }
-		trackGroup: opts.trackGroup,   // THREE.Group
-		ghostGroup: opts.ghostGroup,   // THREE.Group
-		scene: opts.scene,
-		camera: opts.camera,
-		renderer: opts.renderer,
-		tool: 'road',                  // 'road' | 'erase' | 'elevate'
-		trackTileSet: opts.trackTileSet,
-		asphaltMode: opts.asphaltMode,
-		// Undo/redo
-		undoStack: [],
-		redoStack: [],
-		MAX_UNDO: 100,
-		// Toast function (set by editor.html)
-		showToast: opts.showToast || ( () => {} ),
-	};
-
-}

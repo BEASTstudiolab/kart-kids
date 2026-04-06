@@ -10,162 +10,27 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath( import.meta.url );
 const __dirname = path.dirname( __filename );
 
-// ─── Extracted from editor.html ─────────────────────────────────────────
+// ─── Imports from extracted editor modules ──────────────────────────────
 
-const AUTOTILE = [
-	[ 'trk-straight', 0 ],    //  0: isolated
-	[ 'trk-straight', 16 ],   //  1: W
-	[ 'trk-straight', 16 ],   //  2: E
-	[ 'trk-straight', 16 ],   //  3: E+W
-	[ 'trk-straight', 0 ],    //  4: S
-	[ 'trk-corner-1x1', 0 ],  //  5: S+W
-	[ 'trk-corner-1x1', 16 ], //  6: S+E
-	[ 'trk-straight', 16 ],   //  7: S+E+W
-	[ 'trk-straight', 0 ],    //  8: N
-	[ 'trk-corner-1x1', 22 ], //  9: N+W
-	[ 'trk-corner-1x1', 10 ], // 10: N+E
-	[ 'trk-straight', 16 ],   // 11: N+E+W
-	[ 'trk-straight', 0 ],    // 12: N+S
-	[ 'trk-straight', 0 ],    // 13: N+S+W
-	[ 'trk-straight', 0 ],    // 14: N+S+E
-	[ 'trk-straight', 0 ],    // 15: N+S+E+W
-];
-
-const ORIENT_FLIP = { 0: 10, 10: 0, 16: 22, 22: 16 };
-
-const DIR_DELTA = {
-	8: [ 0, -1 ],  // N
-	4: [ 0, 1 ],   // S
-	2: [ 1, 0 ],   // E
-	1: [ -1, 0 ],  // W
-};
-
-const DIR_INFO = [
-	{ bit: 8, dx: 0, dz: -1 }, // N
-	{ bit: 4, dx: 0, dz: 1 },  // S
-	{ bit: 2, dx: 1, dz: 0 },  // E
-	{ bit: 1, dx: -1, dz: 0 }, // W
-];
+import { AUTOTILE, ORIENT_FLIP, DIR_DELTA, DIR_INFO, cellKey } from '../js/editor/EditorState.js';
+import {
+	getCellExits,
+	bitCount,
+	getConnectivityMask as _getConnectivityMask,
+	resolveNewTile as _resolveNewTile,
+	resolveTile as _resolveTile,
+} from '../js/editor/AutoTile.js';
 
 // ─── Grid simulation ────────────────────────────────────────────────────
+// Tests use a module-level grid and bind the imported functions to it.
+// resolveCell uses `cell.resolved` (boolean) instead of `cell.mesh` (THREE object)
+// since tests run in Node without THREE.js.
 
 const grid = new Map();
 
-function cellKey( gx, gz ) { return gx + ',' + gz; }
-
-function getCellExits( cell ) {
-	const t = cell.type;
-	const o = cell.orient;
-	if ( t === 'trk-corner-1x1' ) {
-		if ( o === 0 ) return 5;    // S+W
-		if ( o === 16 ) return 6;   // S+E
-		if ( o === 10 ) return 10;  // N+E
-		if ( o === 22 ) return 9;   // N+W
-	}
-	if ( o === 0 || o === 10 ) return 12; // N+S
-	return 3; // E+W
-}
-
-function getConnectivityMask( gx, gz ) {
-	let mask = 0;
-	const n = grid.get( cellKey( gx, gz - 1 ) );
-	if ( n && ( getCellExits( n ) & 4 ) ) mask |= 8;
-	const s = grid.get( cellKey( gx, gz + 1 ) );
-	if ( s && ( getCellExits( s ) & 8 ) ) mask |= 4;
-	const e = grid.get( cellKey( gx + 1, gz ) );
-	if ( e && ( getCellExits( e ) & 1 ) ) mask |= 2;
-	const w = grid.get( cellKey( gx - 1, gz ) );
-	if ( w && ( getCellExits( w ) & 2 ) ) mask |= 1;
-	return mask;
-}
-
-function getPresenceMask( gx, gz ) {
-	let mask = 0;
-	if ( grid.has( cellKey( gx, gz - 1 ) ) ) mask |= 8;
-	if ( grid.has( cellKey( gx, gz + 1 ) ) ) mask |= 4;
-	if ( grid.has( cellKey( gx + 1, gz ) ) ) mask |= 2;
-	if ( grid.has( cellKey( gx - 1, gz ) ) ) mask |= 1;
-	return mask;
-}
-
-function bitCount( mask ) {
-	return ( mask >> 3 & 1 ) + ( mask >> 2 & 1 ) + ( mask >> 1 & 1 ) + ( mask & 1 );
-}
-
-function connectedExitCount( gx, gz ) {
-	const cell = grid.get( cellKey( gx, gz ) );
-	if ( !cell ) return 0;
-	return bitCount( getCellExits( cell ) & getConnectivityMask( gx, gz ) );
-}
-
-function getAvailableMask( gx, gz ) {
-	let mask = 0;
-	const dirs = [
-		[ 0, -1, 8, 4 ],
-		[ 0, 1, 4, 8 ],
-		[ 1, 0, 2, 1 ],
-		[ -1, 0, 1, 2 ],
-	];
-	for ( const [ dx, dz, bit, oppBit ] of dirs ) {
-		const neighbor = grid.get( cellKey( gx + dx, gz + dz ) );
-		if ( !neighbor ) continue;
-		const exits = getCellExits( neighbor );
-		if ( exits & oppBit ) { mask |= bit; continue; }
-		const conn = getConnectivityMask( gx + dx, gz + dz );
-		if ( bitCount( exits & conn ) < 2 ) mask |= bit;
-	}
-	return mask;
-}
-
-function pickBestPair( mask, gx, gz ) {
-	const active = DIR_INFO.filter( d => mask & d.bit );
-	if ( active.length <= 2 ) return mask;
-	let bestMask = active[ 0 ].bit | active[ 1 ].bit;
-	let bestScore = -1;
-	let bestIsCorner = false;
-	for ( let i = 0; i < active.length; i++ ) {
-		for ( let j = i + 1; j < active.length; j++ ) {
-			const pairMask = active[ i ].bit | active[ j ].bit;
-			const isCorner = ( pairMask !== 3 && pairMask !== 12 );
-			const s1 = connectedExitCount( gx + active[ i ].dx, gz + active[ i ].dz );
-			const s2 = connectedExitCount( gx + active[ j ].dx, gz + active[ j ].dz );
-			const score = s1 + s2;
-			if ( ( isCorner && !bestIsCorner ) ||
-				( isCorner === bestIsCorner && score > bestScore ) ) {
-				bestMask = pairMask;
-				bestScore = score;
-				bestIsCorner = isCorner;
-			}
-		}
-	}
-	return bestMask;
-}
-
-function resolveNewTile( gx, gz ) {
-	const pMask = getAvailableMask( gx, gz );
-	if ( bitCount( pMask ) >= 3 ) {
-		return AUTOTILE[ pickBestPair( pMask, gx, gz ) ];
-	}
-	return AUTOTILE[ pMask ];
-}
-
-function resolveTile( gx, gz ) {
-	const cMask = getConnectivityMask( gx, gz );
-	if ( cMask !== 0 ) return AUTOTILE[ cMask ];
-	const pMask = getPresenceMask( gx, gz );
-	if ( pMask !== 0 ) {
-		const dirs = [ [ 0, -1, 8 ], [ 0, 1, 4 ], [ 1, 0, 2 ], [ -1, 0, 1 ] ];
-		for ( const [ dx, dz, bit ] of dirs ) {
-			if ( !( pMask & bit ) ) continue;
-			const neighbor = grid.get( cellKey( gx + dx, gz + dz ) );
-			if ( !neighbor ) continue;
-			const exits = getCellExits( neighbor );
-			if ( exits & 12 ) return [ 'trk-straight', 0 ];
-			if ( exits & 3 ) return [ 'trk-straight', 16 ];
-		}
-	}
-	return AUTOTILE[ 0 ];
-}
+const getConnectivityMask = ( gx, gz ) => _getConnectivityMask( grid, gx, gz );
+const resolveNewTile = ( gx, gz ) => _resolveNewTile( grid, gx, gz );
+const resolveTile = ( gx, gz ) => _resolveTile( grid, gx, gz );
 
 function resolveCell( gx, gz ) {
 	const key = cellKey( gx, gz );

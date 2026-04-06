@@ -52,7 +52,7 @@ export function getConnectivityMask( grid, gx, gz ) {
 }
 
 // Raw presence mask (any road in adjacent cell)
-export function getPresenceMask( grid, gx, gz ) {
+function getPresenceMask( grid, gx, gz ) {
 
 	let mask = 0;
 	if ( grid.has( cellKey( gx, gz - 1 ) ) ) mask |= 8;
@@ -71,7 +71,7 @@ export function bitCount( mask ) {
 }
 
 // Count how many of a cell's exits are connected to neighbors
-export function connectedExitCount( grid, gx, gz ) {
+function connectedExitCount( grid, gx, gz ) {
 
 	const cell = grid.get( cellKey( gx, gz ) );
 	if ( ! cell ) return 0;
@@ -81,7 +81,7 @@ export function connectedExitCount( grid, gx, gz ) {
 
 // When a new cell has 3+ neighbors, pick the best pair to connect.
 // Prefer corners over straights, then prefer neighbors with more existing connections.
-export function pickBestPair( grid, mask, gx, gz ) {
+function pickBestPair( grid, mask, gx, gz ) {
 
 	const active = DIR_INFO.filter( d => mask & d.bit );
 	if ( active.length <= 2 ) return mask;
@@ -120,7 +120,7 @@ export function pickBestPair( grid, mask, gx, gz ) {
 
 // Only count neighbors that can actually connect:
 // either they already exit toward us, or they have a free (unconnected) exit
-export function getAvailableMask( grid, gx, gz ) {
+function getAvailableMask( grid, gx, gz ) {
 
 	let mask = 0;
 	const dirs = [
