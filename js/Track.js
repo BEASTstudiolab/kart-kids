@@ -753,10 +753,60 @@ export function transformCells( decodedCells ) {
 
 	}
 
+	// ── Pre-pass: Identify explicit curve-consumed cells ─────────
+	// Must run BEFORE Pass 1 so elevation doesn't corrupt cells that curves need.
+
+	const cellKeyFn = ( gx, gz ) => gx + ',' + gz;
+	const VARIANT_SIZE = { '2x2-wide': 2, '2x2-tight': 2, '3x3': 3, '3x3-wide': 3 };
+	const explicitCurves = new Map(); // key → { curveSize, consumed }
+	const explicitClaimed = new Set();
+
+	for ( const [ key, cell ] of grid ) {
+
+		if ( cell.type !== 'trk-corner-1x1' ) continue;
+		if ( ! cell.flags.curveVariant ) continue;
+
+		const curveSize = VARIANT_SIZE[ cell.flags.curveVariant ];
+		if ( ! curveSize ) continue;
+
+		const exits = CORNER_EXITS[ cell.orient ];
+		if ( exits === undefined ) continue;
+
+		const dirBits = [];
+		for ( const bit of [ 8, 4, 2, 1 ] ) {
+
+			if ( exits & bit ) dirBits.push( bit );
+
+		}
+
+		if ( dirBits.length !== 2 ) continue;
+
+		const consumed = new Set();
+		for ( const bit of dirBits ) {
+
+			const [ ddx, ddz ] = DIR_DELTA[ bit ];
+			let nx = cell.gx + ddx;
+			let nz = cell.gz + ddz;
+
+			for ( let i = 0; i < curveSize - 1; i ++ ) {
+
+				consumed.add( nx + ',' + nz );
+				nx += ddx;
+				nz += ddz;
+
+			}
+
+		}
+
+		explicitCurves.set( key, { curveSize, consumed } );
+		explicitClaimed.add( key );
+		for ( const ck of consumed ) explicitClaimed.add( ck );
+
+	}
+
 	// ── Pass 1: Derive elevation & ramps (run-aware) ────────────
 
 	const ORIENT_FLIP = { 0: 10, 10: 0, 16: 22, 22: 16 };
-	const cellKeyFn = ( gx, gz ) => gx + ',' + gz;
 
 	// Copy flags.elevation → cell.elevation for scanElevatedRun compatibility
 	for ( const [ , cell ] of grid ) {
@@ -773,6 +823,7 @@ export function transformCells( decodedCells ) {
 		if ( ! elev || elev === 0 ) continue;
 		if ( cell.type === 'trk-corner-1x1' || cell.type === 'trk-finish' ) continue;
 		if ( processed.has( key ) ) continue;
+		if ( explicitClaimed.has( key ) ) continue; // curve-consumed — skip elevation conversion
 
 		// Scan the full elevated run from this cell
 		const run = scanElevatedRun( grid, cell.gx, cell.gz, cellKeyFn );
@@ -824,6 +875,7 @@ export function transformCells( decodedCells ) {
 
 			if ( nCell.flags.elevation && nCell.flags.elevation > 0 ) continue;
 			if ( nCell.flags.autoRamp ) continue;
+			if ( explicitClaimed.has( nKey ) ) continue; // don't place ramp on curve-consumed cell
 
 			// Beyond-cell check: ensure a cell exists one tile further
 			const bKey = cellKeyFn( nx + dx * dir, nz + dz * dir );
@@ -884,58 +936,7 @@ export function transformCells( decodedCells ) {
 
 	// ── Pass 2: Derive curves ─────────────────────────────────
 
-	// First: handle corners with explicit curveVariant from editor save
-	const explicitCurves = new Map(); // key → { curveSize, consumed }
-	const explicitClaimed = new Set();
-
-	const VARIANT_SIZE = { '2x2-wide': 2, '2x2-tight': 2, '3x3': 3, '3x3-wide': 3 };
-
-	for ( const [ key, cell ] of grid ) {
-
-		if ( cell.type !== 'trk-corner-1x1' ) continue;
-		if ( ! cell.flags.curveVariant ) continue;
-
-		const curveSize = VARIANT_SIZE[ cell.flags.curveVariant ];
-		if ( ! curveSize ) continue;
-
-		const exits = CORNER_EXITS[ cell.orient ];
-		if ( exits === undefined ) continue;
-
-		const dirBits = [];
-		for ( const bit of [ 8, 4, 2, 1 ] ) {
-
-			if ( exits & bit ) dirBits.push( bit );
-
-		}
-
-		if ( dirBits.length !== 2 ) continue;
-
-		// Collect consumed cells (curveSize - 1 straights per arm)
-		const consumed = new Set();
-		for ( const bit of dirBits ) {
-
-			const [ ddx, ddz ] = DIR_DELTA[ bit ];
-			let nx = cell.gx + ddx;
-			let nz = cell.gz + ddz;
-
-			for ( let i = 0; i < curveSize - 1; i ++ ) {
-
-				const nk = nx + ',' + nz;
-				consumed.add( nk );
-				nx += ddx;
-				nz += ddz;
-
-			}
-
-		}
-
-		explicitCurves.set( key, { curveSize, consumed } );
-		explicitClaimed.add( key );
-		for ( const ck of consumed ) explicitClaimed.add( ck );
-
-	}
-
-	// Then: auto-detect curves for corners without explicit variant
+	// Auto-detect curves for corners without explicit variant (explicit ones handled in pre-pass)
 	const candidates = [];
 
 	for ( const [ key, cell ] of grid ) {
