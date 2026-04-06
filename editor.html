@@ -551,18 +551,11 @@
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 	import { ORIENT_DEG, CELL_RAW, GRID_SCALE, encodeCells } from './js/Track.js';
 import { getTrackModelConfig, getTrackTileSet } from './js/TrackModelConfig.js';
-import { getCurveConfig, getCurveLR } from './js/TileMetadata.js';
 import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMode.js';
-	import { getElevationModelName, getRampNeighborKeys } from './js/ElevationUtils.js';
-	import { ORIENT_FLIP, AUTOTILE, DIR_DELTA, DIR_INFO, cellKey } from './js/editor/EditorState.js';
+	import { ORIENT_FLIP, cellKey } from './js/editor/EditorState.js';
 	import {
 		getCellExits,
 		getConnectivityMask as _getConnectivityMask,
-		getPresenceMask as _getPresenceMask,
-		bitCount,
-		connectedExitCount as _connectedExitCount,
-		pickBestPair as _pickBestPair,
-		getAvailableMask as _getAvailableMask,
 		resolveNewTile as _resolveNewTile,
 		resolveTile as _resolveTile,
 	} from './js/editor/AutoTile.js';
@@ -605,10 +598,6 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 
 	// ─── Auto-tile wrappers (bind grid) ──────────────────────
 	const getConnectivityMask = ( gx, gz ) => _getConnectivityMask( grid, gx, gz );
-	const getPresenceMask = ( gx, gz ) => _getPresenceMask( grid, gx, gz );
-	const connectedExitCount = ( gx, gz ) => _connectedExitCount( grid, gx, gz );
-	const pickBestPair = ( mask, gx, gz ) => _pickBestPair( grid, mask, gx, gz );
-	const getAvailableMask = ( gx, gz ) => _getAvailableMask( grid, gx, gz );
 	const resolveNewTile = ( gx, gz ) => _resolveNewTile( grid, gx, gz );
 	const resolveTile = ( gx, gz ) => _resolveTile( grid, gx, gz );
 
@@ -2572,12 +2561,3 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 	</script>
 </body>
 </html>
-<script>
-// DEBUG: Press 'T' to place a test curve at origin with surrounding straights
-window.__debugCurveTest = function() {
-    const scene = document.querySelector('canvas').__scene;
-    if (!scene) { console.log('no scene'); return; }
-    // This function is called from the main module scope via a global reference
-    console.log('Use the existing test - press T in the editor');
-};
-</script>
