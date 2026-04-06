@@ -167,6 +167,7 @@ const modelNames = [
 	'trk-curve-3x3-wide-l',
 	'trk-elev-2p5', 'trk-elev-5',
 	'trk-ramp-up-2p5', 'trk-ramp-up-5',
+	'trk-ramp-up-2p5-smooth', 'trk-ramp-up-5-smooth',
 	'trk-ramp-down-2p5', 'trk-ramp-down-5',
 	'decoration-empty-night', 'decoration-buildings-1', 'decoration-buildings-2',
 ];

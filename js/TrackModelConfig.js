@@ -29,6 +29,14 @@ export function getTrackModelConfig( name, tileSet = 'standard' ) {
 		if ( name === 'trk-ramp-down-2p5' ) return { path: 'standard-map/kartkids_base_trk_190_rmp_up_1x1_z0_to_z2p5.gltf', rotationY: 0 };
 		if ( name === 'trk-ramp-down-5' ) return { path: 'standard-map/kartkids_base_trk_200_rmp_up_1x1_z0_to_z5.gltf', rotationY: 0 };
 
+		// Smooth transition ramps (flat-to-elevated)
+		if ( name === 'trk-ramp-up-2p5-smooth' ) return { path: 'standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.gltf', rotationY: 0 };
+		if ( name === 'trk-ramp-up-5-smooth' ) return { path: 'standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.gltf', rotationY: 0 };
+
+		// Smooth transition ramp down → reuse smooth ramp-up model
+		if ( name === 'trk-ramp-down-2p5-smooth' ) return { path: 'standard-map/kartkids_base_trk_230_rmp_transition_flat_to_up_1x1_z2p5.gltf', rotationY: 0 };
+		if ( name === 'trk-ramp-down-5-smooth' ) return { path: 'standard-map/kartkids_base_trk_270_rmp_transition_flat_to_up_1x1_z5.gltf', rotationY: 0 };
+
 		// ─── Multi-tile curves ──────────────────────────────────
 		// All curves calibrated to 270deg (-PI/2)
 
