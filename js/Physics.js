@@ -188,7 +188,7 @@ export function buildTrackColliders( world, models, customCells ) {
 			const cx = ( gx + 0.5 ) * CELL_RAW;
 			const cz = ( gz + 0.5 ) * CELL_RAW;
 			const half = CELL_RAW / 2;
-			const y = elevY; // road surface height
+			const y = elevY + 0.5; // road surface height (model road surface is ~0.5 in model space)
 
 			// Two triangles forming a flat quad at road height
 			const vi = allPositions.length / 3;
