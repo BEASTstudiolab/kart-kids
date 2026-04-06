@@ -27,6 +27,8 @@ export function initDebugMode() {
 
 export function updateDebugTooltip( grid, trackTileSet, gx, gz, clientX, clientY ) {
 
+	if ( ! debugTooltip ) return;
+
 	if ( ! debugMode ) {
 
 		debugTooltip.style.display = 'none';
