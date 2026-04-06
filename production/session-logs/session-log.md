@@ -11370,3 +11370,263 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260406_000153
+### Commits
+92fff45 Merge pull request #9 from BEASTstudiolab/feat/editor-v2-smart-curves
+67755dc feat(editor): manual curve toggle, merge fixes, tile calibration
+### Uncommitted Changes
+js/Track.js
+---
+
+## Session End: 20260406_005328
+### Commits
+92fff45 Merge pull request #9 from BEASTstudiolab/feat/editor-v2-smart-curves
+67755dc feat(editor): manual curve toggle, merge fixes, tile calibration
+### Uncommitted Changes
+js/Camera.js
+js/Track.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_010058
+### Commits
+92fff45 Merge pull request #9 from BEASTstudiolab/feat/editor-v2-smart-curves
+67755dc feat(editor): manual curve toggle, merge fixes, tile calibration
+### Uncommitted Changes
+js/Camera.js
+js/Track.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_010517
+### Commits
+92fff45 Merge pull request #9 from BEASTstudiolab/feat/editor-v2-smart-curves
+67755dc feat(editor): manual curve toggle, merge fixes, tile calibration
+### Uncommitted Changes
+js/Camera.js
+js/Track.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_010709
+### Commits
+92fff45 Merge pull request #9 from BEASTstudiolab/feat/editor-v2-smart-curves
+67755dc feat(editor): manual curve toggle, merge fixes, tile calibration
+### Uncommitted Changes
+js/Camera.js
+js/Track.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_011056
+### Commits
+92fff45 Merge pull request #9 from BEASTstudiolab/feat/editor-v2-smart-curves
+67755dc feat(editor): manual curve toggle, merge fixes, tile calibration
+### Uncommitted Changes
+js/Camera.js
+js/Track.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_011135
+### Commits
+92fff45 Merge pull request #9 from BEASTstudiolab/feat/editor-v2-smart-curves
+67755dc feat(editor): manual curve toggle, merge fixes, tile calibration
+### Uncommitted Changes
+js/Camera.js
+js/Track.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_013212
+### Commits
+92fff45 Merge pull request #9 from BEASTstudiolab/feat/editor-v2-smart-curves
+67755dc feat(editor): manual curve toggle, merge fixes, tile calibration
+### Uncommitted Changes
+js/Camera.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_013434
+### Commits
+92fff45 Merge pull request #9 from BEASTstudiolab/feat/editor-v2-smart-curves
+67755dc feat(editor): manual curve toggle, merge fixes, tile calibration
+### Uncommitted Changes
+js/Camera.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_013654
+### Commits
+92fff45 Merge pull request #9 from BEASTstudiolab/feat/editor-v2-smart-curves
+67755dc feat(editor): manual curve toggle, merge fixes, tile calibration
+### Uncommitted Changes
+js/Camera.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_013927
+### Commits
+92fff45 Merge pull request #9 from BEASTstudiolab/feat/editor-v2-smart-curves
+67755dc feat(editor): manual curve toggle, merge fixes, tile calibration
+### Uncommitted Changes
+js/Camera.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_014003
+### Commits
+92fff45 Merge pull request #9 from BEASTstudiolab/feat/editor-v2-smart-curves
+67755dc feat(editor): manual curve toggle, merge fixes, tile calibration
+### Uncommitted Changes
+js/Camera.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_014046
+### Commits
+92fff45 Merge pull request #9 from BEASTstudiolab/feat/editor-v2-smart-curves
+67755dc feat(editor): manual curve toggle, merge fixes, tile calibration
+### Uncommitted Changes
+js/Camera.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_014107
+### Commits
+92fff45 Merge pull request #9 from BEASTstudiolab/feat/editor-v2-smart-curves
+67755dc feat(editor): manual curve toggle, merge fixes, tile calibration
+### Uncommitted Changes
+js/Camera.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_014144
+### Commits
+92fff45 Merge pull request #9 from BEASTstudiolab/feat/editor-v2-smart-curves
+67755dc feat(editor): manual curve toggle, merge fixes, tile calibration
+### Uncommitted Changes
+js/Camera.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_014214
+### Commits
+92fff45 Merge pull request #9 from BEASTstudiolab/feat/editor-v2-smart-curves
+67755dc feat(editor): manual curve toggle, merge fixes, tile calibration
+### Uncommitted Changes
+js/Camera.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_014231
+### Commits
+92fff45 Merge pull request #9 from BEASTstudiolab/feat/editor-v2-smart-curves
+67755dc feat(editor): manual curve toggle, merge fixes, tile calibration
+### Uncommitted Changes
+js/Camera.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_014254
+### Commits
+92fff45 Merge pull request #9 from BEASTstudiolab/feat/editor-v2-smart-curves
+67755dc feat(editor): manual curve toggle, merge fixes, tile calibration
+### Uncommitted Changes
+js/Camera.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_014417
+### Commits
+92fff45 Merge pull request #9 from BEASTstudiolab/feat/editor-v2-smart-curves
+67755dc feat(editor): manual curve toggle, merge fixes, tile calibration
+### Uncommitted Changes
+js/Camera.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_014540
+### Commits
+92fff45 Merge pull request #9 from BEASTstudiolab/feat/editor-v2-smart-curves
+### Uncommitted Changes
+js/Camera.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260406_014621
+### Commits
+92fff45 Merge pull request #9 from BEASTstudiolab/feat/editor-v2-smart-curves
+### Uncommitted Changes
+js/Camera.js
+js/Track.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+

@@ -31,6 +31,7 @@ import { PRESETS, TIER_PIXEL_RATIO } from './QualityTiers.js';
 import { DraftingSystem } from './DraftingSystem.js';
 import { DraftLines } from './DraftLines.js';
 import { Speedometer } from './Speedometer.js';
+import { RearviewMirror } from './RearviewMirror.js';
 
 
 const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -1254,6 +1255,8 @@ async function init() {
 	const cam = new Camera();
 	cam.targetPosition.copy( vehicle.vehPos );
 
+	const rearview = new RearviewMirror( renderer );
+
 	// Initialize PostProcessing now that cam is available
 	postFX = new PostProcessing( renderer, scene, cam.camera, bloomPass );
 	postFX.setDirLight( dirLight );
@@ -1285,6 +1288,19 @@ async function init() {
 
 	}
 
+	// ── Rearview mirror toggle in hamburger menu ─────────────────────────
+	{
+
+		const rvSec = settingsMenu._section( 'HUD' );
+		rvSec.appendChild( settingsMenu._toggleRowCustom( 'Rearview Mirror', true, ( v ) => {
+
+			rearview.setEnabled( v );
+
+		} ) );
+		settingsMenu.addSection( rvSec );
+
+	}
+
 	// Apply initial quality preset from settings
 	{
 
@@ -1312,7 +1328,7 @@ async function init() {
 	camToggleBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>';
 	camToggleBtn.addEventListener( 'pointerup', () => {
 
-		cam.mode = cam.mode === 'chase' ? 'isometric' : 'chase';
+		cam.cycleMode();
 
 	} );
 	document.body.appendChild( camToggleBtn );
@@ -1805,6 +1821,24 @@ async function init() {
 				driftActive: followVehicle.driftActive,
 				driftDirection: followVehicle.driftDirection,
 			} );
+
+			// Rearview mirror: update + render to texture (skip in isometric or if user disabled)
+			if ( rearview.enabled && cam.mode !== 'isometric' ) {
+
+				rearview.setVisible( true );
+				rearview.update( followVehicle.vehPos, followVehicle.container.quaternion );
+
+				// Disable post-processing effects for the mirror render to avoid
+				// corrupting bloom state and viewport for the main camera render
+				renderer.setEffects( [] );
+				rearview.render( scene );
+				if ( postFX ) postFX.rebuildEffects();
+
+			} else {
+
+				rearview.setVisible( false );
+
+			}
 
 		}
 

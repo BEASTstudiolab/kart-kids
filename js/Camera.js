@@ -3,6 +3,7 @@ import * as THREE from 'three';
 const _chaseOffset = new THREE.Vector3();
 const _lookTarget = new THREE.Vector3();
 const _forward = new THREE.Vector3();
+const _cockpitPos = new THREE.Vector3();
 
 export class Camera {
 
@@ -54,6 +55,18 @@ export class Camera {
 		this.speedDistMax = 1;
 		this.baseChaseDistance = 6;
 		this._currentChaseDistance = 6;
+
+		// Cockpit camera
+		this.cockpitOffset = new THREE.Vector3( 0, 0.8, 0.3 );
+		this.cockpitFOV = 75;
+		this._cockpitRollIntensity = 0.15;
+
+		// Dashboard camera (just behind steering wheel, looking over it)
+		this.dashboardOffset = new THREE.Vector3( 0.0, 0.40, -0.05 );
+		this.dashboardFOV = 80;
+
+		// Look-behind (hold Backspace)
+		this.lookBehind = false;
 
 		// Velocity tracking for motion blur
 		this.prevPosition = new THREE.Vector3();
@@ -121,9 +134,24 @@ export class Camera {
 
 			if ( e.key === 't' || e.key === 'T' ) {
 
-				this.mode = this.mode === 'isometric' ? 'chase' : 'isometric';
+				this.mode = ( this.mode === 'isometric' ) ? 'chase' : 'isometric';
+
+			} else if ( e.key === 'c' || e.key === 'C' ) {
+
+				this.cycleMode();
+
+			} else if ( e.key === 'Backspace' ) {
+
+				this.lookBehind = true;
+				e.preventDefault();
 
 			}
+
+		} );
+
+		window.addEventListener( 'keyup', ( e ) => {
+
+			if ( e.key === 'Backspace' ) this.lookBehind = false;
 
 		} );
 
@@ -169,10 +197,19 @@ export class Camera {
 			this.camera.near = THREE.MathUtils.lerp( 0.3, 1.5, zoomT );
 			this.camera.updateProjectionMatrix();
 
-			// Behind offset: -Z is forward in Three.js convention, so backward is +Z (local)
-			_chaseOffset.set( 0, dynamicHeight, - this.chaseDistance );
+			// Camera offset: behind vehicle normally, in front when looking behind
+			if ( this.lookBehind ) {
+
+				_chaseOffset.set( 0, dynamicHeight, this.chaseDistance );
+
+			} else {
+
+				_chaseOffset.set( 0, dynamicHeight, - this.chaseDistance );
+
+			}
+
 			_chaseOffset.applyQuaternion( vehicleQuaternion );
-			_chaseOffset.applyAxisAngle( this.yAxis, this.orbitAngle );
+			if ( ! this.lookBehind ) _chaseOffset.applyAxisAngle( this.yAxis, this.orbitAngle );
 			_chaseOffset.multiplyScalar( this.zoom );
 			_chaseOffset.add( target );
 
@@ -196,9 +233,18 @@ export class Camera {
 			this._shakeDecay *= Math.exp( - 15 * dt );
 			if ( this._shakeDecay < 0.01 ) this._shakeDecay = 0;
 
-			// Look ahead of the vehicle
-			_forward.set( 0, 0, this.chaseLookAhead ).applyQuaternion( vehicleQuaternion );
-			_forward.applyAxisAngle( this.yAxis, this.orbitAngle );
+			// Look target: ahead normally, behind (past vehicle) when looking behind
+			if ( this.lookBehind ) {
+
+				_forward.set( 0, 0, - this.chaseLookAhead ).applyQuaternion( vehicleQuaternion );
+
+			} else {
+
+				_forward.set( 0, 0, this.chaseLookAhead ).applyQuaternion( vehicleQuaternion );
+				_forward.applyAxisAngle( this.yAxis, this.orbitAngle );
+
+			}
+
 			_lookTarget.copy( target ).add( _forward );
 			_lookTarget.y += 1;
 			this.camera.lookAt( _lookTarget );
@@ -266,7 +312,8 @@ export class Camera {
 				// rotateZ applies roll around the camera's local forward axis,
 				// which is correct after lookAt() has set the orientation.
 				// Direct rotation.z assignment would corrupt the Euler decomposition.
-				this.camera.rotateZ( this._currentRoll );
+				// Invert roll when looking behind (lean direction is perceptually reversed)
+				this.camera.rotateZ( this.lookBehind ? - this._currentRoll : this._currentRoll );
 				this.camera.fov = this._currentFOV;
 				this.camera.updateProjectionMatrix();
 
@@ -283,6 +330,142 @@ export class Camera {
 				this.camera.fov = this.baseFOV;
 				this.camera.updateProjectionMatrix();
 				// No rotation.z reset needed — lookAt() already produces zero-roll orientation
+
+			}
+
+			this._prevGforceEnabled = this.gforceEnabled;
+
+		} else if ( this.mode === 'cockpit' && vehicleQuaternion ) {
+
+			// Cockpit mode — rigid first-person view from driver head position
+			_cockpitPos.copy( this.cockpitOffset ).applyQuaternion( vehicleQuaternion ).add( target );
+			this.camera.position.copy( _cockpitPos );
+
+			// Near clip tight for cockpit
+			this.camera.near = 0.1;
+
+			// Look forward or behind
+			if ( this.lookBehind ) {
+
+				_forward.set( 0, 0, - this.chaseLookAhead ).applyQuaternion( vehicleQuaternion );
+
+			} else {
+
+				_forward.set( 0, 0, this.chaseLookAhead ).applyQuaternion( vehicleQuaternion );
+
+			}
+
+			_lookTarget.copy( _cockpitPos ).add( _forward );
+			_lookTarget.y += 0.2;
+			this.camera.lookAt( _lookTarget );
+
+			// G-force effects with reduced intensity
+			if ( this.gforceEnabled ) {
+
+				const inputX = vehicleState.inputX ?? 0;
+				const linearSpeed = vehicleState.linearSpeed ?? 0;
+				const bodyLeanRoll = vehicleState.bodyLeanRoll ?? 5;
+				const boostActive = vehicleState.boostActive ?? false;
+				const driftActive = vehicleState.driftActive ?? false;
+				const driftDirection = vehicleState.driftDirection ?? 0;
+
+				let rawLean = - ( inputX / bodyLeanRoll ) * linearSpeed;
+				if ( driftActive ) rawLean += driftDirection * 0.15;
+
+				const targetRoll = rawLean * this._cockpitRollIntensity;
+				const rollRate = Math.abs( targetRoll ) > Math.abs( this._currentRoll )
+					? this.attackRate : this.releaseRate;
+				const rollSmooth = 1 - Math.exp( - rollRate * dt );
+				this._currentRoll += ( targetRoll - this._currentRoll ) * rollSmooth;
+
+				// Speed FOV
+				const speedDelta = this.speedFOVMax * THREE.MathUtils.clamp( Math.abs( linearSpeed ), 0, 1 );
+
+				// Boost punch
+				if ( boostActive && ! this._prevBoostActive ) this._boostDelta = this.boostPunchAmount;
+				const boostSmooth = 1 - Math.exp( - this.boostDecayRate * dt );
+				this._boostDelta += ( 0 - this._boostDelta ) * boostSmooth;
+
+				const targetFOV = this.cockpitFOV + speedDelta + this._boostDelta;
+				const fovRate = targetFOV < this._currentFOV ? this.attackRate : this.releaseRate;
+				const fovSmooth = 1 - Math.exp( - fovRate * dt );
+				this._currentFOV += ( targetFOV - this._currentFOV ) * fovSmooth;
+
+				this.camera.rotateZ( this.lookBehind ? - this._currentRoll : this._currentRoll );
+				this.camera.fov = this._currentFOV;
+				this.camera.updateProjectionMatrix();
+
+				this._prevBoostActive = boostActive;
+
+			} else {
+
+				this.camera.fov = this.cockpitFOV;
+				this.camera.updateProjectionMatrix();
+
+			}
+
+			this._prevGforceEnabled = this.gforceEnabled;
+
+		} else if ( this.mode === 'dashboard' && vehicleQuaternion ) {
+
+			// Dashboard mode — behind and above steering wheel so it's visible
+			_cockpitPos.copy( this.dashboardOffset ).applyQuaternion( vehicleQuaternion ).add( target );
+			this.camera.position.copy( _cockpitPos );
+
+			this.camera.near = 0.01;
+
+			if ( this.lookBehind ) {
+
+				_forward.set( 0, 0, - this.chaseLookAhead ).applyQuaternion( vehicleQuaternion );
+
+			} else {
+
+				_forward.set( 0, 0, this.chaseLookAhead ).applyQuaternion( vehicleQuaternion );
+
+			}
+
+			_lookTarget.copy( _cockpitPos ).add( _forward );
+			this.camera.lookAt( _lookTarget );
+
+			if ( this.gforceEnabled ) {
+
+				const inputX = vehicleState.inputX ?? 0;
+				const linearSpeed = vehicleState.linearSpeed ?? 0;
+				const bodyLeanRoll = vehicleState.bodyLeanRoll ?? 5;
+				const boostActive = vehicleState.boostActive ?? false;
+				const driftActive = vehicleState.driftActive ?? false;
+				const driftDirection = vehicleState.driftDirection ?? 0;
+
+				let rawLean = - ( inputX / bodyLeanRoll ) * linearSpeed;
+				if ( driftActive ) rawLean += driftDirection * 0.15;
+
+				const targetRoll = rawLean * this._cockpitRollIntensity;
+				const rollRate = Math.abs( targetRoll ) > Math.abs( this._currentRoll )
+					? this.attackRate : this.releaseRate;
+				const rollSmooth = 1 - Math.exp( - rollRate * dt );
+				this._currentRoll += ( targetRoll - this._currentRoll ) * rollSmooth;
+
+				const speedDelta = this.speedFOVMax * THREE.MathUtils.clamp( Math.abs( linearSpeed ), 0, 1 );
+
+				if ( boostActive && ! this._prevBoostActive ) this._boostDelta = this.boostPunchAmount;
+				const boostSmooth = 1 - Math.exp( - this.boostDecayRate * dt );
+				this._boostDelta += ( 0 - this._boostDelta ) * boostSmooth;
+
+				const targetFOV = this.dashboardFOV + speedDelta + this._boostDelta;
+				const fovRate = targetFOV < this._currentFOV ? this.attackRate : this.releaseRate;
+				const fovSmooth = 1 - Math.exp( - fovRate * dt );
+				this._currentFOV += ( targetFOV - this._currentFOV ) * fovSmooth;
+
+				this.camera.rotateZ( this.lookBehind ? - this._currentRoll : this._currentRoll );
+				this.camera.fov = this._currentFOV;
+				this.camera.updateProjectionMatrix();
+
+				this._prevBoostActive = boostActive;
+
+			} else {
+
+				this.camera.fov = this.dashboardFOV;
+				this.camera.updateProjectionMatrix();
 
 			}
 
@@ -311,6 +494,15 @@ export class Camera {
 		this._velocity.copy( this.camera.position ).sub( this.prevPosition );
 		if ( dt > 0 ) this._velocity.divideScalar( dt );
 		this.prevPosition.copy( this.camera.position );
+
+	}
+
+	cycleMode() {
+
+		if ( this.mode === 'chase' ) this.mode = 'cockpit';
+		else if ( this.mode === 'cockpit' ) this.mode = 'dashboard';
+		else if ( this.mode === 'dashboard' ) this.mode = 'isometric';
+		else if ( this.mode === 'isometric' ) this.mode = 'chase';
 
 	}
 

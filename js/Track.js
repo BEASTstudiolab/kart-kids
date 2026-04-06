@@ -12,22 +12,22 @@ const _childMat = new THREE.Matrix4();
 const _combinedMat = new THREE.Matrix4();
 
 export const TRACK_CELLS = [
-	[ -3, -3, 'trk-corner-1x1',    0 ],
-	[ -2, -3, 'trk-straight',  0 ],
-	[ -1, -3, 'trk-straight',  0 ],
+	[ -3, -3, 'trk-corner-1x1',   16 ],
+	[ -2, -3, 'trk-straight',     22 ],
+	[ -1, -3, 'trk-straight',     22 ],
 	[  0, -3, 'trk-corner-1x1',    0 ],
-	[ -3, -2, 'trk-straight',  0 ],
-	[  0, -2, 'trk-straight',  0 ],
-	[ -3, -1, 'trk-corner-1x1',    0 ],
+	[ -3, -2, 'trk-straight',      0 ],
+	[  0, -2, 'trk-straight',      0 ],
+	[ -3, -1, 'trk-corner-1x1',   10 ],
 	[ -2, -1, 'trk-corner-1x1',    0 ],
-	[  0, -1, 'trk-straight',  0 ],
-	[ -2,  0, 'trk-straight',  0 ],
-	[  0,  0, 'trk-finish',          0 ],
-	[ -2,  1, 'trk-straight',  0 ],
-	[  0,  1, 'trk-straight',  0 ],
-	[ -2,  2, 'trk-corner-1x1',    0 ],
-	[ -1,  2, 'trk-straight',  0 ],
-	[  0,  2, 'trk-corner-1x1',    0 ],
+	[  0, -1, 'trk-straight',      0 ],
+	[ -2,  0, 'trk-straight',     10 ],
+	[  0,  0, 'trk-finish',        0 ],
+	[ -2,  1, 'trk-straight',     10 ],
+	[  0,  1, 'trk-straight',      0 ],
+	[ -2,  2, 'trk-corner-1x1',   10 ],
+	[ -1,  2, 'trk-straight',     16 ],
+	[  0,  2, 'trk-corner-1x1',   22 ],
 ];
 
 const DECO_CELLS = [

@@ -54,6 +54,7 @@ export class Vehicle {
 		this.wheelFR = null;
 		this.wheelBL = null;
 		this.wheelBR = null;
+		this.steeringWheel = null;
 
 		this.inputX = 0;
 		this.inputZ = 0;
@@ -268,7 +269,11 @@ export class Vehicle {
 				child.rotation.order = 'YXZ';
 				this.bodyNode = child;
 
-			} else if ( name.includes( 'wheel' ) && ! name.includes( 'steering' ) ) {
+			} else if ( name.includes( 'steering' ) ) {
+
+				this.steeringWheel = child;
+
+			} else if ( name.includes( 'wheel' ) ) {
 
 				// Only assign named wheel refs to the first (top-level) match
 				if ( ! this.wheelFL && name.includes( 'front' ) && name.includes( 'left' ) ) {
@@ -1830,6 +1835,12 @@ export class Vehicle {
 		if ( this.wheelFR ) {
 
 			this.wheelFR.rotation.y = lerpAngle( this.wheelFR.rotation.y, wheelSteerAngle, dt * 10 );
+
+		}
+
+		if ( this.steeringWheel ) {
+
+			this.steeringWheel.rotation.z = lerpAngle( this.steeringWheel.rotation.z, - wheelSteerAngle, dt * 10 );
 
 		}
 
