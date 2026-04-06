@@ -128,6 +128,7 @@ export function buildTrack( scene, models, customCells ) {
 
 	for ( const [ gx, gz, key, orient, flags ] of cells ) {
 
+		if ( flags?._collisionOnly ) continue; // collision-only cells skip rendering
 		if ( ! cellsByType[ key ] ) cellsByType[ key ] = [];
 		cellsByType[ key ].push( [ gx, gz, orient, flags ] );
 
@@ -1094,8 +1095,21 @@ export function transformCells( decodedCells ) {
 	for ( const [ key, cell ] of grid ) {
 
 		// Skip consumed cells — they're part of a multi-tile curve
-		// BUT keep elevated consumed cells for collision geometry
-		if ( consumedKeys.has( key ) && ! ( cell.flags.elevation > 0 ) ) continue;
+		// BUT keep elevated consumed cells for collision geometry (marked hidden so buildTrack skips them)
+		if ( consumedKeys.has( key ) ) {
+
+			if ( cell.flags.elevation > 0 ) {
+
+				cell.flags._collisionOnly = true;
+				// fall through to include in output
+
+			} else {
+
+				continue;
+
+			}
+
+		}
 
 		const curveInfo = curveCorners.get( key );
 
