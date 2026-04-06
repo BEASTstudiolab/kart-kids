@@ -554,38 +554,12 @@ import { getTrackModelConfig, getTrackTileSet } from './js/TrackModelConfig.js';
 import { getCurveConfig, getCurveLR } from './js/TileMetadata.js';
 import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMode.js';
 	import { getElevationModelName, getRampNeighborKeys } from './js/ElevationUtils.js';
-
-	// ─── Auto-tile lookup ─────────────────────────────────────
-	// Bitmask: N=8 S=4 E=2 W=1
-	// Corner connectivity: 0°=S+W, 90°=S+E, 180°=N+E, 270°=N+W
-
-	const ORIENT_FLIP = { 0: 10, 10: 0, 16: 22, 22: 16 };
-
-	const AUTOTILE = [
-		[ 'trk-straight', 0 ],    //  0: isolated
-		[ 'trk-straight', 16 ],   //  1: W
-		[ 'trk-straight', 16 ],   //  2: E
-		[ 'trk-straight', 16 ],   //  3: E+W
-		[ 'trk-straight', 0 ],    //  4: S
-		[ 'trk-corner-1x1',   0 ],    //  5: S+W
-		[ 'trk-corner-1x1',   16 ],   //  6: S+E
-		[ 'trk-straight', 16 ],   //  7: S+E+W
-		[ 'trk-straight', 0 ],    //  8: N
-		[ 'trk-corner-1x1',   22 ],   //  9: N+W
-		[ 'trk-corner-1x1',   10 ],   // 10: N+E
-		[ 'trk-straight', 16 ],   // 11: N+E+W
-		[ 'trk-straight', 0 ],    // 12: N+S
-		[ 'trk-straight', 0 ],    // 13: N+S+W
-		[ 'trk-straight', 0 ],    // 14: N+S+E
-		[ 'trk-straight', 0 ],    // 15: N+S+E+W
-	];
+	import { ORIENT_FLIP, AUTOTILE, DIR_DELTA, DIR_INFO, cellKey } from './js/editor/EditorState.js';
 
 	// ─── State ────────────────────────────────────────────────
 
 	const grid = new Map(); // "gx,gz" → { type, orient, isFinish, mesh }
 	let tool = 'road'; // 'road', 'erase', 'elevate'
-
-	function cellKey( gx, gz ) { return gx + ',' + gz; }
 
 	// ─── Undo / Redo ─────────────────────────────────────────
 
@@ -1231,13 +1205,6 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 
 	// When a new cell has 3+ neighbors, pick the best pair to connect.
 	// Prefer corners over straights, then prefer neighbors with more existing connections.
-	const DIR_INFO = [
-		{ bit: 8, dx: 0, dz: - 1 }, // N
-		{ bit: 4, dx: 0, dz: 1 },   // S
-		{ bit: 2, dx: 1, dz: 0 },   // E
-		{ bit: 1, dx: - 1, dz: 0 }, // W
-	];
-
 	function pickBestPair( mask, gx, gz ) {
 
 		const active = DIR_INFO.filter( d => mask & d.bit );
@@ -1455,16 +1422,6 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 		renderCurves();
 
 	}
-
-	// ─── Curve Utilities ─────────────────────────────────────
-
-	// Direction deltas: N=8, S=4, E=2, W=1
-	const DIR_DELTA = {
-		8: [ 0, - 1 ],  // N
-		4: [ 0, 1 ],    // S
-		2: [ 1, 0 ],    // E
-		1: [ - 1, 0 ],  // W
-	};
 
 	// ─── Available Curve Options ─────────────────────────────
 
