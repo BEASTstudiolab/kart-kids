@@ -434,7 +434,8 @@ export function encodeCells( cells ) {
 	// Filter out autoRamp cells — they are derived from elevated cells at load time
 	const filtered = cells.filter( c => ! c[ 4 ]?.autoRamp );
 
-	const bytes = new Uint8Array( filtered.length * 3 );
+	// v2 format: 4 bytes per cell (adds flags2 byte for rampStyle + future flags)
+	const bytes = new Uint8Array( filtered.length * 4 );
 
 	for ( let i = 0; i < filtered.length; i ++ ) {
 
@@ -442,11 +443,13 @@ export function encodeCells( cells ) {
 		const ti = TYPE_INDEX[ name ] ?? 0;
 		const oi = ORIENT_DECODE[ cellOrient ] ?? 0;
 
-		// Pack flags into upper 4 bits of byte 2:
+		// Byte 2: pack type + orient + legacy flags (bits 4-7)
 		// bits 4-5: elevLevel (2 bits: 0=ground, 1=2.5m, 2=5m)
 		// bit 6: curveOverride (1=force hard corner)
 		// bit 7: rotationOverride (1=manual rotation)
 		let flagBits = 0;
+		// Byte 3 (flags2): bit 0 = rampStyle (0=steep, 1=smooth)
+		let flags2 = 0;
 		if ( flags ) {
 
 			const elev = flags.elevation ?? 0;
@@ -454,20 +457,56 @@ export function encodeCells( cells ) {
 			const rot = flags.rotationOverride ? 1 : 0;
 			flagBits = ( elev & 0x03 ) | ( curve << 2 ) | ( rot << 3 );
 
+			if ( flags.rampStyle === 'smooth' ) flags2 |= 1;
+
 		}
 
-		bytes[ i * 3 ] = gx + 128;
-		bytes[ i * 3 + 1 ] = gz + 128;
-		bytes[ i * 3 + 2 ] = ( flagBits << 4 ) | ( ti << 2 ) | oi;
+		bytes[ i * 4 ] = gx + 128;
+		bytes[ i * 4 + 1 ] = gz + 128;
+		bytes[ i * 4 + 2 ] = ( flagBits << 4 ) | ( ti << 2 ) | oi;
+		bytes[ i * 4 + 3 ] = flags2;
 
 	}
 
-	return bytesToBase64url( bytes );
+	return 'v2:' + bytesToBase64url( bytes );
 
 }
 
 export function decodeCells( str ) {
 
+	// v2 format: 4 bytes per cell, prefixed with "v2:"
+	if ( str.startsWith( 'v2:' ) ) {
+
+		const bytes = base64urlToBytes( str.slice( 3 ) );
+		const cells = [];
+
+		for ( let i = 0; i + 3 < bytes.length; i += 4 ) {
+
+			const gx = bytes[ i ] - 128;
+			const gz = bytes[ i + 1 ] - 128;
+			const packed = bytes[ i + 2 ];
+			const flags2 = bytes[ i + 3 ];
+
+			const ti = ( packed >> 2 ) & 0x03;
+			const oi = packed & 0x03;
+
+			const flagBits = ( packed >> 4 ) & 0x0F;
+			const elevation = flagBits & 0x03;
+			const curveOverride = !! ( flagBits & 0x04 );
+			const rotationOverride = !! ( flagBits & 0x08 );
+
+			const rampStyle = ( flags2 & 1 ) ? 'smooth' : null;
+
+			const flags = { elevation, curveOverride, rotationOverride, rampStyle };
+			cells.push( [ gx, gz, TYPE_NAMES[ ti ], ORIENT_ENCODE[ oi ], flags ] );
+
+		}
+
+		return cells;
+
+	}
+
+	// Legacy v1 format: 3 bytes per cell, no prefix
 	const bytes = base64urlToBytes( str );
 	const cells = [];
 
@@ -479,13 +518,12 @@ export function decodeCells( str ) {
 		const ti = ( packed >> 2 ) & 0x03;
 		const oi = packed & 0x03;
 
-		// Unpack flags from upper 4 bits
 		const flagBits = ( packed >> 4 ) & 0x0F;
 		const elevation = flagBits & 0x03;
 		const curveOverride = !! ( flagBits & 0x04 );
 		const rotationOverride = !! ( flagBits & 0x08 );
 
-		const flags = { elevation, curveOverride, rotationOverride };
+		const flags = { elevation, curveOverride, rotationOverride, rampStyle: null };
 		cells.push( [ gx, gz, TYPE_NAMES[ ti ], ORIENT_ENCODE[ oi ], flags ] );
 
 	}
@@ -629,7 +667,8 @@ export function deriveRampCells( decodedCells ) {
 			if ( rCell.flags.autoRamp ) continue;
 			if ( rCell.type !== 'trk-straight' ) continue;
 
-			rCell.type = getElevationModelName( elev, rn.role );
+			const style = cell.flags.rampStyle || 'steep';
+			rCell.type = getElevationModelName( elev, rn.role, style );
 			rCell.orient = cell.orient;
 
 			if ( rn.role === 'ramp-up' ) {
@@ -697,7 +736,8 @@ export function transformCells( decodedCells ) {
 			if ( rCell.flags.autoRamp ) continue;
 			if ( rCell.type !== 'trk-straight' ) continue;
 
-			rCell.type = getElevationModelName( elev, rn.role );
+			const style = cell.flags.rampStyle || 'steep';
+			rCell.type = getElevationModelName( elev, rn.role, style );
 			rCell.orient = cell.orient;
 
 			// Ramp-up role is the exit side — flip orient 180° so it slopes down from elevated

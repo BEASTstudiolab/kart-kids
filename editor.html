@@ -1604,6 +1604,13 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 
 		}
 
+		// Auto-ramp cells → cycle ramp style (reuses elevate button)
+		if ( cell.autoRamp ) {
+
+			actions.push( 'rampStyle' );
+
+		}
+
 		return actions;
 
 	}
@@ -1637,7 +1644,7 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 		const buttons = [];
 		if ( actions.includes( 'rotate' ) ) buttons.push( radialRotate );
 		if ( actions.includes( 'curve' ) ) buttons.push( radialCurve );
-		if ( actions.includes( 'elevate' ) ) buttons.push( radialElevate );
+		if ( actions.includes( 'elevate' ) || actions.includes( 'rampStyle' ) ) buttons.push( radialElevate );
 
 		// Update curve button state — show current variant
 		if ( actions.includes( 'curve' ) ) {
@@ -1679,7 +1686,15 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 		}
 
 		// Update elevate button state
-		if ( actions.includes( 'elevate' ) ) {
+		if ( actions.includes( 'rampStyle' ) ) {
+
+			const cell = grid.get( cellKey( gx, gz ) );
+			const parentCell = cell && cell.rampParent ? grid.get( cell.rampParent ) : null;
+			const style = parentCell ? ( parentCell.rampStyle || 'steep' ) : 'steep';
+			radialElevate.classList.toggle( 'radial-active', style === 'smooth' );
+			radialElevate.dataset.tip = 'Ramp: ' + style;
+
+		} else if ( actions.includes( 'elevate' ) ) {
 
 			const cell = grid.get( cellKey( gx, gz ) );
 			const elev = cell ? ( cell.elevation || 0 ) : 0;
@@ -1847,7 +1862,29 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 		e.stopPropagation();
 		if ( radialGx == null ) return;
 
-		cycleElevation( radialGx, radialGz );
+		const cell = grid.get( cellKey( radialGx, radialGz ) );
+
+		// Auto-ramp cell: cycle ramp style on the parent elevated tile
+		if ( cell && cell.autoRamp && cell.rampParent ) {
+
+			const parentCell = grid.get( cell.rampParent );
+			if ( parentCell ) {
+
+				pushUndo();
+				const currentStyle = parentCell.rampStyle || 'steep';
+				parentCell.rampStyle = currentStyle === 'steep' ? 'smooth' : 'steep';
+				const [ px, pz ] = cell.rampParent.split( ',' ).map( Number );
+				recalculateRunRamps( px, pz );
+				save();
+				showToast( 'Ramp: ' + parentCell.rampStyle );
+
+			}
+
+		} else {
+
+			cycleElevation( radialGx, radialGz );
+
+		}
 
 		// Refresh menu state
 		showRadialMenu( radialGx, radialGz );
