@@ -919,7 +919,7 @@ export function transformCells( decodedCells ) {
 				const nk = nx + ',' + nz;
 				const nc = grid.get( nk );
 				if ( ! nc ) break;
-				if ( nc.type !== 'trk-straight' ) break;
+				if ( nc.type !== 'trk-straight' && nc.type !== 'trk-elev-2p5' && nc.type !== 'trk-elev-5' ) break;
 				keys.push( nk );
 				nx += ddx;
 				nz += ddz;
