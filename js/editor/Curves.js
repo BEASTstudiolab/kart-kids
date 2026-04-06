@@ -50,7 +50,7 @@ export function getAvailableCurveOptions( grid, gx, gz ) {
 			const nk = cellKey( nx, nz );
 			const nc = grid.get( nk );
 			if ( ! nc ) break;
-			if ( nc.type !== 'trk-straight' ) break;
+			if ( nc.type !== 'trk-straight' && nc.type !== 'trk-elev-2p5' && nc.type !== 'trk-elev-5' ) break;
 			if ( globalConsumed.has( nk ) ) break;
 			keys.push( nk );
 			nx += ddx;
@@ -272,7 +272,7 @@ export function deriveAllCurves( grid, models, trackGroup ) {
 				const nk = cellKey( nx, nz );
 				const nc = grid.get( nk );
 				if ( ! nc ) break;
-				if ( nc.type !== 'trk-straight' ) break;
+				if ( nc.type !== 'trk-straight' && nc.type !== 'trk-elev-2p5' && nc.type !== 'trk-elev-5' ) break;
 				keys.push( nk );
 				nx += ddx;
 				nz += ddz;

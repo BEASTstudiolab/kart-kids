@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { getTrackModelConfig } from './TrackModelConfig.js';
 import { getCurveConfig, getCurveLR } from './TileMetadata.js';
+import { getElevationModelName } from './ElevationUtils.js';
 
 export const ORIENT_DEG = { 0: 0, 10: 180, 16: 90, 22: 270 };
 
@@ -589,15 +590,7 @@ function getRampNeighborKeys( gx, gz, orient ) {
 
 }
 
-function getElevationModelName( elevation, role ) {
-
-	const suffix = elevation === 1 ? '2p5' : '5';
-	if ( role === 'flat' ) return 'track-elev-' + suffix;
-	if ( role === 'ramp-up' ) return 'track-ramp-up-' + suffix;
-	if ( role === 'ramp-down' ) return 'track-ramp-down-' + suffix;
-	return 'trk-straight';
-
-}
+// getElevationModelName imported from ElevationUtils.js
 
 /**
  * Derives ramp cells from elevation flags without modifying curves.
