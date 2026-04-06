@@ -168,12 +168,18 @@ export function recalculateRunRamps( grid, placeMesh, gx, gz ) {
 		const nx = edge.gx + dx * dir;
 		const nz = edge.gz + dz * dir;
 		const nKey = cellKey( nx, nz );
-		const nCell = grid.get( nKey );
+		let nCell = grid.get( nKey );
 
-		// Skip if no neighbor or neighbor is elevated
-		if ( ! nCell ) continue;
+		// Ramp cells are filtered out during save — create them if missing
+		if ( ! nCell ) {
+
+			nCell = { type: 'trk-straight', orient, isFinish: false, mesh: null };
+			grid.set( nKey, nCell );
+
+		}
+
+		// Skip if neighbor is elevated or not a straight
 		if ( nCell.elevation && nCell.elevation > 0 ) continue;
-		if ( nCell.type !== 'trk-straight' ) continue;
 
 		// Check beyond-cell (one more tile past the ramp)
 		const bx = nx + dx * dir;
