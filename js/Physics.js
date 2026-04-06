@@ -179,6 +179,34 @@ export function buildTrackColliders( world, models, customCells ) {
 
 		const [ gx, gz, key, orient ] = cell;
 		const flags = cell[ 4 ] || {};
+
+		// Collision-only cells (elevated curve-consumed): flat road quad, no model walls
+		if ( flags._collisionOnly ) {
+
+			const elev = flags.elevation || 0;
+			const elevY = elev === 1 ? 2.416 : elev === 2 ? 4.832 : 0;
+			const cx = ( gx + 0.5 ) * CELL_RAW;
+			const cz = ( gz + 0.5 ) * CELL_RAW;
+			const half = CELL_RAW / 2;
+			const y = elevY; // road surface height
+
+			// Two triangles forming a flat quad at road height
+			const vi = allPositions.length / 3;
+			allPositions.push(
+				cx - half, y, cz - half,
+				cx + half, y, cz - half,
+				cx + half, y, cz + half,
+				cx - half, y, cz + half
+			);
+			allIndices.push(
+				vi, vi + 1, vi + 2,
+				vi, vi + 2, vi + 3
+			);
+			vertexOffset += 4;
+			continue;
+
+		}
+
 		const src = models[ key ];
 		if ( ! src ) continue;
 

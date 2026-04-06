@@ -128,6 +128,7 @@ export function buildTrack( scene, models, customCells ) {
 
 	for ( const [ gx, gz, key, orient, flags ] of cells ) {
 
+		if ( flags?._collisionOnly ) continue;
 		if ( ! cellsByType[ key ] ) cellsByType[ key ] = [];
 		cellsByType[ key ].push( [ gx, gz, orient, flags ] );
 
@@ -1094,7 +1095,20 @@ export function transformCells( decodedCells ) {
 	for ( const [ key, cell ] of grid ) {
 
 		// Skip consumed cells — they're part of a multi-tile curve
-		if ( consumedKeys.has( key ) ) continue;
+		// BUT keep elevated consumed cells for collision (marked so physics uses flat quad, not full model)
+		if ( consumedKeys.has( key ) ) {
+
+			if ( cell.flags.elevation > 0 ) {
+
+				cell.flags._collisionOnly = true;
+
+			} else {
+
+				continue;
+
+			}
+
+		}
 
 		const curveInfo = curveCorners.get( key );
 
