@@ -39,7 +39,9 @@ export function buildWallColliders( world, debugGroup, customCells ) {
 	const INNER_SEG = 3;
 	const INNER_SEG_HALF_LEN = ( INNER_R * ( Math.PI / 2 ) / INNER_SEG / 2 ) * S;
 
-	function addArcWall( wcx, wcz, arcStart, radius, numSeg, segHalfLen ) {
+	function addArcWall( wcx, wcz, arcStart, radius, numSeg, segHalfLen, arcElevY ) {
+
+		const arcWallY = wallY + ( arcElevY || 0 );
 
 		for ( let i = 0; i < numSeg; i ++ ) {
 
@@ -47,7 +49,7 @@ export function buildWallColliders( world, debugGroup, customCells ) {
 			const halfExtents = [ hThick, hHeight, segHalfLen ];
 			const position = [
 				wcx + radius * Math.cos( aMid ) * S,
-				wallY,
+				arcWallY,
 				wcz + radius * Math.sin( aMid ) * S
 			];
 			const quaternion = [ 0, Math.sin( - aMid / 2 ), 0, Math.cos( - aMid / 2 ) ];
@@ -70,7 +72,12 @@ export function buildWallColliders( world, debugGroup, customCells ) {
 
 	const cells = customCells || TRACK_CELLS;
 
-	for ( const [ gx, gz, key, orient ] of cells ) {
+	for ( const cell of cells ) {
+
+		const [ gx, gz, key, orient ] = cell;
+		const flags = cell[ 4 ] || {};
+		const elev = flags.elevation || 0;
+		const elevY = elev === 1 ? 2.416 : elev === 2 ? 4.832 : 0;
 
 		if ( key === 'track-bump' ) continue;
 
@@ -91,7 +98,7 @@ export function buildWallColliders( world, debugGroup, customCells ) {
 				const wx = cx + ( lx * cr ) * S;
 				const wz = cz + ( - lx * sr ) * S;
 				const halfExtents = [ hThick, hHeight, hLen ];
-				const position = [ wx, wallY, wz ];
+				const position = [ wx, wallY + elevY, wz ];
 				const quaternion = [ 0, Math.sin( rad / 2 ), 0, Math.cos( rad / 2 ) ];
 
 				rigidBody.create( world, {
@@ -114,8 +121,8 @@ export function buildWallColliders( world, debugGroup, customCells ) {
 			const wcz = cz + ( - ARC_CENTER_X * sr + ARC_CENTER_Z * cr ) * S;
 			const arcStart = - rad;
 
-			addArcWall( wcx, wcz, arcStart, OUTER_R, OUTER_SEG, OUTER_SEG_HALF_LEN );
-			addArcWall( wcx, wcz, arcStart, INNER_R, INNER_SEG, INNER_SEG_HALF_LEN );
+			addArcWall( wcx, wcz, arcStart, OUTER_R, OUTER_SEG, OUTER_SEG_HALF_LEN, elevY );
+			addArcWall( wcx, wcz, arcStart, INNER_R, INNER_SEG, INNER_SEG_HALF_LEN, elevY );
 
 		} else if ( key.startsWith( 'track-curve-' ) || key.startsWith( 'trk-curve-' ) ) {
 
@@ -141,8 +148,8 @@ export function buildWallColliders( world, debugGroup, customCells ) {
 			const wcz = cz + ( - arcCX * sr + arcCZ * cr ) * S;
 			const arcStart = - rad;
 
-			addArcWall( wcx, wcz, arcStart, curveOuterR, curveOuterSeg, curveOuterSegHalfLen );
-			addArcWall( wcx, wcz, arcStart, curveInnerR, curveInnerSeg, curveInnerSegHalfLen );
+			addArcWall( wcx, wcz, arcStart, curveOuterR, curveOuterSeg, curveOuterSegHalfLen, elevY );
+			addArcWall( wcx, wcz, arcStart, curveInnerR, curveInnerSeg, curveInnerSegHalfLen, elevY );
 
 		}
 

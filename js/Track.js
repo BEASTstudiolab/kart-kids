@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { getTrackModelConfig } from './TrackModelConfig.js';
 import { getCurveConfig, getCurveLR } from './TileMetadata.js';
-import { getElevationModelName } from './ElevationUtils.js';
+import { getElevationModelName, scanElevatedRun } from './ElevationUtils.js';
 
 export const ORIENT_DEG = { 0: 0, 10: 180, 16: 90, 22: 270 };
 
@@ -209,9 +209,12 @@ export function buildTrack( scene, models, customCells ) {
 		const lr = entry.key.includes( '-l' ) ? 'l' : 'r';
 		const curveConfig = getCurveConfig( entry.orient, lr, entry.curveSize || 3 );
 
+		const curveElev = entry.flags?.elevation || 0;
+		const curveElevY = curveElev === 1 ? 2.416 : curveElev === 2 ? 4.832 : 0;
+
 		curveMesh.position.set(
 			( entry.gx + 0.5 ) * CELL_RAW + curveConfig.offset.x,
-			0,
+			curveElevY,
 			( entry.gz + 0.5 ) * CELL_RAW + curveConfig.offset.z
 		);
 		curveMesh.rotation.y = curveConfig.rotation;
@@ -608,27 +611,7 @@ const DIR_DELTA = {
 
 // L/R selection now via getCurveLR() from TileMetadata.js
 
-function getRampNeighborKeys( gx, gz, orient ) {
-
-	// After PI/2 base rotation: ramp-up HIGH at -Z/north, ramp-down HIGH at +Z/south.
-	// Place ramp-down NORTH (HIGH south edge meets elevated), ramp-up SOUTH (HIGH north edge meets elevated).
-	if ( orient === 0 || orient === 10 ) {
-
-		return [
-			{ gx, gz: gz - 1, role: 'ramp-down' },
-			{ gx, gz: gz + 1, role: 'ramp-up' },
-		];
-
-	}
-
-	return [
-		{ gx: gx - 1, gz, role: 'ramp-down' },
-		{ gx: gx + 1, gz, role: 'ramp-up' },
-	];
-
-}
-
-// getElevationModelName imported from ElevationUtils.js
+// getElevationModelName + scanElevatedRun imported from ElevationUtils.js
 
 /**
  * Derives ramp cells from elevation flags without modifying curves.
@@ -638,6 +621,8 @@ function getRampNeighborKeys( gx, gz, orient ) {
 export function deriveRampCells( decodedCells ) {
 
 	const grid = new Map();
+	const ORIENT_FLIP = { 0: 10, 10: 0, 16: 22, 22: 16 };
+	const cellKeyFn = ( gx, gz ) => gx + ',' + gz;
 
 	for ( const cell of decodedCells ) {
 
@@ -649,36 +634,72 @@ export function deriveRampCells( decodedCells ) {
 
 	}
 
-	for ( const [ , cell ] of grid ) {
+	const processed = new Set();
+
+	for ( const [ key, cell ] of grid ) {
 
 		const elev = cell.flags.elevation;
 		if ( ! elev || elev === 0 ) continue;
 		if ( cell.type === 'trk-corner-1x1' || cell.type === 'trk-finish' ) continue;
+		if ( processed.has( key ) ) continue;
 
-		cell.type = getElevationModelName( elev, 'flat' );
+		// Scan the full elevated run
+		const run = scanElevatedRun( grid, cell.gx, cell.gz, cellKeyFn );
+		if ( run.length === 0 ) continue;
 
-		const ramps = getRampNeighborKeys( cell.gx, cell.gz, cell.orient );
+		// Mark all run tiles as processed and replace with visual model
+		for ( const tile of run ) {
 
-		for ( const rn of ramps ) {
+			processed.add( tile.key );
+			const runCell = grid.get( tile.key );
+			if ( runCell ) runCell.type = getElevationModelName( runCell.flags.elevation, 'flat' );
 
-			const rKey = rn.gx + ',' + rn.gz;
-			const rCell = grid.get( rKey );
-			if ( ! rCell ) continue;
-			if ( rCell.flags.autoRamp ) continue;
-			if ( rCell.type !== 'trk-straight' ) continue;
+		}
 
-			const style = cell.flags.rampStyle || 'steep';
-			rCell.type = getElevationModelName( elev, rn.role, style );
-			rCell.orient = cell.orient;
+		// Determine axis
+		const firstCell = grid.get( run[ 0 ].key );
+		const orient = firstCell.orient;
+		const isNS = orient === 0 || orient === 10;
+		const dx = isNS ? 0 : 1;
+		const dz = isNS ? 1 : 0;
 
-			if ( rn.role === 'ramp-up' ) {
+		// Place ramps at run edges
+		const first = run[ 0 ];
+		const last = run[ run.length - 1 ];
 
-				const ORIENT_FLIP = { 0: 10, 10: 0, 16: 22, 22: 16 };
-				rCell.orient = ORIENT_FLIP[ cell.orient ] ?? cell.orient;
+		const edges = [
+			{ edge: first, dir: - 1, parentIdx: 0 },
+			{ edge: last, dir: 1, parentIdx: run.length - 1 },
+		];
+
+		for ( const { edge, dir, parentIdx } of edges ) {
+
+			const parentTile = run[ parentIdx ];
+			const parentCell = grid.get( parentTile.key );
+
+			const nx = edge.gx + dx * dir;
+			const nz = edge.gz + dz * dir;
+			const nKey = cellKeyFn( nx, nz );
+			const nCell = grid.get( nKey );
+
+			if ( ! nCell ) continue;
+			if ( nCell.flags.elevation && nCell.flags.elevation > 0 ) continue;
+			if ( nCell.flags.autoRamp ) continue;
+			if ( nCell.type !== 'trk-straight' ) continue;
+
+			const role = dir === 1 ? 'ramp-up' : 'ramp-down';
+			const style = parentCell.flags.rampStyle || 'steep';
+
+			nCell.type = getElevationModelName( parentCell.flags.elevation, role, style );
+			nCell.orient = orient;
+
+			if ( role === 'ramp-up' ) {
+
+				nCell.orient = ORIENT_FLIP[ orient ] ?? orient;
 
 			}
 
-			rCell.flags.autoRamp = true;
+			nCell.flags.autoRamp = true;
 
 		}
 
@@ -714,40 +735,107 @@ export function transformCells( decodedCells ) {
 
 	}
 
-	// ── Pass 1: Derive elevation & ramps ──────────────────────
+	// ── Pass 1: Derive elevation & ramps (run-aware) ────────────
+
+	const ORIENT_FLIP = { 0: 10, 10: 0, 16: 22, 22: 16 };
+	const cellKeyFn = ( gx, gz ) => gx + ',' + gz;
+	const processed = new Set();
 
 	for ( const [ key, cell ] of grid ) {
 
 		const elev = cell.flags.elevation;
 		if ( ! elev || elev === 0 ) continue;
 		if ( cell.type === 'trk-corner-1x1' || cell.type === 'trk-finish' ) continue;
+		if ( processed.has( key ) ) continue;
 
-		// Replace elevated cell with visual model
-		cell.type = getElevationModelName( elev, 'flat' );
+		// Scan the full elevated run from this cell
+		const run = scanElevatedRun( grid, cell.gx, cell.gz, cellKeyFn );
+		if ( run.length === 0 ) continue;
 
-		// Insert ramp neighbors
-		const ramps = getRampNeighborKeys( cell.gx, cell.gz, cell.orient );
+		// Mark all run tiles as processed and replace with visual model
+		for ( const tile of run ) {
 
-		for ( const rn of ramps ) {
+			processed.add( tile.key );
+			const runCell = grid.get( tile.key );
+			if ( runCell ) runCell.type = getElevationModelName( runCell.flags.elevation, 'flat' );
 
-			const rKey = rn.gx + ',' + rn.gz;
-			const rCell = grid.get( rKey );
-			if ( ! rCell ) continue;
-			if ( rCell.flags.autoRamp ) continue;
-			if ( rCell.type !== 'trk-straight' ) continue;
+		}
 
-			const style = cell.flags.rampStyle || 'steep';
-			rCell.type = getElevationModelName( elev, rn.role, style );
-			rCell.orient = cell.orient;
+		// Determine axis from run orientation
+		const firstCell = grid.get( run[ 0 ].key );
+		const orient = firstCell.orient;
+		const isNS = orient === 0 || orient === 10;
+		const dx = isNS ? 0 : 1;
+		const dz = isNS ? 1 : 0;
 
-			// Ramp-up role is the exit side — flip orient 180° so it slopes down from elevated
-			if ( rn.role === 'ramp-up' ) {
+		// Place ramps at run edges
+		const first = run[ 0 ];
+		const last = run[ run.length - 1 ];
 
-				const ORIENT_FLIP = { 0: 10, 10: 0, 16: 22, 22: 16 };
-				rCell.orient = ORIENT_FLIP[ cell.orient ] ?? cell.orient;
+		const edges = [
+			{ edge: first, dir: - 1, parentIdx: 0 },
+			{ edge: last, dir: 1, parentIdx: run.length - 1 },
+		];
+
+		for ( const { edge, dir, parentIdx } of edges ) {
+
+			const parentTile = run[ parentIdx ];
+			const parentCell = grid.get( parentTile.key );
+
+			// Neighbor beyond the run edge
+			const nx = edge.gx + dx * dir;
+			const nz = edge.gz + dz * dir;
+			const nKey = cellKeyFn( nx, nz );
+			const nCell = grid.get( nKey );
+
+			if ( ! nCell ) continue;
+			if ( nCell.flags.elevation && nCell.flags.elevation > 0 ) continue;
+			if ( nCell.flags.autoRamp ) continue;
+			if ( nCell.type !== 'trk-straight' ) continue;
+
+			const role = dir === 1 ? 'ramp-up' : 'ramp-down';
+			const style = parentCell.flags.rampStyle || 'steep';
+
+			nCell.type = getElevationModelName( parentCell.flags.elevation, role, style );
+			nCell.orient = orient;
+
+			if ( role === 'ramp-up' ) {
+
+				nCell.orient = ORIENT_FLIP[ orient ] ?? orient;
 
 			}
-			rCell.flags.autoRamp = true;
+
+			nCell.flags.autoRamp = true;
+
+		}
+
+	}
+
+	// Corner elevation pass: derive elevation for corners adjacent to elevated tiles
+	for ( const [ key, cell ] of grid ) {
+
+		if ( cell.type !== 'trk-corner-1x1' ) continue;
+
+		// Check all 4 neighbors for elevation
+		let maxElev = 0;
+		for ( const bit of [ 8, 4, 2, 1 ] ) {
+
+			const [ ddx, ddz ] = DIR_DELTA[ bit ];
+			const nKey = cellKeyFn( cell.gx + ddx, cell.gz + ddz );
+			const nCell = grid.get( nKey );
+			if ( nCell ) {
+
+				const ne = nCell.flags.elevation || 0;
+				if ( ne > maxElev ) maxElev = ne;
+
+			}
+
+		}
+
+		if ( maxElev > 0 ) {
+
+			cell.flags.elevation = maxElev;
+			cell.flags._derivedElevation = maxElev;
 
 		}
 
