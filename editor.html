@@ -553,6 +553,7 @@
 import { getTrackModelConfig, getTrackTileSet } from './js/TrackModelConfig.js';
 import { getCurveConfig, getCurveLR } from './js/TileMetadata.js';
 import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMode.js';
+	import { getElevationModelName, getRampNeighborKeys } from './js/ElevationUtils.js';
 
 	// ─── Auto-tile lookup ─────────────────────────────────────
 	// Bitmask: N=8 S=4 E=2 W=1
@@ -1900,38 +1901,6 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 	}
 
 	// ─── Elevation ───────────────────────────────────────────
-
-	function getElevationModelName( elevation, role ) {
-
-		// role: 'flat', 'ramp-up', 'ramp-down'
-		const suffix = elevation === 1 ? '2p5' : '5';
-		if ( role === 'flat' ) return 'trk-elev-' + suffix;
-		if ( role === 'ramp-up' ) return 'trk-ramp-up-' + suffix;
-		if ( role === 'ramp-down' ) return 'trk-ramp-down-' + suffix;
-		return 'trk-straight';
-
-	}
-
-	function getRampNeighborKeys( gx, gz, orient ) {
-
-		// After PI/2 base rotation, ramp-up has HIGH at -Z (north) and LOW at +Z (south).
-		// So ramp-up must be placed SOUTH of the elevated cell (its HIGH north edge meets elevated).
-		// Ramp-down has HIGH at +Z (south), placed NORTH (its HIGH south edge meets elevated).
-		if ( orient === 0 || orient === 10 ) {
-
-			return [
-				{ gx, gz: gz - 1, role: 'ramp-down' },
-				{ gx, gz: gz + 1, role: 'ramp-up' },
-			];
-
-		}
-
-		return [
-			{ gx: gx - 1, gz, role: 'ramp-down' },
-			{ gx: gx + 1, gz, role: 'ramp-up' },
-		];
-
-	}
 
 	function clearElevationGroup( parentKey ) {
 
