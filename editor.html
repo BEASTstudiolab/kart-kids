@@ -566,6 +566,13 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 		resolveNewTile as _resolveNewTile,
 		resolveTile as _resolveTile,
 	} from './js/editor/AutoTile.js';
+	import {
+		placeMesh as _placeMesh,
+		resolveCell as _resolveCell,
+		resolveCellAndNeighbors as _resolveCellAndNeighbors,
+		snapshotGrid as _snapshotGrid,
+		restoreSnapshot as _restoreSnapshot,
+	} from './js/editor/Grid.js';
 
 	// ─── State ────────────────────────────────────────────────
 
@@ -581,81 +588,18 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 	const resolveNewTile = ( gx, gz ) => _resolveNewTile( grid, gx, gz );
 	const resolveTile = ( gx, gz ) => _resolveTile( grid, gx, gz );
 
+	// ─── Grid wrappers (bind grid, models, trackGroup) ───────
+	const placeMesh = ( gx, gz, cell ) => _placeMesh( grid, models, trackGroup, gx, gz, cell );
+	const resolveCell = ( gx, gz ) => _resolveCell( grid, models, trackGroup, gx, gz );
+	const resolveCellAndNeighbors = ( gx, gz ) => _resolveCellAndNeighbors( grid, models, trackGroup, gx, gz, renderCurves );
+	const snapshotGrid = () => _snapshotGrid( grid );
+	const restoreSnapshot = ( snap ) => _restoreSnapshot( grid, models, trackGroup, snap, { renderCurves, save, updateStats, updateFinishCar } );
+
 	// ─── Undo / Redo ─────────────────────────────────────────
 
 	const undoStack = [];
 	const redoStack = [];
 	const MAX_UNDO = 100;
-
-	function snapshotGrid() {
-
-		const snap = [];
-		for ( const [ key, cell ] of grid ) {
-
-			const [ gx, gz ] = key.split( ',' ).map( Number );
-			const entry = { gx, gz, type: cell.type, orient: cell.orient, isFinish: cell.isFinish };
-			if ( cell.curveSize != null ) entry.curveSize = cell.curveSize;
-			if ( cell.curveConsumed ) entry.curveConsumed = [ ...cell.curveConsumed ];
-			if ( cell.curveVariant ) entry.curveVariant = cell.curveVariant;
-			if ( cell.rotationOverride ) entry.rotationOverride = true;
-			if ( cell.elevation != null && cell.elevation !== 0 ) entry.elevation = cell.elevation;
-			if ( cell.autoRamp ) entry.autoRamp = true;
-			if ( cell.rampParent ) entry.rampParent = cell.rampParent;
-			snap.push( entry );
-
-		}
-
-		return snap;
-
-	}
-
-	function restoreSnapshot( snap ) {
-
-		// Remove all existing meshes (including curve meshes)
-		for ( const [ , cell ] of grid ) {
-
-			if ( cell.mesh ) trackGroup.remove( cell.mesh );
-			if ( cell.curveMesh ) trackGroup.remove( cell.curveMesh );
-
-		}
-
-		grid.clear();
-
-		for ( const entry of snap ) {
-
-			const cell = {
-				type: entry.type,
-				orient: entry.orient,
-				isFinish: entry.isFinish,
-				mesh: null,
-			};
-			if ( entry.curveSize != null ) cell.curveSize = entry.curveSize;
-			if ( entry.curveConsumed ) cell.curveConsumed = new Set( entry.curveConsumed );
-			if ( entry.curveVariant ) cell.curveVariant = entry.curveVariant;
-			// Migration: old saves with curveSize but no curveVariant
-			if ( cell.curveSize >= 2 && ! cell.curveVariant ) {
-				if ( cell.curveSize === 2 ) cell.curveVariant = '2x2-wide';
-				else cell.curveVariant = '3x3'; // cap at 3x3 (no 4x4 model)
-				if ( cell.curveSize > 3 ) cell.curveSize = 3;
-			}
-			if ( entry.rotationOverride ) cell.rotationOverride = true;
-			if ( entry.elevation != null ) cell.elevation = entry.elevation;
-			if ( entry.autoRamp ) cell.autoRamp = true;
-			if ( entry.rampParent ) cell.rampParent = entry.rampParent;
-
-			grid.set( cellKey( entry.gx, entry.gz ), cell );
-			placeMesh( entry.gx, entry.gz, cell );
-
-		}
-
-		// Re-render curves from restored metadata
-		renderCurves();
-
-		save();
-		updateStats();
-		updateFinishCar();
-
-	}
 
 	function pushUndo() {
 
@@ -1143,108 +1087,6 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 		} );
 
 		trackGroup.add( finishCarMesh );
-
-	}
-
-	function placeMesh( gx, gz, cell ) {
-
-		if ( cell.mesh ) trackGroup.remove( cell.mesh );
-
-		const src = models[ cell.type ];
-		if ( ! src ) return;
-
-		const mesh = src.clone();
-		const elev = cell.elevation || 0;
-		const elevY = elev === 1 ? 2.416 : elev === 2 ? 4.832 : 0;
-		mesh.position.set( ( gx + 0.5 ) * CELL_RAW, 0.5 + elevY, ( gz + 0.5 ) * CELL_RAW );
-		mesh.rotation.y = THREE.MathUtils.degToRad( ORIENT_DEG[ cell.orient ] || 0 );
-		mesh.traverse( ( c ) => {
-
-			if ( c.isMesh ) {
-
-				c.castShadow = true;
-				c.receiveShadow = true;
-
-			}
-
-		} );
-
-		trackGroup.add( mesh );
-		cell.mesh = mesh;
-
-	}
-
-	function resolveCell( gx, gz ) {
-
-		const key = cellKey( gx, gz );
-		const cell = grid.get( key );
-		if ( ! cell ) return;
-
-		// Manual rotation override: keep current type/orient, just ensure mesh exists
-		if ( cell.rotationOverride ) {
-
-			if ( ! cell.mesh ) placeMesh( gx, gz, cell );
-			return;
-
-		}
-
-		// Auto-ramp and elevated cells: don't auto-resolve
-		if ( cell.autoRamp || ( cell.elevation && cell.elevation > 0 ) ) {
-
-			if ( ! cell.mesh ) placeMesh( gx, gz, cell );
-			return;
-
-		}
-
-		let baseType, orient;
-
-		if ( ! cell.mesh ) {
-
-			// New cell: connect to neighbors, pick best pair if 3+
-			[ baseType, orient ] = resolveNewTile( gx, gz );
-
-		} else {
-
-			// Existing cell: re-resolve, but don't break existing connections
-			const cMask = getConnectivityMask( gx, gz );
-			const currentExits = getCellExits( cell );
-			const currentConnected = currentExits & cMask;
-
-			[ baseType, orient ] = resolveTile( gx, gz );
-
-			// Check if the proposed shape keeps all current connections
-			const proposedExits = getCellExits( { type: baseType, orient } );
-			if ( ( proposedExits & currentConnected ) !== currentConnected ) {
-
-				// Would disconnect something — keep current shape
-				return;
-
-			}
-
-		}
-
-		// Finish cells use trk-finish but only when resolved as straight
-		const type = ( cell.isFinish && baseType === 'trk-straight' ) ? 'trk-finish' : baseType;
-
-		// Skip if nothing changed and mesh already exists
-		if ( cell.type === type && cell.orient === orient && cell.mesh ) return;
-
-		cell.type = type;
-		cell.orient = orient;
-
-		placeMesh( gx, gz, cell );
-
-	}
-
-	function resolveCellAndNeighbors( gx, gz ) {
-
-		resolveCell( gx, gz );
-		resolveCell( gx, gz - 1 );
-		resolveCell( gx, gz + 1 );
-		resolveCell( gx + 1, gz );
-		resolveCell( gx - 1, gz );
-
-		renderCurves();
 
 	}
 
