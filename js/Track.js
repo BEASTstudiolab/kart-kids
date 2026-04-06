@@ -1094,7 +1094,8 @@ export function transformCells( decodedCells ) {
 	for ( const [ key, cell ] of grid ) {
 
 		// Skip consumed cells — they're part of a multi-tile curve
-		if ( consumedKeys.has( key ) ) continue;
+		// BUT keep elevated consumed cells for collision geometry
+		if ( consumedKeys.has( key ) && ! ( cell.flags.elevation > 0 ) ) continue;
 
 		const curveInfo = curveCorners.get( key );
 
