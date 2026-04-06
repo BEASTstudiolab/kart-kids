@@ -969,7 +969,6 @@ export function transformCells( decodedCells ) {
 		if ( ! elev || elev === 0 ) continue;
 		if ( cell.type === 'trk-corner-1x1' || cell.type === 'trk-finish' ) continue;
 		if ( processed.has( key ) ) continue;
-		if ( explicitClaimed.has( key ) ) continue; // curve-consumed — skip elevation conversion
 
 		// Scan the full elevated run from this cell
 		const run = scanElevatedRun( grid, cell.gx, cell.gz, cellKeyFn );
