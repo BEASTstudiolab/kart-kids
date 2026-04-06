@@ -549,7 +549,7 @@
 	<script type="module">
 	import * as THREE from 'three';
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-	import { ORIENT_DEG, CELL_RAW, GRID_SCALE, encodeCells, decodeCells } from './js/Track.js';
+	import { ORIENT_DEG, CELL_RAW, GRID_SCALE, encodeCells } from './js/Track.js';
 import { getTrackModelConfig, getTrackTileSet } from './js/TrackModelConfig.js';
 import { getCurveConfig, getCurveLR } from './js/TileMetadata.js';
 import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMode.js';
@@ -583,6 +583,15 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 		clearElevationGroup as _clearElevationGroup,
 		cycleElevation as _cycleElevation,
 	} from './js/editor/Elevation.js';
+	import {
+		getCellsArray as _getCellsArray,
+		save as _save,
+		loadSaved as _loadSaved,
+		getSavedTracks,
+		saveNamedTrack as _saveNamedTrack,
+		deleteNamedTrack,
+		loadNamedTrack as _loadNamedTrack,
+	} from './js/editor/Persistence.js';
 
 	// ─── State ────────────────────────────────────────────────
 
@@ -607,6 +616,11 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 	const deriveRampsFromElevation = () => _deriveRampsFromElevation( grid, placeMesh );
 	const clearElevationGroup = ( parentKey ) => _clearElevationGroup( grid, placeMesh, parentKey );
 	const cycleElevation = ( gx, gz ) => _cycleElevation( { grid, placeMesh, pushUndo, save, showToast }, gx, gz );
+	const getCellsArray = () => _getCellsArray( grid );
+	const save = () => _save( grid );
+	const loadSaved = () => _loadSaved( { grid, placeMesh, deriveRampsFromElevation, deriveAllCurves } );
+	const saveNamedTrack = ( name ) => _saveNamedTrack( grid, name );
+	const loadNamedTrack = ( encoded ) => _loadNamedTrack( { grid, trackGroup, placeMesh, pushUndo, save, updateStats, updateFinishCar, deriveRampsFromElevation, deriveAllCurves }, encoded );
 	const resolveCellAndNeighbors = ( gx, gz ) => _resolveCellAndNeighbors( grid, models, trackGroup, gx, gz, renderCurves );
 	const snapshotGrid = () => _snapshotGrid( grid );
 	const restoreSnapshot = ( snap ) => _restoreSnapshot( grid, models, trackGroup, snap, { renderCurves, save, updateStats, updateFinishCar } );
@@ -1876,166 +1890,6 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 	// Prevent radial clicks from reaching the canvas
 	radialMenu.addEventListener( 'pointerdown', ( e ) => e.stopPropagation() );
 
-	// ─── Persistence ──────────────────────────────────────────
-
-	function save() {
-
-		const encoded = encodeCells( getCellsArray() );
-		localStorage.setItem( 'racing-editor-cells', encoded );
-
-	}
-
-	function loadSaved() {
-
-		const params = new URLSearchParams( window.location.search );
-		const mapParam = params.get( 'map' );
-		const encoded = mapParam || localStorage.getItem( 'racing-editor-cells' );
-
-		if ( ! encoded ) return;
-
-		try {
-
-			const arr = decodeCells( encoded );
-
-			for ( const [ gx, gz, type, orient, flags ] of arr ) {
-
-				const isFinish = ( type === 'trk-finish' );
-				const cell = { type, orient, isFinish, mesh: null };
-
-				// Restore flags if present
-				if ( flags ) {
-
-					if ( flags.elevation ) cell.elevation = flags.elevation;
-					if ( flags.curveVariant ) cell.curveVariant = flags.curveVariant;
-					if ( flags.rotationOverride ) cell.rotationOverride = true;
-
-				}
-
-				grid.set( cellKey( gx, gz ), cell );
-				placeMesh( gx, gz, cell );
-
-			}
-
-			// Re-derive ramps from elevated cells
-			deriveRampsFromElevation();
-
-			// Re-derive curves
-			deriveAllCurves();
-
-		} catch ( e ) {
-
-			console.warn( 'Failed to load saved map', e );
-
-		}
-
-	}
-
-	// ─── Named saves ──────────────────────────────────────────
-
-	const SAVES_KEY = 'racing-editor-saved-tracks';
-
-	function getSavedTracks() {
-
-		try {
-
-			return JSON.parse( localStorage.getItem( SAVES_KEY ) ) || [];
-
-		} catch {
-
-			return [];
-
-		}
-
-	}
-
-	function saveNamedTrack( name ) {
-
-		const tracks = getSavedTracks();
-		const encoded = encodeCells( getCellsArray() );
-		const existing = tracks.findIndex( t => t.name === name );
-
-		const entry = {
-			name,
-			cells: encoded,
-			pieces: grid.size,
-			date: new Date().toLocaleDateString()
-		};
-
-		if ( existing >= 0 ) {
-
-			tracks[ existing ] = entry;
-
-		} else {
-
-			tracks.unshift( entry );
-
-		}
-
-		localStorage.setItem( SAVES_KEY, JSON.stringify( tracks ) );
-
-	}
-
-	function deleteNamedTrack( name ) {
-
-		const tracks = getSavedTracks().filter( t => t.name !== name );
-		localStorage.setItem( SAVES_KEY, JSON.stringify( tracks ) );
-
-	}
-
-	function loadNamedTrack( encoded ) {
-
-		pushUndo();
-
-		for ( const [ , cell ] of grid ) {
-
-			if ( cell.mesh ) trackGroup.remove( cell.mesh );
-			if ( cell.curveMesh ) trackGroup.remove( cell.curveMesh );
-
-		}
-
-		grid.clear();
-
-		try {
-
-			const arr = decodeCells( encoded );
-
-			for ( const [ gx, gz, type, orient, flags ] of arr ) {
-
-				const isFinish = ( type === 'trk-finish' );
-				const cell = { type, orient, isFinish, mesh: null };
-
-				// Restore flags if present
-				if ( flags ) {
-
-					if ( flags.elevation ) cell.elevation = flags.elevation;
-					if ( flags.curveVariant ) cell.curveVariant = flags.curveVariant;
-					if ( flags.rotationOverride ) cell.rotationOverride = true;
-
-				}
-
-				grid.set( cellKey( gx, gz ), cell );
-				placeMesh( gx, gz, cell );
-
-			}
-
-			// Re-derive ramps from elevated cells
-			deriveRampsFromElevation();
-
-			// Re-derive curves
-			deriveAllCurves();
-
-		} catch ( e ) {
-
-			console.warn( 'Failed to load track', e );
-
-		}
-
-		save();
-		updateStats();
-		updateFinishCar();
-
-	}
-
 	// Save modal
 	const modalSave = document.getElementById( 'modal-save' );
 	const saveNameInput = document.getElementById( 'save-name' );
@@ -2338,39 +2192,6 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 
 	document.getElementById( 'btn-undo' ).addEventListener( 'click', undo );
 	document.getElementById( 'btn-redo' ).addEventListener( 'click', redo );
-
-	function getCellsArray() {
-
-		const arr = [];
-		for ( const [ key, cell ] of grid ) {
-
-			// Skip autoRamp cells — they are derived from elevated cells at load time
-			if ( cell.autoRamp ) continue;
-
-			const [ gx, gz ] = key.split( ',' ).map( Number );
-
-			// For encoding, use the base type name for elevated cells
-			let typeName = cell.type;
-			if ( cell.elevation && cell.elevation > 0 &&
-				( typeName === 'trk-elev-2p5' || typeName === 'trk-elev-5' ) ) {
-
-				typeName = 'trk-straight';
-
-			}
-
-			const flags = {
-				elevation: cell.elevation || 0,
-				curveVariant: cell.curveVariant || null,
-				rotationOverride: !! cell.rotationOverride,
-			};
-
-			arr.push( [ gx, gz, typeName, cell.orient, flags ] );
-
-		}
-
-		return arr;
-
-	}
 
 	document.getElementById( 'btn-play' ).addEventListener( 'click', () => {
 
