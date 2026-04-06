@@ -1188,9 +1188,17 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 
 	function placeFinish() {
 
-		const cell = { type: 'trk-finish', orient: 0, isFinish: true, mesh: null };
-		grid.set( cellKey( 0, 0 ), cell );
-		placeMesh( 0, 0, cell );
+		// 3x1 finish tile centered at (0,0), spanning (0,-1) to (0,1) along N/S
+		// Center cell gets the mesh. Flanking cells are grid markers (not saved, not rendered)
+		const center = { type: 'trk-finish', orient: 0, isFinish: true, mesh: null };
+		grid.set( cellKey( 0, 0 ), center );
+		placeMesh( 0, 0, center );
+
+		for ( const dz of [ - 1, 1 ] ) {
+
+			grid.set( cellKey( 0, dz ), { type: 'trk-finish', orient: 0, isFinish: true, mesh: null, finishFlank: true } );
+
+		}
 
 	}
 
@@ -2612,9 +2620,14 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 
 	// ─── Init & render loop ───────────────────────────────────
 
+	try {
 	await loadModels();
+	console.log('[editor] models loaded');
 	initDebugMode();
+	console.log('[editor] debug mode initialized');
 	loadSaved();
+	console.log('[editor] save loaded');
+	} catch(e) { console.error('[editor] INIT FAILED:', e); }
 
 	// Start with a finish cell if the grid is empty
 	if ( grid.size === 0 ) {

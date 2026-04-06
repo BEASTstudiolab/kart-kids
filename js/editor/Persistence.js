@@ -15,6 +15,7 @@ export function getCellsArray( grid ) {
 	for ( const [ key, cell ] of grid ) {
 
 		if ( cell.autoRamp ) continue;
+		if ( cell.finishFlank ) continue; // flanking finish cells are re-derived, not saved
 
 		const [ gx, gz ] = key.split( ',' ).map( Number );
 
@@ -84,6 +85,25 @@ export function loadSaved( ctx ) {
 
 			grid.set( cellKey( gx, gz ), cell );
 			placeMesh( gx, gz, cell );
+
+			// Re-derive flanking finish cells (3x1 finish tile)
+			if ( isFinish ) {
+
+				const isNS = orient === 0 || orient === 10;
+				const fdx = isNS ? 0 : 1;
+				const fdz = isNS ? 1 : 0;
+				for ( const dir of [ - 1, 1 ] ) {
+
+					const fk = cellKey( gx + fdx * dir, gz + fdz * dir );
+					if ( ! grid.has( fk ) ) {
+
+						grid.set( fk, { type: 'trk-finish', orient, isFinish: true, mesh: null, finishFlank: true } );
+
+					}
+
+				}
+
+			}
 
 		}
 

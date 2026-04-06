@@ -15,7 +15,7 @@ export function getTrackModelConfig( name, tileSet = 'standard' ) {
 
 		if ( name === 'trk-straight' ) return { path: 'standard-map/kartkids_base_trk_010_rd_straight_1x1.gltf', rotationY: 0 };
 		if ( name === 'trk-corner-1x1' ) return { path: 'standard-map/kartkids_base_trk_020_trn_90_l_1x1.gltf', rotationY: 0 };
-		if ( name === 'trk-finish' ) return { path: 'track-finish.glb', rotationY: 0 };
+		if ( name === 'trk-finish' ) return { path: 'standard-map/kartkids_base_trk_510_srt_startfinish_arch_3x1.gltf', rotationY: 0 };
 
 		// Elevated flats → reuse straight tile (Y offset applied at placement time)
 		if ( name === 'trk-elev-2p5' ) return { path: 'standard-map/kartkids_base_trk_010_rd_straight_1x1.gltf', rotationY: 0 };

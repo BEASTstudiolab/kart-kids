@@ -140,6 +140,7 @@ export function snapshotGrid( grid ) {
 		if ( cell.rampStyle ) entry.rampStyle = cell.rampStyle;
 		if ( cell.autoRamp ) entry.autoRamp = true;
 		if ( cell.rampParent ) entry.rampParent = cell.rampParent;
+		if ( cell.finishFlank ) entry.finishFlank = true;
 		snap.push( entry );
 
 	}
@@ -185,9 +186,10 @@ export function restoreSnapshot( grid, models, trackGroup, snap, callbacks ) {
 		if ( entry.rampStyle ) cell.rampStyle = entry.rampStyle;
 		if ( entry.autoRamp ) cell.autoRamp = true;
 		if ( entry.rampParent ) cell.rampParent = entry.rampParent;
+		if ( entry.finishFlank ) cell.finishFlank = true;
 
 		grid.set( cellKey( entry.gx, entry.gz ), cell );
-		placeMesh( grid, models, trackGroup, entry.gx, entry.gz, cell );
+		if ( ! cell.finishFlank ) placeMesh( grid, models, trackGroup, entry.gx, entry.gz, cell );
 
 	}
 
