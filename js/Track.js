@@ -687,12 +687,18 @@ export function deriveRampCells( decodedCells ) {
 			const nx = edge.gx + dx * dir;
 			const nz = edge.gz + dz * dir;
 			const nKey = cellKeyFn( nx, nz );
-			const nCell = grid.get( nKey );
+			let nCell = grid.get( nKey );
 
-			if ( ! nCell ) continue;
+			// Ramp cells are filtered out during save — create them if missing
+			if ( ! nCell ) {
+
+				nCell = { gx: nx, gz: nz, type: 'trk-straight', orient, flags: { elevation: 0 } };
+				grid.set( nKey, nCell );
+
+			}
+
 			if ( nCell.flags.elevation && nCell.flags.elevation > 0 ) continue;
 			if ( nCell.flags.autoRamp ) continue;
-			if ( nCell.type !== 'trk-straight' ) continue;
 
 			// Beyond-cell check: ensure a cell exists one tile further
 			const bKey = cellKeyFn( nx + dx * dir, nz + dz * dir );
@@ -806,12 +812,18 @@ export function transformCells( decodedCells ) {
 			const nx = edge.gx + dx * dir;
 			const nz = edge.gz + dz * dir;
 			const nKey = cellKeyFn( nx, nz );
-			const nCell = grid.get( nKey );
+			let nCell = grid.get( nKey );
 
-			if ( ! nCell ) continue;
+			// Ramp cells are filtered out during save — create them if missing
+			if ( ! nCell ) {
+
+				nCell = { gx: nx, gz: nz, type: 'trk-straight', orient, flags: { elevation: 0 } };
+				grid.set( nKey, nCell );
+
+			}
+
 			if ( nCell.flags.elevation && nCell.flags.elevation > 0 ) continue;
 			if ( nCell.flags.autoRamp ) continue;
-			if ( nCell.type !== 'trk-straight' ) continue;
 
 			// Beyond-cell check: ensure a cell exists one tile further
 			const bKey = cellKeyFn( nx + dx * dir, nz + dz * dir );
@@ -919,7 +931,6 @@ export function transformCells( decodedCells ) {
 		}
 
 		const curveSize = Math.min( walks[ 0 ].count, walks[ 1 ].count, 4 );
-		console.log( `[curve] corner (${cell.gx},${cell.gz}) orient=${cell.orient} walks=[${walks[0].count},${walks[1].count}] → curveSize=${curveSize}` );
 		if ( curveSize < 2 ) continue;
 
 		// Collect consumed cell keys (curveSize - 1 straights per arm)

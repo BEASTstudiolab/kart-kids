@@ -33,6 +33,12 @@ const BASE_CONNECTIVITY = {
 	'trk-ramp-up-5':      [ 'N', 'S' ],
 	'trk-ramp-down-2p5':  [ 'N', 'S' ],
 	'trk-ramp-down-5':    [ 'N', 'S' ],
+
+	// Smooth ramp variants — same connectivity
+	'trk-ramp-up-2p5-smooth':    [ 'N', 'S' ],
+	'trk-ramp-up-5-smooth':      [ 'N', 'S' ],
+	'trk-ramp-down-2p5-smooth':  [ 'N', 'S' ],
+	'trk-ramp-down-5-smooth':    [ 'N', 'S' ],
 };
 
 function getOpenEdges( pieceType, cellOrient ) {
