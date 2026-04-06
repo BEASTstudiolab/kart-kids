@@ -573,7 +573,7 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 	} from './js/editor/Curves.js';
 	import {
 		deriveRampsFromElevation as _deriveRampsFromElevation,
-		clearElevationGroup as _clearElevationGroup,
+		recalculateRunRamps as _recalculateRunRamps,
 		cycleElevation as _cycleElevation,
 	} from './js/editor/Elevation.js';
 	import {
@@ -608,7 +608,7 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 	const getAvailableCurveOptions = ( gx, gz ) => _getAvailableCurveOptions( grid, gx, gz );
 	const deriveAllCurves = () => _deriveAllCurves( grid, models, trackGroup );
 	const deriveRampsFromElevation = () => _deriveRampsFromElevation( grid, placeMesh );
-	const clearElevationGroup = ( parentKey ) => _clearElevationGroup( grid, placeMesh, parentKey );
+	const recalculateRunRamps = ( gx, gz ) => _recalculateRunRamps( grid, placeMesh, gx, gz );
 	const cycleElevation = ( gx, gz ) => _cycleElevation( { grid, placeMesh, pushUndo, save, showToast }, gx, gz );
 	const getCellsArray = () => _getCellsArray( grid );
 	const save = () => _save( grid );
@@ -1184,25 +1184,16 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 		const cell = grid.get( key );
 		if ( cell.isFinish ) return;
 
-		// If erasing an auto-ramp cell, cascade-delete the entire elevation group first
-		if ( cell.autoRamp && cell.rampParent ) {
+		pushUndo();
 
-			pushUndo();
-			clearElevationGroup( cell.rampParent );
-			showToast( 'Elevation group removed' );
-			// Now continue to erase the originally targeted cell (which is now a normal straight)
+		// If erasing an auto-ramp cell, resolve to the ramp parent for orphan cleanup
+		const erasedKey = ( cell.autoRamp && cell.rampParent ) ? cell.rampParent : key;
 
-		} else if ( cell.elevation && cell.elevation > 0 ) {
+		// If this cell was elevated, reset its elevation before removal
+		if ( cell.elevation && cell.elevation > 0 ) {
 
-			// Erasing an elevated parent cell: clear the whole group first
-			pushUndo();
-			clearElevationGroup( key );
-			showToast( 'Elevation group removed' );
-			// Now continue to erase the originally targeted cell
-
-		} else {
-
-			pushUndo();
+			cell.elevation = 0;
+			cell.type = 'trk-straight';
 
 		}
 
@@ -1274,6 +1265,36 @@ import { getTrackAsphaltMode, applyTrackAsphaltMode } from './js/TrackAsphaltMod
 		resolveCell( gx - 1, gz );
 
 		renderCurves();
+
+		// Clean up orphaned autoRamp cells whose rampParent was the erased cell
+		for ( const [ oKey, oCell ] of grid ) {
+
+			if ( oCell.autoRamp && oCell.rampParent === erasedKey ) {
+
+				oCell.autoRamp = false;
+				delete oCell.rampParent;
+				oCell.type = 'trk-straight';
+
+				const [ ox, oz ] = oKey.split( ',' ).map( Number );
+				placeMesh( ox, oz, oCell );
+
+			}
+
+		}
+
+		// Recalculate ramps for any elevated neighbors of the erased cell
+		const neighborOffsets = [ [ 0, - 1 ], [ 0, 1 ], [ 1, 0 ], [ - 1, 0 ] ];
+		for ( const [ ndx, ndz ] of neighborOffsets ) {
+
+			const nKey = cellKey( gx + ndx, gz + ndz );
+			const nCell = grid.get( nKey );
+			if ( nCell && nCell.elevation && nCell.elevation > 0 ) {
+
+				recalculateRunRamps( gx + ndx, gz + ndz );
+
+			}
+
+		}
 
 		save();
 		updateStats();

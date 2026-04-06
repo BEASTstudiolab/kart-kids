@@ -44,39 +44,6 @@ export function deriveRampsFromElevation( grid, placeMesh ) {
 }
 
 /**
- * Clear an elevation group: restore parent and ramps to ground straights.
- */
-export function clearElevationGroup( grid, placeMesh, parentKey ) {
-
-	const parentCell = grid.get( parentKey );
-	if ( ! parentCell ) return;
-
-	const [ pgx, pgz ] = parentKey.split( ',' ).map( Number );
-	const rampNeighbors = getRampNeighborKeys( pgx, pgz, parentCell.orient );
-
-	parentCell.elevation = 0;
-	parentCell.type = 'trk-straight';
-	placeMesh( pgx, pgz, parentCell );
-
-	for ( const rn of rampNeighbors ) {
-
-		const rKey = cellKey( rn.gx, rn.gz );
-		const rCell = grid.get( rKey );
-		if ( rCell && rCell.autoRamp && rCell.rampParent === parentKey ) {
-
-			rCell.autoRamp = false;
-			delete rCell.rampParent;
-			rCell.type = 'trk-straight';
-			rCell.orient = parentCell.orient;
-			placeMesh( rn.gx, rn.gz, rCell );
-
-		}
-
-	}
-
-}
-
-/**
  * Recalculate ramps for the entire elevated run containing (gx, gz).
  * Clears old ramps belonging to the run, then places new ramps at run edges.
  * Never calls pushUndo — callers handle undo boundaries.
@@ -183,6 +150,7 @@ export function recalculateRunRamps( grid, placeMesh, gx, gz ) {
 
 /**
  * Cycle elevation on a cell: ground → half → full → ground.
+ * Ramp placement is delegated to recalculateRunRamps.
  * @param {object} ctx - { grid, placeMesh, pushUndo, save, showToast }
  */
 export function cycleElevation( ctx, gx, gz ) {
@@ -237,124 +205,28 @@ export function cycleElevation( ctx, gx, gz ) {
 
 	}
 
+	pushUndo();
+
 	const currentElev = cell.elevation || 0;
 	const ELEV_CYCLE = { 0: 1, 1: 2, 2: 0 };
 	const nextElev = ELEV_CYCLE[ currentElev ];
 
-	const rampNeighbors = getRampNeighborKeys( gx, gz, cell.orient );
-
 	if ( nextElev > 0 ) {
-
-		for ( const rn of rampNeighbors ) {
-
-			const rKey = cellKey( rn.gx, rn.gz );
-			const rCell = grid.get( rKey );
-
-			if ( ! rCell ) {
-
-				showToast( 'No room for ramps' );
-				return;
-
-			}
-
-			const isOwnRamp = rCell.autoRamp && rCell.rampParent === key;
-
-			if ( ! isOwnRamp ) {
-
-				if ( rCell.type !== 'trk-straight' ) {
-
-					showToast( 'No room for ramps' );
-					return;
-
-				}
-
-				if ( rCell.elevation && rCell.elevation !== 0 ) {
-
-					showToast( 'No room for ramps' );
-					return;
-
-				}
-
-				if ( rCell.isFinish ) {
-
-					showToast( 'No room for ramps' );
-					return;
-
-				}
-
-				for ( const [ , cc ] of grid ) {
-
-					if ( cc.curveConsumed && cc.curveConsumed.has( rKey ) ) {
-
-						showToast( 'No room for ramps' );
-						return;
-
-					}
-
-				}
-
-				if ( rCell.autoRamp ) {
-
-					showToast( 'No room for ramps' );
-					return;
-
-				}
-
-			}
-
-			const beyondGx = rn.gx + ( rn.gx - gx );
-			const beyondGz = rn.gz + ( rn.gz - gz );
-			const beyondKey = cellKey( beyondGx, beyondGz );
-			const beyondCell = grid.get( beyondKey );
-
-			if ( ! beyondCell ) {
-
-				showToast( 'No room for ramps' );
-				return;
-
-			}
-
-			if ( beyondCell.elevation && beyondCell.elevation !== 0 ) {
-
-				showToast( 'No room for ramps' );
-				return;
-
-			}
-
-		}
-
-		pushUndo();
 
 		cell.elevation = nextElev;
 		cell.type = getElevationModelName( nextElev, 'flat' );
 		placeMesh( gx, gz, cell );
 
-		for ( const rn of rampNeighbors ) {
-
-			const rKey = cellKey( rn.gx, rn.gz );
-			const rCell = grid.get( rKey );
-
-			rCell.autoRamp = true;
-			rCell.rampParent = key;
-			rCell.type = getElevationModelName( nextElev, rn.role );
-			rCell.orient = cell.orient;
-
-			if ( rn.role === 'ramp-up' ) {
-
-				rCell.orient = ORIENT_FLIP[ cell.orient ] ?? cell.orient;
-
-			}
-
-			placeMesh( rn.gx, rn.gz, rCell );
-
-		}
+		recalculateRunRamps( grid, placeMesh, gx, gz );
 
 		showToast( 'Elevation: ' + ( nextElev === 1 ? '2.5m' : '5m' ) );
 
 	} else {
 
-		pushUndo();
-		clearElevationGroup( grid, placeMesh, key );
+		cell.elevation = 0;
+		cell.type = 'trk-straight';
+		placeMesh( gx, gz, cell );
+
 		showToast( 'Elevation: ground' );
 
 	}
