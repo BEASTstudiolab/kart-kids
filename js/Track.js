@@ -884,13 +884,65 @@ export function transformCells( decodedCells ) {
 
 	// ── Pass 2: Derive curves ─────────────────────────────────
 
-	// Collect all corner candidates
+	// First: handle corners with explicit curveVariant from editor save
+	const explicitCurves = new Map(); // key → { curveSize, consumed }
+	const explicitClaimed = new Set();
+
+	const VARIANT_SIZE = { '2x2-wide': 2, '2x2-tight': 2, '3x3': 3, '3x3-wide': 3 };
+
+	for ( const [ key, cell ] of grid ) {
+
+		if ( cell.type !== 'trk-corner-1x1' ) continue;
+		if ( ! cell.flags.curveVariant ) continue;
+
+		const curveSize = VARIANT_SIZE[ cell.flags.curveVariant ];
+		if ( ! curveSize ) continue;
+
+		const exits = CORNER_EXITS[ cell.orient ];
+		if ( exits === undefined ) continue;
+
+		const dirBits = [];
+		for ( const bit of [ 8, 4, 2, 1 ] ) {
+
+			if ( exits & bit ) dirBits.push( bit );
+
+		}
+
+		if ( dirBits.length !== 2 ) continue;
+
+		// Collect consumed cells (curveSize - 1 straights per arm)
+		const consumed = new Set();
+		for ( const bit of dirBits ) {
+
+			const [ ddx, ddz ] = DIR_DELTA[ bit ];
+			let nx = cell.gx + ddx;
+			let nz = cell.gz + ddz;
+
+			for ( let i = 0; i < curveSize - 1; i ++ ) {
+
+				const nk = nx + ',' + nz;
+				consumed.add( nk );
+				nx += ddx;
+				nz += ddz;
+
+			}
+
+		}
+
+		explicitCurves.set( key, { curveSize, consumed } );
+		explicitClaimed.add( key );
+		for ( const ck of consumed ) explicitClaimed.add( ck );
+
+	}
+
+	// Then: auto-detect curves for corners without explicit variant
 	const candidates = [];
 
 	for ( const [ key, cell ] of grid ) {
 
 		if ( cell.type !== 'trk-corner-1x1' ) continue;
 		if ( cell.flags.curveVariant || cell.flags.rotationOverride ) continue;
+		if ( explicitClaimed.has( key ) ) continue;
 
 		const exits = CORNER_EXITS[ cell.orient ];
 		if ( exits === undefined ) continue;
@@ -1001,6 +1053,13 @@ export function transformCells( decodedCells ) {
 		for ( const ck of cand.consumed ) claimed.add( ck );
 
 		curveCorners.set( cand.key, { curveSize: cand.curveSize, consumed: cand.consumed } );
+
+	}
+
+	// Merge explicit curves into curveCorners
+	for ( const [ key, info ] of explicitCurves ) {
+
+		curveCorners.set( key, info );
 
 	}
 
