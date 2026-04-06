@@ -799,8 +799,143 @@ export function transformCells( decodedCells ) {
 		}
 
 		explicitCurves.set( key, { curveSize, consumed } );
+
+	}
+
+	// Auto-detect curves for corners without explicit variant
+	// Must run BEFORE elevation pass so we walk original trk-straight types
+	const candidates = [];
+
+	for ( const [ key, cell ] of grid ) {
+
+		if ( cell.type !== 'trk-corner-1x1' ) continue;
+		if ( cell.flags.curveVariant || cell.flags.rotationOverride ) continue;
+		if ( explicitCurves.has( key ) ) continue;
+
+		const exits = CORNER_EXITS[ cell.orient ];
+		if ( exits === undefined ) continue;
+
+		// Extract exit direction bits
+		const dirBits = [];
+		for ( const bit of [ 8, 4, 2, 1 ] ) {
+
+			if ( exits & bit ) dirBits.push( bit );
+
+		}
+
+		if ( dirBits.length !== 2 ) continue;
+
+		// Walk each exit direction counting consecutive straights
+		const walks = [];
+		for ( const bit of dirBits ) {
+
+			const [ ddx, ddz ] = DIR_DELTA[ bit ];
+			const keys = [];
+			let nx = cell.gx + ddx;
+			let nz = cell.gz + ddz;
+
+			while ( true ) {
+
+				const nk = nx + ',' + nz;
+				const nc = grid.get( nk );
+				if ( ! nc ) break;
+				if ( nc.type !== 'trk-straight' ) break;
+				keys.push( nk );
+				nx += ddx;
+				nz += ddz;
+
+			}
+
+			walks.push( { count: keys.length, keys } );
+
+		}
+
+		const curveSize = Math.min( walks[ 0 ].count, walks[ 1 ].count, 4 );
+		if ( curveSize < 2 ) continue;
+
+		// Collect consumed cell keys (curveSize - 1 straights per arm)
+		const consumed = new Set();
+		for ( const walk of walks ) {
+
+			for ( let i = 0; i < curveSize - 1; i ++ ) {
+
+				consumed.add( walk.keys[ i ] );
+
+			}
+
+		}
+
+		// Footprint check: verify NxN area is clear
+		let fpDx, fpDz;
+		if ( cell.orient === 0 ) { fpDx = - 1; fpDz = 1; }
+		else if ( cell.orient === 16 ) { fpDx = 1; fpDz = 1; }
+		else if ( cell.orient === 10 ) { fpDx = 1; fpDz = - 1; }
+		else if ( cell.orient === 22 ) { fpDx = - 1; fpDz = - 1; }
+		else continue;
+
+		let footprintClear = true;
+		for ( let fx = 0; fx < curveSize && footprintClear; fx ++ ) {
+
+			for ( let fz = 0; fz < curveSize && footprintClear; fz ++ ) {
+
+				if ( fx === 0 && fz === 0 ) continue;
+				const fpKey = ( cell.gx + fx * fpDx ) + ',' + ( cell.gz + fz * fpDz );
+				if ( grid.has( fpKey ) && ! consumed.has( fpKey ) ) footprintClear = false;
+
+			}
+
+		}
+
+		if ( ! footprintClear ) continue;
+
+		candidates.push( { gx: cell.gx, gz: cell.gz, key, orient: cell.orient, curveSize, consumed } );
+
+	}
+
+	// Sort: largest first, ties by key string
+	candidates.sort( ( a, b ) => {
+
+		if ( b.curveSize !== a.curveSize ) return b.curveSize - a.curveSize;
+		return a.key < b.key ? - 1 : a.key > b.key ? 1 : 0;
+
+	} );
+
+	// Assign curves, preventing overlap
+	const claimed = new Set();
+	const curveCorners = new Map(); // key → { curveSize, consumed }
+
+	for ( const cand of candidates ) {
+
+		if ( claimed.has( cand.key ) ) continue;
+
+		let blocked = false;
+		for ( const ck of cand.consumed ) {
+
+			if ( claimed.has( ck ) ) { blocked = true; break; }
+
+		}
+
+		if ( blocked ) continue;
+
+		claimed.add( cand.key );
+		for ( const ck of cand.consumed ) claimed.add( ck );
+
+		curveCorners.set( cand.key, { curveSize: cand.curveSize, consumed: cand.consumed } );
+
+	}
+
+	// Merge explicit curves into curveCorners
+	for ( const [ key, info ] of explicitCurves ) {
+
+		curveCorners.set( key, info );
+
+	}
+
+	// Build explicitClaimed from ALL curve corners (both explicit and auto-detected)
+	for ( const [ key, info ] of curveCorners ) {
+
 		explicitClaimed.add( key );
-		for ( const ck of consumed ) explicitClaimed.add( ck );
+		for ( const ck of info.consumed ) explicitClaimed.add( ck );
 
 	}
 
@@ -931,136 +1066,6 @@ export function transformCells( decodedCells ) {
 			cell.flags._derivedElevation = maxElev;
 
 		}
-
-	}
-
-	// ── Pass 2: Derive curves ─────────────────────────────────
-
-	// Auto-detect curves for corners without explicit variant (explicit ones handled in pre-pass)
-	const candidates = [];
-
-	for ( const [ key, cell ] of grid ) {
-
-		if ( cell.type !== 'trk-corner-1x1' ) continue;
-		if ( cell.flags.curveVariant || cell.flags.rotationOverride ) continue;
-		if ( explicitClaimed.has( key ) ) continue;
-
-		const exits = CORNER_EXITS[ cell.orient ];
-		if ( exits === undefined ) continue;
-
-		// Extract exit direction bits
-		const dirBits = [];
-		for ( const bit of [ 8, 4, 2, 1 ] ) {
-
-			if ( exits & bit ) dirBits.push( bit );
-
-		}
-
-		if ( dirBits.length !== 2 ) continue;
-
-		// Walk each exit direction counting consecutive straights
-		const walks = [];
-		for ( const bit of dirBits ) {
-
-			const [ ddx, ddz ] = DIR_DELTA[ bit ];
-			const keys = [];
-			let nx = cell.gx + ddx;
-			let nz = cell.gz + ddz;
-
-			while ( true ) {
-
-				const nk = nx + ',' + nz;
-				const nc = grid.get( nk );
-				if ( ! nc ) break;
-				if ( nc.type !== 'trk-straight' && nc.type !== 'trk-elev-2p5' && nc.type !== 'trk-elev-5' ) break;
-				keys.push( nk );
-				nx += ddx;
-				nz += ddz;
-
-			}
-
-			walks.push( { count: keys.length, keys } );
-
-		}
-
-		const curveSize = Math.min( walks[ 0 ].count, walks[ 1 ].count, 4 );
-		if ( curveSize < 2 ) continue;
-
-		// Collect consumed cell keys (curveSize - 1 straights per arm)
-		const consumed = new Set();
-		for ( const walk of walks ) {
-
-			for ( let i = 0; i < curveSize - 1; i ++ ) {
-
-				consumed.add( walk.keys[ i ] );
-
-			}
-
-		}
-
-		// Footprint check: verify NxN area is clear
-		let fpDx, fpDz;
-		if ( cell.orient === 0 ) { fpDx = - 1; fpDz = 1; }
-		else if ( cell.orient === 16 ) { fpDx = 1; fpDz = 1; }
-		else if ( cell.orient === 10 ) { fpDx = 1; fpDz = - 1; }
-		else if ( cell.orient === 22 ) { fpDx = - 1; fpDz = - 1; }
-		else continue;
-
-		let footprintClear = true;
-		for ( let fx = 0; fx < curveSize && footprintClear; fx ++ ) {
-
-			for ( let fz = 0; fz < curveSize && footprintClear; fz ++ ) {
-
-				if ( fx === 0 && fz === 0 ) continue;
-				const fpKey = ( cell.gx + fx * fpDx ) + ',' + ( cell.gz + fz * fpDz );
-				if ( grid.has( fpKey ) && ! consumed.has( fpKey ) ) footprintClear = false;
-
-			}
-
-		}
-
-		if ( ! footprintClear ) continue;
-
-		candidates.push( { gx: cell.gx, gz: cell.gz, key, orient: cell.orient, curveSize, consumed } );
-
-	}
-
-	// Sort: largest first, ties by key string
-	candidates.sort( ( a, b ) => {
-
-		if ( b.curveSize !== a.curveSize ) return b.curveSize - a.curveSize;
-		return a.key < b.key ? - 1 : a.key > b.key ? 1 : 0;
-
-	} );
-
-	// Assign curves, preventing overlap
-	const claimed = new Set();
-	const curveCorners = new Map(); // key → { curveSize, consumed }
-
-	for ( const cand of candidates ) {
-
-		if ( claimed.has( cand.key ) ) continue;
-
-		let blocked = false;
-		for ( const ck of cand.consumed ) {
-
-			if ( claimed.has( ck ) ) { blocked = true; break; }
-
-		}
-
-		if ( blocked ) continue;
-
-		claimed.add( cand.key );
-		for ( const ck of cand.consumed ) claimed.add( ck );
-
-		curveCorners.set( cand.key, { curveSize: cand.curveSize, consumed: cand.consumed } );
-
-	}
-
-	// Merge explicit curves into curveCorners
-	for ( const [ key, info ] of explicitCurves ) {
-
-		curveCorners.set( key, info );
 
 	}
 
