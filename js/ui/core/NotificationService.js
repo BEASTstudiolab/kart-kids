@@ -81,6 +81,10 @@ export class NotificationService {
 		}
 
 		const id = config.id ?? `toast-${++ _uidCounter}`;
+
+		// Dismiss existing toast with the same id to prevent orphaned DOM/timers
+		if ( _toasts.has( id ) ) _toasts.get( id ).dismiss();
+
 		const variant    = config.variant    ?? 'info';
 		const duration   = config.duration   ?? 4000;
 		const dismissible  = config.dismissible  !== false;
@@ -147,8 +151,12 @@ export class NotificationService {
 			detail: { id, reason },
 		} ) );
 
+		let dismissed = false;
 		const onEnd = () => {
 
+			if ( dismissed ) return;
+			dismissed = true;
+			clearTimeout( fallbackTimer );
 			el.removeEventListener( 'transitionend', onEnd );
 			el.remove();
 			_toasts.delete( id );
@@ -168,7 +176,7 @@ export class NotificationService {
 		};
 
 		el.addEventListener( 'transitionend', onEnd );
-		setTimeout( onEnd, 500 ); // fallback if no CSS transition
+		const fallbackTimer = setTimeout( onEnd, 500 ); // fallback if no CSS transition
 
 	}
 
