@@ -119,6 +119,7 @@ export class PlayerManager {
 		const entry = this.players.get( id );
 		if ( ! entry ) return;
 
+		entry.smokeTrails.dispose();
 		entry.driftSparks.dispose();
 		entry.boostFlame.dispose();
 		entry.tireMarks.dispose();
