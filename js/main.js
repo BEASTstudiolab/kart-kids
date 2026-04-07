@@ -37,6 +37,8 @@ import { Speedometer } from './Speedometer.js';
 import { RearviewMirror } from './RearviewMirror.js';
 
 
+const SPECTATE_INPUT = { x: 0, z: 0, touchActive: false, boost: false, gas: false, brake: false };
+
 const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 window.isMobile = isMobile;
 
@@ -755,7 +757,7 @@ async function init() {
 
 		updateWorld( world, contactListener, dt );
 
-		playerManager.update( dt, spectating ? { x: 0, z: 0, touchActive: false, boost: false, gas: false, brake: false } : input );
+		playerManager.update( dt, spectating ? SPECTATE_INPUT : input );
 
 		aiManager.update( dt, vehicle, raceMode.state, raceMode.lap );
 
