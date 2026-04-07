@@ -103,7 +103,7 @@ export class VehicleRemoteSync {
 
 		v.container.position.set(
 			this._renderPos.x,
-			this._renderPos.y + v.debug.underbodyOffset,
+			this._renderPos.y,
 			this._renderPos.z
 		);
 		v.container.quaternion.copy( this._renderQuat );
