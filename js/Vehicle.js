@@ -439,6 +439,29 @@ export class Vehicle {
 
 		}
 
+		// Fall back to full scan if windowed result is too far (airborne, respawn, off-track)
+		if ( bestDist > 400 ) { // ~20m threshold squared
+
+			bestDist = Infinity;
+
+			for ( let i = 0; i < n; i ++ ) {
+
+				const w = ti.waypoints[ i ];
+				const dx = w.x - pos.x;
+				const dz = w.z - pos.z;
+				const d = dx * dx + dz * dz;
+
+				if ( d < bestDist ) {
+
+					bestDist = d;
+					bestIdx = i;
+
+				}
+
+			}
+
+		}
+
 		this._assistWaypointHint = bestIdx;
 
 		// 2. Look-ahead target: next waypoint only
