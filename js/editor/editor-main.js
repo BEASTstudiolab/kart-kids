@@ -233,11 +233,14 @@ function updateCamera() {
 
 }
 
+const _panRight = new THREE.Vector3();
+const _panFwd = new THREE.Vector3();
+
 function getCameraPanAxes() {
 
-	const right = new THREE.Vector3( Math.cos( orbitAngle ), 0, - Math.sin( orbitAngle ) );
-	const fwd = new THREE.Vector3( - Math.sin( orbitAngle ), 0, - Math.cos( orbitAngle ) );
-	return { right, fwd };
+	_panRight.set( Math.cos( orbitAngle ), 0, - Math.sin( orbitAngle ) );
+	_panFwd.set( - Math.sin( orbitAngle ), 0, - Math.cos( orbitAngle ) );
+	return { right: _panRight, fwd: _panFwd };
 
 }
 
@@ -1167,6 +1170,8 @@ function clearGhost() {
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
+const _groundPlane = new THREE.Plane( new THREE.Vector3( 0, 1, 0 ), 0.51 );
+const _hitPoint = new THREE.Vector3();
 let hoveredCell = null;
 
 function screenToGrid( clientX, clientY ) {
@@ -1176,14 +1181,12 @@ function screenToGrid( clientX, clientY ) {
 
 	raycaster.setFromCamera( mouse, camera );
 
-	const plane = new THREE.Plane( new THREE.Vector3( 0, 1, 0 ), 0.51 );
-	const hit = new THREE.Vector3();
-	raycaster.ray.intersectPlane( plane, hit );
+	raycaster.ray.intersectPlane( _groundPlane, _hitPoint );
 
-	if ( ! hit ) return null;
+	if ( ! _hitPoint ) return null;
 
-	const gx = Math.floor( hit.x / cellWorld );
-	const gz = Math.floor( hit.z / cellWorld );
+	const gx = Math.floor( _hitPoint.x / cellWorld );
+	const gz = Math.floor( _hitPoint.z / cellWorld );
 
 	return { gx, gz };
 
