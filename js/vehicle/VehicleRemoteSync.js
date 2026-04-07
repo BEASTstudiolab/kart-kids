@@ -76,20 +76,35 @@ export class VehicleRemoteSync {
 
 		}
 
-		// Dead-reckon: advance render position using target velocity
-		this._renderPos.x += this._targetVel[ 0 ] * dt;
-		this._renderPos.y += this._targetVel[ 1 ] * dt;
-		this._renderPos.z += this._targetVel[ 2 ] * dt;
+		// Snap if correction distance is too large (respawn, teleport, latency spike)
+		const dx = this._targetPos[ 0 ] - this._renderPos.x;
+		const dy = this._targetPos[ 1 ] - this._renderPos.y;
+		const dz = this._targetPos[ 2 ] - this._renderPos.z;
+		const distSq = dx * dx + dy * dy + dz * dz;
 
-		// Smooth correction toward latest server position (dt-independent)
-		const correctionSpeed = 8; // higher = snappier, lower = smoother
-		const t = 1 - Math.exp( - correctionSpeed * dt );
+		if ( distSq > 25 ) { // 5m threshold squared
 
-		this._renderPos.x += ( this._targetPos[ 0 ] - this._renderPos.x ) * t;
-		this._renderPos.y += ( this._targetPos[ 1 ] - this._renderPos.y ) * t;
-		this._renderPos.z += ( this._targetPos[ 2 ] - this._renderPos.z ) * t;
+			this._renderPos.set( this._targetPos[ 0 ], this._targetPos[ 1 ], this._targetPos[ 2 ] );
+			this._renderQuat.copy( this._targetQuat );
 
-		this._renderQuat.slerp( this._targetQuat, t );
+		} else {
+
+			// Dead-reckon: advance render position using target velocity
+			this._renderPos.x += this._targetVel[ 0 ] * dt;
+			this._renderPos.y += this._targetVel[ 1 ] * dt;
+			this._renderPos.z += this._targetVel[ 2 ] * dt;
+
+			// Smooth correction toward latest server position (dt-independent)
+			const correctionSpeed = 8; // higher = snappier, lower = smoother
+			const t = 1 - Math.exp( - correctionSpeed * dt );
+
+			this._renderPos.x += ( this._targetPos[ 0 ] - this._renderPos.x ) * t;
+			this._renderPos.y += ( this._targetPos[ 1 ] - this._renderPos.y ) * t;
+			this._renderPos.z += ( this._targetPos[ 2 ] - this._renderPos.z ) * t;
+
+			this._renderQuat.slerp( this._targetQuat, t );
+
+		}
 
 		// Update physics body for collisions (snap, don't fight the sim)
 		rigidBody.setPosition( v.physicsWorld, v.rigidBody,
