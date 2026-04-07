@@ -18,6 +18,7 @@ export class VehicleRemoteSync {
 		this._renderPos = new THREE.Vector3();
 		this._renderQuat = new THREE.Quaternion();
 		this._remoteInitialized = false;
+		this._angVelBuf = [ 0, 0, 0 ];
 
 	}
 
@@ -42,7 +43,10 @@ export class VehicleRemoteSync {
 	 */
 	getState( v ) {
 
-		const angVel = v.rigidBody ? [ ...v.rigidBody.motionProperties.angularVelocity ] : [ 0, 0, 0 ];
+		const src = v.rigidBody ? v.rigidBody.motionProperties.angularVelocity : null;
+		const angVel = this._angVelBuf;
+		if ( src ) { angVel[ 0 ] = src[ 0 ]; angVel[ 1 ] = src[ 1 ]; angVel[ 2 ] = src[ 2 ]; }
+		else { angVel[ 0 ] = 0; angVel[ 1 ] = 0; angVel[ 2 ] = 0; }
 
 		return {
 			pos: [ v.vehPos.x, v.vehPos.y, v.vehPos.z ],
