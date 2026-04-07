@@ -40,6 +40,8 @@ import { GhostPlayer } from './GhostPlayer.js';
 import { getTrackId } from './GhostStorage.js';
 
 
+const SPECTATE_INPUT = { x: 0, z: 0, touchActive: false, boost: false, gas: false, brake: false };
+
 const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 window.isMobile = isMobile;
 
@@ -835,7 +837,7 @@ async function init() {
 
 		updateWorld( world, contactListener, dt );
 
-		playerManager.update( dt, spectating ? { x: 0, z: 0, touchActive: false, boost: false, gas: false, brake: false } : input );
+		playerManager.update( dt, spectating ? SPECTATE_INPUT : input );
 
 		// Ghost: record vehicle state each frame while racing
 		if ( ! spectating && vehicle && raceMode.state === 'racing' ) {
