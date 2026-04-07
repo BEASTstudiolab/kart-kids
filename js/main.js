@@ -90,11 +90,13 @@ function applyPlayerTints( vehicle, settings ) {
 			if ( vehColor ) {
 
 				if ( ! child._originalMaterial ) child._originalMaterial = child.material;
+				if ( child.material !== child._originalMaterial ) child.material.dispose();
 				child.material = child._originalMaterial.clone();
 				child.material.color.set( vehColor );
 
 			} else if ( child._originalMaterial ) {
 
+				if ( child.material !== child._originalMaterial ) child.material.dispose();
 				child.material = child._originalMaterial;
 
 			}
@@ -120,11 +122,13 @@ function applyPlayerTints( vehicle, settings ) {
 			if ( charColor ) {
 
 				if ( ! child._originalMaterial ) child._originalMaterial = child.material;
+				if ( child.material !== child._originalMaterial ) child.material.dispose();
 				child.material = child._originalMaterial.clone();
 				child.material.color.set( charColor );
 
 			} else if ( child._originalMaterial ) {
 
+				if ( child.material !== child._originalMaterial ) child.material.dispose();
 				child.material = child._originalMaterial;
 
 			}
