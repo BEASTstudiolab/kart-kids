@@ -2,6 +2,7 @@ import * as THREE from 'three';
 
 const _rearPos = new THREE.Vector3();
 const _rearLook = new THREE.Vector3();
+const _viewport = new THREE.Vector4();
 
 export class RearviewMirror {
 
@@ -94,7 +95,7 @@ export class RearviewMirror {
 		const renderer = this.renderer;
 
 		// Save and restore viewport to prevent corrupting main camera render
-		const vp = renderer.getViewport( new THREE.Vector4() );
+		const vp = renderer.getViewport( _viewport );
 
 		renderer.setRenderTarget( this.renderTarget );
 		renderer.clear();
