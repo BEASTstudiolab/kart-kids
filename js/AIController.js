@@ -25,6 +25,9 @@ export class AIController {
 		this._reversing = false;
 		this._reverseSteer = 0;
 
+		// Reusable input object — avoids per-frame allocation
+		this._input = { x: 0, z: 0, touchActive: false, boost: false, drift: false };
+
 	}
 
 	update( dt, vehicle ) {
@@ -45,7 +48,10 @@ export class AIController {
 
 			} else {
 
-				return { x: this._reverseSteer, z: - 1.0, touchActive: false, boost: false, drift: false };
+				this._input.x = this._reverseSteer;
+				this._input.z = - 1.0;
+				this._input.boost = false;
+				return this._input;
 
 			}
 
@@ -60,7 +66,10 @@ export class AIController {
 				this._reversing = true;
 				this._reverseTimer = p.reverseTime;
 				this._reverseSteer = Math.random() > 0.5 ? 0.7 : - 0.7;
-				return { x: this._reverseSteer, z: - 1.0, touchActive: false, boost: false, drift: false };
+				this._input.x = this._reverseSteer;
+				this._input.z = - 1.0;
+				this._input.boost = false;
+				return this._input;
 
 			}
 
@@ -156,7 +165,10 @@ export class AIController {
 
 		}
 
-		return { x: steerInput, z: throttle, touchActive: false, boost, drift: false };
+		this._input.x = steerInput;
+		this._input.z = throttle;
+		this._input.boost = boost;
+		return this._input;
 
 	}
 
