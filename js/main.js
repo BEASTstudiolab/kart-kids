@@ -205,11 +205,13 @@ async function init() {
 	const hd = bounds.halfDepth;
 	const groundSize = Math.max( hw, hd ) * 2 + 20;
 
-	const shadowExtent = Math.max( hw, hd ) + 10;
-	dirLight.shadow.camera.left = - shadowExtent;
-	dirLight.shadow.camera.right = shadowExtent;
-	dirLight.shadow.camera.top = shadowExtent;
-	dirLight.shadow.camera.bottom = - shadowExtent;
+	// Shadow frustum follows the vehicle — fixed radius for consistent
+	// texel density regardless of track size (updated in the light-follow block)
+	const shadowRadius = 25;
+	dirLight.shadow.camera.left = - shadowRadius;
+	dirLight.shadow.camera.right = shadowRadius;
+	dirLight.shadow.camera.top = shadowRadius;
+	dirLight.shadow.camera.bottom = - shadowRadius;
 	dirLight.shadow.camera.updateProjectionMatrix();
 
 	if ( scene.fog ) {
