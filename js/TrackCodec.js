@@ -193,7 +193,19 @@ function bytesToBase64url( bytes ) {
 function base64urlToBytes( str ) {
 
 	const base64 = str.replace( /-/g, '+' ).replace( /_/g, '/' );
-	const binary = atob( base64 );
+
+	let binary;
+	try {
+
+		binary = atob( base64 );
+
+	} catch {
+
+		console.warn( '[TrackCodec] Invalid base64 input — returning empty' );
+		return new Uint8Array( 0 );
+
+	}
+
 	const bytes = new Uint8Array( binary.length );
 	for ( let i = 0; i < binary.length; i ++ ) bytes[ i ] = binary.charCodeAt( i );
 
