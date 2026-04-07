@@ -1991,7 +1991,7 @@ document.getElementById( 'btn-share' ).addEventListener( 'click', () => {
 
 	const encoded = encodeCells( getCellsArray() );
 	const base = window.location.href.replace( /editor\.html.*/, '' );
-	const url = base + 'index.html?map=' + encoded;
+	const url = base + 'index.html#map=' + encoded;
 
 	navigator.clipboard.writeText( url ).then( () => {
 

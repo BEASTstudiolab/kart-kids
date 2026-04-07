@@ -169,7 +169,9 @@ async function init() {
 
 	registerAll();
 
-	const mapParam = new URLSearchParams( window.location.search ).get( 'map' );
+	// Support both ?map= (query) and #map= (hash fragment) for track sharing
+	const mapParam = new URLSearchParams( window.location.search ).get( 'map' )
+		|| new URLSearchParams( window.location.hash.slice( 1 ) ).get( 'map' );
 	let customCells = null;
 
 	if ( mapParam ) {

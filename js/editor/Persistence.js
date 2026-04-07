@@ -71,8 +71,8 @@ export function save( grid ) {
 export function loadSaved( ctx ) {
 
 	const { grid, placeMesh, deriveRampsFromElevation, deriveAllCurves } = ctx;
-	const params = new URLSearchParams( window.location.search );
-	const mapParam = params.get( 'map' );
+	const mapParam = new URLSearchParams( window.location.search ).get( 'map' )
+		|| new URLSearchParams( window.location.hash.slice( 1 ) ).get( 'map' );
 	const encoded = mapParam || localStorage.getItem( 'racing-editor-cells' );
 
 	if ( ! encoded ) return;
