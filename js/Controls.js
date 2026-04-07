@@ -52,6 +52,18 @@ export class Controls {
 		window.addEventListener( 'pointerup', ( e ) => this._onPinchPointerEnd( e ) );
 		window.addEventListener( 'pointercancel', ( e ) => this._onPinchPointerEnd( e ) );
 
+		// Clear stale pointers when tab loses focus (prevents phantom pinch gestures)
+		document.addEventListener( 'visibilitychange', () => {
+
+			if ( document.visibilityState === 'hidden' ) {
+
+				this._activePointers.clear();
+				this._prevPinchDist = undefined;
+
+			}
+
+		} );
+
 		// Listen for settings changes
 		window.addEventListener( 'settings-changed', ( e ) => {
 
