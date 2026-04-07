@@ -30,7 +30,6 @@ import { PageControllerBase }   from '../../core/PageControllerBase.js';
 import { Page22PauseView }      from './Page22PauseView.js';
 import { RouteIds }             from '../../enums/RouteIds.js';
 import { ModalIds }             from '../../enums/ModalIds.js';
-import { ButtonIds }            from '../../enums/ButtonIds.js';
 import { PageIds }              from '../../enums/PageIds.js';
 import { EventIds }             from '../../enums/EventIds.js';
 
