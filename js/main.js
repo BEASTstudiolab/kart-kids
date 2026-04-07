@@ -35,6 +35,9 @@ import { DraftingSystem } from './DraftingSystem.js';
 import { DraftLines } from './DraftLines.js';
 import { Speedometer } from './Speedometer.js';
 import { RearviewMirror } from './RearviewMirror.js';
+import { GhostRecorder } from './GhostRecorder.js';
+import { GhostPlayer } from './GhostPlayer.js';
+import { getTrackId } from './GhostStorage.js';
 
 
 const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -563,6 +566,77 @@ async function init() {
 
 	}
 
+	// ── Ghost replay setup ──────────────────────────────────────────────────
+	const ghostTrackId = getTrackId( activeCells );
+	const ghostRecorder = new GhostRecorder();
+	ghostRecorder.init( ghostTrackId );
+
+	const ghostPlayer = new GhostPlayer( scene );
+	if ( vehicle ) ghostPlayer.initMesh( vehicle.container );
+	ghostPlayer.load( ghostTrackId );
+	ghostPlayer.setVisible( settings.get( 'ghostEnabled' ) !== false );
+
+	// Ghost lap time HUD element (R11)
+	const ghostHudEl = document.createElement( 'div' );
+	ghostHudEl.style.cssText = [
+		'position:fixed', 'top:60px', 'left:50%', 'transform:translateX(-50%)',
+		'color:rgba(255,255,255,0.6)', 'font:bold 14px/1 monospace',
+		'z-index:1000', 'pointer-events:none', 'user-select:none', 'display:none',
+	].join( ';' );
+	document.body.appendChild( ghostHudEl );
+
+	if ( ghostPlayer.hasGhost ) {
+
+		const gt = ghostPlayer.lapTime;
+		const mins = Math.floor( gt / 60 );
+		const secs = ( gt % 60 ).toFixed( 2 );
+		ghostHudEl.textContent = `Ghost: ${ mins }:${ secs.padStart( 5, '0' ) }`;
+		ghostHudEl.style.display = 'block';
+
+	}
+
+	// Wrap existing onLapComplete to add ghost recording
+	const _prevOnLapComplete = raceMode.onLapComplete;
+	raceMode.onLapComplete = ( lap, time ) => {
+
+		if ( _prevOnLapComplete ) _prevOnLapComplete( lap, time );
+
+		const wasNewBest = ghostRecorder.finishLap( time );
+		if ( wasNewBest ) {
+
+			ghostPlayer.load( ghostTrackId );
+
+			// Update ghost HUD time
+			const gt = ghostPlayer.lapTime;
+			const mins = Math.floor( gt / 60 );
+			const secs = ( gt % 60 ).toFixed( 2 );
+			ghostHudEl.textContent = `Ghost: ${ mins }:${ secs.padStart( 5, '0' ) }`;
+			ghostHudEl.style.display = 'block';
+
+		}
+
+		ghostPlayer.restart();
+
+	};
+
+	// Ghost toggle in hamburger menu
+	{
+
+		const ghostSec = settingsMenu._section( 'Ghost' );
+		ghostSec.appendChild( settingsMenu._toggleRowCustom(
+			'Show Ghost',
+			settings.get( 'ghostEnabled' ) !== false,
+			( v ) => {
+
+				settings.set( 'ghostEnabled', v );
+				ghostPlayer.setVisible( v );
+
+			}
+		) );
+		settingsMenu.addSection( ghostSec );
+
+	}
+
 	// Apply initial quality preset from settings
 	{
 
@@ -757,6 +831,13 @@ async function init() {
 
 		playerManager.update( dt, spectating ? { x: 0, z: 0, touchActive: false, boost: false, gas: false, brake: false } : input );
 
+		// Ghost: record vehicle state each frame while racing
+		if ( ! spectating && vehicle && raceMode.state === 'racing' ) {
+
+			ghostRecorder.record( vehicle );
+
+		}
+
 		aiManager.update( dt, vehicle, raceMode.state, raceMode.lap );
 
 		// ─── Item box pickups ─────────────────────────────────────────────────
@@ -818,6 +899,22 @@ async function init() {
 		draftLines.update( dt, draftingSystem.getActiveDrafts(), draftingSystem.getProximityLeads() );
 
 		raceMode.update( dt, vehicle, allActiveVehicles, aiManager.getAIRaceData() );
+
+		// Ghost: update playback position
+		if ( ghostPlayer.hasGhost && raceMode.state === 'racing' ) {
+
+			ghostPlayer.update( raceMode.lapElapsed );
+			if ( ghostHudEl.style.display === 'none' && settings.get( 'ghostEnabled' ) !== false ) {
+
+				ghostHudEl.style.display = 'block';
+
+			}
+
+		} else if ( raceMode.state !== 'racing' ) {
+
+			ghostHudEl.style.display = 'none';
+
+		}
 
 		if ( raceMode.state === 'idle' ) {
 

@@ -15,6 +15,7 @@ const DEFAULTS = {
 	quality: _detectedTier,
 	vehicleColor: '',
 	characterColor: '',
+	ghostEnabled: true,
 };
 
 export class Settings {
