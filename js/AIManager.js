@@ -156,6 +156,7 @@ export class AIManager {
 		removeVehicleBody( this.world, ai.vehicle.rigidBody );
 		this.scene.remove( ai.vehicle.container );
 
+		ai.smokeTrails.dispose();
 		ai.driftSparks.dispose();
 		ai.boostFlame.dispose();
 		ai.tireMarks.dispose();
