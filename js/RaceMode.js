@@ -7,6 +7,7 @@ const STATE_RACING = 'racing';
 const STATE_FINISHED = 'finished';
 
 const COUNTDOWN_DURATION = 3; // seconds
+const NETWORK_COUNTDOWN_TIMEOUT = 15; // seconds — fallback if server stops sending countdown
 const ZERO_INPUT = { x: 0, z: 0, touchActive: false, boost: false, drift: false, gas: false, brake: false };
 
 export class RaceMode extends GameMode {
@@ -36,6 +37,7 @@ export class RaceMode extends GameMode {
 
 		this._state = STATE_IDLE;
 		this._countdownTime = 0;
+		this._networkCountdownElapsed = 0;
 		this._countdownNumber = COUNTDOWN_DURATION;
 		this._lastCountdownTick = - 1;
 
@@ -103,6 +105,19 @@ export class RaceMode extends GameMode {
 
 		}
 
+		if ( this._state === STATE_COUNTDOWN && this.networkDriven ) {
+
+			this._networkCountdownElapsed += dt;
+
+			if ( this._networkCountdownElapsed >= NETWORK_COUNTDOWN_TIMEOUT ) {
+
+				console.warn( '[RaceMode] Network countdown timed out — starting race locally' );
+				this._transitionToRacing();
+
+			}
+
+		}
+
 		if ( this._state === STATE_RACING ) {
 
 			this._elapsedTime += dt;
@@ -118,6 +133,8 @@ export class RaceMode extends GameMode {
 
 		// Ignore stale messages if already racing or finished
 		if ( this._state === STATE_RACING ) return;
+
+		this._networkCountdownElapsed = 0;
 
 		if ( this._state === STATE_IDLE || this._state === STATE_FINISHED ) {
 
@@ -206,6 +223,7 @@ export class RaceMode extends GameMode {
 		this._state = STATE_IDLE;
 		this.networkDriven = false;
 		this._countdownTime = 0;
+		this._networkCountdownElapsed = 0;
 		this._countdownNumber = COUNTDOWN_DURATION;
 		this._lastCountdownTick = - 1;
 		this._lap = 0;
