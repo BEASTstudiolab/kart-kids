@@ -158,6 +158,21 @@ async function init() {
 	renderer.setEffects( [ bloomPass ] );
 	document.body.appendChild( renderer.domElement );
 
+	// Handle WebGL context loss (common on mobile tab switches / memory pressure)
+	renderer.domElement.addEventListener( 'webglcontextlost', ( e ) => {
+
+		e.preventDefault();
+		console.warn( '[renderer] WebGL context lost — rendering paused' );
+
+	} );
+
+	renderer.domElement.addEventListener( 'webglcontextrestored', () => {
+
+		console.warn( '[renderer] WebGL context restored — resuming' );
+		renderer.shadowMap.needsUpdate = true;
+
+	} );
+
 	registerAll();
 
 	const mapParam = new URLSearchParams( window.location.search ).get( 'map' );
