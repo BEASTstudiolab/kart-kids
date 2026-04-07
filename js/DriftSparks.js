@@ -6,6 +6,7 @@ const POOL_SIZE = 64;
 const SPARK_COLORS = [ 0xffdd33, 0xffaa00, 0xff8800, 0xffee66 ];
 
 const _worldPos = new THREE.Vector3();
+const _fwdDir = new THREE.Vector3();
 
 export class DriftSparks {
 
@@ -122,17 +123,17 @@ export class DriftSparks {
 		const groundY = vehicle.container.position.y + 0.02;
 
 		// Vehicle forward direction for streak alignment
-		const fwd = new THREE.Vector3( 0, 0, 1 ).applyQuaternion( vehicle.container.quaternion );
+		_fwdDir.set( 0, 0, 1 ).applyQuaternion( vehicle.container.quaternion );
 
 		// Emit 1 ground streak + 1-2 embers per burst
 		// Ground streak
-		this._emitParticle( _worldPos, groundY, fwd, vehicle, true );
+		this._emitParticle( _worldPos, groundY, _fwdDir, vehicle, true );
 
 		// Ember (50% chance of a second)
-		this._emitParticle( _worldPos, groundY, fwd, vehicle, false );
+		this._emitParticle( _worldPos, groundY, _fwdDir, vehicle, false );
 		if ( Math.random() > 0.5 ) {
 
-			this._emitParticle( _worldPos, groundY, fwd, vehicle, false );
+			this._emitParticle( _worldPos, groundY, _fwdDir, vehicle, false );
 
 		}
 
