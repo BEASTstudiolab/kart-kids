@@ -9,6 +9,8 @@ const VEHICLE_COLORS = [
 	'#f44336', // red
 ];
 
+const _canvasCoord = [ 0, 0 ];
+
 export class Minimap {
 
 	constructor( cells, bounds ) {
@@ -50,10 +52,9 @@ export class Minimap {
 
 	_worldToCanvas( wx, wz ) {
 
-		return [
-			wx * this._scale + this._offsetX,
-			wz * this._scale + this._offsetZ,
-		];
+		_canvasCoord[ 0 ] = wx * this._scale + this._offsetX;
+		_canvasCoord[ 1 ] = wz * this._scale + this._offsetZ;
+		return _canvasCoord;
 
 	}
 
