@@ -37,7 +37,6 @@ import { CTAButton }           from '../../components/CTAButton.js';
 import { SectionPanel }        from '../../components/SectionPanel.js';
 import { ConfirmationDialog }  from '../../components/ConfirmationDialog.js';
 import { ButtonIds }           from '../../enums/ButtonIds.js';
-import { RouteIds }            from '../../enums/RouteIds.js'; // eslint-disable-line no-unused-vars
 
 export class Page22PauseView extends PageViewBase {
 
