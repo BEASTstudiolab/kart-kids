@@ -6,6 +6,8 @@ import { DriftSparks } from './DriftSparks.js';
 import { BoostFlame } from './BoostFlame.js';
 import { TireMarks } from './TireMarks.js';
 
+const REMOTE_ZERO_INPUT = { x: 0, z: 0, touchActive: false };
+
 const VEHICLE_MODEL_NAMES = [
 	'vehicle-truck-yellow',
 	'vehicle-truck-green',
@@ -226,7 +228,7 @@ export class PlayerManager {
 
 			} else {
 
-				entry.vehicle.update( dt, { x: 0, z: 0, touchActive: false } );
+				entry.vehicle.update( dt, REMOTE_ZERO_INPUT );
 
 			}
 
