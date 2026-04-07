@@ -144,6 +144,16 @@ export class SettingsMenu {
 			this.toggle();
 
 		} );
+		btn.addEventListener( 'keydown', ( e ) => {
+
+			if ( e.key === 'Enter' || e.key === ' ' ) {
+
+				e.preventDefault();
+				this.toggle();
+
+			}
+
+		} );
 		document.body.appendChild( btn );
 		this._hamburger = btn;
 
@@ -297,12 +307,18 @@ export class SettingsMenu {
 		toggle.setAttribute( 'aria-checked', String( !! initialValue ) );
 		toggle.setAttribute( 'aria-label', label );
 		toggle.setAttribute( 'tabindex', '0' );
-		toggle.addEventListener( 'pointerup', () => {
+		const activate = () => {
 
 			const newVal = ! toggle.classList.contains( 'on' );
 			toggle.classList.toggle( 'on', newVal );
 			toggle.setAttribute( 'aria-checked', String( newVal ) );
 			onChange( newVal );
+
+		};
+		toggle.addEventListener( 'pointerup', activate );
+		toggle.addEventListener( 'keydown', ( e ) => {
+
+			if ( e.key === 'Enter' || e.key === ' ' ) { e.preventDefault(); activate(); }
 
 		} );
 
@@ -327,12 +343,18 @@ export class SettingsMenu {
 		toggle.setAttribute( 'aria-checked', String( !! this.settings.get( key ) ) );
 		toggle.setAttribute( 'aria-label', label );
 		toggle.setAttribute( 'tabindex', '0' );
-		toggle.addEventListener( 'pointerup', () => {
+		const activate = () => {
 
 			const newVal = ! this.settings.get( key );
 			this.settings.set( key, newVal );
 			toggle.classList.toggle( 'on', newVal );
 			toggle.setAttribute( 'aria-checked', String( newVal ) );
+
+		};
+		toggle.addEventListener( 'pointerup', activate );
+		toggle.addEventListener( 'keydown', ( e ) => {
+
+			if ( e.key === 'Enter' || e.key === ' ' ) { e.preventDefault(); activate(); }
 
 		} );
 
@@ -366,7 +388,7 @@ export class SettingsMenu {
 			btn.setAttribute( 'role', 'radio' );
 			btn.setAttribute( 'aria-checked', String( this.settings.get( key ) === opt.value ) );
 			btn.setAttribute( 'tabindex', '0' );
-			btn.addEventListener( 'pointerup', () => {
+			const activate = () => {
 
 				this.settings.set( key, opt.value );
 				for ( const b of buttons ) {
@@ -377,6 +399,12 @@ export class SettingsMenu {
 				}
 				btn.classList.add( 'active' );
 				btn.setAttribute( 'aria-checked', 'true' );
+
+			};
+			btn.addEventListener( 'pointerup', activate );
+			btn.addEventListener( 'keydown', ( e ) => {
+
+				if ( e.key === 'Enter' || e.key === ' ' ) { e.preventDefault(); activate(); }
 
 			} );
 			buttons.push( btn );
