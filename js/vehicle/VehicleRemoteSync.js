@@ -19,6 +19,12 @@ export class VehicleRemoteSync {
 		this._renderQuat = new THREE.Quaternion();
 		this._remoteInitialized = false;
 
+		// Reusable buffers for getState() to avoid per-send allocations
+		this._posBuf = [ 0, 0, 0 ];
+		this._rotBuf = [ 0, 0, 0, 0 ];
+		this._velBuf = [ 0, 0, 0 ];
+		this._angVelBuf = [ 0, 0, 0 ];
+
 	}
 
 	setTargetState( pos, rot, vel, angVel, speed, drift, boostActive, shield, star ) {
@@ -42,12 +48,25 @@ export class VehicleRemoteSync {
 	 */
 	getState( v ) {
 
-		const angVel = v.rigidBody ? [ ...v.rigidBody.motionProperties.angularVelocity ] : [ 0, 0, 0 ];
+		const pos = this._posBuf;
+		pos[ 0 ] = v.vehPos.x; pos[ 1 ] = v.vehPos.y; pos[ 2 ] = v.vehPos.z;
+
+		const rot = this._rotBuf;
+		const q = v.container.quaternion;
+		rot[ 0 ] = q.x; rot[ 1 ] = q.y; rot[ 2 ] = q.z; rot[ 3 ] = q.w;
+
+		const vel = this._velBuf;
+		vel[ 0 ] = v.vehVel.x; vel[ 1 ] = v.vehVel.y; vel[ 2 ] = v.vehVel.z;
+
+		const angVel = this._angVelBuf;
+		const src = v.rigidBody ? v.rigidBody.motionProperties.angularVelocity : null;
+		if ( src ) { angVel[ 0 ] = src[ 0 ]; angVel[ 1 ] = src[ 1 ]; angVel[ 2 ] = src[ 2 ]; }
+		else { angVel[ 0 ] = 0; angVel[ 1 ] = 0; angVel[ 2 ] = 0; }
 
 		return {
-			pos: [ v.vehPos.x, v.vehPos.y, v.vehPos.z ],
-			rot: [ v.container.quaternion.x, v.container.quaternion.y, v.container.quaternion.z, v.container.quaternion.w ],
-			vel: [ v.vehVel.x, v.vehVel.y, v.vehVel.z ],
+			pos,
+			rot,
+			vel,
 			angVel,
 			speed: v.linearSpeed,
 			drift: v.driftIntensity,
