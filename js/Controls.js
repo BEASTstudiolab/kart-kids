@@ -351,6 +351,13 @@ export class Controls {
 					window.addEventListener( 'deviceorientation', this._accelHandler );
 					this._accelListening = true;
 
+				} else {
+
+					// Permission denied — revert setting to restore joystick steering
+					console.warn( 'Controls: accelerometer permission denied, reverting to joystick' );
+					this._accelEnabled = false;
+					if ( this.settings ) this.settings.set( 'accelerometer', false );
+
 				}
 
 			} );
