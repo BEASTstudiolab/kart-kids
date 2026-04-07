@@ -37,8 +37,7 @@ const ZERO_INPUT = { x: 0, z: 0, touchActive: false, boost: false, drift: false,
 const COL_OFFSETS = [ - 2.5, 0, 2.5 ];
 const ROW_OFFSETS = [ 0, - 3.0, - 6.0 ];
 
-function clamp( v, lo, hi ) { return v < lo ? lo : v > hi ? hi : v; }
-function lerp( a, b, t ) { return a + ( b - a ) * t; }
+const { clamp, lerp } = THREE.MathUtils;
 
 export class AIManager {
 
