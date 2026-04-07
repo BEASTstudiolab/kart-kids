@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { getSmokeTexture } from './VFXTextures.js';
 
 const POOL_SIZE = 24;
 const CONE_POOL_SIZE = 8;
@@ -106,7 +107,7 @@ export class DraftLines {
 		this._time = 0;
 
 		// ── Particle Material Pool ──────────────────────────────────────────
-		const map = new THREE.TextureLoader().load( 'sprites/smoke.png' );
+		const map = getSmokeTexture();
 		this.material = new THREE.SpriteMaterial( {
 			map,
 			color: 0xffffff,

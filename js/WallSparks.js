@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { getSmokeTexture } from './VFXTextures.js';
 
 const POOL_SIZE = 16;
 const EMBER_COLORS = [ 0xffaa22, 0xff8811, 0xffcc33, 0xff6600 ];
@@ -9,7 +10,7 @@ export class WallSparks {
 
 		this.particles = [];
 
-		const map = new THREE.TextureLoader().load( 'sprites/smoke.png' );
+		const map = getSmokeTexture();
 		this.material = new THREE.SpriteMaterial( {
 			map,
 			transparent: true,
