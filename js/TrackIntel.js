@@ -39,6 +39,29 @@ const BASE_CONNECTIVITY = {
 	'trk-ramp-up-5-smooth':      [ 'N', 'S' ],
 	'trk-ramp-down-2p5-smooth':  [ 'N', 'S' ],
 	'trk-ramp-down-5-smooth':    [ 'N', 'S' ],
+
+	// Bridge tiles — straight-through
+	'trk-bridge-entry':  [ 'N', 'S' ],
+	'trk-bridge-mid':    [ 'N', 'S' ],
+
+	// Tunnel tiles — straight-through
+	'trk-tunnel-entry':  [ 'N', 'S' ],
+	'trk-tunnel-mid':    [ 'N', 'S' ],
+	'trk-tunnel-exit':   [ 'N', 'S' ],
+	'trk-tunnel-open':   [ 'N', 'S' ],
+
+	// Jump tiles — straight-through
+	'trk-jump-short':    [ 'N', 'S' ],
+	'trk-jump-long':     [ 'N', 'S' ],
+
+	// Chicane — straight-through (S-curve within one cell)
+	'trk-chicane-3x3-l': [ 'N', 'S' ],
+
+	// Junctions — 3+ exits, incompatible with linear walk.
+	// Use null (bump behavior): scan all neighbors, skip previous.
+	'trk-junction-y':    null,
+	'trk-junction-t':    null,
+	'trk-junction-4way': null,
 };
 
 function getOpenEdges( pieceType, cellOrient ) {
