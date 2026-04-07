@@ -73,6 +73,85 @@ export const TIER_PIXEL_RATIO = {
 	ultra:  Math.min( _dpr, 2.0 ),
 };
 
+// ── Adaptive quality governor ───────────────────────────────────────────────
+// Monitors FPS and adjusts quality tier when sustained under/over-performance.
+
+const TIER_ORDER = [ 'low', 'medium', 'high', 'ultra' ];
+
+export class AdaptiveQuality {
+
+	constructor( settings ) {
+
+		this._settings = settings;
+		this._lowCount = 0;
+		this._highCount = 0;
+		this._lastChangeTime = 0;
+		this._cooldownMs = 5000; // Don't change again for 5s after a switch
+		this._lowThreshold = 40;
+		this._highThreshold = 55;
+		this._lowSamples = 3; // 3 consecutive low readings = drop
+		this._highSamples = 5; // 5 consecutive high readings = raise
+
+	}
+
+	/**
+	 * Call this each FPS sample (typically every 500ms).
+	 * @param {number} fps - current measured FPS
+	 */
+	sample( fps ) {
+
+		const now = performance.now();
+		if ( now - this._lastChangeTime < this._cooldownMs ) return;
+
+		if ( fps < this._lowThreshold ) {
+
+			this._lowCount ++;
+			this._highCount = 0;
+
+			if ( this._lowCount >= this._lowSamples ) {
+
+				this._adjustTier( - 1 );
+				this._lowCount = 0;
+
+			}
+
+		} else if ( fps > this._highThreshold ) {
+
+			this._highCount ++;
+			this._lowCount = 0;
+
+			if ( this._highCount >= this._highSamples ) {
+
+				this._adjustTier( 1 );
+				this._highCount = 0;
+
+			}
+
+		} else {
+
+			// In the acceptable range — reset both counters
+			this._lowCount = 0;
+			this._highCount = 0;
+
+		}
+
+	}
+
+	_adjustTier( direction ) {
+
+		const current = this._settings.get( 'quality' );
+		const idx = TIER_ORDER.indexOf( current );
+		const newIdx = idx + direction;
+
+		if ( newIdx < 0 || newIdx >= TIER_ORDER.length ) return;
+
+		this._settings.set( 'quality', TIER_ORDER[ newIdx ] );
+		this._lastChangeTime = performance.now();
+
+	}
+
+}
+
 // ── Known mobile GPU substrings ─────────────────────────────────────────────
 
 const MOBILE_GPU_HINTS = [

@@ -30,7 +30,7 @@ import { LIGHTING_DAY, LIGHTING_NIGHT, buildLightingCache, applyLighting as _app
 import { createContactListener } from './ContactHandler.js';
 import { Settings } from './Settings.js';
 import { SettingsMenu } from './SettingsMenu.js';
-import { PRESETS, TIER_PIXEL_RATIO } from './QualityTiers.js';
+import { PRESETS, TIER_PIXEL_RATIO, AdaptiveQuality } from './QualityTiers.js';
 import { DraftingSystem } from './DraftingSystem.js';
 import { DraftLines } from './DraftLines.js';
 import { Speedometer } from './Speedometer.js';
@@ -496,6 +496,7 @@ async function init() {
 	postFX.setDirLight( dirLight );
 
 	const settings = new Settings();
+	const adaptiveQuality = new AdaptiveQuality( settings );
 
 	// Apply custom vehicle/character colors from settings
 	applyPlayerTints( vehicle, settings );
@@ -720,7 +721,9 @@ async function init() {
 		const now = performance.now();
 		if ( now - fpsTime >= 500 ) {
 
-			fpsDisplay.textContent = ( fpsFrames / ( ( now - fpsTime ) / 1000 ) ).toFixed( 0 ) + ' FPS' + ( gamePaused ? ' (PAUSED)' : '' );
+			const measuredFps = fpsFrames / ( ( now - fpsTime ) / 1000 );
+			fpsDisplay.textContent = measuredFps.toFixed( 0 ) + ' FPS' + ( gamePaused ? ' (PAUSED)' : '' );
+			adaptiveQuality.sample( measuredFps );
 			fpsFrames = 0;
 			fpsTime = now;
 
