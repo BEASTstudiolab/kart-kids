@@ -10,12 +10,23 @@ import { AIController } from './AIController.js';
 import { AI_PROFILES } from './AIProfiles.js';
 import { rigidBody } from 'crashcat';
 
-const VEHICLE_MODEL_NAMES = [
-	'vehicle-truck-yellow',
-	'vehicle-truck-green',
-	'vehicle-truck-purple',
-	'vehicle-truck-red',
-];
+const VEHICLE_BASE_MODEL = 'vehicle-truck-yellow';
+
+// Golden-angle hue distribution — ensures no two adjacent AIs share similar colors
+function generateAIColors( count ) {
+
+	const colors = [];
+	const hueStart = Math.random() * 360;
+	for ( let i = 0; i < count; i ++ ) {
+
+		const hue = ( hueStart + i * 137.508 ) % 360; // golden angle
+		colors.push( new THREE.Color().setHSL( hue / 360, 0.75, 0.55 ) );
+
+	}
+
+	return colors;
+
+}
 
 const CHARACTER_MODEL_NAMES = [
 	'character-default',
@@ -48,6 +59,7 @@ export class AIManager {
 		this._racers = [];
 		this._activeVehiclesCache = [];
 		this._raceDataCache = [];
+		this._aiColors = generateAIColors( 8 );
 
 	}
 
@@ -75,9 +87,7 @@ export class AIManager {
 
 	_spawnAI( index ) {
 
-		const modelIndex = ( this.playerModelIndex + 1 + index ) % 4;
-		const modelName = VEHICLE_MODEL_NAMES[ modelIndex ];
-		const model = this.models[ modelName ];
+		const model = this.models[ VEHICLE_BASE_MODEL ];
 
 		const charName = CHARACTER_MODEL_NAMES[ index % CHARACTER_MODEL_NAMES.length ];
 		const characterModel = this.models[ charName ] || null;
@@ -95,6 +105,20 @@ export class AIManager {
 		// Disable headlights on AI vehicles to save GPU
 		for ( const hl of vehicle.headlights ) hl.visible = false;
 
+		// Apply unique color tint to this AI's body
+		const aiColor = this._aiColors[ index % this._aiColors.length ];
+		if ( vehicle.bodyNode ) {
+
+			vehicle.bodyNode.traverse( ( child ) => {
+
+				if ( ! child.isMesh ) return;
+				child.material = child.material.clone();
+				child.material.color.copy( aiColor );
+
+			} );
+
+		}
+
 		this.scene.add( vehicle.container );
 
 		const profile = AI_PROFILES[ index % AI_PROFILES.length ];
@@ -111,7 +135,6 @@ export class AIManager {
 			vehicle,
 			controller,
 			profile,
-			modelIndex,
 			smokeTrails: new SmokeTrails( this.scene ),
 			driftSparks: new DriftSparks( this.scene ),
 			boostFlame: new BoostFlame( this.scene ),
@@ -143,6 +166,17 @@ export class AIManager {
 
 	update( dt, playerVehicle, raceState, playerLap ) {
 
+		// Cache player progress once per frame (used by all AI rubber-band calcs)
+		this._cachedPlayerProgress = null;
+		if ( this.rubberBandIntensity !== 0 && playerVehicle ) {
+
+			const pl = playerLap || 0;
+			this._cachedPlayerProgress = pl + this.trackIntel.getProgress(
+				playerVehicle.vehPos.x, playerVehicle.vehPos.z
+			);
+
+		}
+
 		for ( let i = 0; i < this._racers.length; i ++ ) {
 
 			const ai = this._racers[ i ];
@@ -150,7 +184,7 @@ export class AIManager {
 			if ( ai.finished ) continue;
 
 			// Rubber-banding
-			const rbFactor = this._computeRubberBand( ai, playerVehicle, playerLap || 0 );
+			const rbFactor = this._computeRubberBand( ai );
 			ai.vehicle.externalTopSpeedMultiplier = rbFactor;
 
 			// AI controller input
@@ -181,12 +215,12 @@ export class AIManager {
 
 	// ── Rubber-banding ───────────────────────────────────────────────────────
 
-	_computeRubberBand( ai, playerVehicle, playerLap ) {
+	_computeRubberBand( ai ) {
 
-		if ( this.rubberBandIntensity === 0 || ! playerVehicle ) return 1.0;
+		if ( this._cachedPlayerProgress === null ) return 1.0;
 
 		const ti = this.trackIntel;
-		const playerProgress = playerLap + ti.getProgress( playerVehicle.vehPos.x, playerVehicle.vehPos.z );
+		const playerProgress = this._cachedPlayerProgress;
 		ai.segmentHint = ti.getNearestWaypoint( ai.vehicle.vehPos.x, ai.vehicle.vehPos.z, ai.segmentHint );
 		const aiProgress = ai.lap + ti.getProgress( ai.vehicle.vehPos.x, ai.vehicle.vehPos.z, ai.segmentHint );
 

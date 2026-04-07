@@ -8,6 +8,26 @@
 	<style>
 		body { margin: 0; overflow: hidden; background: #000; }
 		canvas { display: block; touch-action: none; }
+		#loading-overlay {
+			position: fixed; inset: 0; z-index: 9999;
+			background: #1a1a2e;
+			display: flex; flex-direction: column;
+			align-items: center; justify-content: center;
+			font-family: sans-serif; color: #fff;
+			transition: opacity 0.4s;
+		}
+		#loading-overlay.fade-out { opacity: 0; pointer-events: none; }
+		#loading-title { font-size: 28px; font-weight: bold; margin-bottom: 24px; letter-spacing: 2px; }
+		#loading-bar-bg {
+			width: min(320px, 70vw); height: 8px;
+			background: rgba(255,255,255,0.15); border-radius: 4px; overflow: hidden;
+		}
+		#loading-bar {
+			height: 100%; width: 0%; border-radius: 4px;
+			background: linear-gradient(90deg, #4fc3f7, #29b6f6);
+			transition: width 0.15s;
+		}
+		#loading-text { margin-top: 12px; font-size: 13px; color: rgba(255,255,255,0.5); }
 		#editor-link {
 			position: absolute;
 			bottom: 12px;
@@ -53,6 +73,11 @@
 	</script>
 </head>
 <body>
+	<div id="loading-overlay">
+		<div id="loading-title">KART KIDS</div>
+		<div id="loading-bar-bg"><div id="loading-bar"></div></div>
+		<div id="loading-text">Loading...</div>
+	</div>
 	<button id="spectate-btn">Spectate</button>
 	<a id="editor-link" href="editor.html">Create your own track</a>
 	<script>

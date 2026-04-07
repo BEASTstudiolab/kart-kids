@@ -1,314 +1,307 @@
 {
-	"asset":{
-		"generator":"Khronos glTF Blender I/O v5.0.21",
-		"version":"2.0"
+	"asset": {
+		"generator": "Khronos glTF Blender I/O v5.0.21",
+		"version": "2.0"
 	},
-	"scene":0,
-	"scenes":[
+	"scene": 0,
+	"scenes": [
 		{
-			"name":"Scene",
-			"nodes":[
+			"name": "Scene",
+			"nodes": [
 				0,
 				1
 			]
 		}
 	],
-	"nodes":[
+	"nodes": [
 		{
-			"mesh":0,
-			"name":"kartkids_base_trk_460_tun_openframe_mid_1x1.001"
+			"mesh": 0,
+			"name": "kartkids_base_trk_460_tun_openframe_mid_1x1.001",
+			"translation": [
+				0.07102882862091064,
+				-0.020614463835954666,
+				0.019819093868136406
+			]
 		},
 		{
-			"mesh":1,
-			"name":"kartkids_base_trk_460_tun_openframe_mid_1x1.002",
-			"rotation":[
+			"mesh": 1,
+			"name": "kartkids_base_trk_460_tun_openframe_mid_1x1.002",
+			"rotation": [
 				0,
 				-0.7071068286895752,
 				0.7071068286895752,
 				3.090862321641907e-08
 			],
-			"scale":[
+			"scale": [
 				0.009999999776482582,
 				0.009999999776482582,
 				0.009999999776482582
 			]
 		}
 	],
-	"materials":[
+	"materials": [
 		{
-			"doubleSided":true,
-			"emissiveTexture":{
-				"index":0
+			"doubleSided": true,
+			"name": "asphalt",
+			"normalTexture": {
+				"index": 0
 			},
-			"name":"asphalt",
-			"normalTexture":{
-				"index":1
-			},
-			"pbrMetallicRoughness":{
-				"baseColorTexture":{
-					"index":2
+			"pbrMetallicRoughness": {
+				"baseColorTexture": {
+					"index": 1
 				},
-				"metallicRoughnessTexture":{
-					"index":3
+				"metallicRoughnessTexture": {
+					"index": 2
 				}
 			}
 		},
 		{
-			"alphaMode":"BLEND",
-			"doubleSided":true,
-			"emissiveTexture":{
-				"index":4
+			"alphaMode": "BLEND",
+			"doubleSided": true,
+			"emissiveTexture": {
+				"index": 3
 			},
-			"name":"TUNNELS",
-			"normalTexture":{
-				"index":5
+			"name": "TUNNELS",
+			"normalTexture": {
+				"index": 4
 			},
-			"pbrMetallicRoughness":{
-				"baseColorTexture":{
-					"index":6
+			"pbrMetallicRoughness": {
+				"baseColorTexture": {
+					"index": 5
 				},
-				"metallicRoughnessTexture":{
-					"index":7
+				"metallicRoughnessTexture": {
+					"index": 6
 				}
 			}
 		}
 	],
-	"meshes":[
+	"meshes": [
 		{
-			"name":"Cube.048",
-			"primitives":[
+			"name": "Cube.048",
+			"primitives": [
 				{
-					"attributes":{
-						"POSITION":0,
-						"NORMAL":1,
-						"TEXCOORD_0":2
+					"attributes": {
+						"POSITION": 0,
+						"NORMAL": 1,
+						"TEXCOORD_0": 2
 					},
-					"indices":3,
-					"material":0
+					"indices": 3,
+					"material": 0
 				}
 			]
 		},
 		{
-			"name":"kartkids_base_trk_460_tun_openframe_mid_1x1.001",
-			"primitives":[
+			"name": "kartkids_base_trk_460_tun_openframe_mid_1x1.001",
+			"primitives": [
 				{
-					"attributes":{
-						"POSITION":4,
-						"NORMAL":5,
-						"TEXCOORD_0":6
+					"attributes": {
+						"POSITION": 4,
+						"NORMAL": 5,
+						"TEXCOORD_0": 6
 					},
-					"indices":7,
-					"material":1
+					"indices": 7,
+					"material": 1
 				}
 			]
 		}
 	],
-	"textures":[
+	"textures": [
 		{
-			"sampler":0,
-			"source":0
+			"sampler": 0,
+			"source": 0
 		},
 		{
-			"sampler":0,
-			"source":1
+			"sampler": 0,
+			"source": 1
 		},
 		{
-			"sampler":0,
-			"source":2
+			"sampler": 0,
+			"source": 2
 		},
 		{
-			"sampler":0,
-			"source":3
+			"sampler": 0,
+			"source": 3
 		},
 		{
-			"sampler":0,
-			"source":4
+			"sampler": 0,
+			"source": 4
 		},
 		{
-			"sampler":0,
-			"source":5
+			"sampler": 0,
+			"source": 5
 		},
 		{
-			"sampler":0,
-			"source":6
-		},
-		{
-			"sampler":0,
-			"source":7
+			"sampler": 0,
+			"source": 6
 		}
 	],
-	"images":[
+	"images": [
 		{
-			"mimeType":"image/png",
-			"name":"atlas_emissive",
-			"uri":"textures/atlas_emissive.png"
+			"mimeType": "image/webp",
+			"name": "AtlasAsphalt1_Normal",
+			"uri": "textures/AtlasAsphalt1_Normal.webp"
 		},
 		{
-			"mimeType":"image/png",
-			"name":"atlas_normal",
-			"uri":"textures/atlas_normal.png"
+			"mimeType": "image/webp",
+			"name": "AtlasAsphalt1_BaseColor",
+			"uri": "textures/AtlasAsphalt1_BaseColor.webp"
 		},
 		{
-			"mimeType":"image/png",
-			"name":"atlas_basecolor",
-			"uri":"textures/atlas_basecolor.png"
+			"mimeType": "image/webp",
+			"name": "AtlasAsphalt1_OcclusionRoughnessMetallic",
+			"uri": "textures/AtlasAsphalt1_OcclusionRoughnessMetallic.webp"
 		},
 		{
-			"mimeType":"image/png",
-			"name":"atlas_ORM",
-			"uri":"textures/atlas_ORM.png"
+			"mimeType": "image/webp",
+			"name": "TUNNELS_Emissive",
+			"uri": "textures/TUNNELS_Emissive.webp"
 		},
 		{
-			"mimeType":"image/png",
-			"name":"TUNNELS_Emissive",
-			"uri":"textures/TUNNELS_Emissive.png"
+			"mimeType": "image/webp",
+			"name": "TUNNELS_Normal",
+			"uri": "textures/TUNNELS_Normal.webp"
 		},
 		{
-			"mimeType":"image/png",
-			"name":"TUNNELS_Normal",
-			"uri":"textures/TUNNELS_Normal.png"
+			"mimeType": "image/webp",
+			"name": "TUNNELS_BaseColor",
+			"uri": "textures/TUNNELS_BaseColor.webp"
 		},
 		{
-			"mimeType":"image/png",
-			"name":"TUNNELS_BaseColor",
-			"uri":"textures/TUNNELS_BaseColor.png"
-		},
-		{
-			"mimeType":"image/png",
-			"name":"TUNNELS_OcclusionRoughnessMetallic-TUNNELS_OcclusionRoughnessMetallic.png",
-			"uri":"textures/TUNNELS_OcclusionRoughnessMetallic-TUNNELS_OcclusionRoughnessMetallic.png.png"
+			"mimeType": "image/webp",
+			"name": "TUNNELS_OcclusionRoughnessMetallic",
+			"uri": "textures/TUNNELS_OcclusionRoughnessMetallic.webp"
 		}
 	],
-	"accessors":[
+	"accessors": [
 		{
-			"bufferView":0,
-			"componentType":5126,
-			"count":40,
-			"max":[
+			"bufferView": 0,
+			"componentType": 5126,
+			"count": 40,
+			"max": [
 				5,
 				0.08500000834465027,
 				5
 			],
-			"min":[
+			"min": [
 				-5,
 				0,
 				-5
 			],
-			"type":"VEC3"
+			"type": "VEC3"
 		},
 		{
-			"bufferView":1,
-			"componentType":5126,
-			"count":40,
-			"type":"VEC3"
+			"bufferView": 1,
+			"componentType": 5126,
+			"count": 40,
+			"type": "VEC3"
 		},
 		{
-			"bufferView":2,
-			"componentType":5126,
-			"count":40,
-			"type":"VEC2"
+			"bufferView": 2,
+			"componentType": 5126,
+			"count": 40,
+			"type": "VEC2"
 		},
 		{
-			"bufferView":3,
-			"componentType":5123,
-			"count":84,
-			"type":"SCALAR"
+			"bufferView": 3,
+			"componentType": 5123,
+			"count": 84,
+			"type": "SCALAR"
 		},
 		{
-			"bufferView":4,
-			"componentType":5126,
-			"count":464,
-			"max":[
+			"bufferView": 4,
+			"componentType": 5126,
+			"count": 464,
+			"max": [
 				416.8543701171875,
 				500,
 				-8.500003814697266
 			],
-			"min":[
+			"min": [
 				-416.854248046875,
 				-500,
 				-565.5994262695312
 			],
-			"type":"VEC3"
+			"type": "VEC3"
 		},
 		{
-			"bufferView":5,
-			"componentType":5126,
-			"count":464,
-			"type":"VEC3"
+			"bufferView": 5,
+			"componentType": 5126,
+			"count": 464,
+			"type": "VEC3"
 		},
 		{
-			"bufferView":6,
-			"componentType":5126,
-			"count":464,
-			"type":"VEC2"
+			"bufferView": 6,
+			"componentType": 5126,
+			"count": 464,
+			"type": "VEC2"
 		},
 		{
-			"bufferView":7,
-			"componentType":5123,
-			"count":768,
-			"type":"SCALAR"
+			"bufferView": 7,
+			"componentType": 5123,
+			"count": 768,
+			"type": "SCALAR"
 		}
 	],
-	"bufferViews":[
+	"bufferViews": [
 		{
-			"buffer":0,
-			"byteLength":480,
-			"byteOffset":0,
-			"target":34962
+			"buffer": 0,
+			"byteLength": 480,
+			"byteOffset": 0,
+			"target": 34962
 		},
 		{
-			"buffer":0,
-			"byteLength":480,
-			"byteOffset":480,
-			"target":34962
+			"buffer": 0,
+			"byteLength": 480,
+			"byteOffset": 480,
+			"target": 34962
 		},
 		{
-			"buffer":0,
-			"byteLength":320,
-			"byteOffset":960,
-			"target":34962
+			"buffer": 0,
+			"byteLength": 320,
+			"byteOffset": 960,
+			"target": 34962
 		},
 		{
-			"buffer":0,
-			"byteLength":168,
-			"byteOffset":1280,
-			"target":34963
+			"buffer": 0,
+			"byteLength": 168,
+			"byteOffset": 1280,
+			"target": 34963
 		},
 		{
-			"buffer":0,
-			"byteLength":5568,
-			"byteOffset":1448,
-			"target":34962
+			"buffer": 0,
+			"byteLength": 5568,
+			"byteOffset": 1448,
+			"target": 34962
 		},
 		{
-			"buffer":0,
-			"byteLength":5568,
-			"byteOffset":7016,
-			"target":34962
+			"buffer": 0,
+			"byteLength": 5568,
+			"byteOffset": 7016,
+			"target": 34962
 		},
 		{
-			"buffer":0,
-			"byteLength":3712,
-			"byteOffset":12584,
-			"target":34962
+			"buffer": 0,
+			"byteLength": 3712,
+			"byteOffset": 12584,
+			"target": 34962
 		},
 		{
-			"buffer":0,
-			"byteLength":1536,
-			"byteOffset":16296,
-			"target":34963
+			"buffer": 0,
+			"byteLength": 1536,
+			"byteOffset": 16296,
+			"target": 34963
 		}
 	],
-	"samplers":[
+	"samplers": [
 		{
-			"magFilter":9729,
-			"minFilter":9987
+			"magFilter": 9729,
+			"minFilter": 9987
 		}
 	],
-	"buffers":[
+	"buffers": [
 		{
-			"byteLength":17832,
-			"uri":"kartkids_base_trk_460_tun_openframe_mid_1x1.bin"
+			"byteLength": 17832,
+			"uri": "kartkids_base_trk_460_tun_openframe_mid_1x1.bin"
 		}
 	]
 }

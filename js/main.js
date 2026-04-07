@@ -20,6 +20,7 @@ import { TrackIntel } from './TrackIntel.js';
 import { WallSparks } from './WallSparks.js';
 import { BoostBurst } from './BoostBurst.js';
 import { Haptics } from './Haptics.js';
+import { PassByAudio } from './PassByAudio.js';
 import { ItemBoxManager } from './ItemBoxManager.js';
 import { ItemPickupVFX } from './ItemPickupVFX.js';
 import { AIManager } from './AIManager.js';
@@ -74,6 +75,66 @@ window.addEventListener( 'resize', () => {
 const trackTileSet = getTrackTileSet( globalThis.location?.search ?? '' );
 const asphaltMode = getTrackAsphaltMode( globalThis.location?.search ?? '' );
 
+function applyPlayerTints( vehicle, settings ) {
+
+	const vehColor = settings.get( 'vehicleColor' );
+	const charColor = settings.get( 'characterColor' );
+
+	// Vehicle body tint — bodyNode may be a Group with child meshes (multi-material)
+	if ( vehicle.bodyNode ) {
+
+		vehicle.bodyNode.traverse( ( child ) => {
+
+			if ( ! child.isMesh ) return;
+
+			if ( vehColor ) {
+
+				if ( ! child._originalMaterial ) child._originalMaterial = child.material;
+				child.material = child._originalMaterial.clone();
+				child.material.color.set( vehColor );
+
+			} else if ( child._originalMaterial ) {
+
+				child.material = child._originalMaterial;
+
+			}
+
+		} );
+
+	}
+
+	// Character tint — find the 'base-character' group node and tint all its child meshes
+	let charNode = null;
+	vehicle.container.traverse( ( child ) => {
+
+		if ( child.name.toLowerCase().includes( 'character' ) ) charNode = child;
+
+	} );
+
+	if ( charNode ) {
+
+		charNode.traverse( ( child ) => {
+
+			if ( ! child.isMesh ) return;
+
+			if ( charColor ) {
+
+				if ( ! child._originalMaterial ) child._originalMaterial = child.material;
+				child.material = child._originalMaterial.clone();
+				child.material.color.set( charColor );
+
+			} else if ( child._originalMaterial ) {
+
+				child.material = child._originalMaterial;
+
+			}
+
+		} );
+
+	}
+
+}
+
 async function init() {
 
 	// ── Renderer setup ───────────────────────────────────────────────────────
@@ -85,6 +146,7 @@ async function init() {
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.setPixelRatio( 1.0 ); // Overridden by quality preset during init
 	renderer.shadowMap.enabled = true;
+	renderer.shadowMap.autoUpdate = false;
 	renderer.toneMapping = THREE.ACESFilmicToneMapping;
 	renderer.toneMappingExposure = 1.0;
 
@@ -122,8 +184,18 @@ async function init() {
 	// The transformed cells (with visual types) go to buildTrack/buildTrackColliders.
 	const renderCells = transformCells( activeCells );
 
+	// Loading progress UI
+	const loadingBar = document.getElementById( 'loading-bar' );
+	const loadingText = document.getElementById( 'loading-text' );
+
 	// Load only models the track actually uses (+ always-loaded vehicles/decorations)
-	const models = await loadModels( trackTileSet, asphaltMode, renderCells );
+	const models = await loadModels( trackTileSet, asphaltMode, renderCells, ( loaded, total, name ) => {
+
+		const pct = Math.round( ( loaded / total ) * 100 );
+		if ( loadingBar ) loadingBar.style.width = pct + '%';
+		if ( loadingText ) loadingText.textContent = `Loading models... ${ loaded }/${ total }`;
+
+	} );
 
 	const spawn = computeSpawnPosition( activeCells );
 
@@ -424,9 +496,24 @@ async function init() {
 	postFX.setDirLight( dirLight );
 
 	const settings = new Settings();
+
+	// Apply custom vehicle/character colors from settings
+	applyPlayerTints( vehicle, settings );
+
 	const controls = new Controls( settings, cam );
 	const settingsMenu = new SettingsMenu( settings, controls, audio );
 	const speedometer = new Speedometer( settings );
+
+	// Re-apply tints live when settings change
+	window.addEventListener( 'settings-changed', ( e ) => {
+
+		if ( e.detail.key === 'vehicleColor' || e.detail.key === 'characterColor' ) {
+
+			applyPlayerTints( vehicle, settings );
+
+		}
+
+	} );
 
 	// ── Debug panel (all debug UI and visualization) ─────────────────────
 	( { debugMenu, debugCollider, wheelDebug } = setupDebugPanel( {
@@ -467,7 +554,7 @@ async function init() {
 	{
 
 		const rvSec = settingsMenu._section( 'HUD' );
-		rvSec.appendChild( settingsMenu._toggleRowCustom( 'Rearview Mirror', true, ( v ) => {
+		rvSec.appendChild( settingsMenu._toggleRowCustom( 'Rearview Mirror', false, ( v ) => {
 
 			rearview.setEnabled( v );
 
@@ -552,6 +639,7 @@ async function init() {
 	} );
 
 	audio.init( cam.camera );
+	const passByAudio = new PassByAudio( audio.listener );
 
 	// Apply saved volume settings
 	const savedSfxVol = settings.get( 'sfxVolume' );
@@ -613,6 +701,7 @@ async function init() {
 	} );
 
 	let lastFrameTime = 0;
+	let shadowFrameCounter = 0;
 
 	function animate() {
 
@@ -720,6 +809,9 @@ async function init() {
 		allActiveVehicles.length = 0;
 		for ( const v of playerManager.getActiveVehicles() ) allActiveVehicles.push( v );
 		for ( const v of aiManager.getActiveVehicles() ) allActiveVehicles.push( v );
+
+		// Stereo whoosh when vehicles pass nearby
+		if ( ! spectating ) passByAudio.update( dt, vehicle, allActiveVehicles );
 
 		// Drafting detection and VFX
 		draftingSystem.update( dt, allActiveVehicles );
@@ -879,6 +971,15 @@ async function init() {
 
 		}
 
+		// Refresh shadow map every 3rd frame (static track + moving vehicles)
+		shadowFrameCounter ++;
+		if ( shadowFrameCounter >= 3 ) {
+
+			renderer.shadowMap.needsUpdate = true;
+			shadowFrameCounter = 0;
+
+		}
+
 		renderer.render( scene, cam.camera );
 
 	}
@@ -908,6 +1009,15 @@ async function init() {
 			}
 
 		} );
+
+	}
+
+	// Dismiss loading overlay
+	const overlay = document.getElementById( 'loading-overlay' );
+	if ( overlay ) {
+
+		overlay.classList.add( 'fade-out' );
+		setTimeout( () => overlay.remove(), 400 );
 
 	}
 

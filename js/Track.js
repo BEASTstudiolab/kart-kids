@@ -201,7 +201,7 @@ export function buildTrack( scene, models, customCells ) {
 	//
 	// }
 
-	if ( false ) { // Decorations disabled for debugging track tile colliders
+	if ( true ) { // Decorations re-enabled — instanced placement
 
 		// Auto-generate decorations to fill any gaps
 		const occupied = new Set();
@@ -353,6 +353,16 @@ export function buildTrack( scene, models, customCells ) {
 
 			child.castShadow = false;
 			child.receiveShadow = true;
+
+		}
+
+		// Freeze static scene graph — track never moves
+		child.matrixAutoUpdate = false;
+
+		if ( child.isInstancedMesh ) {
+
+			child.computeBoundingSphere();
+			child.computeBoundingBox();
 
 		}
 

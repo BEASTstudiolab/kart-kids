@@ -13,6 +13,8 @@ const DEFAULTS = {
 	steeringAssist: false,
 	cameraMode: 'chase',
 	quality: _detectedTier,
+	vehicleColor: '',
+	characterColor: '',
 };
 
 export class Settings {

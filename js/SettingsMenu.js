@@ -103,6 +103,18 @@ export class SettingsMenu {
 				color: rgba(255,255,255,0.6); font-size: 13px; min-width: 28px;
 				text-align: right;
 			}
+			.settings-color-wrap {
+				display: flex; align-items: center; gap: 8px;
+			}
+			.settings-color-input {
+				width: 40px; height: 30px; border: none; border-radius: 6px;
+				cursor: pointer; background: transparent; padding: 0;
+			}
+			.settings-color-clear {
+				padding: 4px 10px; border-radius: 6px;
+				background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+				color: rgba(255,255,255,0.5); cursor: pointer; font-size: 12px;
+			}
 			.settings-close {
 				display: block; margin: 20px auto 0; padding: 10px 32px;
 				border-radius: 10px; background: rgba(255,255,255,0.1);
@@ -207,6 +219,13 @@ export class SettingsMenu {
 		] ) );
 
 		panel.appendChild( hudSec );
+
+		// ── Customization section ──
+
+		const custom = this._section( 'Customization' );
+		custom.appendChild( this._colorRow( 'Vehicle Color', 'vehicleColor' ) );
+		custom.appendChild( this._colorRow( 'Character Color', 'characterColor' ) );
+		panel.appendChild( custom );
 
 		// ── AI Race section ──
 
@@ -375,6 +394,48 @@ export class SettingsMenu {
 
 		wrap.appendChild( slider );
 		wrap.appendChild( val );
+		row.appendChild( lbl );
+		row.appendChild( wrap );
+		return row;
+
+	}
+
+	_colorRow( label, key ) {
+
+		const row = document.createElement( 'div' );
+		row.className = 'settings-row';
+
+		const lbl = document.createElement( 'span' );
+		lbl.className = 'settings-label';
+		lbl.textContent = label;
+
+		const wrap = document.createElement( 'div' );
+		wrap.className = 'settings-color-wrap';
+
+		const input = document.createElement( 'input' );
+		input.type = 'color';
+		input.className = 'settings-color-input';
+		input.value = this.settings.get( key ) || '#ffffff';
+
+		const clearBtn = document.createElement( 'button' );
+		clearBtn.className = 'settings-color-clear';
+		clearBtn.textContent = 'Reset';
+
+		input.addEventListener( 'input', () => {
+
+			this.settings.set( key, input.value );
+
+		} );
+
+		clearBtn.addEventListener( 'pointerup', () => {
+
+			this.settings.set( key, '' );
+			input.value = '#ffffff';
+
+		} );
+
+		wrap.appendChild( input );
+		wrap.appendChild( clearBtn );
 		row.appendChild( lbl );
 		row.appendChild( wrap );
 		return row;

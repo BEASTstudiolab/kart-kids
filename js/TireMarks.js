@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-const MAX_SEGMENTS = 4000;
+const MAX_SEGMENTS = 2000;
 const VERTS_PER_SEGMENT = 6; // 2 triangles
 const BASE_WIDTH = 0.12;
 

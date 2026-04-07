@@ -31,7 +31,7 @@ export class RearviewMirror {
 			'width:300px;height:100px;' +
 			'border-radius:12px;border:4px solid rgba(200,200,200,0.6);' +
 			'pointer-events:none;z-index:5;overflow:hidden;box-sizing:border-box;' +
-			'background:#000;';
+			'background:#000;display:none;';
 		document.body.appendChild( this.frame );
 
 		// 2D canvas inside frame — avoids post-processing pipeline entirely
@@ -46,7 +46,7 @@ export class RearviewMirror {
 		this._pixelBuf = new Uint8Array( this.rtWidth * this.rtHeight * 4 );
 		this._imageData = new ImageData( this.rtWidth, this.rtHeight );
 
-		this.enabled = true; // user preference (hamburger toggle)
+		this.enabled = false; // off by default — user can enable in settings
 		this.visible = true; // effective visibility (enabled + not isometric)
 
 	}

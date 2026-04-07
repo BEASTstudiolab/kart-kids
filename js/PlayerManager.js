@@ -304,17 +304,14 @@ export class PlayerManager {
 		vehicle.initRaycast( this.world );
 
 		// Apply tint to body mesh for players 5+
-		if ( tint ) {
+		if ( tint && vehicle.bodyNode ) {
 
 			const tintColor = new THREE.Color( tint );
-			vehicle.container.traverse( ( child ) => {
+			vehicle.bodyNode.traverse( ( child ) => {
 
-				if ( child.isMesh && child.name.toLowerCase() === 'body' ) {
-
-					child.material = child.material.clone();
-					child.material.color.multiply( tintColor );
-
-				}
+				if ( ! child.isMesh ) return;
+				child.material = child.material.clone();
+				child.material.color.multiply( tintColor );
 
 			} );
 

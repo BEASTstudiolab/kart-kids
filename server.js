@@ -1,6 +1,7 @@
 import { createServer } from 'http';
-import { readFile } from 'fs/promises';
+import { readFile, stat } from 'fs/promises';
 import { join, extname } from 'path';
+import { gzipSync } from 'zlib';
 import { WebSocketServer } from 'ws';
 import { randomUUID } from 'crypto';
 
@@ -22,7 +23,12 @@ const MIME = {
 	'.ogg': 'audio/ogg',
 	'.wav': 'audio/wav',
 	'.svg': 'image/svg+xml',
+	'.webp': 'image/webp',
+	'.ktx2': 'image/ktx2',
 };
+
+const COMPRESSIBLE = new Set( [ '.html', '.js', '.css', '.json', '.gltf', '.svg' ] );
+const LONG_CACHE = new Set( [ '.glb', '.gltf', '.bin', '.png', '.jpg', '.ktx2', '.mp3', '.ogg', '.wav' ] );
 
 // ── Static file server ───────────────────────────────────────────────────────
 
@@ -37,8 +43,46 @@ const httpServer = createServer( async ( req, res ) => {
 	try {
 
 		const data = await readFile( filePath );
-		res.writeHead( 200, { 'Content-Type': MIME[ ext ] || 'application/octet-stream' } );
-		res.end( data );
+		const headers = { 'Content-Type': MIME[ ext ] || 'application/octet-stream' };
+
+		// Cache headers
+		if ( LONG_CACHE.has( ext ) ) {
+
+			headers[ 'Cache-Control' ] = 'public, max-age=604800, immutable';
+
+		} else {
+
+			headers[ 'Cache-Control' ] = 'public, max-age=3600';
+
+		}
+
+		// ETag
+		const fileStat = await stat( filePath );
+		headers[ 'ETag' ] = `"${ fileStat.mtimeMs.toString( 36 ) }-${ fileStat.size.toString( 36 ) }"`;
+
+		// 304 Not Modified
+		if ( req.headers[ 'if-none-match' ] === headers[ 'ETag' ] ) {
+
+			res.writeHead( 304 );
+			res.end();
+			return;
+
+		}
+
+		// Gzip for compressible types
+		const acceptGzip = ( req.headers[ 'accept-encoding' ] || '' ).includes( 'gzip' );
+		if ( acceptGzip && COMPRESSIBLE.has( ext ) ) {
+
+			headers[ 'Content-Encoding' ] = 'gzip';
+			res.writeHead( 200, headers );
+			res.end( gzipSync( data ) );
+
+		} else {
+
+			res.writeHead( 200, headers );
+			res.end( data );
+
+		}
 
 	} catch {
 
