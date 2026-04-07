@@ -91,32 +91,3 @@ export function scanElevatedRun( grid, gx, gz, cellKeyFn ) {
 	return run;
 
 }
-
-/**
- * Get the ramp neighbor positions for an elevated cell.
- * After PI/2 base rotation, ramp-up has HIGH at -Z (north) and LOW at +Z (south).
- * So ramp-up must be placed SOUTH of the elevated cell (its HIGH north edge meets elevated).
- * Ramp-down has HIGH at +Z (south), placed NORTH (its HIGH south edge meets elevated).
- *
- * @param {number} gx - Grid X of the elevated cell
- * @param {number} gz - Grid Z of the elevated cell
- * @param {number} orient - Orientation of the elevated cell (0, 10, 16, or 22)
- * @returns {Array<{gx: number, gz: number, role: string}>}
- */
-export function getRampNeighborKeys( gx, gz, orient ) {
-
-	if ( orient === 0 || orient === 10 ) {
-
-		return [
-			{ gx, gz: gz - 1, role: 'ramp-down' },
-			{ gx, gz: gz + 1, role: 'ramp-up' },
-		];
-
-	}
-
-	return [
-		{ gx: gx - 1, gz, role: 'ramp-down' },
-		{ gx: gx + 1, gz, role: 'ramp-up' },
-	];
-
-}
