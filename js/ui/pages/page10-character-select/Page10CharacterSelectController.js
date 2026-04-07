@@ -22,7 +22,6 @@
 
 import { PageControllerBase }        from '../../core/PageControllerBase.js';
 import { Page10CharacterSelectView } from './Page10CharacterSelectView.js';
-import { ButtonIds }                 from '../../enums/ButtonIds.js';
 import { PageIds }                   from '../../enums/PageIds.js';
 import { EventIds }                  from '../../enums/EventIds.js';
 import { MockData }                  from '../../repositories/mocks/MockData.js';
