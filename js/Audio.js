@@ -120,6 +120,18 @@ export class GameAudio {
 		window.addEventListener( 'click', unlock );
 		window.addEventListener( 'touchstart', unlock );
 
+		// Resume AudioContext when tab regains focus (iOS/Safari suspend on tab switch)
+		document.addEventListener( 'visibilitychange', () => {
+
+			if ( document.visibilityState === 'visible' && this.listener ) {
+
+				const ctx = this.listener.context;
+				if ( ctx.state === 'suspended' ) ctx.resume();
+
+			}
+
+		} );
+
 	}
 
 	checkReady() {
