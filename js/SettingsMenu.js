@@ -133,6 +133,10 @@ export class SettingsMenu {
 
 		const btn = document.createElement( 'div' );
 		btn.className = 'settings-hamburger';
+		btn.setAttribute( 'role', 'button' );
+		btn.setAttribute( 'aria-label', 'Open settings' );
+		btn.setAttribute( 'aria-expanded', 'false' );
+		btn.setAttribute( 'tabindex', '0' );
 		btn.innerHTML = '<span></span><span></span><span></span>';
 		btn.addEventListener( 'pointerup', ( e ) => {
 
@@ -140,7 +144,18 @@ export class SettingsMenu {
 			this.toggle();
 
 		} );
+		btn.addEventListener( 'keydown', ( e ) => {
+
+			if ( e.key === 'Enter' || e.key === ' ' ) {
+
+				e.preventDefault();
+				this.toggle();
+
+			}
+
+		} );
 		document.body.appendChild( btn );
+		this._hamburger = btn;
 
 	}
 
@@ -150,9 +165,17 @@ export class SettingsMenu {
 
 		const overlay = document.createElement( 'div' );
 		overlay.className = 'settings-overlay';
+		overlay.setAttribute( 'role', 'dialog' );
+		overlay.setAttribute( 'aria-label', 'Settings' );
+		overlay.setAttribute( 'aria-modal', 'true' );
 		overlay.addEventListener( 'pointerup', ( e ) => {
 
 			if ( e.target === overlay ) this.close();
+
+		} );
+		overlay.addEventListener( 'keydown', ( e ) => {
+
+			if ( e.key === 'Escape' ) this.close();
 
 		} );
 
@@ -285,11 +308,22 @@ export class SettingsMenu {
 
 		const toggle = document.createElement( 'div' );
 		toggle.className = 'settings-toggle' + ( initialValue ? ' on' : '' );
-		toggle.addEventListener( 'pointerup', () => {
+		toggle.setAttribute( 'role', 'switch' );
+		toggle.setAttribute( 'aria-checked', String( !! initialValue ) );
+		toggle.setAttribute( 'aria-label', label );
+		toggle.setAttribute( 'tabindex', '0' );
+		const activate = () => {
 
 			const newVal = ! toggle.classList.contains( 'on' );
 			toggle.classList.toggle( 'on', newVal );
+			toggle.setAttribute( 'aria-checked', String( newVal ) );
 			onChange( newVal );
+
+		};
+		toggle.addEventListener( 'pointerup', activate );
+		toggle.addEventListener( 'keydown', ( e ) => {
+
+			if ( e.key === 'Enter' || e.key === ' ' ) { e.preventDefault(); activate(); }
 
 		} );
 
@@ -310,11 +344,22 @@ export class SettingsMenu {
 
 		const toggle = document.createElement( 'div' );
 		toggle.className = 'settings-toggle' + ( this.settings.get( key ) ? ' on' : '' );
-		toggle.addEventListener( 'pointerup', () => {
+		toggle.setAttribute( 'role', 'switch' );
+		toggle.setAttribute( 'aria-checked', String( !! this.settings.get( key ) ) );
+		toggle.setAttribute( 'aria-label', label );
+		toggle.setAttribute( 'tabindex', '0' );
+		const activate = () => {
 
 			const newVal = ! this.settings.get( key );
 			this.settings.set( key, newVal );
 			toggle.classList.toggle( 'on', newVal );
+			toggle.setAttribute( 'aria-checked', String( newVal ) );
+
+		};
+		toggle.addEventListener( 'pointerup', activate );
+		toggle.addEventListener( 'keydown', ( e ) => {
+
+			if ( e.key === 'Enter' || e.key === ' ' ) { e.preventDefault(); activate(); }
 
 		} );
 
@@ -335,6 +380,8 @@ export class SettingsMenu {
 
 		const group = document.createElement( 'div' );
 		group.className = 'settings-select';
+		group.setAttribute( 'role', 'radiogroup' );
+		group.setAttribute( 'aria-label', label );
 
 		const buttons = [];
 
@@ -343,11 +390,26 @@ export class SettingsMenu {
 			const btn = document.createElement( 'div' );
 			btn.className = 'settings-select-btn' + ( this.settings.get( key ) === opt.value ? ' active' : '' );
 			btn.textContent = opt.label;
-			btn.addEventListener( 'pointerup', () => {
+			btn.setAttribute( 'role', 'radio' );
+			btn.setAttribute( 'aria-checked', String( this.settings.get( key ) === opt.value ) );
+			btn.setAttribute( 'tabindex', '0' );
+			const activate = () => {
 
 				this.settings.set( key, opt.value );
-				for ( const b of buttons ) b.classList.remove( 'active' );
+				for ( const b of buttons ) {
+
+					b.classList.remove( 'active' );
+					b.setAttribute( 'aria-checked', 'false' );
+
+				}
 				btn.classList.add( 'active' );
+				btn.setAttribute( 'aria-checked', 'true' );
+
+			};
+			btn.addEventListener( 'pointerup', activate );
+			btn.addEventListener( 'keydown', ( e ) => {
+
+				if ( e.key === 'Enter' || e.key === ' ' ) { e.preventDefault(); activate(); }
 
 			} );
 			buttons.push( btn );
@@ -380,6 +442,7 @@ export class SettingsMenu {
 		slider.max = max;
 		slider.step = step;
 		slider.value = initial;
+		slider.setAttribute( 'aria-label', label );
 
 		const val = document.createElement( 'span' );
 		val.className = 'settings-slider-val';
@@ -416,10 +479,12 @@ export class SettingsMenu {
 		input.type = 'color';
 		input.className = 'settings-color-input';
 		input.value = this.settings.get( key ) || '#ffffff';
+		input.setAttribute( 'aria-label', label );
 
 		const clearBtn = document.createElement( 'button' );
 		clearBtn.className = 'settings-color-clear';
 		clearBtn.textContent = 'Reset';
+		clearBtn.setAttribute( 'aria-label', 'Reset ' + label );
 
 		input.addEventListener( 'input', () => {
 
@@ -462,6 +527,7 @@ export class SettingsMenu {
 
 		this._open = true;
 		this._overlay.classList.add( 'open' );
+		this._hamburger.setAttribute( 'aria-expanded', 'true' );
 
 	}
 
@@ -469,6 +535,7 @@ export class SettingsMenu {
 
 		this._open = false;
 		this._overlay.classList.remove( 'open' );
+		this._hamburger.setAttribute( 'aria-expanded', 'false' );
 
 	}
 
