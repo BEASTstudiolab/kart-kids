@@ -207,11 +207,7 @@ export class Controls {
 			this._steerPointerId = null;
 			this._steerRawX = 0;
 			knob.style.transform = '';
-			if ( ! this._gasPressed && ! this._brakePressed && ! this._boostPressed ) {
-
-				this.touchActive = false;
-
-			}
+			this._clearTouchActiveIfIdle();
 
 		};
 
@@ -227,6 +223,7 @@ export class Controls {
 
 			this._gasPressed = pressed;
 			if ( pressed ) this.touchActive = true;
+			else this._clearTouchActiveIfIdle();
 
 		} );
 
@@ -234,6 +231,7 @@ export class Controls {
 
 			this._brakePressed = pressed;
 			if ( pressed ) this.touchActive = true;
+			else this._clearTouchActiveIfIdle();
 
 		} );
 
@@ -241,6 +239,7 @@ export class Controls {
 
 			this._boostPressed = pressed;
 			if ( pressed ) this.touchActive = true;
+			else this._clearTouchActiveIfIdle();
 
 		} );
 
@@ -248,6 +247,7 @@ export class Controls {
 
 			this._driftPressed = pressed;
 			if ( pressed ) this.touchActive = true;
+			else this._clearTouchActiveIfIdle();
 
 		} );
 
@@ -268,6 +268,16 @@ export class Controls {
 		}
 
 		this._steerZone = steerZone;
+
+	}
+
+	_clearTouchActiveIfIdle() {
+
+		if ( ! this._gasPressed && ! this._brakePressed && ! this._boostPressed && ! this._driftPressed && ! this._steerPointerId ) {
+
+			this.touchActive = false;
+
+		}
 
 	}
 
