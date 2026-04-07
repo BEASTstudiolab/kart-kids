@@ -4,6 +4,7 @@ import { ORIENT_DEG, CELL_RAW, GRID_SCALE, encodeCells } from '../Track.js';
 import { getTrackModelConfig, getTrackTileSet } from '../TrackModelConfig.js';
 import { getTrackAsphaltMode, applyTrackAsphaltMode } from '../TrackAsphaltMode.js';
 import { ORIENT_FLIP, cellKey } from './EditorState.js';
+import { TrackIntel } from '../TrackIntel.js';
 import {
 	getCellExits,
 	getConnectivityMask as _getConnectivityMask,
@@ -1619,9 +1620,33 @@ document.getElementById( 'save-confirm' ).addEventListener( 'click', () => {
 
 	const name = saveNameInput.value.trim();
 	if ( ! name ) { showToast( 'Enter a name' ); return; }
+
+	// Validate track connectivity before saving
+	const cells = getCellsArray();
+	let validationWarning = null;
+
+	try {
+
+		new TrackIntel( cells );
+
+	} catch ( e ) {
+
+		validationWarning = e.message;
+
+	}
+
 	saveNamedTrack( name );
 	modalSave.classList.add( 'hidden' );
-	showToast( `Track "${ name }" saved!` );
+
+	if ( validationWarning ) {
+
+		showToast( `Saved with warning: ${ validationWarning }` );
+
+	} else {
+
+		showToast( `Track "${ name }" saved!` );
+
+	}
 
 } );
 
