@@ -2,7 +2,7 @@
 // Elevation cycling, clearing, and load-time derivation.
 
 import { ORIENT_FLIP, DIR_DELTA, cellKey } from './EditorState.js';
-import { getElevationModelName, getRampNeighborKeys, scanElevatedRun } from '../ElevationUtils.js';
+import { getElevationModelName, scanElevatedRun } from '../ElevationUtils.js';
 import { getCellExits } from './AutoTile.js';
 
 /**
