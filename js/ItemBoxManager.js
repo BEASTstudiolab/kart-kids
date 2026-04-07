@@ -154,6 +154,7 @@ export class ItemBoxManager {
 
 		}
 
+		_boxGeo.dispose();
 		this.boxes.length = 0;
 
 	}
