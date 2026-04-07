@@ -87,7 +87,7 @@ export class Settings {
 
 			localStorage.setItem( STORAGE_KEY, JSON.stringify( this._data ) );
 
-		} catch ( e ) { /* storage full or unavailable */ }
+		} catch ( e ) { console.warn( '[Settings] Failed to save:', e.message ); }
 
 	}
 
