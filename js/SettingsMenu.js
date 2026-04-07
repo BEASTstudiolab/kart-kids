@@ -173,6 +173,11 @@ export class SettingsMenu {
 			if ( e.target === overlay ) this.close();
 
 		} );
+		overlay.addEventListener( 'keydown', ( e ) => {
+
+			if ( e.key === 'Escape' ) this.close();
+
+		} );
 
 		const panel = document.createElement( 'div' );
 		panel.className = 'settings-panel';
