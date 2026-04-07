@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { getSmokeTexture } from './VFXTextures.js';
 
 const POOL_SIZE = 64;
 
@@ -13,7 +14,7 @@ export class DriftSparks {
 
 		this.particles = [];
 
-		const map = new THREE.TextureLoader().load( 'sprites/smoke.png' );
+		const map = getSmokeTexture();
 		this.material = new THREE.SpriteMaterial( {
 			map,
 			transparent: true,

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { getSmokeTexture } from './VFXTextures.js';
 
 // Implements: docs/plans/2026-03-31-002-feat-gameplay-juice-pass-plan.md — Unit 4 (R18)
 // Continuous flame trail from rear wheels during nitro boost or mini-boost.
@@ -15,7 +16,7 @@ export class BoostFlame {
 
 		this.particles = [];
 
-		const map = new THREE.TextureLoader().load( 'sprites/smoke.png' );
+		const map = getSmokeTexture();
 		this.material = new THREE.SpriteMaterial( {
 			map,
 			transparent: true,
