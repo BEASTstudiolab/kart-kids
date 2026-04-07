@@ -118,6 +118,8 @@ export class NetworkClient {
 
 	async connect( url ) {
 
+		this._stopSendLoop();
+
 		if ( ! url ) {
 
 			const params = new URLSearchParams( location.search );
