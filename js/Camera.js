@@ -78,7 +78,8 @@ export class Camera {
 		this.dragStartX = 0;
 		this.yAxis = new THREE.Vector3( 0, 1, 0 );
 
-		window.addEventListener( 'wheel', ( e ) => {
+		// Bound event handlers — stored for dispose() cleanup
+		this._onWheel = ( e ) => {
 
 			this.zoom = THREE.MathUtils.clamp(
 				this.zoom * ( 1 + e.deltaY * 0.001 ),
@@ -86,9 +87,9 @@ export class Camera {
 				3.0
 			);
 
-		} );
+		};
 
-		window.addEventListener( 'keydown', ( e ) => {
+		this._onZoomKey = ( e ) => {
 
 			if ( e.key === '+' || e.key === '=' ) {
 
@@ -100,11 +101,11 @@ export class Camera {
 
 			}
 
-		} );
+		};
 
-		window.addEventListener( 'contextmenu', ( e ) => e.preventDefault() );
+		this._onContextMenu = ( e ) => e.preventDefault();
 
-		window.addEventListener( 'mousedown', ( e ) => {
+		this._onMouseDown = ( e ) => {
 
 			if ( e.button === 2 ) {
 
@@ -113,24 +114,24 @@ export class Camera {
 
 			}
 
-		} );
+		};
 
-		window.addEventListener( 'mousemove', ( e ) => {
+		this._onMouseMove = ( e ) => {
 
 			if ( ! this.dragging ) return;
 			const dx = e.clientX - this.dragStartX;
 			this.orbitAngle -= dx * 0.0025;
 			this.dragStartX = e.clientX;
 
-		} );
+		};
 
-		window.addEventListener( 'mouseup', ( e ) => {
+		this._onMouseUp = ( e ) => {
 
 			if ( e.button === 2 ) this.dragging = false;
 
-		} );
+		};
 
-		window.addEventListener( 'keydown', ( e ) => {
+		this._onCameraKey = ( e ) => {
 
 			if ( e.key === 't' || e.key === 'T' ) {
 
@@ -147,20 +148,44 @@ export class Camera {
 
 			}
 
-		} );
+		};
 
-		window.addEventListener( 'keyup', ( e ) => {
+		this._onKeyUp = ( e ) => {
 
 			if ( e.key === 'Backspace' ) this.lookBehind = false;
 
-		} );
+		};
 
-		window.addEventListener( 'resize', () => {
+		this._onResize = () => {
 
 			this.camera.aspect = window.innerWidth / window.innerHeight;
 			this.camera.updateProjectionMatrix();
 
-		} );
+		};
+
+		window.addEventListener( 'wheel', this._onWheel );
+		window.addEventListener( 'keydown', this._onZoomKey );
+		window.addEventListener( 'contextmenu', this._onContextMenu );
+		window.addEventListener( 'mousedown', this._onMouseDown );
+		window.addEventListener( 'mousemove', this._onMouseMove );
+		window.addEventListener( 'mouseup', this._onMouseUp );
+		window.addEventListener( 'keydown', this._onCameraKey );
+		window.addEventListener( 'keyup', this._onKeyUp );
+		window.addEventListener( 'resize', this._onResize );
+
+	}
+
+	dispose() {
+
+		window.removeEventListener( 'wheel', this._onWheel );
+		window.removeEventListener( 'keydown', this._onZoomKey );
+		window.removeEventListener( 'contextmenu', this._onContextMenu );
+		window.removeEventListener( 'mousedown', this._onMouseDown );
+		window.removeEventListener( 'mousemove', this._onMouseMove );
+		window.removeEventListener( 'mouseup', this._onMouseUp );
+		window.removeEventListener( 'keydown', this._onCameraKey );
+		window.removeEventListener( 'keyup', this._onKeyUp );
+		window.removeEventListener( 'resize', this._onResize );
 
 	}
 
