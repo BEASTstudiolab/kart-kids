@@ -1898,13 +1898,13 @@ function updateStats() {
 
 let toastTimer = 0;
 
-function showToast( msg ) {
+function showToast( msg, duration = 2000 ) {
 
 	const el = document.getElementById( 'toast' );
 	el.textContent = msg;
 	el.classList.add( 'show' );
 	clearTimeout( toastTimer );
-	toastTimer = setTimeout( () => el.classList.remove( 'show' ), 2000 );
+	toastTimer = setTimeout( () => el.classList.remove( 'show' ), duration );
 
 }
 
