@@ -58,8 +58,6 @@ export async function loadModels( trackTileSet, asphaltMode, cells, onProgress )
 
 	}
 
-	console.log( '[loader] needed tiles:', [ ...neededTiles ] );
-
 	// Build the load list: always-load + tiles the track needs
 	const toLoad = [ ...ALWAYS_LOAD ];
 	for ( const name of MODEL_NAMES ) {

@@ -693,7 +693,6 @@ async function init() {
 		if ( e.code === 'KeyP' ) {
 
 			gamePaused = ! gamePaused;
-			console.log( '%c[PAUSE] ' + ( gamePaused ? 'PAUSED' : 'RESUMED' ), 'color: cyan; font-weight: bold' );
 
 		}
 

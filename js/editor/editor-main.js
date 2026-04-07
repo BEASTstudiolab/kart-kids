@@ -2358,11 +2358,8 @@ window.addEventListener( 'keyup', ( e ) => {
 
 try {
 await loadModels();
-console.log('[editor] models loaded');
 initDebugMode();
-console.log('[editor] debug mode initialized');
 loadSaved();
-console.log('[editor] save loaded');
 } catch(e) { console.error('[editor] INIT FAILED:', e); }
 
 // Start with a finish cell if the grid is empty
