@@ -1,6 +1,7 @@
 import { detectTier, VALID_TIERS } from './QualityTiers.js';
 
 const STORAGE_KEY = 'kart-kids-settings';
+const SCHEMA_VERSION = 2;
 
 const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
@@ -30,27 +31,28 @@ export class Settings {
 			if ( stored ) {
 
 				const parsed = JSON.parse( stored );
+				const version = parsed._version || 0;
 
-				// Migrate old postProcessing boolean → quality tier
-				if ( 'postProcessing' in parsed ) {
+				// v0 → v1: Migrate old postProcessing boolean → quality tier
+				if ( version < 1 ) {
 
-					if ( parsed.postProcessing === false ) {
+					if ( 'postProcessing' in parsed ) {
 
-						parsed.quality = 'low';
-
-					} else {
-
-						parsed.quality = _detectedTier;
+						parsed.quality = parsed.postProcessing === false ? 'low' : _detectedTier;
+						delete parsed.postProcessing;
 
 					}
 
-					delete parsed.postProcessing;
+				}
+
+				// v1 → v2: Drop old shadowQuality (now owned by quality preset)
+				if ( version < 2 ) {
+
+					delete parsed.shadowQuality;
 
 				}
 
-				// Drop old shadowQuality (now owned by quality preset)
-				delete parsed.shadowQuality;
-
+				parsed._version = SCHEMA_VERSION;
 				Object.assign( this._data, parsed );
 
 			}
