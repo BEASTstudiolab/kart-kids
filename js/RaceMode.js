@@ -159,6 +159,12 @@ export class RaceMode extends GameMode {
 
 	}
 
+	get lapElapsed() {
+
+		return this._elapsedTime - this._lapStartTime;
+
+	}
+
 	getDisplayState() {
 
 		const v = this._vehicle;
