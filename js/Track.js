@@ -167,11 +167,9 @@ export function buildTrack( scene, models, customCells ) {
 		const elev = entry.flags?.elevation || 0;
 		const elevY = elev === 1 ? 2.416 : elev === 2 ? 4.832 : 0;
 
-		mesh.position.set(
-			( entry.gx + 0.5 ) * CELL_RAW,
-			elevY,
-			( entry.gz + 0.5 ) * CELL_RAW
-		);
+		const worldX = ( entry.gx + 0.5 ) * CELL_RAW;
+		const worldZ = ( entry.gz + 0.5 ) * CELL_RAW;
+		mesh.position.set( worldX, elevY, worldZ );
 		mesh.rotation.y = THREE.MathUtils.degToRad( deg );
 
 		mesh.traverse( ( c ) => {
@@ -208,13 +206,38 @@ export function buildTrack( scene, models, customCells ) {
 		let minX = Infinity, maxX = - Infinity;
 		let minZ = Infinity, maxZ = - Infinity;
 
-		for ( const [ gx, gz ] of cells ) {
+		for ( const [ gx, gz, type, orient ] of cells ) {
 
 			occupied.add( gx + ',' + gz );
 			minX = Math.min( minX, gx );
 			maxX = Math.max( maxX, gx );
 			minZ = Math.min( minZ, gz );
 			maxZ = Math.max( maxZ, gz );
+
+			// 3x3 tiles (junctions, chicanes) — mark 5x5 area around anchor
+			// to prevent buildings from overlapping the model geometry
+			if ( type && ( type.startsWith( 'trk-junction-' ) || type.startsWith( 'trk-chicane-' ) ) ) {
+
+				for ( let fx = - 2; fx <= 2; fx ++ ) {
+
+					for ( let fz = - 2; fz <= 2; fz ++ ) {
+
+						occupied.add( ( gx + fx ) + ',' + ( gz + fz ) );
+
+					}
+
+				}
+
+			}
+
+			// 3x1 finish arch — mark flanking cells
+			if ( type === 'trk-finish' ) {
+
+				const isNS = orient === 0 || orient === 10;
+				occupied.add( ( gx + ( isNS ? 0 : 1 ) ) + ',' + ( gz + ( isNS ? 1 : 0 ) ) );
+				occupied.add( ( gx + ( isNS ? 0 : - 1 ) ) + ',' + ( gz + ( isNS ? - 1 : 0 ) ) );
+
+			}
 
 		}
 
@@ -919,38 +942,12 @@ export function transformCells( decodedCells ) {
 
 	}
 
-	// ── 3x3 junction/chicane cell consumption ───────────────
-	// Junctions and chicanes occupy a 3x3 footprint. The anchor cell is the
-	// corner of the footprint determined by orient. Surrounding cells in the
-	// footprint are consumed (removed from rendering).
+	// 3x3 junctions/chicanes: no cell consumption needed.
+	// The junction model renders its own 3x3 road geometry.
+	// User-placed straights within the footprint render normally
+	// (they sit underneath the junction model, which is fine).
 
 	const multiTileConsumed = new Set();
-
-	for ( const [ key, cell ] of grid ) {
-
-		if ( ! cell.type.startsWith( 'trk-junction-' ) && ! cell.type.startsWith( 'trk-chicane-' ) ) continue;
-
-		// Determine footprint direction from orient (same as curve footprint)
-		let fpDx, fpDz;
-		if ( cell.orient === 0 ) { fpDx = - 1; fpDz = 1; }
-		else if ( cell.orient === 16 ) { fpDx = 1; fpDz = 1; }
-		else if ( cell.orient === 10 ) { fpDx = 1; fpDz = - 1; }
-		else if ( cell.orient === 22 ) { fpDx = - 1; fpDz = - 1; }
-		else { fpDx = 1; fpDz = 1; }
-
-		for ( let fx = 0; fx < 3; fx ++ ) {
-
-			for ( let fz = 0; fz < 3; fz ++ ) {
-
-				if ( fx === 0 && fz === 0 ) continue; // anchor cell
-				const fpKey = ( cell.gx + fx * fpDx ) + ',' + ( cell.gz + fz * fpDz );
-				multiTileConsumed.add( fpKey );
-
-			}
-
-		}
-
-	}
 
 	// ── Finish tile 3x1 flanking consumption ─────────────────
 	// The 3x1 finish arch model covers 3 cells of road surface.

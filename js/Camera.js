@@ -496,6 +496,18 @@ export class Camera {
 
 			this._prevGforceEnabled = this.gforceEnabled;
 
+		} else if ( this.mode === 'topdown' ) {
+
+			// Top-down debug view — looks straight down, scroll to zoom
+			const height = ( this._topdownHeight ?? 80 ) * this.zoom;
+			this.camera.fov = 50;
+			this.camera.near = 1;
+			this.camera.far = 500;
+			this.camera.updateProjectionMatrix();
+
+			this.camera.position.set( target.x, height, target.z );
+			this.camera.rotation.set( - Math.PI / 2, 0, 0 );
+
 		} else {
 
 			// Isometric mode — reset G-force state to prevent leaking

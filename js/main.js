@@ -185,8 +185,10 @@ async function init() {
 	registerAll();
 
 	// Support both ?map= (query) and #map= (hash fragment) for track sharing
-	const mapParam = new URLSearchParams( window.location.search ).get( 'map' )
+	const urlParams = new URLSearchParams( window.location.search );
+	const mapParam = urlParams.get( 'map' )
 		|| new URLSearchParams( window.location.hash.slice( 1 ) ).get( 'map' );
+	const debugTopdown = urlParams.get( 'debug' ) === 'topdown';
 	let customCells = null;
 
 	if ( mapParam ) {
@@ -374,6 +376,7 @@ async function init() {
 
 	// Direct reference for debug panel compatibility
 	const vehicle = playerManager.localVehicle;
+
 
 	const dirLightOffset = { x: 11.4, y: 15, z: - 5.3 };
 	let lastShadowX = 0, lastShadowZ = 0;
@@ -568,6 +571,15 @@ async function init() {
 		applyLighting, LIGHTING_DAY, LIGHTING_NIGHT,
 		fpsCapMs, draftIndicatorEnabled,
 	} ) );
+
+	// Auto-enable top-down debug mode via ?debug=topdown
+	if ( debugTopdown ) {
+
+		cam.mode = 'topdown';
+		cam.zoom = 3;
+		debugMenu.show();
+
+	}
 
 	// ── Debug toggle in hamburger menu ───────────────────────────────────
 	{
@@ -870,8 +882,8 @@ async function init() {
 
 		playerManager.update( dt, spectating ? SPECTATE_INPUT : input );
 
-		// Ghost: record vehicle state each frame while racing
-		if ( ! spectating && vehicle && raceMode.state === 'racing' ) {
+		// Ghost: record vehicle state each frame
+		if ( ! spectating && vehicle ) {
 
 			ghostRecorder.record( vehicle );
 
@@ -944,18 +956,15 @@ async function init() {
 		raceMode.update( dt, vehicle, allActiveVehicles, aiManager.getAIRaceData() );
 
 		// Ghost: update playback position
-		if ( ghostPlayer.hasGhost && raceMode.state === 'racing' ) {
+		if ( ghostPlayer.hasGhost ) {
 
-			ghostPlayer.update( raceMode.lapElapsed );
+			const ghostTime = raceMode.state === 'racing' ? raceMode.lapElapsed : ( ghostPlayer._freeRoamTime = ( ghostPlayer._freeRoamTime || 0 ) + dt );
+			ghostPlayer.update( ghostTime );
 			if ( ghostHudEl.style.display === 'none' && settings.get( 'ghostEnabled' ) !== false ) {
 
 				ghostHudEl.style.display = 'block';
 
 			}
-
-		} else if ( raceMode.state !== 'racing' ) {
-
-			ghostHudEl.style.display = 'none';
 
 		}
 

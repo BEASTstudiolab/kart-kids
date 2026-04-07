@@ -169,7 +169,7 @@ export class AIManager {
 
 		// Cache player progress once per frame (used by all AI rubber-band calcs)
 		this._cachedPlayerProgress = null;
-		if ( this.rubberBandIntensity !== 0 && playerVehicle ) {
+		if ( this.rubberBandIntensity !== 0 && playerVehicle && this.trackIntel ) {
 
 			const pl = playerLap || 0;
 			this._cachedPlayerProgress = pl + this.trackIntel.getProgress(

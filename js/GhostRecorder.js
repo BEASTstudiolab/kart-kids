@@ -51,7 +51,7 @@ export class GhostRecorder {
 	 */
 	finishLap( lapTime ) {
 
-		if ( lapTime <= 0 || this._buffer.length === 0 ) {
+		if ( lapTime < 5 || this._buffer.length === 0 ) {
 
 			this.reset();
 			return false;

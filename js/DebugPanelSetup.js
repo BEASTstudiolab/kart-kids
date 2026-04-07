@@ -340,6 +340,12 @@ export function setupDebugPanel( ctx ) {
 
 	debugMenu.addHeader( generalTab, 'Debug visuals' );
 
+	debugMenu.addCheckbox( generalTab, 'Top-down camera', false, ( v ) => {
+
+		cam.mode = v ? 'topdown' : 'chase';
+
+	} );
+
 	debugMenu.addCheckbox( generalTab, 'Show Vehicle Physics Collider', false, ( v ) => {
 
 		debugCollider.visible = v;

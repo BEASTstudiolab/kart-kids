@@ -54,6 +54,16 @@ export class GhostPlayer {
 
 		const data = GhostStorage.load( trackId );
 
+		// Reject stale bad recordings (e.g. false start-line crossing)
+		if ( data && data.lapTime < 5 ) {
+
+			GhostStorage.remove( trackId );
+			this._loaded = false;
+			if ( this._mesh ) this._mesh.visible = false;
+			return false;
+
+		}
+
 		if ( ! data ) {
 
 			this._loaded = false;

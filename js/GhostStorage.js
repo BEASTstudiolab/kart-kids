@@ -73,6 +73,16 @@ export function save( trackId, frames, lapTime ) {
 
 
 /**
+ * Remove a ghost recording from localStorage.
+ */
+export function remove( trackId ) {
+
+	try { localStorage.removeItem( KEY_PREFIX + trackId ); } catch ( e ) { /* */ }
+
+}
+
+
+/**
  * Load a ghost recording from localStorage.
  *
  * @param {string} trackId
