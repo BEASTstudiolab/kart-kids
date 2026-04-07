@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 
 const POOL_SIZE = 16;
+const EMBER_COLORS = [ 0xffaa22, 0xff8811, 0xffcc33, 0xff6600 ];
 
 export class WallSparks {
 
@@ -58,8 +59,7 @@ export class WallSparks {
 			p.sprite.material.opacity = 1;
 
 			// Bright orange-yellow ember color with slight variation
-			const colors = [ 0xffaa22, 0xff8811, 0xffcc33, 0xff6600 ];
-			p.sprite.material.color.setHex( colors[ Math.floor( Math.random() * colors.length ) ] );
+			p.sprite.material.color.setHex( EMBER_COLORS[ Math.floor( Math.random() * EMBER_COLORS.length ) ] );
 
 			// Start bigger, will shrink over lifetime
 			const scaleMag = THREE.MathUtils.clamp( magnitude / 8, 0.5, 1.5 );
