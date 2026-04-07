@@ -69,6 +69,12 @@ export class GameAudio {
 			this.engineSound.setVolume( 0 );
 			this.checkReady();
 
+		}, undefined, ( err ) => {
+
+			console.warn( 'GameAudio: failed to load engine.ogg', err );
+			this._engineFailed = true;
+			this.checkReady();
+
 		} );
 
 		loader.load( 'audio/skid.ogg', ( buffer ) => {
@@ -76,6 +82,12 @@ export class GameAudio {
 			this.skidSound.setBuffer( buffer );
 			this.skidSound.setLoop( true );
 			this.skidSound.setVolume( 0 );
+			this.checkReady();
+
+		}, undefined, ( err ) => {
+
+			console.warn( 'GameAudio: failed to load skid.ogg', err );
+			this._skidFailed = true;
 			this.checkReady();
 
 		} );
@@ -91,6 +103,10 @@ export class GameAudio {
 				this.impactPool.push( sound );
 
 			}
+
+		}, undefined, ( err ) => {
+
+			console.warn( 'GameAudio: failed to load impact.ogg', err );
 
 		} );
 
@@ -136,7 +152,7 @@ export class GameAudio {
 
 	checkReady() {
 
-		if ( this.engineSound.buffer && this.skidSound.buffer ) {
+		if ( ( this.engineSound.buffer || this._engineFailed ) && ( this.skidSound.buffer || this._skidFailed ) ) {
 
 			this.ready = true;
 
