@@ -101,6 +101,19 @@ export class SmokeTrails {
 
 	}
 
+	dispose() {
+
+		for ( const p of this.particles ) {
+
+			p.sprite.removeFromParent();
+			p.sprite.material.dispose();
+
+		}
+
+		this.material.dispose();
+
+	}
+
 	emitAtWheel( wheel, vehicle ) {
 
 		const p = this.particles[ this.emitIndex ];
