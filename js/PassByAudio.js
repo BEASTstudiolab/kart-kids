@@ -5,9 +5,10 @@ const _right = new THREE.Vector3();
 
 export class PassByAudio {
 
-	constructor( listener ) {
+	constructor( listener, sfxGain ) {
 
 		this._listener = listener;
+		this._sfxGain = sfxGain || null;
 		this._cooldowns = new Map(); // vehicleId → cooldown timer
 		this._minDistance = 6; // trigger radius
 		this._minRelSpeed = 8; // minimum relative speed for whoosh
@@ -108,7 +109,7 @@ export class PassByAudio {
 			noise.connect( filter );
 			filter.connect( gain );
 			gain.connect( panner );
-			panner.connect( ctx.destination );
+			panner.connect( this._sfxGain || ctx.destination );
 
 			noise.start( now );
 			noise.stop( now + duration );

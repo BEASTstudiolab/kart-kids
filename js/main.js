@@ -639,7 +639,7 @@ async function init() {
 	} );
 
 	audio.init( cam.camera );
-	const passByAudio = new PassByAudio( audio.listener );
+	const passByAudio = new PassByAudio( audio.listener, audio._sfxGain );
 
 	// Apply saved volume settings
 	const savedSfxVol = settings.get( 'sfxVolume' );
