@@ -19,28 +19,27 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"kartkids_base_trk_010_rd_straight_1x1.044"
+			"name":"kartkids_base_trk_140_jct_ysplit_3x3"
 		},
 		{
 			"mesh":1,
-			"name":"kartkids_base_trk_020_trn_90_l_1x1.039"
+			"name":"kartkids_base_trk_140_jct_ysplit_3x3.004"
 		},
 		{
 			"mesh":2,
-			"name":"kartkids_base_trk_020_trn_90_l_1x1.040"
+			"name":"kartkids_base_trk_140_jct_ysplit_3x3.003"
 		},
 		{
 			"mesh":3,
-			"name":"kartkids_base_trk_020_trn_90_l_1x1.043"
+			"name":"kartkids_base_trk_140_jct_ysplit_3x3.002"
 		},
 		{
 			"mesh":4,
-			"name":"kartkids_base_trk_020_trn_90_l_1x1.044"
+			"name":"kartkids_base_trk_140_jct_ysplit_3x3.001"
 		}
 	],
 	"materials":[
 		{
-			"alphaMode":"BLEND",
 			"doubleSided":true,
 			"emissiveTexture":{
 				"index":0
@@ -60,28 +59,20 @@
 		},
 		{
 			"doubleSided":true,
+			"emissiveTexture":{
+				"index":4
+			},
 			"name":"rubber",
+			"normalTexture":{
+				"index":5
+			},
 			"pbrMetallicRoughness":{
-				"baseColorFactor":[
-					1,
-					0.14362937211990356,
-					0.14362937211990356,
-					1
-				],
-				"metallicFactor":0
-			}
-		},
-		{
-			"doubleSided":true,
-			"name":"concrete",
-			"pbrMetallicRoughness":{
-				"baseColorFactor":[
-					0.27651432156562805,
-					0.27651432156562805,
-					0.27651432156562805,
-					1
-				],
-				"metallicFactor":0
+				"baseColorTexture":{
+					"index":6
+				},
+				"metallicRoughnessTexture":{
+					"index":7
+				}
 			}
 		}
 	],
@@ -124,7 +115,7 @@
 						"TEXCOORD_0":10
 					},
 					"indices":11,
-					"material":2
+					"material":1
 				}
 			]
 		},
@@ -138,7 +129,7 @@
 						"TEXCOORD_0":14
 					},
 					"indices":15,
-					"material":2
+					"material":1
 				}
 			]
 		},
@@ -173,6 +164,22 @@
 		{
 			"sampler":0,
 			"source":3
+		},
+		{
+			"sampler":0,
+			"source":4
+		},
+		{
+			"sampler":0,
+			"source":5
+		},
+		{
+			"sampler":0,
+			"source":6
+		},
+		{
+			"sampler":0,
+			"source":7
 		}
 	],
 	"images":[
@@ -188,13 +195,33 @@
 		},
 		{
 			"mimeType":"image/png",
-			"name":"atlas_basecolor-atlas_alpha",
-			"uri":"textures/atlas_basecolor-atlas_alpha.png"
+			"name":"atlas_basecolor",
+			"uri":"textures/atlas_basecolor.png"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"atlas_ORM",
 			"uri":"textures/atlas_ORM.png"
+		},
+		{
+			"mimeType":"image/png",
+			"name":"TRIM_Emissive",
+			"uri":"textures/TRIM_Emissive.png"
+		},
+		{
+			"mimeType":"image/png",
+			"name":"TRIM_Normal",
+			"uri":"textures/TRIM_Normal.png"
+		},
+		{
+			"mimeType":"image/png",
+			"name":"TRIM_BaseColor",
+			"uri":"textures/TRIM_BaseColor.png"
+		},
+		{
+			"mimeType":"image/png",
+			"name":"TRIM_OcclusionRoughnessMetallic-TRIM_OcclusionRoughnessMetallic.png",
+			"uri":"textures/TRIM_OcclusionRoughnessMetallic-TRIM_OcclusionRoughnessMetallic.png.png"
 		}
 	],
 	"accessors":[
@@ -303,7 +330,7 @@
 		{
 			"bufferView":12,
 			"componentType":5126,
-			"count":100,
+			"count":176,
 			"max":[
 				5.500002861022949,
 				0.9339278936386108,
@@ -319,19 +346,19 @@
 		{
 			"bufferView":13,
 			"componentType":5126,
-			"count":100,
+			"count":176,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":14,
 			"componentType":5126,
-			"count":100,
+			"count":176,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":15,
 			"componentType":5123,
-			"count":174,
+			"count":294,
 			"type":"SCALAR"
 		},
 		{
@@ -444,50 +471,50 @@
 		},
 		{
 			"buffer":0,
-			"byteLength":1200,
+			"byteLength":2112,
 			"byteOffset":35864,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1200,
-			"byteOffset":37064,
+			"byteLength":2112,
+			"byteOffset":37976,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":800,
-			"byteOffset":38264,
+			"byteLength":1408,
+			"byteOffset":40088,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":348,
-			"byteOffset":39064,
+			"byteLength":588,
+			"byteOffset":41496,
 			"target":34963
 		},
 		{
 			"buffer":0,
 			"byteLength":1320,
-			"byteOffset":39412,
+			"byteOffset":42084,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":1320,
-			"byteOffset":40732,
+			"byteOffset":43404,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":880,
-			"byteOffset":42052,
+			"byteOffset":44724,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":384,
-			"byteOffset":42932,
+			"byteOffset":45604,
 			"target":34963
 		}
 	],
@@ -499,7 +526,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":43316,
+			"byteLength":45988,
 			"uri":"kartkids_base_trk_140_jct_ysplit_3x3.bin"
 		}
 	]

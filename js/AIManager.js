@@ -17,6 +17,10 @@ const VEHICLE_MODEL_NAMES = [
 	'vehicle-truck-red',
 ];
 
+const CHARACTER_MODEL_NAMES = [
+	'character-default',
+];
+
 const ZERO_INPUT = { x: 0, z: 0, touchActive: false, boost: false, drift: false, gas: false, brake: false };
 
 const COL_OFFSETS = [ - 2.5, 0, 2.5 ];
@@ -75,10 +79,14 @@ export class AIManager {
 		const modelName = VEHICLE_MODEL_NAMES[ modelIndex ];
 		const model = this.models[ modelName ];
 
+		const charName = CHARACTER_MODEL_NAMES[ index % CHARACTER_MODEL_NAMES.length ];
+		const characterModel = this.models[ charName ] || null;
+
 		const vehicle = Vehicle.spawn( {
 			world: this.world,
 			createBody: createVehicleBody,
 			model,
+			characterModel,
 			position: this.spawnPosition,
 			angle: this.spawnAngle,
 			options: { forceWheelCorrection: true },

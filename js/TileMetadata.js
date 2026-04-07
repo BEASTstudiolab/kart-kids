@@ -55,8 +55,6 @@ export function getCurveConfig( orient, variant, curveSize ) {
 	};
 
 	// Variant-specific offset overrides (if needed after calibration)
-	// Currently 2x2-wide and 2x2-tight share the same offset formula.
-	// Override here if tight model needs different positioning.
 
 	return {
 		rotation: rotations[ orient ] ?? 0,

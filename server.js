@@ -171,11 +171,13 @@ wss.on( 'connection', ( ws ) => {
 	const id = randomUUID();
 	const index = joinCounter ++;
 	const vehicleIndex = index % 4;
+	const characterIndex = 0;
 	const tint = computeTint( index );
 
 	const player = {
 		ws,
 		vehicleIndex,
+		characterIndex,
 		tint,
 		lastState: null,
 		spectating: false,
@@ -188,6 +190,7 @@ wss.on( 'connection', ( ws ) => {
 		existingPlayers.push( {
 			id: pid,
 			vehicleIndex: p.vehicleIndex,
+			characterIndex: p.characterIndex,
 			tint: p.tint,
 			spectating: p.spectating,
 		} );
@@ -200,6 +203,7 @@ wss.on( 'connection', ( ws ) => {
 		type: 'welcome',
 		id,
 		vehicleIndex,
+		characterIndex,
 		tint,
 		existingPlayers,
 	} ) );
@@ -209,6 +213,7 @@ wss.on( 'connection', ( ws ) => {
 		type: 'playerJoin',
 		id,
 		vehicleIndex,
+		characterIndex,
 		tint,
 	}, id );
 

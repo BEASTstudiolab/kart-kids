@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Kart Kids — UI Component Test</title>
+	<link rel="stylesheet" href="js/ui/ui-theme.css">
+	<style>
+		body {
+			margin: 0;
+			background: var(--color-near-black);
+			color: var(--color-white);
+			font-family: var(--font-ui);
+			min-height: 100vh;
+		}
+		/* Shell layout */
+		.kk-app-shell {
+			display: flex;
+			flex-direction: column;
+			min-height: 100vh;
+		}
+		.kk-page-container {
+			flex: 1;
+			padding: var(--space-6) var(--space-8);
+			max-width: var(--content-max-width);
+			width: 100%;
+			box-sizing: border-box;
+		}
+		/* Toast region positioning */
+		.kk-toast-region {
+			position: fixed;
+			bottom: calc(var(--actionbar-height, 80px) + var(--space-4));
+			left: 50%;
+			transform: translateX(-50%);
+			display: flex;
+			flex-direction: column-reverse;
+			gap: var(--space-2);
+			z-index: var(--z-toast, 600);
+			pointer-events: none;
+		}
+		.kk-toast-region > * { pointer-events: auto; }
+	</style>
+	<script type="importmap">
+	{
+		"imports": {
+			"three": "./node_modules/three/build/three.module.js",
+			"three/addons/": "./node_modules/three/examples/jsm/"
+		}
+	}
+	</script>
+</head>
+<body>
+
+<script type="module">
+import { AppShell } from './js/ui/core/AppShell.js';
+import { PageControllerBase } from './js/ui/core/PageControllerBase.js';
+import { PageViewBase } from './js/ui/core/PageViewBase.js';
+import { PageHeader } from './js/ui/components/PageHeader.js';
+import { SectionPanel } from './js/ui/components/SectionPanel.js';
+import { CardGrid } from './js/ui/components/CardGrid.js';
+import { CTAButton } from './js/ui/components/CTAButton.js';
+import { Tabs } from './js/ui/components/Tabs.js';
+import { ActionBar } from './js/ui/components/ActionBar.js';
+import { ProgressBar } from './js/ui/components/ProgressBar.js';
+import { HeroPreviewPanel } from './js/ui/components/HeroPreviewPanel.js';
+import { ModalDialog } from './js/ui/components/ModalDialog.js';
+import { ConfirmationDialog } from './js/ui/components/ConfirmationDialog.js';
+import { Toast } from './js/ui/components/Toast.js';
+import { EmptyStateBlock } from './js/ui/components/EmptyStateBlock.js';
+import { LockedStateBlock } from './js/ui/components/LockedStateBlock.js';
+import { ButtonBar } from './js/ui/components/ButtonBar.js';
+import { RouteIds } from './js/ui/enums/RouteIds.js';
+import * as Nav from './js/ui/core/NavigationService.js';
+
+// ── Test Page: Component Showcase ────────────────────────────────────────────
+
+const container = document.createElement('div');
+container.style.cssText = 'padding: 32px; max-width: 1200px; margin: 0 auto;';
+document.body.appendChild(container);
+
+function addSection(title) {
+	const h = document.createElement('h2');
+	h.style.cssText = `
+		font-family: var(--font-display);
+		font-size: var(--text-2xl);
+		color: var(--color-white);
+		text-transform: uppercase;
+		letter-spacing: var(--tracking-wide);
+		margin: 48px 0 16px;
+		padding-bottom: 8px;
+		border-bottom: 2px solid var(--color-panel-border-strong);
+	`;
+	h.textContent = title;
+	container.appendChild(h);
+	return h;
+}
+
+// ── 1. PageHeader ────────────────────────────────────────────────────────────
+addSection('PageHeader');
+
+const header = new PageHeader({
+	title: 'COMPONENT TEST',
+	showBack: true,
+	onBack: () => alert('Back clicked!'),
+});
+container.appendChild(header.el);
+
+// ── 2. CTAButton variants ────────────────────────────────────────────────────
+addSection('CTAButton Variants');
+
+const btnRow = document.createElement('div');
+btnRow.style.cssText = 'display: flex; gap: 16px; flex-wrap: wrap; align-items: center;';
+
+const btn1 = new CTAButton({ label: 'START RACE', variant: 'primary', actionId: 'start' });
+const btn2 = new CTAButton({ label: 'INVITE', variant: 'secondary', actionId: 'invite' });
+const btn3 = new CTAButton({ label: 'LEAVE RACE', variant: 'danger', actionId: 'leave' });
+const btn4 = new CTAButton({ label: 'CANCEL', variant: 'ghost', actionId: 'cancel' });
+const btn5 = new CTAButton({ label: 'LOADING...', variant: 'primary', actionId: 'loading', loading: true });
+const btn6 = new CTAButton({ label: 'DISABLED', variant: 'primary', actionId: 'disabled', disabled: true });
+
+[btn1, btn2, btn3, btn4, btn5, btn6].forEach(b => btnRow.appendChild(b.el));
+container.appendChild(btnRow);
+
+// ── 3. SectionPanel ──────────────────────────────────────────────────────────
+addSection('SectionPanel');
+
+const panel = new SectionPanel({ title: 'RACE RULES' });
+const panelBody = panel.getBody ? panel.getBody() : panel.el.querySelector('.kk-section-panel__body');
+if (panelBody) {
+	panelBody.innerHTML = `
+		<div style="color: var(--color-ink-200); font-family: var(--font-ui); font-size: var(--text-base); line-height: 1.6;">
+			<div>Karts Only</div>
+			<div>3 Laps</div>
+			<div>No Boost Items (Ranked Mode)</div>
+			<div>Team Drift Off</div>
+		</div>
+	`;
+}
+container.appendChild(panel.el);
+
+// ── 4. Tabs ──────────────────────────────────────────────────────────────────
+addSection('Tabs');
+
+const tabs = new Tabs({
+	tabs: [
+		{ id: 'characters', label: 'CHARACTERS', badge: null },
+		{ id: 'karts', label: 'KARTS', badge: 2 },
+		{ id: 'paint', label: 'PAINT' },
+		{ id: 'wheels', label: 'WHEELS' },
+		{ id: 'accessories', label: 'ACCESSORIES' },
+		{ id: 'emotes', label: 'EMOTES' },
+	],
+	activeId: 'karts',
+	ariaLabel: 'Garage categories',
+});
+container.appendChild(tabs.el);
+
+// Listen for tab changes
+tabs.el.addEventListener('kk:tabs:change', (e) => {
+	console.log('Tab changed:', e.detail);
+});
+
+// ── 5. CardGrid ──────────────────────────────────────────────────────────────
+addSection('CardGrid');
+
+const modes = [
+	{ id: 'gp', data: { name: 'GRAND PRIX', desc: 'Multiple Races, Series Win' } },
+	{ id: 'tt', data: { name: 'TIME TRIAL', desc: 'Beat Your Best Time' } },
+	{ id: 'sr', data: { name: 'SINGLE RACE', desc: 'One Race, Instant Fun' } },
+	{ id: 'bm', data: { name: 'BATTLE MODE', desc: 'Arena Combat, Items Galore' } },
+	{ id: 'tr', data: { name: 'TEAM RACE', desc: 'Team Victory, Shared Points' } },
+	{ id: 'el', data: { name: 'ELIMINATION', desc: 'Multiple Races, Shrinking' }, locked: true },
+];
+
+const grid = new CardGrid({
+	items: modes,
+	columns: 3,
+	selectedId: 'sr',
+	ariaLabel: 'Play modes',
+	renderCard: (item) => {
+		const card = document.createElement('div');
+		card.style.cssText = 'padding: 24px; text-align: center;';
+		const title = document.createElement('div');
+		title.style.cssText = `
+			font-family: var(--font-display);
+			font-weight: 900;
+			font-size: var(--text-md);
+			text-transform: uppercase;
+			letter-spacing: var(--tracking-wide);
+			margin-bottom: 8px;
+		`;
+		title.textContent = item.data.name;
+		const desc = document.createElement('div');
+		desc.style.cssText = 'font-size: var(--text-sm); color: var(--color-ink-300);';
+		desc.textContent = item.data.desc;
+		card.appendChild(title);
+		card.appendChild(desc);
+		if (item.locked) {
+			const lock = document.createElement('div');
+			lock.style.cssText = 'margin-top: 8px; color: var(--color-ink-400); font-size: var(--text-xs);';
+			lock.textContent = 'LOCKED';
+			card.appendChild(lock);
+		}
+		return card;
+	},
+});
+container.appendChild(grid.el);
+
+grid.el.addEventListener('kk:cardgrid:activate', (e) => {
+	console.log('Card activated:', e.detail);
+});
+
+// ── 6. ProgressBar ───────────────────────────────────────────────────────────
+addSection('ProgressBar / Stats');
+
+const statsRow = document.createElement('div');
+statsRow.style.cssText = 'display: flex; flex-direction: column; gap: 12px; max-width: 400px;';
+
+const stats = [
+	{ label: 'Speed', value: 90, variant: 'stat' },
+	{ label: 'Drift', value: 85, variant: 'stat' },
+	{ label: 'Handling', value: 70, variant: 'stat' },
+	{ label: 'Accel', value: 95, variant: 'stat' },
+	{ label: 'XP Progress', value: 65, variant: 'xp' },
+	{ label: 'Challenge', value: 40, variant: 'challenge' },
+];
+
+stats.forEach(s => {
+	const row = document.createElement('div');
+	row.style.cssText = 'display: flex; align-items: center; gap: 12px;';
+	const lbl = document.createElement('span');
+	lbl.style.cssText = `
+		width: 100px;
+		font-family: var(--font-display);
+		font-size: var(--text-sm);
+		text-transform: uppercase;
+		color: var(--color-ink-200);
+		letter-spacing: var(--tracking-wide);
+	`;
+	lbl.textContent = s.label;
+	const bar = new ProgressBar({ label: s.label, value: s.value, max: 100, variant: s.variant, animated: true, showEndLabel: true });
+	row.appendChild(lbl);
+	const barWrap = document.createElement('div');
+	barWrap.style.cssText = 'flex: 1;';
+	barWrap.appendChild(bar.el);
+	row.appendChild(barWrap);
+	statsRow.appendChild(row);
+});
+container.appendChild(statsRow);
+
+// ── 7. HeroPreviewPanel ─────────────────────────────────────────────────────
+addSection('HeroPreviewPanel');
+
+const hero = new HeroPreviewPanel({
+	sceneId: 'garage-preview',
+	ariaLabel: 'Kart preview',
+	caption: 'Void Striker',
+	aspectRatio: '16/9',
+	loading: true,
+});
+container.appendChild(hero.el);
+
+// Simulate loading completion after 2s
+setTimeout(() => {
+	hero.setReady();
+	hero.setCaption('Void Striker — Ready');
+}, 2000);
+
+// ── 8. ButtonBar ─────────────────────────────────────────────────────────────
+addSection('ButtonBar');
+
+const buttonBar = new ButtonBar({
+	ariaLabel: 'View controls',
+	buttons: [
+		{ id: 'rotate', label: 'ROTATE', actionId: 'rotate' },
+		{ id: 'inspect', label: 'INSPECT', actionId: 'inspect', toggle: true, pressed: false },
+		{ id: 'loadout', label: 'LOADOUT', actionId: 'loadout' },
+		{ id: 'save', label: 'SAVE', actionId: 'save' },
+	],
+});
+container.appendChild(buttonBar.el);
+
+// ── 9. ActionBar ─────────────────────────────────────────────────────────────
+addSection('ActionBar');
+
+const actionBar = new ActionBar({
+	primary: { label: 'QUICK PLAY', variant: 'primary', actionId: 'quick-play' },
+	secondary: [
+		{ label: 'REMATCH', variant: 'secondary', actionId: 'rematch' },
+		{ label: 'NEXT RACE', variant: 'secondary', actionId: 'next' },
+	],
+});
+container.appendChild(actionBar.el);
+
+// ── 10. EmptyState & LockedState ─────────────────────────────────────────────
+addSection('EmptyState / LockedState');
+
+const stateRow = document.createElement('div');
+stateRow.style.cssText = 'display: grid; grid-template-columns: 1fr 1fr; gap: 16px;';
+
+const emptyPanel = new SectionPanel({ title: 'MY TRACKS' });
+const emptyBody = emptyPanel.getBody ? emptyPanel.getBody() : emptyPanel.el.querySelector('.kk-section-panel__body');
+const empty = new EmptyStateBlock({
+	heading: 'NO TRACKS YET',
+	subtext: 'Create your first track to see it here.',
+	action: { label: 'CREATE TRACK', variant: 'primary', actionId: 'create' },
+});
+if (emptyBody) emptyBody.appendChild(empty.getElement());
+
+const lockedPanel = new SectionPanel({ title: 'RANKED MODE' });
+const lockedBody = lockedPanel.getBody ? lockedPanel.getBody() : lockedPanel.el.querySelector('.kk-section-panel__body');
+const locked = new LockedStateBlock({
+	condition: 'Reach Rank 10 to unlock Ranked Mode',
+	action: { label: 'VIEW PROFILE', variant: 'secondary', actionId: 'profile' },
+});
+if (lockedBody) lockedBody.appendChild(locked.getElement());
+
+stateRow.appendChild(emptyPanel.el);
+stateRow.appendChild(lockedPanel.el);
+container.appendChild(stateRow);
+
+// ── 11. Modal & Toast Triggers ───────────────────────────────────────────────
+addSection('Modal & Toast');
+
+const triggerRow = document.createElement('div');
+triggerRow.style.cssText = 'display: flex; gap: 16px; flex-wrap: wrap;';
+
+// Modal trigger
+const modalBtn = new CTAButton({
+	label: 'OPEN MODAL',
+	variant: 'secondary',
+	actionId: 'open-modal',
+	onClick: () => {
+		const modal = new ModalDialog({
+			title: 'RACE RULES',
+			body: '<div style="color: var(--color-ink-200); font-family: var(--font-ui); line-height: 1.6;"><p>Karts Only &bull; 3 Laps &bull; No Items</p><p>Ranked Mode rules apply. Disconnecting will result in a forfeit.</p></div>',
+			dismissible: true,
+			onClose: () => console.log('Modal closed'),
+		});
+		modal.open();
+	},
+});
+triggerRow.appendChild(modalBtn.el);
+
+// Confirmation dialog trigger
+const confirmBtn = new CTAButton({
+	label: 'LEAVE RACE',
+	variant: 'danger',
+	actionId: 'open-confirm',
+	onClick: () => {
+		const confirm = new ConfirmationDialog({
+			title: 'LEAVE RACE?',
+			body: 'You will forfeit the race and lose any progress.',
+			confirmLabel: 'LEAVE',
+			cancelLabel: 'STAY',
+			confirmVariant: 'danger',
+			onConfirm: () => console.log('Confirmed leave!'),
+			onCancel: () => console.log('Cancelled leave'),
+		});
+		confirm.open();
+	},
+});
+triggerRow.appendChild(confirmBtn.el);
+
+// Toast triggers
+let toastCount = 0;
+const toastTypes = ['success', 'error', 'warning', 'info'];
+const toastMessages = [
+	'Reward claimed! +500 Coins',
+	'Connection lost. Retrying...',
+	'Race starting in 30 seconds',
+	'New event available: Tokyo Drift',
+];
+
+const toastBtn = new CTAButton({
+	label: 'FIRE TOAST',
+	variant: 'secondary',
+	actionId: 'fire-toast',
+	onClick: () => {
+		const idx = toastCount % toastTypes.length;
+		const toast = new Toast({
+			id: `toast-${toastCount++}`,
+			message: toastMessages[idx],
+			variant: toastTypes[idx],
+			duration: 4000,
+			dismissible: true,
+		});
+		// Find or create toast region
+		let region = document.querySelector('.kk-toast-region');
+		if (!region) {
+			region = document.createElement('div');
+			region.className = 'kk-toast-region';
+			region.setAttribute('role', 'region');
+			region.setAttribute('aria-label', 'Notifications');
+			document.body.appendChild(region);
+		}
+		region.appendChild(toast.el);
+		toast.show();
+	},
+});
+triggerRow.appendChild(toastBtn.el);
+
+container.appendChild(triggerRow);
+
+// ── Footer ───────────────────────────────────────────────────────────────────
+const footer = document.createElement('div');
+footer.style.cssText = `
+	margin-top: 64px;
+	padding: 24px 0;
+	border-top: 1px solid var(--color-panel-border);
+	color: var(--color-ink-400);
+	font-size: var(--text-sm);
+	text-align: center;
+`;
+footer.textContent = 'KART KIDS UI — Milestone 1 Component Test';
+container.appendChild(footer);
+
+console.log('%c KART KIDS UI Test Page Loaded ', 'background: #ff6b00; color: #000; font-weight: bold; padding: 4px 8px;');
+console.log('Components loaded:', {
+	PageHeader, SectionPanel, CardGrid, CTAButton, Tabs, ActionBar,
+	ProgressBar, HeroPreviewPanel, ModalDialog, ConfirmationDialog,
+	Toast, EmptyStateBlock, LockedStateBlock, ButtonBar,
+});
+</script>
+
+</body>
+</html>

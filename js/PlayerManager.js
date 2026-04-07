@@ -13,6 +13,10 @@ const VEHICLE_MODEL_NAMES = [
 	'vehicle-truck-red',
 ];
 
+const CHARACTER_MODEL_NAMES = [
+	'character-default',
+];
+
 export class PlayerManager {
 
 	constructor( scene, world, models, spawnPosition, spawnAngle ) {
@@ -34,7 +38,7 @@ export class PlayerManager {
 
 	initSinglePlayer() {
 
-		const vehicle = this._createVehicle( 0, null, this.spawnPosition, this.spawnAngle );
+		const vehicle = this._createVehicle( 0, 0, null, this.spawnPosition, this.spawnAngle );
 		this.localVehicle = vehicle;
 		this.localId = '_local';
 		this.players.set( this.localId, {
@@ -53,7 +57,7 @@ export class PlayerManager {
 	initLocalPlayer( welcomeData ) {
 
 		this.localId = welcomeData.id;
-		const vehicle = this._createVehicle( welcomeData.vehicleIndex, welcomeData.tint, this.spawnPosition, this.spawnAngle );
+		const vehicle = this._createVehicle( welcomeData.vehicleIndex, welcomeData.characterIndex, welcomeData.tint, this.spawnPosition, this.spawnAngle );
 		this.localVehicle = vehicle;
 		this.players.set( this.localId, {
 			vehicle,
@@ -90,7 +94,7 @@ export class PlayerManager {
 			this.spawnPosition[ 2 ] + offset[ 1 ],
 		];
 
-		const vehicle = this._createVehicle( joinData.vehicleIndex, joinData.tint, spawnPos, this.spawnAngle );
+		const vehicle = this._createVehicle( joinData.vehicleIndex, joinData.characterIndex, joinData.tint, spawnPos, this.spawnAngle );
 		vehicle.remote = true;
 
 		if ( joinData.spectating ) {
@@ -275,10 +279,13 @@ export class PlayerManager {
 
 	}
 
-	_createVehicle( vehicleIndex, tint, position, angle ) {
+	_createVehicle( vehicleIndex, characterIndex, tint, position, angle ) {
 
-		const modelName = VEHICLE_MODEL_NAMES[ vehicleIndex % 4 ];
+		const modelName = VEHICLE_MODEL_NAMES[ vehicleIndex % VEHICLE_MODEL_NAMES.length ];
 		const model = this.models[ modelName ];
+
+		const charName = CHARACTER_MODEL_NAMES[ ( characterIndex || 0 ) % CHARACTER_MODEL_NAMES.length ];
+		const characterModel = this.models[ charName ] || null;
 
 		const vehCollider = createVehicleBody( this.world, position );
 
@@ -293,7 +300,7 @@ export class PlayerManager {
 		vehicle.prevModelPos.set( sx, sy, sz );
 		vehicle.container.rotation.y = angle;
 
-		const group = vehicle.init( model );
+		const group = vehicle.init( model, characterModel );
 		vehicle.initRaycast( this.world );
 
 		// Apply tint to body mesh for players 5+

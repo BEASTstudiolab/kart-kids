@@ -1,0 +1,244 @@
+/**
+ * Page03QuickPlayController — Quick Play.
+ *
+ * Route: RouteIds.QUICK_PLAY ("/quick-play")
+ *
+ * Responsibilities:
+ *   - Create and configure Page03QuickPlayView.
+ *   - Populate character, kart, track, and rule data from MockData.
+ *   - Wire back button → RouteIds.HOME.
+ *   - Wire character card → RouteIds.CHARACTERS.
+ *   - Wire kart card → RouteIds.KARTS.
+ *   - Wire track thumbnail clicks → open track picker modal (stubbed with toast).
+ *   - Wire race rules panel → open rules config modal (stubbed with toast).
+ *   - Wire match type tab change → update internal state.
+ *   - Wire bot fill slider → update internal state and label.
+ *   - Wire START RACE → loading state then RouteIds.LOBBY.
+ *   - Emit analytics page view on mount.
+ *
+ * Data: MockData.loadout, MockData.characters, MockData.karts, MockData.tracks.
+ */
+
+import { PageControllerBase }    from '../../core/PageControllerBase.js';
+import { Page03QuickPlayView }   from './Page03QuickPlayView.js';
+import { RouteIds }              from '../../enums/RouteIds.js';
+import { ButtonIds }             from '../../enums/ButtonIds.js';
+import { PageIds }               from '../../enums/PageIds.js';
+import { EventIds }              from '../../enums/EventIds.js';
+import { MockData }              from '../../repositories/mocks/MockData.js';
+
+export class Page03QuickPlayController extends PageControllerBase {
+
+	/**
+	 * @param {object}   params
+	 * @param {Services} services
+	 */
+	constructor( params = {}, services = {} ) {
+
+		super( params, services );
+
+		/** @type {Page03QuickPlayView} */
+		this._view = null;
+
+		/** @type {string} Current match type: 'race' | 'time_trial' | 'battle' */
+		this._matchType = 'race';
+
+		/** @type {number} Current bot fill count 0-11 */
+		this._botFill = 0;
+
+	}
+
+	// ---------------------------------------------------------------------------
+	// Lifecycle
+	// ---------------------------------------------------------------------------
+
+	initialize( params ) { // eslint-disable-line no-unused-vars
+
+		this._view = new Page03QuickPlayView();
+
+	}
+
+	bindEvents() {
+
+		const view = this._view;
+
+		// TopNav navigation
+		this._addListener( view.root, 'kk:topnav:navigate', ( e ) => {
+
+			const { route } = e.detail;
+			if ( route ) {
+				this._analytics?.track( EventIds.NAV_ITEM_CLICKED, { route } );
+				this.navigate( route );
+			}
+
+		} );
+
+		// PageHeader back button
+		this._addListener( view.root, 'kk:pageheader:back', () => {
+
+			this._analytics?.track( EventIds.BACK_CLICKED, { from: PageIds.QUICK_PLAY } );
+			this.navigate( RouteIds.HOME );
+
+		} );
+
+		// Selected Character card
+		this._addListener( view.characterCardEl, 'click', () => {
+
+			this._analytics?.track( EventIds.CHARACTER_SELECTED, { source: ButtonIds.QUICK_PLAY_SELECTED_CHARACTER } );
+			this.navigate( RouteIds.CHARACTERS );
+
+		} );
+
+		this._addListener( view.characterCardEl, 'keydown', ( e ) => {
+
+			if ( e.key === 'Enter' || e.key === ' ' ) {
+				e.preventDefault();
+				view.characterCardEl.click();
+			}
+
+		} );
+
+		// Selected Kart card
+		this._addListener( view.kartCardEl, 'click', () => {
+
+			this._analytics?.track( EventIds.KART_SELECTED, { source: ButtonIds.QUICK_PLAY_SELECTED_KART } );
+			this.navigate( RouteIds.KARTS );
+
+		} );
+
+		this._addListener( view.kartCardEl, 'keydown', ( e ) => {
+
+			if ( e.key === 'Enter' || e.key === ' ' ) {
+				e.preventDefault();
+				view.kartCardEl.click();
+			}
+
+		} );
+
+		// Track thumbnails — delegate by data-action on the panel body
+		this._addListener( view.root, 'click', ( e ) => {
+
+			const thumb = e.target.closest( '[data-action="quick_play_track_select"]' );
+			if ( thumb ) {
+				const trackId = thumb.dataset.trackId;
+				this._analytics?.track( EventIds.TRACK_SELECTED, { trackId } );
+				this.showToast( {
+					message:  'TRACK PICKER COMING SOON',
+					variant:  'info',
+					duration: 2000,
+				} );
+			}
+
+		} );
+
+		// Race Rules panel click
+		this._addListener( view.raceRulesPanelEl, 'click', () => {
+
+			this.showToast( {
+				message:  'RULES CONFIG COMING SOON',
+				variant:  'info',
+				duration: 2000,
+			} );
+
+		} );
+
+		this._addListener( view.raceRulesPanelEl, 'keydown', ( e ) => {
+
+			if ( e.key === 'Enter' || e.key === ' ' ) {
+				e.preventDefault();
+				view.raceRulesPanelEl.click();
+			}
+
+		} );
+
+		// Match Type tabs
+		this._addListener( view.root, 'kk:tabs:change', ( e ) => {
+
+			this._matchType = e.detail.tabId;
+
+		} );
+
+		// Bot Fill slider
+		this._addListener( view.botFillSliderEl, 'input', ( e ) => {
+
+			this._botFill = parseInt( e.target.value, 10 );
+			view.setBotFillLabel( this._botFill );
+
+		} );
+
+		// ActionBar BACK
+		this._addListener( view.actionBar.secondaryButtons[ 0 ].el, 'click', () => {
+
+			this._analytics?.track( EventIds.BACK_CLICKED, { from: PageIds.QUICK_PLAY } );
+			this.navigateBack();
+
+		} );
+
+		// ActionBar START RACE
+		this._addListener( view.actionBar.primaryButton.el, 'click', () => {
+
+			this._handleStartRace();
+
+		} );
+
+	}
+
+	loadData() {
+
+		return Promise.resolve();
+
+	}
+
+	render( container ) {
+
+		const view      = this._view;
+		const loadout   = MockData.loadout;
+		const character = MockData.characters.find( ( c ) => c.id === loadout.characterId ) ?? null;
+		const kart      = MockData.karts.find( ( k ) => k.id === loadout.kartId ) ?? null;
+		const tracks    = MockData.tracks.slice( 0, 2 );
+
+		view.setCharacter( character );
+		view.setKart( kart );
+		view.setTracks( tracks );
+
+		// Hero aria-label reflects current loadout
+		const charName = character?.name ?? 'Unknown Character';
+		const kartName = kart?.name ?? 'Unknown Kart';
+		view.setHeroAriaLabel( `${charName} on ${kartName}` );
+
+		view.mount( container );
+
+		this._analytics?.trackPageView( PageIds.QUICK_PLAY );
+
+	}
+
+	dispose() {
+
+		super.dispose();
+
+	}
+
+	// ---------------------------------------------------------------------------
+	// Internal handlers
+	// ---------------------------------------------------------------------------
+
+	_handleStartRace() {
+
+		this._analytics?.track( EventIds.QUICK_PLAY_STARTED, {
+			matchType: this._matchType,
+			botFill:   this._botFill,
+		} );
+
+		// Enter loading state while lobby spins up
+		this._view.actionBar.setPrimaryLoading( true );
+
+		// Navigate to lobby — short delay simulates lobby initialization
+		setTimeout( () => {
+
+			this.navigate( RouteIds.LOBBY );
+
+		}, 400 );
+
+	}
+
+}

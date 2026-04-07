@@ -1,0 +1,418 @@
+		* { box-sizing: border-box; }
+		body { margin: 0; overflow: hidden; background: #000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+		canvas { display: block; touch-action: none; }
+
+		#toolbar-row {
+			position: absolute;
+			bottom: 20px;
+			left: 50%;
+			transform: translateX(-50%);
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			z-index: 10;
+		}
+
+		.toolbar-group {
+			display: flex;
+			align-items: center;
+			gap: 4px;
+			padding: 6px 8px;
+			background: rgba(20, 20, 30, 0.85);
+			backdrop-filter: blur(12px);
+			-webkit-backdrop-filter: blur(12px);
+			border-radius: 12px;
+			border: 1px solid rgba(255, 255, 255, 0.1);
+			box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+		}
+
+		.toolbar-group .group-label {
+			font-size: 9px;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.05em;
+			color: rgba(255, 255, 255, 0.3);
+			padding: 0 6px;
+			pointer-events: none;
+		}
+
+		.toolbar-group button {
+			padding: 8px;
+			border: none;
+			border-radius: 8px;
+			background: transparent;
+			color: rgba(255, 255, 255, 0.65);
+			font-size: 13px;
+			font-weight: 500;
+			cursor: pointer;
+			transition: all 0.15s;
+			white-space: nowrap;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 6px;
+		}
+		.toolbar-group button svg {
+			flex-shrink: 0;
+		}
+		.toolbar-group button:hover {
+			background: rgba(255, 255, 255, 0.1);
+			color: #fff;
+		}
+		.toolbar-group button.active {
+			background: rgba(255, 255, 255, 0.18);
+			color: #fff;
+		}
+
+		.separator {
+			width: 1px;
+			height: 24px;
+			background: rgba(255, 255, 255, 0.15);
+			margin: 0 2px;
+			flex-shrink: 0;
+		}
+
+		.toolbar-group button.action {
+			background: rgba(80, 180, 80, 0.25);
+			color: rgba(140, 255, 140, 0.9);
+		}
+		.toolbar-group button.action:hover {
+			background: rgba(80, 180, 80, 0.4);
+			color: #fff;
+		}
+
+		.toolbar-group button.danger {
+			color: rgba(255, 255, 255, 0.45);
+		}
+		.toolbar-group button.danger:hover {
+			background: rgba(220, 80, 80, 0.25);
+			color: rgba(255, 140, 140, 0.9);
+		}
+
+		.toolbar-group button:disabled {
+			opacity: 0.3;
+			cursor: default;
+			pointer-events: none;
+		}
+
+		/* ─── Tooltips ────────────────────────────────────────── */
+
+		.toolbar-group button {
+			position: relative;
+		}
+		.toolbar-group button::after {
+			content: attr(data-tip);
+			position: absolute;
+			bottom: calc(100% + 8px);
+			left: 50%;
+			transform: translateX(-50%) scale(0.9);
+			padding: 5px 10px;
+			background: rgba(20, 20, 30, 0.95);
+			backdrop-filter: blur(12px);
+			-webkit-backdrop-filter: blur(12px);
+			border: 1px solid rgba(255, 255, 255, 0.12);
+			border-radius: 6px;
+			color: rgba(255, 255, 255, 0.9);
+			font-size: 11px;
+			font-weight: 500;
+			white-space: nowrap;
+			pointer-events: none;
+			opacity: 0;
+			transition: opacity 0.15s, transform 0.15s;
+			z-index: 30;
+		}
+		.toolbar-group button:hover::after {
+			opacity: 1;
+			transform: translateX(-50%) scale(1);
+		}
+		.toolbar-group button:disabled::after {
+			display: none;
+		}
+		.toolbar-group button:not([data-tip])::after {
+			display: none;
+		}
+
+		.radial-btn::after {
+			content: attr(data-tip);
+			position: absolute;
+			bottom: calc(100% + 6px);
+			left: 50%;
+			transform: translateX(-50%) scale(0.9);
+			padding: 4px 8px;
+			background: rgba(20, 20, 30, 0.95);
+			backdrop-filter: blur(12px);
+			-webkit-backdrop-filter: blur(12px);
+			border: 1px solid rgba(255, 255, 255, 0.12);
+			border-radius: 5px;
+			color: rgba(255, 255, 255, 0.9);
+			font-size: 10px;
+			font-weight: 500;
+			white-space: nowrap;
+			pointer-events: none;
+			opacity: 0;
+			transition: opacity 0.15s, transform 0.15s;
+			z-index: 30;
+		}
+		.radial-btn:hover::after {
+			opacity: 1;
+			transform: translateX(-50%) scale(1);
+		}
+
+		/* ─── Debug tile tooltip ──────────────────────────────── */
+
+		#debug-tooltip {
+			position: absolute;
+			z-index: 25;
+			pointer-events: none;
+			background: rgba(10, 10, 20, 0.92);
+			backdrop-filter: blur(10px);
+			-webkit-backdrop-filter: blur(10px);
+			border: 1px solid rgba(255,255,255,0.12);
+			border-radius: 8px;
+			padding: 8px 12px;
+			color: #eee;
+			font-size: 11px;
+			display: none;
+			max-width: 300px;
+			white-space: nowrap;
+			font-family: monospace;
+			line-height: 1.5;
+		}
+		#debug-tooltip .dt-title { font-weight: 600; font-size: 12px; color: #8cf; margin-bottom: 2px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+		#debug-tooltip .dt-dim { color: #888; }
+
+		/* ─── Radial context menu ─────────────────────────────── */
+
+		#radial-menu {
+			position: absolute;
+			pointer-events: none;
+			z-index: 15;
+			display: none;
+		}
+		#radial-menu.visible { display: block; }
+
+		.radial-btn {
+			position: absolute;
+			width: 32px;
+			height: 32px;
+			border: none;
+			border-radius: 50%;
+			background: rgba(20, 20, 30, 0.9);
+			backdrop-filter: blur(12px);
+			-webkit-backdrop-filter: blur(12px);
+			border: 1px solid rgba(255, 255, 255, 0.15);
+			box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+			color: rgba(255, 255, 255, 0.85);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+			pointer-events: auto;
+			transition: transform 0.12s, background 0.12s, opacity 0.15s;
+			transform: scale(0);
+			opacity: 0;
+		}
+		.radial-btn svg {
+			flex-shrink: 0;
+		}
+		#radial-menu.visible .radial-btn.shown {
+			transform: scale(1);
+			opacity: 1;
+		}
+		.radial-btn:hover {
+			background: rgba(60, 60, 80, 0.95);
+			transform: scale(1.15) !important;
+			color: #fff;
+		}
+		.radial-btn:active {
+			transform: scale(0.95) !important;
+		}
+		.radial-btn.radial-active {
+			background: rgba(80, 180, 80, 0.4);
+			border-color: rgba(140, 255, 140, 0.4);
+			color: rgba(140, 255, 140, 0.95);
+		}
+
+		#toast {
+			position: absolute;
+			bottom: 90px;
+			left: 50%;
+			transform: translateX(-50%);
+			padding: 10px 24px;
+			background: rgba(20, 20, 30, 0.85);
+			backdrop-filter: blur(12px);
+			-webkit-backdrop-filter: blur(12px);
+			color: #fff;
+			border-radius: 10px;
+			border: 1px solid rgba(255, 255, 255, 0.1);
+			font-size: 13px;
+			opacity: 0;
+			transition: opacity 0.3s;
+			pointer-events: none;
+			z-index: 20;
+		}
+		#toast.show { opacity: 1; }
+
+		/* ─── Minimap ──────────────────────────────────────────── */
+
+		#minimap {
+			position: absolute;
+			top: 16px;
+			left: 16px;
+			width: 180px;
+			height: 180px;
+			background: rgba(20, 20, 30, 0.75);
+			backdrop-filter: blur(8px);
+			-webkit-backdrop-filter: blur(8px);
+			border-radius: 10px;
+			border: 1px solid rgba(255, 255, 255, 0.1);
+			overflow: hidden;
+			z-index: 10;
+		}
+		#minimap canvas { width: 100%; height: 100%; }
+
+		/* ─── Stats panel ──────────────────────────────────────── */
+
+		#stats-panel {
+			position: absolute;
+			top: 16px;
+			right: 16px;
+			padding: 12px 16px;
+			background: rgba(20, 20, 30, 0.75);
+			backdrop-filter: blur(8px);
+			-webkit-backdrop-filter: blur(8px);
+			border-radius: 10px;
+			border: 1px solid rgba(255, 255, 255, 0.1);
+			color: rgba(255, 255, 255, 0.8);
+			font-size: 12px;
+			line-height: 1.7;
+			z-index: 10;
+			pointer-events: none;
+		}
+		#stats-panel .label { color: rgba(255, 255, 255, 0.45); }
+		#stats-panel .warn { color: rgba(255, 180, 80, 0.9); }
+		#stats-panel .ok { color: rgba(140, 255, 140, 0.9); }
+
+		/* ─── Modal overlay ────────────────────────────────────── */
+
+		.modal-overlay {
+			position: fixed;
+			inset: 0;
+			background: rgba(0, 0, 0, 0.6);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			z-index: 100;
+		}
+		.modal-overlay.hidden { display: none; }
+
+		.modal {
+			background: rgba(30, 30, 45, 0.95);
+			backdrop-filter: blur(16px);
+			-webkit-backdrop-filter: blur(16px);
+			border-radius: 14px;
+			border: 1px solid rgba(255, 255, 255, 0.12);
+			box-shadow: 0 16px 64px rgba(0, 0, 0, 0.5);
+			color: #fff;
+			padding: 24px;
+			min-width: 320px;
+			max-width: 440px;
+			max-height: 80vh;
+			overflow-y: auto;
+		}
+		.modal h3 {
+			margin: 0 0 16px;
+			font-size: 16px;
+			font-weight: 600;
+		}
+		.modal input[type="text"] {
+			width: 100%;
+			padding: 8px 12px;
+			border: 1px solid rgba(255, 255, 255, 0.15);
+			border-radius: 8px;
+			background: rgba(255, 255, 255, 0.08);
+			color: #fff;
+			font-size: 14px;
+			outline: none;
+			margin-bottom: 12px;
+		}
+		.modal input[type="text"]:focus {
+			border-color: rgba(140, 255, 140, 0.5);
+		}
+		.modal-actions {
+			display: flex;
+			gap: 8px;
+			justify-content: flex-end;
+			margin-top: 16px;
+		}
+		.modal-actions button {
+			padding: 8px 20px;
+			border: none;
+			border-radius: 8px;
+			font-size: 13px;
+			font-weight: 500;
+			cursor: pointer;
+			transition: all 0.15s;
+		}
+		.modal-actions .btn-primary {
+			background: rgba(80, 180, 80, 0.35);
+			color: rgba(140, 255, 140, 0.95);
+		}
+		.modal-actions .btn-primary:hover {
+			background: rgba(80, 180, 80, 0.55);
+		}
+		.modal-actions .btn-cancel {
+			background: rgba(255, 255, 255, 0.08);
+			color: rgba(255, 255, 255, 0.65);
+		}
+		.modal-actions .btn-cancel:hover {
+			background: rgba(255, 255, 255, 0.15);
+			color: #fff;
+		}
+
+		.saved-track-list {
+			list-style: none;
+			padding: 0;
+			margin: 0 0 8px;
+			max-height: 300px;
+			overflow-y: auto;
+		}
+		.saved-track-list li {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 8px 12px;
+			border-radius: 8px;
+			cursor: pointer;
+			transition: background 0.15s;
+		}
+		.saved-track-list li:hover {
+			background: rgba(255, 255, 255, 0.08);
+		}
+		.saved-track-list li .track-name {
+			font-size: 14px;
+			font-weight: 500;
+		}
+		.saved-track-list li .track-meta {
+			font-size: 11px;
+			color: rgba(255, 255, 255, 0.4);
+		}
+		.saved-track-list li .delete-btn {
+			background: none;
+			border: none;
+			color: rgba(255, 80, 80, 0.6);
+			cursor: pointer;
+			font-size: 16px;
+			padding: 2px 6px;
+			border-radius: 4px;
+		}
+		.saved-track-list li .delete-btn:hover {
+			background: rgba(255, 80, 80, 0.15);
+			color: rgba(255, 80, 80, 0.9);
+		}
+		.saved-track-list .empty-msg {
+			text-align: center;
+			color: rgba(255, 255, 255, 0.35);
+			padding: 20px;
+			font-size: 13px;
+		}

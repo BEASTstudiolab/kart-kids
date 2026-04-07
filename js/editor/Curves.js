@@ -9,7 +9,6 @@ import { getCurveConfig } from '../TileMetadata.js';
 
 export const VARIANT_MODEL = {
 	'2x2-wide': 'trk-curve-2x2-l',
-	'2x2-tight': 'trk-curve-2x2-tight-l',
 	'3x3': 'trk-curve-3x3-l',
 	'3x3-wide': 'trk-curve-3x3-wide-l',
 };
@@ -76,7 +75,6 @@ export function getAvailableCurveOptions( grid, gx, gz ) {
 
 	const variants = [
 		{ variant: '2x2-wide', curveSize: 2 },
-		{ variant: '2x2-tight', curveSize: 2 },
 		{ variant: '3x3', curveSize: 3 },
 		{ variant: '3x3-wide', curveSize: 3 },
 	];
