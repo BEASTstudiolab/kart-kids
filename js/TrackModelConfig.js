@@ -44,6 +44,28 @@ export function getTrackModelConfig( name, tileSet = 'standard' ) {
 		if ( name === 'trk-curve-3x3-l' ) return { path: 'standard-map/kartkids_base_trk_520_trn_90_l_3x3.gltf', rotationY: Math.PI };
 		if ( name === 'trk-curve-3x3-wide-l' ) return { path: 'standard-map/kartkids_base_trk_100_trn_widest_l_3x3.gltf', rotationY: Math.PI };
 
+		// ─── Junctions (3x3) ───────────────────────────────────
+		if ( name === 'trk-junction-y' ) return { path: 'standard-map/kartkids_base_trk_140_jct_ysplit_3x3.gltf', rotationY: Math.PI };
+		if ( name === 'trk-junction-t' ) return { path: 'standard-map/kartkids_base_trk_150_jct_tjunction_3x3.gltf', rotationY: Math.PI };
+		if ( name === 'trk-junction-4way' ) return { path: 'standard-map/kartkids_base_trk_160_jct_4way_3x3.gltf', rotationY: Math.PI };
+
+		// ─── Bridges (1x1) ─────────────────────────────────────
+		if ( name === 'trk-bridge-entry' ) return { path: 'standard-map/kartkids_base_trk_390_brg_entry_1x1.gltf', rotationY: 0 };
+		if ( name === 'trk-bridge-mid' ) return { path: 'standard-map/kartkids_base_trk_400_brg_mid_1x1.gltf', rotationY: 0 };
+
+		// ─── Tunnels (1x1) ─────────────────────────────────────
+		if ( name === 'trk-tunnel-entry' ) return { path: 'standard-map/kartkids_base_trk_420_tun_closed_entry_1x1.gltf', rotationY: 0 };
+		if ( name === 'trk-tunnel-mid' ) return { path: 'standard-map/kartkids_base_trk_430_tun_closed_mid_1x1.gltf', rotationY: 0 };
+		if ( name === 'trk-tunnel-exit' ) return { path: 'standard-map/kartkids_base_trk_440_tun_closed_exit_1x1.gltf', rotationY: 0 };
+		if ( name === 'trk-tunnel-open' ) return { path: 'standard-map/kartkids_base_trk_460_tun_openframe_mid_1x1.gltf', rotationY: 0 };
+
+		// ─── Jumps (1x1) ───────────────────────────────────────
+		if ( name === 'trk-jump-short' ) return { path: 'standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.gltf', rotationY: 0 };
+		if ( name === 'trk-jump-long' ) return { path: 'standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.gltf', rotationY: 0 };
+
+		// ─── Chicane (3x3) ─────────────────────────────────────
+		if ( name === 'trk-chicane-3x3-l' ) return { path: 'standard-map/kartkids_base_trk_550_chicane_90_l_3x3.gltf', rotationY: Math.PI };
+
 	}
 
 	return { path: name + '.glb', rotationY: 0 };

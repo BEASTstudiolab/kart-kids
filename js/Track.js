@@ -40,8 +40,9 @@ export function buildTrack( scene, models, customCells ) {
 
 	}
 
-	// Separate multi-tile curves from instanced tiles
+	// Separate multi-tile pieces from instanced tiles
 	const curveEntries = []; // [ { key, gx, gz, orient, flags } ]
+	const multiTileEntries = []; // junctions, chicanes — individual placement
 
 	for ( const key in cellsByType ) {
 
@@ -52,6 +53,19 @@ export function buildTrack( scene, models, customCells ) {
 
 				const curveSize = parseInt( key.match( /(\d+)x\d+/ )?.[ 1 ] ) || 3;
 				curveEntries.push( { key, gx, gz, orient, flags, curveSize } );
+
+			}
+
+			continue;
+
+		}
+
+		if ( key.startsWith( 'trk-junction-' ) || key.startsWith( 'trk-chicane-' ) ) {
+
+			// 3x3 junctions and chicanes use individual meshes
+			for ( const [ gx, gz, orient, flags ] of cellsByType[ key ] ) {
+
+				multiTileEntries.push( { key, gx, gz, orient, flags } );
 
 			}
 
@@ -141,19 +155,53 @@ export function buildTrack( scene, models, customCells ) {
 
 	}
 
-	if ( ! customCells ) {
+	// Place 3x3 junctions and chicanes individually
+	for ( const entry of multiTileEntries ) {
 
-		// Place hand-authored decorations for the default track
-		for ( const [ gx, gz, key, orient ] of DECO_CELLS ) {
+		const src = models[ entry.key ];
+		if ( ! src ) continue;
 
-			const piece = placePiece( models, key, gx, gz, orient );
-			if ( piece ) decoGroup.add( piece );
+		const mesh = src.clone();
 
-		}
+		const deg = ORIENT_DEG[ entry.orient ] ?? 0;
+		const elev = entry.flags?.elevation || 0;
+		const elevY = elev === 1 ? 2.416 : elev === 2 ? 4.832 : 0;
+
+		mesh.position.set(
+			( entry.gx + 0.5 ) * CELL_RAW,
+			elevY,
+			( entry.gz + 0.5 ) * CELL_RAW
+		);
+		mesh.rotation.y = THREE.MathUtils.degToRad( deg );
+
+		mesh.traverse( ( c ) => {
+
+			if ( c.isMesh ) {
+
+				c.castShadow = false;
+				c.receiveShadow = true;
+
+			}
+
+		} );
+
+		trackPieceGroup.add( mesh );
 
 	}
 
-	{
+	// Decorations disabled for debugging track tile colliders
+	// if ( ! customCells ) {
+	//
+	// 	for ( const [ gx, gz, key, orient ] of DECO_CELLS ) {
+	//
+	// 		const piece = placePiece( models, key, gx, gz, orient );
+	// 		if ( piece ) decoGroup.add( piece );
+	//
+	// 	}
+	//
+	// }
+
+	if ( false ) { // Decorations disabled for debugging track tile colliders
 
 		// Auto-generate decorations to fill any gaps
 		const occupied = new Set();
@@ -861,33 +909,83 @@ export function transformCells( decodedCells ) {
 
 	}
 
+	// ── 3x3 junction/chicane cell consumption ───────────────
+	// Junctions and chicanes occupy a 3x3 footprint. The anchor cell is the
+	// corner of the footprint determined by orient. Surrounding cells in the
+	// footprint are consumed (removed from rendering).
+
+	const multiTileConsumed = new Set();
+
+	for ( const [ key, cell ] of grid ) {
+
+		if ( ! cell.type.startsWith( 'trk-junction-' ) && ! cell.type.startsWith( 'trk-chicane-' ) ) continue;
+
+		// Determine footprint direction from orient (same as curve footprint)
+		let fpDx, fpDz;
+		if ( cell.orient === 0 ) { fpDx = - 1; fpDz = 1; }
+		else if ( cell.orient === 16 ) { fpDx = 1; fpDz = 1; }
+		else if ( cell.orient === 10 ) { fpDx = 1; fpDz = - 1; }
+		else if ( cell.orient === 22 ) { fpDx = - 1; fpDz = - 1; }
+		else { fpDx = 1; fpDz = 1; }
+
+		for ( let fx = 0; fx < 3; fx ++ ) {
+
+			for ( let fz = 0; fz < 3; fz ++ ) {
+
+				if ( fx === 0 && fz === 0 ) continue; // anchor cell
+				const fpKey = ( cell.gx + fx * fpDx ) + ',' + ( cell.gz + fz * fpDz );
+				multiTileConsumed.add( fpKey );
+
+			}
+
+		}
+
+	}
+
+	// ── Finish tile 3x1 flanking consumption ─────────────────
+	// The 3x1 finish arch model covers 3 cells of road surface.
+	// Mark the two flanking cells as consumed so they don't render
+	// overlapping straights (which causes z-fighting).
+	for ( const [ , cell ] of grid ) {
+
+		if ( cell.type !== 'trk-finish' ) continue;
+
+		const isNS = cell.orient === 0 || cell.orient === 10;
+		const dx = isNS ? 0 : 1;
+		const dz = isNS ? 1 : 0;
+
+		for ( const dir of [ - 1, 1 ] ) {
+
+			const fKey = cellKeyFn( cell.gx + dx * dir, cell.gz + dz * dir );
+			multiTileConsumed.add( fKey );
+
+		}
+
+	}
+
 	// ── Build output array ────────────────────────────────────
 
 	const result = [];
 	const consumedKeys = new Set();
 
-	// Gather all consumed keys
+	// Gather all consumed keys (curves + junctions/chicanes)
 	for ( const [ , info ] of curveCorners ) {
 
 		for ( const ck of info.consumed ) consumedKeys.add( ck );
 
 	}
 
+	for ( const ck of multiTileConsumed ) consumedKeys.add( ck );
+
 	for ( const [ key, cell ] of grid ) {
 
-		// Skip consumed cells — they're part of a multi-tile curve
-		// BUT keep elevated consumed cells for collision (marked so physics uses flat quad, not full model)
+		// Consumed cells are part of a multi-tile piece (curve, junction, finish arch).
+		// Mark as collision-only: no visible mesh, but physics gets a flat road quad.
 		if ( consumedKeys.has( key ) ) {
 
-			if ( cell.flags.elevation > 0 ) {
-
-				cell.flags._collisionOnly = true;
-
-			} else {
-
-				continue;
-
-			}
+			cell.flags._collisionOnly = true;
+			result.push( [ cell.gx, cell.gz, cell.type, cell.orient, cell.flags ] );
+			continue;
 
 		}
 

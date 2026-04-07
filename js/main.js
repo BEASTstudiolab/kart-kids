@@ -9,7 +9,7 @@ import { Controls } from './Controls.js';
 import { buildTrack, decodeCells, transformCells, deriveRampCells, computeSpawnPosition, computeTrackBounds, TRACK_CELLS, CELL_RAW, GRID_SCALE, ORIENT_DEG } from './Track.js';
 import { RaceLobby } from './RaceLobby.js';
 import { AFKDetector } from './AFKDetector.js';
-import { buildWallColliders, buildTrackColliders } from './Physics.js';
+import { buildTrackColliders } from './Physics.js';
 import { GameAudio } from './Audio.js';
 import { NetworkClient } from './Network.js';
 import { PlayerManager } from './PlayerManager.js';
@@ -97,7 +97,6 @@ async function init() {
 	document.body.appendChild( renderer.domElement );
 
 	registerAll();
-	const models = await loadModels( trackTileSet, asphaltMode );
 
 	const mapParam = new URLSearchParams( window.location.search ).get( 'map' );
 	let customCells = null;
@@ -120,8 +119,11 @@ async function init() {
 
 	// Transform cells: derive elevation/ramps and multi-tile curves for rendering.
 	// The original activeCells (with base types) go to TrackIntel for waypoint walking.
-	// The transformed cells (with visual types) go to buildTrack/buildTrackColliders/buildWallColliders.
-	const renderCells = customCells ? transformCells( activeCells ) : activeCells;
+	// The transformed cells (with visual types) go to buildTrack/buildTrackColliders.
+	const renderCells = transformCells( activeCells );
+
+	// Load only models the track actually uses (+ always-loaded vehicles/decorations)
+	const models = await loadModels( trackTileSet, asphaltMode, renderCells );
 
 	const spawn = computeSpawnPosition( activeCells );
 
@@ -161,16 +163,6 @@ async function init() {
 	const world = createWorld( worldSettings );
 	world._OL_MOVING = OL_MOVING;
 	world._OL_STATIC = OL_STATIC;
-
-	// Debug: pass a group to visualize wall colliders as green wireframes
-	// Wall colliders are OFF by default — toggle via debug menu
-	const wallDebugGroup = new THREE.Group();
-	wallDebugGroup.visible = false;
-	scene.add( wallDebugGroup );
-	let wallCollidersEnabled = false;
-
-	// Build debug wireframes only (no physics bodies) on first load
-	buildWallColliders( world, wallDebugGroup, renderCells, { skipPhysics: true } );
 
 	const trackColliderData = buildTrackColliders( world, models, renderCells );
 
@@ -441,9 +433,9 @@ async function init() {
 		scene, renderer, bloomPass, postFX,
 		vehicle, cam, aiManager,
 		dirLight, dirLightOffset, hemiLight,
-		wallDebugGroup, meshDebugGroup, colliderDebugGroup,
+		meshDebugGroup, colliderDebugGroup,
 		tileLabelsGroup, heightLabelsGroup,
-		world, renderCells, models,
+		renderCells, models,
 		groundIndicator, jitterDisplay, draftIndicator,
 		applyLighting, LIGHTING_DAY, LIGHTING_NIGHT,
 		fpsCapMs, draftIndicatorEnabled,

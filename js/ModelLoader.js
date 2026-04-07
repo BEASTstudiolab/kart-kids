@@ -4,9 +4,16 @@ import { getTrackModelConfig } from './TrackModelConfig.js';
 import { applyTrackAsphaltMode } from './TrackAsphaltMode.js';
 
 
-export const MODEL_NAMES = [
+// Always-loaded models (vehicles, characters, decorations)
+const ALWAYS_LOAD = [
 	'vehicle-truck-yellow', 'vehicle-truck-green', 'vehicle-truck-purple', 'vehicle-truck-red',
 	'character-default',
+	'decoration-empty-night', 'decoration-buildings-1', 'decoration-buildings-2',
+];
+
+// All known track tile model names (loaded on demand based on track cells)
+export const MODEL_NAMES = [
+	...ALWAYS_LOAD,
 	'trk-straight', 'trk-corner-1x1', 'trk-finish',
 	'trk-curve-2x2-l',
 	'trk-curve-3x3-l',
@@ -16,16 +23,43 @@ export const MODEL_NAMES = [
 	'trk-ramp-up-2p5-smooth', 'trk-ramp-up-5-smooth',
 	'trk-ramp-down-2p5', 'trk-ramp-down-5',
 	'trk-ramp-down-2p5-smooth', 'trk-ramp-down-5-smooth',
-	'decoration-empty-night', 'decoration-buildings-1', 'decoration-buildings-2',
+	'trk-junction-y', 'trk-junction-t', 'trk-junction-4way',
+	'trk-bridge-entry', 'trk-bridge-mid',
+	'trk-tunnel-entry', 'trk-tunnel-mid', 'trk-tunnel-exit', 'trk-tunnel-open',
+	'trk-jump-short', 'trk-jump-long',
+	'trk-chicane-3x3-l',
 ];
 
 
-export async function loadModels( trackTileSet, asphaltMode ) {
+export async function loadModels( trackTileSet, asphaltMode, cells ) {
 
 	const models = {};
 	const loader = new GLTFLoader();
 
-	const promises = MODEL_NAMES.map( ( name ) =>
+	// Determine which tile keys the track actually uses
+	const neededTiles = new Set();
+	if ( cells ) {
+
+		for ( const cell of cells ) {
+
+			neededTiles.add( cell[ 2 ] );
+
+		}
+
+	}
+
+	console.log( '[loader] needed tiles:', [ ...neededTiles ] );
+
+	// Build the load list: always-load + tiles the track needs
+	const toLoad = [ ...ALWAYS_LOAD ];
+	for ( const name of MODEL_NAMES ) {
+
+		if ( ALWAYS_LOAD.includes( name ) ) continue;
+		if ( ! cells || neededTiles.has( name ) ) toLoad.push( name );
+
+	}
+
+	const promises = toLoad.map( ( name ) =>
 		new Promise( ( resolve, reject ) => {
 
 			const modelConfig = getTrackModelConfig( name, trackTileSet );

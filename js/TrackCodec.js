@@ -1,10 +1,33 @@
 // ─── Track Codec ──────────────────────────────────────────
 
-// track-bump kept at index 2 for backwards compatibility with saved tracks —
-// decoded as trk-straight since the bump tile was removed.
-const TYPE_NAMES = [ 'trk-straight', 'trk-corner-1x1', 'trk-straight', 'trk-finish' ];
+// v3 TYPE_NAMES: 4-bit index supports up to 16 tile types.
+// Index 2 kept as trk-straight for backwards compatibility (legacy bump).
+const TYPE_NAMES = [
+	'trk-straight',       // 0
+	'trk-corner-1x1',     // 1
+	'trk-straight',       // 2 (legacy bump → straight)
+	'trk-finish',         // 3
+	'trk-junction-y',     // 4
+	'trk-junction-t',     // 5
+	'trk-junction-4way',  // 6
+	'trk-bridge-entry',   // 7
+	'trk-bridge-mid',     // 8
+	'trk-tunnel-entry',   // 9
+	'trk-tunnel-mid',     // 10
+	'trk-tunnel-exit',    // 11
+	'trk-tunnel-open',    // 12
+	'trk-jump-short',     // 13
+	'trk-jump-long',      // 14
+	'trk-chicane-3x3-l',  // 15
+];
 const TYPE_INDEX = {};
-for ( let i = 0; i < TYPE_NAMES.length; i ++ ) TYPE_INDEX[ TYPE_NAMES[ i ] ] = i;
+for ( let i = 0; i < TYPE_NAMES.length; i ++ ) {
+
+	// Skip index 2 (legacy bump alias) so trk-straight maps to 0
+	if ( i === 2 ) continue;
+	if ( TYPE_INDEX[ TYPE_NAMES[ i ] ] === undefined ) TYPE_INDEX[ TYPE_NAMES[ i ] ] = i;
+
+}
 
 const ORIENT_ENCODE = [ 0, 16, 10, 22 ];
 const ORIENT_DECODE = { 0: 0, 16: 1, 10: 2, 22: 3 };
@@ -15,7 +38,11 @@ export function encodeCells( cells ) {
 	// Filter out autoRamp cells — they are derived from elevated cells at load time
 	const filtered = cells.filter( c => ! c[ 4 ]?.autoRamp );
 
-	// v2 format: 4 bytes per cell (adds flags2 byte for rampStyle + future flags)
+	// v3 format: 4 bytes per cell
+	// Byte 0: gx + 128
+	// Byte 1: gz + 128
+	// Byte 2: [type(4 bits)][orient(2 bits)][elevation(2 bits)]
+	// Byte 3: [curveOverride(1)][rotationOverride(1)][rampStyle(1)][curveVariant(3)][reserved(2)]
 	const bytes = new Uint8Array( filtered.length * 4 );
 
 	for ( let i = 0; i < filtered.length; i ++ ) {
@@ -24,27 +51,23 @@ export function encodeCells( cells ) {
 		const ti = TYPE_INDEX[ name ] ?? 0;
 		const oi = ORIENT_DECODE[ cellOrient ] ?? 0;
 
-		// Byte 2: pack type + orient + legacy flags (bits 4-7)
-		// bits 4-5: elevLevel (2 bits: 0=ground, 1=2.5m, 2=5m)
-		// bit 6: curveOverride (1=force hard corner)
-		// bit 7: rotationOverride (1=manual rotation)
-		let flagBits = 0;
-		// Byte 3 (flags2): bit 0 = rampStyle (0=steep, 1=smooth)
+		let elev = 0;
 		let flags2 = 0;
+
 		if ( flags ) {
 
-			const elev = flags.elevation ?? 0;
+			elev = flags.elevation ?? 0;
 			const curve = flags.curveOverride ? 1 : 0;
 			const rot = flags.rotationOverride ? 1 : 0;
-			flagBits = ( elev & 0x03 ) | ( curve << 2 ) | ( rot << 3 );
+			flags2 = curve | ( rot << 1 );
 
-			if ( flags.rampStyle === 'smooth' ) flags2 |= 1;
+			if ( flags.rampStyle === 'smooth' ) flags2 |= ( 1 << 2 );
 
-			// bits 1-3: curveVariant (0=none, 1=2x2-wide, 2=2x2-tight, 3=3x3, 4=3x3-wide)
+			// bits 3-5: curveVariant (0=none, 1=2x2-wide, 2=2x2-tight, 3=3x3, 4=3x3-wide)
 			const CURVE_VARIANT_ENCODE = { '2x2-wide': 1, '2x2-tight': 2, '3x3': 3, '3x3-wide': 4 };
 			if ( flags.curveVariant && CURVE_VARIANT_ENCODE[ flags.curveVariant ] ) {
 
-				flags2 |= ( CURVE_VARIANT_ENCODE[ flags.curveVariant ] << 1 );
+				flags2 |= ( CURVE_VARIANT_ENCODE[ flags.curveVariant ] << 3 );
 
 			}
 
@@ -52,16 +75,49 @@ export function encodeCells( cells ) {
 
 		bytes[ i * 4 ] = gx + 128;
 		bytes[ i * 4 + 1 ] = gz + 128;
-		bytes[ i * 4 + 2 ] = ( flagBits << 4 ) | ( ti << 2 ) | oi;
+		bytes[ i * 4 + 2 ] = ( ti << 4 ) | ( oi << 2 ) | ( elev & 0x03 );
 		bytes[ i * 4 + 3 ] = flags2;
 
 	}
 
-	return 'v2:' + bytesToBase64url( bytes );
+	return 'v3:' + bytesToBase64url( bytes );
 
 }
 
 export function decodeCells( str ) {
+
+	// v3 format: 4 bytes per cell, prefixed with "v3:"
+	if ( str.startsWith( 'v3:' ) ) {
+
+		const bytes = base64urlToBytes( str.slice( 3 ) );
+		const cells = [];
+
+		for ( let i = 0; i + 3 < bytes.length; i += 4 ) {
+
+			const gx = bytes[ i ] - 128;
+			const gz = bytes[ i + 1 ] - 128;
+			const packed = bytes[ i + 2 ];
+			const flags2 = bytes[ i + 3 ];
+
+			const ti = ( packed >> 4 ) & 0x0F;
+			const oi = ( packed >> 2 ) & 0x03;
+			const elevation = packed & 0x03;
+
+			const curveOverride = !! ( flags2 & 0x01 );
+			const rotationOverride = !! ( flags2 & 0x02 );
+			const rampStyle = ( flags2 & 0x04 ) ? 'smooth' : null;
+
+			const CURVE_VARIANT_DECODE = [ null, '2x2-wide', '2x2-tight', '3x3', '3x3-wide' ];
+			const curveVariant = CURVE_VARIANT_DECODE[ ( flags2 >> 3 ) & 0x07 ] || null;
+
+			const flags = { elevation, curveOverride, rotationOverride, rampStyle, curveVariant };
+			cells.push( [ gx, gz, TYPE_NAMES[ ti ], ORIENT_ENCODE[ oi ], flags ] );
+
+		}
+
+		return cells;
+
+	}
 
 	// v2 format: 4 bytes per cell, prefixed with "v2:"
 	if ( str.startsWith( 'v2:' ) ) {

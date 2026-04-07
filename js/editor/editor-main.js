@@ -46,7 +46,8 @@ import {
 // ─── State ────────────────────────────────────────────────
 
 const grid = new Map(); // "gx,gz" → { type, orient, isFinish, mesh }
-let tool = 'road'; // 'road', 'erase', 'elevate'
+let tool = 'road'; // 'road', 'erase', 'elevate', 'place-special'
+let selectedSpecialTile = ''; // e.g. 'trk-bridge-entry'
 
 // ─── Auto-tile wrappers (bind grid) ──────────────────────
 const getConnectivityMask = ( gx, gz ) => _getConnectivityMask( grid, gx, gz );
@@ -454,6 +455,11 @@ const modelNames = [
 	'trk-ramp-up-2p5-smooth', 'trk-ramp-up-5-smooth',
 	'trk-ramp-down-2p5', 'trk-ramp-down-5',
 	'trk-ramp-down-2p5-smooth', 'trk-ramp-down-5-smooth',
+	'trk-junction-y', 'trk-junction-t', 'trk-junction-4way',
+	'trk-bridge-entry', 'trk-bridge-mid',
+	'trk-tunnel-entry', 'trk-tunnel-mid', 'trk-tunnel-exit', 'trk-tunnel-open',
+	'trk-jump-short', 'trk-jump-long',
+	'trk-chicane-3x3-l',
 	'vehicle-truck-red'
 ];
 const trackTileSet = getTrackTileSet( globalThis.location?.search ?? '' );
@@ -569,6 +575,83 @@ function updateFinishCar() {
 
 }
 
+// ─── Special tile placement ──────────────────────────────
+
+const MULTI_TILE_KEYS = new Set( [
+	'trk-junction-y', 'trk-junction-t', 'trk-junction-4way', 'trk-chicane-3x3-l'
+] );
+
+function placeSpecialTile( gx, gz, tileType ) {
+
+	const key = cellKey( gx, gz );
+	if ( grid.has( key ) ) {
+
+		showToast( 'Cell already occupied' );
+		return;
+
+	}
+
+	pushUndo();
+
+	const isMultiTile = MULTI_TILE_KEYS.has( tileType );
+
+	if ( isMultiTile ) {
+
+		// 3x3 footprint: anchor at (gx,gz), fill 3x3 area
+		// For now place all footprint cells as the multi-tile type at anchor
+		// and mark footprint cells as consumed straights
+		for ( let fx = 0; fx < 3; fx ++ ) {
+
+			for ( let fz = 0; fz < 3; fz ++ ) {
+
+				const fKey = cellKey( gx + fx, gz + fz );
+				if ( fx === 0 && fz === 0 ) continue;
+
+				if ( grid.has( fKey ) ) {
+
+					showToast( '3x3 footprint blocked at (' + ( gx + fx ) + ',' + ( gz + fz ) + ')' );
+					popUndo();
+					return;
+
+				}
+
+			}
+
+		}
+
+		// Place anchor cell
+		const cell = { type: tileType, orient: 0, isFinish: false, mesh: null };
+		grid.set( key, cell );
+		placeMesh( gx, gz, cell );
+
+		// Fill footprint with consumed marker cells (invisible, just grid reservations)
+		for ( let fx = 0; fx < 3; fx ++ ) {
+
+			for ( let fz = 0; fz < 3; fz ++ ) {
+
+				if ( fx === 0 && fz === 0 ) continue;
+				const fKey = cellKey( gx + fx, gz + fz );
+				const fCell = { type: 'trk-straight', orient: 0, isFinish: false, mesh: null, _consumed: true };
+				grid.set( fKey, fCell );
+
+			}
+
+		}
+
+	} else {
+
+		// 1x1 special tile — place directly
+		const cell = { type: tileType, orient: 0, isFinish: false, mesh: null };
+		grid.set( key, cell );
+		placeMesh( gx, gz, cell );
+
+	}
+
+	save();
+	updateStats();
+
+}
+
 // ─── Cell operations ──────────────────────────────────────
 
 function placeRoad( gx, gz ) {
@@ -579,6 +662,91 @@ function placeRoad( gx, gz ) {
 	if ( tool === 'elevate' ) {
 
 		cycleElevation( gx, gz );
+		return;
+
+	}
+
+	// Special tile placement mode
+	if ( tool === 'place-special' && selectedSpecialTile ) {
+
+		placeSpecialTile( gx, gz, selectedSpecialTile );
+		return;
+
+	}
+
+	// Finish tile placement mode
+	if ( tool === 'place-finish' ) {
+
+		const existing = grid.get( key );
+
+		// Click on finish center cell → rotate
+		if ( existing && existing.isFinish && ! existing.finishFlank ) {
+
+			pushUndo();
+			const newOrient = ORIENT_FLIP[ existing.orient ] ?? existing.orient;
+			removeFinish();
+			placeFinishAt( gx, gz, newOrient );
+			save();
+			updateFinishCar();
+			showToast( 'Finish rotated' );
+			return;
+
+		}
+
+		// Click on finish flank cell → rotate the center
+		if ( existing && existing.isFinish && existing.finishFlank ) {
+
+			for ( const [ ck, cc ] of grid ) {
+
+				if ( cc.isFinish && ! cc.finishFlank ) {
+
+					const [ cx, cz ] = ck.split( ',' ).map( Number );
+					pushUndo();
+					const newOrient = ORIENT_FLIP[ cc.orient ] ?? cc.orient;
+					removeFinish();
+					placeFinishAt( cx, cz, newOrient );
+					save();
+					updateFinishCar();
+					showToast( 'Finish rotated' );
+					return;
+
+				}
+
+			}
+
+			return;
+
+		}
+
+		// Click on occupied non-finish cell → block
+		if ( existing ) {
+
+			showToast( 'Cell already occupied' );
+			return;
+
+		}
+
+		// Check flanking cells are free (default orient 0 = N/S, flanks along Z)
+		for ( const dir of [ - 1, 1 ] ) {
+
+			const fk = cellKey( gx, gz + dir );
+			const fc = grid.get( fk );
+			if ( fc && ! fc.isFinish ) {
+
+				showToast( 'Not enough space for 3×1 finish tile' );
+				return;
+
+			}
+
+		}
+
+		pushUndo();
+		removeFinish();
+		placeFinishAt( gx, gz, 0 );
+		save();
+		updateStats();
+		updateFinishCar();
+		showToast( 'Finish placed' );
 		return;
 
 	}
@@ -636,19 +804,49 @@ function placeRoad( gx, gz ) {
 
 }
 
-function placeFinish() {
+function removeFinish() {
 
-	// 3x1 finish tile centered at (0,0), spanning (0,-1) to (0,1) along N/S
-	// Center cell gets the mesh. Flanking cells are grid markers (not saved, not rendered)
-	const center = { type: 'trk-finish', orient: 0, isFinish: true, mesh: null };
-	grid.set( cellKey( 0, 0 ), center );
-	placeMesh( 0, 0, center );
+	const toRemove = [];
+	for ( const [ key, cell ] of grid ) {
 
-	for ( const dz of [ - 1, 1 ] ) {
-
-		grid.set( cellKey( 0, dz ), { type: 'trk-finish', orient: 0, isFinish: true, mesh: null, finishFlank: true } );
+		if ( cell.isFinish ) toRemove.push( key );
 
 	}
+
+	for ( const key of toRemove ) {
+
+		const cell = grid.get( key );
+		if ( cell.mesh ) trackGroup.remove( cell.mesh );
+		grid.delete( key );
+
+	}
+
+}
+
+function placeFinishAt( gx, gz, orient = 0 ) {
+
+	const center = { type: 'trk-finish', orient, isFinish: true, mesh: null };
+	grid.set( cellKey( gx, gz ), center );
+	placeMesh( gx, gz, center );
+
+	// Flanking cells along the perpendicular axis
+	const isNS = orient === 0 || orient === 10;
+	const fdx = isNS ? 0 : 1;
+	const fdz = isNS ? 1 : 0;
+	for ( const dir of [ - 1, 1 ] ) {
+
+		grid.set(
+			cellKey( gx + fdx * dir, gz + fdz * dir ),
+			{ type: 'trk-finish', orient, isFinish: true, mesh: null, finishFlank: true }
+		);
+
+	}
+
+}
+
+function placeFinish() {
+
+	placeFinishAt( 0, 0, 0 );
 
 }
 
@@ -657,11 +855,45 @@ function eraseRoad( gx, gz ) {
 	const key = cellKey( gx, gz );
 	if ( ! grid.has( key ) ) return;
 
-	// Don't allow erasing the finish tile
+	// Erasing a finish tile removes the entire 3x1 finish
 	const cell = grid.get( key );
-	if ( cell.isFinish ) return;
+	if ( cell.isFinish ) {
+
+		pushUndo();
+		removeFinish();
+		save();
+		updateStats();
+		updateFinishCar();
+		return;
+
+	}
+
+	// Consumed cells (3x3 footprint) — block erasing; erase the anchor instead
+	if ( cell._consumed ) {
+
+		showToast( 'Erase the anchor tile to remove this piece' );
+		return;
+
+	}
 
 	pushUndo();
+
+	// If erasing a multi-tile anchor, remove all footprint cells
+	if ( MULTI_TILE_KEYS.has( cell.type ) ) {
+
+		for ( let fx = 0; fx < 3; fx ++ ) {
+
+			for ( let fz = 0; fz < 3; fz ++ ) {
+
+				if ( fx === 0 && fz === 0 ) continue;
+				const fKey = cellKey( gx + fx, gz + fz );
+				grid.delete( fKey );
+
+			}
+
+		}
+
+	}
 
 	// If erasing an auto-ramp cell, resolve to the ramp parent for orphan cleanup
 	const erasedKey = ( cell.autoRamp && cell.rampParent ) ? cell.rampParent : key;
@@ -838,6 +1070,22 @@ function updateGhost( gx, gz ) {
 	const key = cellKey( gx, gz );
 	if ( grid.has( key ) ) return; // already occupied
 
+	// Finish tile ghost preview
+	if ( tool === 'place-finish' ) {
+
+		addGhostPiece( 'trk-finish', 0, gx, gz, 0.4 );
+		return;
+
+	}
+
+	// Special tile ghost preview
+	if ( tool === 'place-special' && selectedSpecialTile ) {
+
+		addGhostPiece( selectedSpecialTile, 0, gx, gz, 0.4 );
+		return;
+
+	}
+
 	// Temporarily insert ghost cell into grid
 	const ghostCell = { type: 'trk-straight', orient: 0, isFinish: false, mesh: null };
 	grid.set( key, ghostCell );
@@ -967,8 +1215,9 @@ function updateCellIndicator( gx, gz ) {
 
 	} else {
 
-		indicatorMat.color.setHex( tool === 'elevate' ? 0x44ccff : 0x44ff88 );
-		outlineMat.color.setHex( tool === 'elevate' ? 0x44ccff : 0x44ff88 );
+		const emptyColor = tool === 'elevate' ? 0x44ccff : tool === 'place-finish' ? 0xffcc44 : 0x44ff88;
+		indicatorMat.color.setHex( emptyColor );
+		outlineMat.color.setHex( emptyColor );
 
 	}
 
@@ -1639,6 +1888,9 @@ function showToast( msg ) {
 const btnRoad = document.getElementById( 'btn-road' );
 const btnErase = document.getElementById( 'btn-erase' );
 const btnElevate = document.getElementById( 'btn-elevate' );
+const btnFinish = document.getElementById( 'btn-finish' );
+
+const specialSelect = document.getElementById( 'special-tile-select' );
 
 function selectTool( t ) {
 
@@ -1646,12 +1898,42 @@ function selectTool( t ) {
 	btnRoad.classList.toggle( 'active', t === 'road' );
 	btnErase.classList.toggle( 'active', t === 'erase' );
 	btnElevate.classList.toggle( 'active', t === 'elevate' );
+	btnFinish.classList.toggle( 'active', t === 'place-finish' );
+
+	// Clear special tile selection when switching to a standard tool
+	if ( t !== 'place-special' ) {
+
+		selectedSpecialTile = '';
+		specialSelect.value = '';
+
+	}
 
 }
 
 btnRoad.addEventListener( 'click', () => selectTool( 'road' ) );
 btnErase.addEventListener( 'click', () => selectTool( 'erase' ) );
 btnElevate.addEventListener( 'click', () => selectTool( 'elevate' ) );
+btnFinish.addEventListener( 'click', () => selectTool( 'place-finish' ) );
+
+specialSelect.addEventListener( 'change', () => {
+
+	const val = specialSelect.value;
+	if ( val ) {
+
+		selectedSpecialTile = val;
+		tool = 'place-special';
+		btnRoad.classList.remove( 'active' );
+		btnErase.classList.remove( 'active' );
+		btnElevate.classList.remove( 'active' );
+		btnFinish.classList.remove( 'active' );
+
+	} else {
+
+		selectTool( 'road' );
+
+	}
+
+} );
 
 document.getElementById( 'btn-undo' ).addEventListener( 'click', undo );
 document.getElementById( 'btn-redo' ).addEventListener( 'click', redo );
@@ -2006,6 +2288,10 @@ window.addEventListener( 'keydown', ( e ) => {
 	} else if ( e.key === '3' ) {
 
 		selectTool( 'elevate' );
+
+	} else if ( e.key === '4' ) {
+
+		selectTool( 'place-finish' );
 
 	} else if ( e.key === '0' ) {
 

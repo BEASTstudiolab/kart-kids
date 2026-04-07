@@ -7,7 +7,7 @@ Port of the Kenney "Starter Kit Racing" Godot 4.6 project (in `_godot/`) to plai
 - `_godot/` — Original Godot project (reference implementation)
 - `js/` — JavaScript port
   - `main.js` — Entry point, scene setup, game loop
-  - `Physics.js` — crashcat wall colliders and sphere body (ported from Godot collision shapes)
+  - `Physics.js` — crashcat triangle mesh track colliders, box vehicle body
   - `Track.js` — GridMap track layout and piece placement
   - `Vehicle.js` — Vehicle physics and controls
   - `Camera.js` — Camera system
@@ -31,12 +31,10 @@ Port of the Kenney "Starter Kit Racing" Godot 4.6 project (in `_godot/`) to plai
 ## Key conventions
 
 - GridMap cell size: 10.0 units, scale: 1.0 (`CELL_RAW` and `GRID_SCALE` in `Track.js`)
-- Tile naming: `trk-straight`, `trk-corner-1x1`, `trk-finish`, `trk-curve-NxN-l`, `trk-elev-*`, `trk-ramp-*`
+- Tile naming: `trk-straight`, `trk-corner-1x1`, `trk-finish`, `trk-curve-NxN-l`, `trk-elev-*`, `trk-ramp-*`, `trk-junction-{y,t,4way}`, `trk-bridge-{entry,mid}`, `trk-tunnel-{entry,mid,exit,open}`, `trk-jump-{short,long}`, `trk-chicane-3x3-l`
 - Track group at Y=0 (no offset), tiles placed at Y=0
 - Vehicle models use `root_scale = 0.5`
-- Wall colliders: friction 0.0, restitution 0.3, `WALL_X = 4.5` (inner face at 4.0 = road edge)
-- Corner colliders: arc center at `(-CELL_HALF, +CELL_HALF)` in local space, outer wall radius `9.0`, inner radius `1.5`
-- Multi-tile curve walls: `outerR = curveSize * CELL_RAW - 1.0`, `innerR = outerR - 7.5`
+- Track colliders: triangle mesh built from tile model geometry (sole collision surface)
 - Orientation mapping: `{ 0: 0°, 10: 180°, 16: 90°, 22: 270° }` (ORIENT_ENCODE/ORIENT_DECODE in Track.js)
 - Vehicle collider: `vehPos`, `vehVel` (position/velocity), box halfExtents `[0.4, 0.3, 0.7]` at `vehPos.y + 0.8`
 

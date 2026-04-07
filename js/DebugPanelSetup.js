@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { DebugMenu } from './DebugMenu.js';
-import { buildWallColliders } from './Physics.js';
 import { CELL_RAW, GRID_SCALE, ORIENT_DEG } from './Track.js';
 
 
@@ -62,15 +61,13 @@ export function setupDebugPanel( ctx ) {
 		scene, renderer, bloomPass, postFX,
 		vehicle, cam, aiManager,
 		dirLight, dirLightOffset, hemiLight,
-		wallDebugGroup, meshDebugGroup, colliderDebugGroup,
+		meshDebugGroup, colliderDebugGroup,
 		tileLabelsGroup, heightLabelsGroup,
-		world, renderCells, models,
+		renderCells, models,
 		groundIndicator, jitterDisplay, draftIndicator,
 		applyLighting, LIGHTING_DAY, LIGHTING_NIGHT,
 		fpsCapMs, draftIndicatorEnabled,
 	} = ctx;
-
-	let wallCollidersEnabled = false;
 
 	// ── Debug label builders ─────────────────────────────────────────────────
 
@@ -346,23 +343,6 @@ export function setupDebugPanel( ctx ) {
 	debugMenu.addCheckbox( generalTab, 'Show Vehicle Physics Collider', false, ( v ) => {
 
 		debugCollider.visible = v;
-
-	} );
-
-	debugMenu.addCheckbox( generalTab, 'Show wall colliders', false, ( v ) => {
-
-		wallDebugGroup.visible = v;
-
-	} );
-
-	debugMenu.addCheckbox( generalTab, 'Enable wall colliders', false, ( v ) => {
-
-		if ( v && ! wallCollidersEnabled ) {
-
-			buildWallColliders( world, null, renderCells );
-			wallCollidersEnabled = true;
-
-		}
 
 	} );
 

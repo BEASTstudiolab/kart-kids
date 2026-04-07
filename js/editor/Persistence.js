@@ -15,6 +15,7 @@ export function getCellsArray( grid ) {
 	for ( const [ key, cell ] of grid ) {
 
 		if ( cell.autoRamp ) continue;
+		if ( cell._consumed ) continue;
 
 		const [ gx, gz ] = key.split( ',' ).map( Number );
 
