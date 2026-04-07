@@ -776,8 +776,12 @@ async function init() {
 
 			if ( boostJustActivated ) {
 
-				if ( ! window.isMobile ) vehicle.underglowLight.visible = true;
-				vehicle.underglowLight.color.setHex( 0xff8800 );
+				if ( vehicle.underglowLight ) {
+
+					if ( ! window.isMobile ) vehicle.underglowLight.visible = true;
+					vehicle.underglowLight.color.setHex( 0xff8800 );
+
+				}
 				audio.playBoostWhoosh();
 
 				_boostFwd.set( 0, 0, 1 ).applyQuaternion( vehicle.container.quaternion );
@@ -785,7 +789,7 @@ async function init() {
 
 			}
 
-			if ( boostJustEnded ) {
+			if ( boostJustEnded && vehicle.underglowLight ) {
 
 				vehicle.underglowLight.visible = false;
 				vehicle.underglowLight.color.setHex( 0x00ffff );
