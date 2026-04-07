@@ -26,6 +26,8 @@ export class VehicleGroundRaycast {
 		];
 		this._wheelGroundHeights = [ 0, 0, 0, 0 ];
 		this._wheelOnSurface = [ true, true, true, true ];
+		this._wheelWorldX = [ 0, 0, 0, 0 ];
+		this._wheelWorldZ = [ 0, 0, 0, 0 ];
 
 		// Per-wheel spring suspension
 		this._wheelSprings = [
@@ -110,8 +112,8 @@ export class VehicleGroundRaycast {
 		let anyHit = false;
 
 		// Store world XZ per wheel for proper normal computation
-		const wheelWorldX = [ 0, 0, 0, 0 ];
-		const wheelWorldZ = [ 0, 0, 0, 0 ];
+		const wheelWorldX = this._wheelWorldX;
+		const wheelWorldZ = this._wheelWorldZ;
 
 		for ( let i = 0; i < 4; i ++ ) {
 
