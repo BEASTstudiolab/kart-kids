@@ -47,9 +47,10 @@ class WebSocketTransport {
 
 					msg = JSON.parse( e.data );
 
-				} catch {
+				} catch ( err ) {
 
-					return; // ignore parse errors only
+					console.warn( '[net] Failed to parse server message:', err.message );
+					return;
 
 				}
 
