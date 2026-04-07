@@ -64,6 +64,9 @@ export class TrackIntel {
 
 	constructor( cells ) {
 
+		this.valid = true;
+		this.error = null;
+
 		// Build cell lookup by "gx,gz" key
 		const cellMap = new Map();
 		for ( const cell of cells ) {
@@ -87,7 +90,8 @@ export class TrackIntel {
 
 		if ( ! finishCell ) {
 
-			throw new Error( 'TrackIntel: No trk-finish cell found in cells array' );
+			this._setInvalid( 'No trk-finish cell found in cells array' );
+			return;
 
 		}
 
@@ -119,9 +123,8 @@ export class TrackIntel {
 
 					if ( nextCell ) {
 
-						throw new Error(
-							`TrackIntel: Ambiguous bump piece at (${gx},${gz}) — multiple non-previous neighbors`
-						);
+						this._setInvalid( `Ambiguous bump piece at (${gx},${gz}) — multiple non-previous neighbors` );
+						return;
 
 					}
 
@@ -152,9 +155,8 @@ export class TrackIntel {
 
 			if ( ! nextCell && ordered.length < cells.length ) {
 
-				throw new Error(
-					`TrackIntel: Connectivity broken at (${gx},${gz}) — no valid neighbor found`
-				);
+				this._setInvalid( `Connectivity broken at (${gx},${gz}) — no valid neighbor found` );
+				return;
 
 			}
 
@@ -170,9 +172,8 @@ export class TrackIntel {
 			const unreached = cells
 				.filter( c => ! reachedKeys.has( c[ 0 ] + ',' + c[ 1 ] ) )
 				.map( c => `(${c[ 0 ]},${c[ 1 ]})` );
-			throw new Error(
-				`TrackIntel: Walk covered ${ordered.length}/${cells.length} cells. Unreached: ${unreached.join( ', ' )}`
-			);
+			this._setInvalid( `Walk covered ${ordered.length}/${cells.length} cells. Unreached: ${unreached.join( ', ' )}` );
+			return;
 
 		}
 
@@ -386,6 +387,18 @@ export class TrackIntel {
 	}
 
 	// ─── Internal Helpers ────────────────────────────────────
+
+	_setInvalid( reason ) {
+
+		console.warn( `TrackIntel: ${reason}` );
+		this.valid = false;
+		this.error = reason;
+		this.waypoints = [];
+		this.count = 0;
+		this._cumDist = new Float64Array( 0 );
+		this.totalLength = 0;
+
+	}
 
 	_projectOntoSegment( worldX, worldZ, segIndex ) {
 

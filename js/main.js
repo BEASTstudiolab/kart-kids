@@ -417,16 +417,23 @@ async function init() {
 
 	const intelCells = customCells ? deriveRampCells( activeCells ) : activeCells;
 	const trackIntel = new TrackIntel( intelCells );
-	raceMode.trackIntel = trackIntel;
-	vehicle.setTrackIntel( trackIntel );
 
-	const aiManager = new AIManager( scene, world, models, trackIntel, spawnPosition, spawnAngle, spawn.finishAngle );
+	if ( ! trackIntel.valid ) {
+
+		console.warn( 'TrackIntel invalid — AI, position ranking, and item boxes disabled:', trackIntel.error );
+
+	}
+
+	raceMode.trackIntel = trackIntel.valid ? trackIntel : null;
+	vehicle.setTrackIntel( trackIntel.valid ? trackIntel : null );
+
+	const aiManager = new AIManager( scene, world, models, trackIntel.valid ? trackIntel : null, spawnPosition, spawnAngle, spawn.finishAngle );
 	aiManager.totalLaps = 3;
 
 	const minimap = new Minimap( activeCells, bounds );
 
 	// ── Item boxes ───────────────────────────────────────────────────────────
-	const itemBoxManager = new ItemBoxManager( scene, trackIntel );
+	const itemBoxManager = trackIntel.valid ? new ItemBoxManager( scene, trackIntel ) : null;
 
 	// ── Multiplayer race sync ────────────────────────────────────────────────
 
@@ -748,7 +755,7 @@ async function init() {
 	const haptics = new Haptics();
 
 	// Wire item pickup feedback
-	itemBoxManager.onPickup = ( x, z, powerupType ) => {
+	if ( itemBoxManager ) itemBoxManager.onPickup = ( x, z, powerupType ) => {
 
 		itemPickupVFX.emit( x, z, powerupType );
 		audio.playItemPickup();
@@ -856,7 +863,7 @@ async function init() {
 		aiManager.update( dt, vehicle, raceMode.state, raceMode.lap );
 
 		// ─── Item box pickups ─────────────────────────────────────────────────
-		if ( ! spectating ) itemBoxManager.update( dt, vehicle );
+		if ( ! spectating && itemBoxManager ) itemBoxManager.update( dt, vehicle );
 
 		// ─── Boost activation feedback ───────────────────────────────────────
 		if ( ! spectating && vehicle ) {

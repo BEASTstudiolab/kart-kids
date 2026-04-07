@@ -66,6 +66,7 @@ export class AIManager {
 
 	setCount( count ) {
 
+		if ( ! this.trackIntel ) return;
 		count = clamp( Math.round( count ), 0, 8 );
 
 		// Spawn new
