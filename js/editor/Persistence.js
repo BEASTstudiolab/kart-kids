@@ -51,7 +51,16 @@ export function getCellsArray( grid ) {
 export function save( grid ) {
 
 	const encoded = encodeCells( getCellsArray( grid ) );
-	localStorage.setItem( 'racing-editor-cells', encoded );
+
+	try {
+
+		localStorage.setItem( 'racing-editor-cells', encoded );
+
+	} catch ( e ) {
+
+		console.warn( 'Editor save failed:', e.message );
+
+	}
 
 }
 
@@ -161,14 +170,31 @@ export function saveNamedTrack( grid, name ) {
 
 	}
 
-	localStorage.setItem( SAVES_KEY, JSON.stringify( tracks ) );
+	try {
+
+		localStorage.setItem( SAVES_KEY, JSON.stringify( tracks ) );
+
+	} catch ( e ) {
+
+		console.warn( 'Failed to save track:', e.message );
+
+	}
 
 }
 
 export function deleteNamedTrack( name ) {
 
 	const tracks = getSavedTracks().filter( t => t.name !== name );
-	localStorage.setItem( SAVES_KEY, JSON.stringify( tracks ) );
+
+	try {
+
+		localStorage.setItem( SAVES_KEY, JSON.stringify( tracks ) );
+
+	} catch ( e ) {
+
+		console.warn( 'Failed to update saved tracks:', e.message );
+
+	}
 
 }
 
