@@ -298,7 +298,12 @@ async function init() {
 
 	const spectateBtn = document.getElementById( 'spectate-btn' );
 
-	try {
+	// Skip multiplayer for custom editor maps — go straight to single-player
+	if ( customCells ) {
+
+		playerManager.initSinglePlayer();
+
+	} else try {
 
 		await network.connect();
 		multiplayer = true;
