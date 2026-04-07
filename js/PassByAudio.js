@@ -13,6 +13,9 @@ export class PassByAudio {
 		this._minRelSpeed = 8; // minimum relative speed for whoosh
 		this._cooldownTime = 1.5; // seconds between whooshes per vehicle
 
+		// Cached noise buffer — random white noise reused across all whooshes
+		this._noiseBuffer = null;
+
 	}
 
 	update( dt, playerVehicle, otherVehicles ) {
@@ -77,14 +80,18 @@ export class PassByAudio {
 			const now = ctx.currentTime;
 			const duration = 0.35;
 
-			// Noise source for the whoosh texture
-			const bufferSize = ctx.sampleRate * 0.5;
-			const noiseBuffer = ctx.createBuffer( 1, bufferSize, ctx.sampleRate );
-			const data = noiseBuffer.getChannelData( 0 );
-			for ( let i = 0; i < bufferSize; i ++ ) data[ i ] = Math.random() * 2 - 1;
+			// Reuse cached noise buffer — white noise is perceptually identical each time
+			if ( ! this._noiseBuffer || this._noiseBuffer.sampleRate !== ctx.sampleRate ) {
+
+				const bufferSize = Math.floor( ctx.sampleRate * 0.5 );
+				this._noiseBuffer = ctx.createBuffer( 1, bufferSize, ctx.sampleRate );
+				const data = this._noiseBuffer.getChannelData( 0 );
+				for ( let i = 0; i < bufferSize; i ++ ) data[ i ] = Math.random() * 2 - 1;
+
+			}
 
 			const noise = ctx.createBufferSource();
-			noise.buffer = noiseBuffer;
+			noise.buffer = this._noiseBuffer;
 
 			// Bandpass filter — higher speed = higher pitch
 			const filter = ctx.createBiquadFilter();
