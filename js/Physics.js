@@ -2,24 +2,9 @@ import * as THREE from 'three';
 import { rigidBody, box, triangleMesh, MotionType, MotionQuality } from 'crashcat';
 import { TRACK_CELLS, CELL_RAW, ORIENT_DEG } from './Track.js';
 import { getCurveConfig } from './TileMetadata.js';
+import { elevToY } from './ElevationUtils.js';
 
 const _vec3 = new THREE.Vector3();
-
-const ELEV_GROUND = 12;
-const ELEV_STEP_Y = 2.5;
-
-function elevToY( flags ) {
-
-	if ( flags?.fullElevation != null && flags.fullElevation !== ELEV_GROUND ) {
-
-		return ( flags.fullElevation - ELEV_GROUND ) * ELEV_STEP_Y;
-
-	}
-
-	const elev = flags?.elevation || 0;
-	return elev * ELEV_STEP_Y;
-
-}
 
 export function buildTrackColliders( world, models, customCells ) {
 

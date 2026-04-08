@@ -1,6 +1,25 @@
 // ─── Elevation Utilities ─────────────────────────────────────────────
-// Shared between editor (Elevation.js) and game (Track.js).
+// Shared between editor (Elevation.js) and game (Track.js, Physics.js).
 // Pure functions — no dependencies on state or THREE.
+
+// Elevation step → world Y offset
+// Editor uses steps 0-24 (12=ground), each step = 2.5m (matches model geometry)
+export const ELEV_GROUND = 12;
+export const ELEV_STEP_Y = 2.5;
+
+export function elevToY( flags ) {
+
+	// Use fullElevation (v4) if available, fall back to legacy v3 elevation
+	if ( flags?.fullElevation != null && flags.fullElevation !== ELEV_GROUND ) {
+
+		return ( flags.fullElevation - ELEV_GROUND ) * ELEV_STEP_Y;
+
+	}
+
+	const elev = flags?.elevation || 0;
+	return elev * ELEV_STEP_Y;
+
+}
 
 /**
  * Get the model name for an elevation piece.
