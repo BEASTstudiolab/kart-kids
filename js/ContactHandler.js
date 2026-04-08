@@ -7,6 +7,7 @@ const _bumpRight = new THREE.Vector3();
 const _bumpNormalXZ = new THREE.Vector3();
 const _bumpLateral = new THREE.Vector3();
 const _bumpPushDir = new THREE.Vector3();
+const _collisionPoint = { x: 0, y: 0, z: 0 };
 
 
 /**
@@ -128,10 +129,10 @@ export function createContactListener( ctx ) {
 
 			const posA = vehicleA.container.position;
 			const posB = vehicleB.container.position;
-			wallSparks.emit(
-				{ x: ( posA.x + posB.x ) / 2, y: posA.y, z: ( posA.z + posB.z ) / 2 },
-				_bumpPushDir.x, _bumpPushDir.z, pushMag
-			);
+			_collisionPoint.x = ( posA.x + posB.x ) / 2;
+			_collisionPoint.y = posA.y;
+			_collisionPoint.z = ( posA.z + posB.z ) / 2;
+			wallSparks.emit( _collisionPoint, _bumpPushDir.x, _bumpPushDir.z, pushMag );
 			haptics.impulse( severity * 0.6 );
 
 		}
