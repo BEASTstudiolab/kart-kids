@@ -1,5 +1,12 @@
 import { SpringAnimator } from './SpringAnimator.js';
 
+const DRIFT_TIER_CONFIG = [
+	null,
+	{ text: 'DRIFT!', color: '#4488ff' },
+	{ text: 'DRIFT!!', color: '#ff8800' },
+	{ text: 'DRIFT!!!', color: '#aa44ff' },
+];
+
 export class HUD {
 
 	constructor( onRestart, onReady ) {
@@ -344,14 +351,7 @@ export class HUD {
 
 		this._driftEl.style.display = 'block';
 
-		const TIER_CONFIG = [
-			null,
-			{ text: 'DRIFT!', color: '#4488ff' },
-			{ text: 'DRIFT!!', color: '#ff8800' },
-			{ text: 'DRIFT!!!', color: '#aa44ff' },
-		];
-
-		const cfg = TIER_CONFIG[ tier ];
+		const cfg = DRIFT_TIER_CONFIG[ tier ];
 		this._driftEl.textContent = cfg.text;
 		this._driftEl.style.color = cfg.color;
 
