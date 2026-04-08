@@ -526,6 +526,40 @@ export class TrackIntel {
 
 	}
 
+	// ─── Reverse Mode ───────────────────────────────────────
+
+	/**
+	 * Reverse the waypoint order so the track is raced in the opposite direction.
+	 * Recomputes cumulative distances. Waypoint 0 stays as the finish/start position
+	 * but the traversal direction is flipped.
+	 */
+	reverse() {
+
+		if ( ! this.valid || this.count < 2 ) return;
+
+		this.waypoints.reverse();
+		this._orderedCells.reverse();
+
+		// Recompute cumulative distances
+		this._cumDist[ 0 ] = 0;
+		for ( let i = 1; i < this.count; i ++ ) {
+
+			const prev = this.waypoints[ i - 1 ];
+			const curr = this.waypoints[ i ];
+			const dx = curr.x - prev.x;
+			const dz = curr.z - prev.z;
+			this._cumDist[ i ] = this._cumDist[ i - 1 ] + Math.sqrt( dx * dx + dz * dz );
+
+		}
+
+		const last = this.waypoints[ this.count - 1 ];
+		const first = this.waypoints[ 0 ];
+		const closeDx = first.x - last.x;
+		const closeDz = first.z - last.z;
+		this.totalLength = this._cumDist[ this.count - 1 ] + Math.sqrt( closeDx * closeDx + closeDz * closeDz );
+
+	}
+
 	// ─── Internal Helpers ────────────────────────────────────
 
 	_setInvalid( reason ) {

@@ -318,7 +318,8 @@ async function init() {
 	} );
 
 	const spawnPosition = spawn.position;
-	const spawnAngle = spawn.angle;
+	const isReverse = settings.get( 'reverseTrack' ) === true;
+	const spawnAngle = isReverse ? spawn.angle + Math.PI : spawn.angle;
 
 	const playerManager = new PlayerManager( scene, world, models, spawnPosition, spawnAngle );
 
@@ -408,7 +409,8 @@ async function init() {
 	} );
 
 	// Init finish line from spawn/finish cell position (use finishAngle, not spawn angle)
-	raceMode.initFinishLine( spawn.position, spawn.finishAngle );
+	const finishAngle = isReverse ? spawn.finishAngle + Math.PI : spawn.finishAngle;
+	raceMode.initFinishLine( spawn.position, finishAngle );
 
 	// ── Race lobby (zone-based start) ───────────────────────────────────────
 	const raceLobby = new RaceLobby( {
@@ -448,7 +450,9 @@ async function init() {
 	const intelCells = customCells ? deriveRampCells( activeCells ) : activeCells;
 	const trackIntel = new TrackIntel( intelCells );
 
-	console.log( `[TrackIntel] valid=${trackIntel.valid}, cells=${intelCells.length}, customCells=${!!customCells}`, trackIntel.valid ? '' : trackIntel.error );
+	if ( isReverse && trackIntel.valid ) trackIntel.reverse();
+
+	console.log( `[TrackIntel] valid=${trackIntel.valid}, cells=${intelCells.length}, customCells=${!!customCells}, reverse=${isReverse}`, trackIntel.valid ? '' : trackIntel.error );
 
 	if ( ! trackIntel.valid ) {
 
@@ -459,7 +463,7 @@ async function init() {
 	raceMode.trackIntel = trackIntel.valid ? trackIntel : null;
 	vehicle.setTrackIntel( trackIntel.valid ? trackIntel : null );
 
-	const aiManager = new AIManager( scene, world, models, trackIntel.valid ? trackIntel : null, spawnPosition, spawnAngle, spawn.finishAngle );
+	const aiManager = new AIManager( scene, world, models, trackIntel.valid ? trackIntel : null, spawnPosition, spawnAngle, finishAngle );
 	aiManager.totalLaps = 3;
 
 	const minimap = new Minimap( activeCells, bounds );
@@ -683,6 +687,25 @@ async function init() {
 		ghostPlayer.restart();
 
 	};
+
+	// Reverse track toggle in hamburger menu
+	{
+
+		const raceSec = settingsMenu._section( 'Race' );
+		raceSec.appendChild( settingsMenu._toggleRowCustom(
+			'Reverse Track',
+			settings.get( 'reverseTrack' ) === true,
+			( v ) => {
+
+				settings.set( 'reverseTrack', v );
+				// Requires page reload to take effect
+				location.reload();
+
+			}
+		) );
+		settingsMenu.addSection( raceSec );
+
+	}
 
 	// Ghost toggle in hamburger menu
 	{
