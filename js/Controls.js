@@ -24,6 +24,7 @@ export class Controls {
 
 		// Accelerometer state
 		this._accelGamma = 0;
+		this._accelBaseline = 0;
 		this._accelEnabled = false;
 		this._accelListening = false;
 
@@ -157,6 +158,18 @@ export class Controls {
 				border-color: rgba(100,180,255,0.4); color: rgba(100,180,255,0.6);
 			}
 			.touch-btn-drift.active { background: rgba(100,180,255,0.18); border-color: rgba(100,180,255,0.7); }
+			.touch-recenter {
+				position: absolute; bottom: 32px; ${ steerSide }: 32px;
+				width: 80px; height: 48px; border-radius: 24px;
+				background: rgba(255,255,255,0.06);
+				border: 2px solid rgba(180,180,255,0.4);
+				pointer-events: auto; touch-action: none;
+				display: flex; align-items: center; justify-content: center;
+				font-family: sans-serif; font-size: 11px; font-weight: 700;
+				color: rgba(180,180,255,0.6); user-select: none;
+				-webkit-user-select: none;
+			}
+			.touch-recenter:active { background: rgba(180,180,255,0.18); border-color: rgba(180,180,255,0.7); }
 		`;
 		document.head.appendChild( css );
 		this._touchCSS = css;
@@ -226,6 +239,21 @@ export class Controls {
 
 		steerZone.addEventListener( 'pointerup', endSteer );
 		steerZone.addEventListener( 'pointercancel', endSteer );
+
+		// ── Accelerometer recenter button ────────────────────────────────────
+
+		const recenterBtn = document.createElement( 'div' );
+		recenterBtn.className = 'touch-recenter';
+		recenterBtn.textContent = 'CENTER';
+		recenterBtn.style.display = this._accelEnabled ? '' : 'none';
+		recenterBtn.addEventListener( 'pointerdown', ( e ) => {
+
+			e.preventDefault();
+			this.calibrateAccelerometer();
+
+		} );
+		container.appendChild( recenterBtn );
+		this._recenterBtn = recenterBtn;
 
 		// ── Action buttons ───────────────────────────────────────────────────
 
@@ -383,6 +411,9 @@ export class Controls {
 					};
 					window.addEventListener( 'deviceorientation', this._accelHandler );
 					this._accelListening = true;
+					// Auto-calibrate after a short delay so the baseline
+					// captures the player's natural holding angle
+					setTimeout( () => this.calibrateAccelerometer(), 300 );
 
 				} else {
 
@@ -399,13 +430,20 @@ export class Controls {
 
 			window.removeEventListener( 'deviceorientation', this._accelHandler );
 			this._accelListening = false;
+			this._accelBaseline = 0;
 
 		}
 
-		// Show/hide joystick
+		// Show/hide joystick and recenter button
 		if ( this._steerZone ) {
 
 			this._steerZone.style.display = enabled ? 'none' : '';
+
+		}
+
+		if ( this._recenterBtn ) {
+
+			this._recenterBtn.style.display = enabled ? '' : 'none';
 
 		}
 
@@ -431,6 +469,12 @@ export class Controls {
 
 		// Android or desktop — no permission needed
 		return true;
+
+	}
+
+	calibrateAccelerometer() {
+
+		this._accelBaseline = this._accelGamma;
 
 	}
 
@@ -539,7 +583,7 @@ export class Controls {
 			// Steering: accelerometer or joystick
 			if ( this._accelEnabled && this._accelListening ) {
 
-				const gamma = Math.max( - 30, Math.min( 30, this._accelGamma ) );
+				const gamma = Math.max( - 30, Math.min( 30, this._accelGamma - this._accelBaseline ) );
 				const normalized = gamma / 30;
 				x = Math.abs( normalized ) < 0.12 ? 0 : this._quantizeSteer( normalized );
 
