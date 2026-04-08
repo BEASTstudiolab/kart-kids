@@ -1160,7 +1160,9 @@ async function init() {
 
 		}
 
-		audio.update( dt, vehicle ? vehicle.linearSpeed : 0, input.z, vehicle ? vehicle.driftIntensity : 0 );
+		// During countdown, use raw gas input for engine rev effect even though vehicle isn't moving
+		const audioThrottle = raceMode.state === 'countdown' ? rawInput.z : input.z;
+		audio.update( dt, vehicle ? vehicle.linearSpeed : 0, audioThrottle, vehicle ? vehicle.driftIntensity : 0 );
 
 		// Draft wind audio — get player's draft intensity
 		if ( vehicle ) {
