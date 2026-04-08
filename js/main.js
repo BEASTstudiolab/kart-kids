@@ -441,7 +441,7 @@ async function init() {
 	} );
 
 	const hud = new HUD(
-		() => { raceMode.reset(); aiManager.resetRace(); raceLobby.reset(); },
+		() => { raceMode.reset(); aiManager.resetRace(); raceLobby.reset(); wreckManager.reset(); },
 		() => raceLobby.setReady( playerManager.localId )
 	);
 

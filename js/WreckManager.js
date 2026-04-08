@@ -194,6 +194,17 @@ export class WreckManager {
 
 	}
 
+	reset() {
+
+		// Remove all active wrecks (hide containers, clear smoke)
+		while ( this._wrecks.length > 0 ) {
+
+			this._removeWreck( 0 );
+
+		}
+
+	}
+
 	dispose() {
 
 		for ( const sprite of this._smokePool ) {
