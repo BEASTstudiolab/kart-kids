@@ -587,6 +587,8 @@ async function init() {
 		fpsCapMs, draftIndicatorEnabled,
 	} ) );
 
+	aiManager._camera = cam.camera;
+
 	// Auto-enable top-down debug mode via ?debug=topdown
 	if ( debugTopdown ) {
 

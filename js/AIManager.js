@@ -8,6 +8,7 @@ import { TireMarks } from './TireMarks.js';
 import { FinishLine } from './FinishLine.js';
 import { AIController } from './AIController.js';
 import { AI_PROFILES } from './AIProfiles.js';
+import { AINameplate } from './AINameplate.js';
 import { ItemSlotManager } from './ItemSlotManager.js';
 import { rigidBody } from 'crashcat';
 
@@ -60,6 +61,7 @@ export class AIManager {
 		this._activeVehiclesCache = [];
 		this._raceDataCache = [];
 		this._aiColors = generateAIColors( 8 );
+		this._camera = null;
 
 	}
 
@@ -136,6 +138,9 @@ export class AIManager {
 		vehicle.itemSlot = new ItemSlotManager( vehicle );
 		const controller = new AIController( this.trackIntel, index, profile );
 
+		const nameplate = new AINameplate( profile.name, aiColor );
+		this.scene.add( nameplate.sprite );
+
 		const finishLine = new FinishLine( {
 			position: this.spawnPosition,
 			angle: this.finishAngle
@@ -146,6 +151,7 @@ export class AIManager {
 			vehicle,
 			controller,
 			profile,
+			nameplate,
 			smokeTrails: new SmokeTrails( this.scene ),
 			driftSparks: new DriftSparks( this.scene ),
 			boostFlame: new BoostFlame( this.scene ),
@@ -166,6 +172,13 @@ export class AIManager {
 
 		removeVehicleBody( this.world, ai.vehicle.rigidBody );
 		this.scene.remove( ai.vehicle.container );
+
+		if ( ai.nameplate ) {
+
+			this.scene.remove( ai.nameplate.sprite );
+			ai.nameplate.dispose();
+
+		}
 
 		ai.smokeTrails.dispose();
 		ai.driftSparks.dispose();
@@ -213,6 +226,13 @@ export class AIManager {
 			ai.driftSparks.update( dt, ai.vehicle );
 			ai.boostFlame.update( dt, ai.vehicle );
 			ai.tireMarks.update( dt, ai.vehicle );
+
+			// Nameplate
+			if ( ai.nameplate && this._camera ) {
+
+				ai.nameplate.update( ai.vehicle.container, this._camera );
+
+			}
 
 			// Finish line check during racing
 			if ( raceState === 'racing' ) {
