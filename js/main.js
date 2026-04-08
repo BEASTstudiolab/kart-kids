@@ -867,6 +867,7 @@ async function init() {
 
 	let lastFrameTime = 0;
 	let shadowFrameCounter = 0;
+	let _loopErrorCount = 0;
 
 	function animate() {
 
@@ -881,6 +882,30 @@ async function init() {
 
 		}
 
+		try {
+
+		_animateInner();
+
+		} catch ( err ) {
+
+			_loopErrorCount ++;
+			console.error( '[game-loop] Uncaught error in frame (count: ' + _loopErrorCount + '):', err );
+
+			// Stop the loop after 10 consecutive errors to avoid log spam
+			if ( _loopErrorCount >= 10 ) {
+
+				console.error( '[game-loop] Too many errors — halting game loop' );
+				return;
+
+			}
+
+		}
+
+	}
+
+	function _animateInner() {
+
+		_loopErrorCount = 0;
 		fpsFrames ++;
 		const now = performance.now();
 		if ( now - fpsTime >= 500 ) {
