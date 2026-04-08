@@ -25,7 +25,7 @@ export class VehicleRespawn {
 
 		// Invulnerability after respawn
 		this.invulnTimer = 0;
-		this.invulnDuration = 1.0; // seconds
+		this.invulnDuration = 2.0; // seconds
 
 		// Respawn flow state
 		this._respawnPending = false;
@@ -85,15 +85,20 @@ export class VehicleRespawn {
 
 		}
 
-		// Teleport vehicle
+		// Teleport vehicle with forward impulse so the player isn't a sitting target
+		const respawnSpeed = 0.3;
+		const fwdX = Math.sin( spawnYaw );
+		const fwdZ = Math.cos( spawnYaw );
+		const worldSpeed = respawnSpeed * v.debug.topSpeed / v.debug.speedScale;
+
 		v.vehPos.set( spawnX, FALLBACK_SPAWN.y, spawnZ );
-		v.vehVel.set( 0, 0, 0 );
+		v.vehVel.set( fwdX * worldSpeed, 0, fwdZ * worldSpeed );
 		v._bumpVel.set( 0, 0, 0 );
 		v._vehicleY = FALLBACK_SPAWN.y;
 		v.groundHeight = FALLBACK_SPAWN.y;
 		v._verticalVelocity = 0;
-		v._groundVelocity = 0;
-		v.linearSpeed = 0;
+		v._groundVelocity = worldSpeed;
+		v.linearSpeed = respawnSpeed;
 		v.angularSpeed = 0;
 		v.acceleration = 0;
 		v._airborneTimer = 0;
@@ -129,7 +134,8 @@ export class VehicleRespawn {
 
 			rigidBody.setPosition( v.physicsWorld, v.rigidBody,
 				[ spawnX, FALLBACK_SPAWN.y + 0.8, spawnZ ], false );
-			rigidBody.setLinearVelocity( v.physicsWorld, v.rigidBody, [ 0, 0, 0 ] );
+			rigidBody.setLinearVelocity( v.physicsWorld, v.rigidBody,
+				[ fwdX * worldSpeed, 0, fwdZ * worldSpeed ] );
 			rigidBody.setAngularVelocity( v.physicsWorld, v.rigidBody, [ 0, 0, 0 ] );
 			rigidBody.setQuaternion( v.physicsWorld, v.rigidBody,
 				[ 0, Math.sin( halfYaw ), 0, Math.cos( halfYaw ) ], false );
