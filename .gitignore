@@ -2,3 +2,6 @@ _benchmark/
 _godot/
 .DS_Store
 node_modules/
+*.log
+tmp*.png
+tmp-atlas*.png
