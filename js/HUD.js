@@ -1,5 +1,7 @@
 import { SpringAnimator } from './SpringAnimator.js';
 
+const COUNT_COLORS = { '3': '#ff4444', '2': '#ffaa00', '1': '#44ff44', 'GO!': '#00ddff' };
+
 export class HUD {
 
 	constructor( onRestart, onReady ) {
@@ -201,8 +203,6 @@ export class HUD {
 					? displayState.countdown.toString()
 					: 'GO!';
 
-				// Per-number color
-				const COUNT_COLORS = { '3': '#ff4444', '2': '#ffaa00', '1': '#44ff44', 'GO!': '#00ddff' };
 				this._countdownEl.style.color = COUNT_COLORS[ countText ] || '#ffffff';
 
 				// Spring-driven scale punch on change
