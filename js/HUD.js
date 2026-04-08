@@ -54,6 +54,18 @@ export class HUD {
 		this._raceHud.appendChild( this._timeLine );
 		document.body.appendChild( this._raceHud );
 
+		// ── Wrong-way warning (centered, large pulsing text) ────────────────
+		this._wrongWayEl = document.createElement( 'div' );
+		this._wrongWayEl.textContent = 'WRONG WAY';
+		this._wrongWayEl.style.cssText = [
+			'position:fixed', 'top:35%', 'left:50%', 'transform:translate(-50%,-50%)',
+			'font:bold 56px/1 monospace', 'color:#ff3333',
+			'text-shadow:0 0 30px rgba(255,0,0,0.7), 0 0 60px rgba(255,0,0,0.4)',
+			'z-index:1001', 'pointer-events:none', 'user-select:none', 'display:none',
+			'animation:boostPulse 0.5s ease-in-out infinite alternate',
+		].join( ';' );
+		document.body.appendChild( this._wrongWayEl );
+
 		// ── Results overlay (centered panel) ─────────────────────────────────
 		this._resultsEl = document.createElement( 'div' );
 		this._resultsEl.style.cssText = [
@@ -187,6 +199,7 @@ export class HUD {
 				this._resultsEl.style.display = 'none';
 				this._boostContainer.style.display = 'none';
 				this._powerupEl.style.display = 'none';
+				this._wrongWayEl.style.display = 'none';
 				this._updateLobby( lobbyState );
 				break;
 
@@ -196,6 +209,7 @@ export class HUD {
 				this._raceHud.style.display = 'none';
 				this._boostContainer.style.display = 'none';
 				this._countdownEl.style.display = 'block';
+				this._wrongWayEl.style.display = 'none';
 
 				const countText = displayState.countdown > 0
 					? displayState.countdown.toString()
@@ -247,6 +261,7 @@ export class HUD {
 				this._updateBoostBar( displayState );
 				this._updateDriftIndicator( displayState );
 				this._updatePowerupIndicator( dt, displayState );
+				this._wrongWayEl.style.display = displayState.wrongWay ? 'block' : 'none';
 				break;
 
 			case 'finished':
@@ -255,6 +270,7 @@ export class HUD {
 				this._raceHud.style.display = 'none';
 				this._boostContainer.style.display = 'none';
 				this._powerupEl.style.display = 'none';
+				this._wrongWayEl.style.display = 'none';
 				this._resultsEl.style.display = 'block';
 				this._resultsTotalLine.textContent = `Total: ${ this._formatTime( displayState.totalTime ) }`;
 				this._resultsBestLine.textContent = `Best Lap: ${ this._formatTime( displayState.bestLap ) }`;

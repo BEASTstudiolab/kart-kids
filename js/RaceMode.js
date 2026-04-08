@@ -38,6 +38,11 @@ export class RaceMode extends GameMode {
 		this._position = 1;
 		this._aiVehicleSet = new Set();
 
+		// Wrong-way detection
+		this._prevProgress = 0;
+		this._wrongWayTimer = 0;
+		this._wrongWay = false;
+
 		this._state = STATE_IDLE;
 		this._countdownTime = 0;
 		this._networkCountdownElapsed = 0;
@@ -126,6 +131,7 @@ export class RaceMode extends GameMode {
 			this._elapsedTime += dt;
 			this._checkFinishLine( vehicle );
 			this._updatePosition( vehicle, activeVehicles, aiRaceData );
+			this._updateWrongWay( dt, vehicle );
 
 		}
 
@@ -204,6 +210,7 @@ export class RaceMode extends GameMode {
 		s.starActive = v ? v.starActive : false;
 		s.driftActive = v ? v.driftActive : false;
 		s.driftSparkTier = v ? v.driftSparkTier : 0;
+		s.wrongWay = this._wrongWay;
 
 		return s;
 
@@ -243,6 +250,9 @@ export class RaceMode extends GameMode {
 		this._prevPos = null;
 		this._lastSegmentHint = null;
 		this._position = 1;
+		this._prevProgress = 0;
+		this._wrongWayTimer = 0;
+		this._wrongWay = false;
 
 		if ( this._finishLine ) this._finishLine.resetCooldown();
 
@@ -315,6 +325,35 @@ export class RaceMode extends GameMode {
 		}
 
 		this._position = ahead + 1;
+
+	}
+
+	_updateWrongWay( dt, vehicle ) {
+
+		if ( ! this.trackIntel || ! vehicle ) return;
+
+		const pos = vehicle.vehPos;
+		const progress = this.trackIntel.getProgress( pos.x, pos.z, this._lastSegmentHint );
+
+		// Detect sustained backward movement (progress decreasing).
+		// Allow small fluctuations (threshold 0.005) to avoid false positives from lateral movement.
+		// Ignore progress wrapping near lap boundary (progress near 0 or 1).
+		const delta = progress - this._prevProgress;
+		const wrapping = this._prevProgress > 0.9 && progress < 0.1;
+		const reverseWrap = this._prevProgress < 0.1 && progress > 0.9;
+
+		if ( ! wrapping && ( delta < - 0.005 || reverseWrap ) ) {
+
+			this._wrongWayTimer += dt;
+
+		} else {
+
+			this._wrongWayTimer = Math.max( 0, this._wrongWayTimer - dt * 2 );
+
+		}
+
+		this._wrongWay = this._wrongWayTimer > 1.5;
+		this._prevProgress = progress;
 
 	}
 
