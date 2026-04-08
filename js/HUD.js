@@ -177,6 +177,7 @@ export class HUD {
 
 	update( dt, displayState, lobbyState ) {
 
+		const prevState = this._currentState;
 		this._currentState = displayState.state;
 
 		switch ( displayState.state ) {
@@ -250,6 +251,7 @@ export class HUD {
 				break;
 
 			case 'finished':
+				if ( prevState !== 'finished' ) this._spawnConfetti();
 				this._lobbyPanel.style.display = 'none';
 				this._countdownEl.style.display = 'none';
 				this._raceHud.style.display = 'none';
@@ -400,6 +402,49 @@ export class HUD {
 			this._powerupEl.style.display = 'none';
 
 		}
+
+	}
+
+	_spawnConfetti() {
+
+		const COLORS = [ '#ff4444', '#ffaa00', '#44ff44', '#4488ff', '#ff44ff', '#ffdd00' ];
+		const container = document.createElement( 'div' );
+		container.style.cssText = 'position:fixed;inset:0;z-index:1050;pointer-events:none;overflow:hidden';
+		document.body.appendChild( container );
+
+		for ( let i = 0; i < 40; i ++ ) {
+
+			const piece = document.createElement( 'div' );
+			const size = 6 + Math.random() * 8;
+			const x = 20 + Math.random() * 60; // 20-80% horizontal spread
+			const delay = Math.random() * 0.3;
+			const duration = 1.5 + Math.random() * 1.0;
+			const rotation = Math.random() * 720;
+
+			piece.style.cssText = [
+				`position:absolute`, `top:-10px`, `left:${x}%`,
+				`width:${size}px`, `height:${size * 0.6}px`,
+				`background:${COLORS[ i % COLORS.length ]}`,
+				`border-radius:2px`,
+				`animation:kk-confetti-fall ${duration}s ease-in ${delay}s forwards`,
+				`transform:rotate(${rotation}deg)`,
+			].join( ';' );
+
+			container.appendChild( piece );
+
+		}
+
+		// Inject keyframe if not already present
+		if ( ! document.getElementById( 'kk-confetti-style' ) ) {
+
+			const style = document.createElement( 'style' );
+			style.id = 'kk-confetti-style';
+			style.textContent = '@keyframes kk-confetti-fall { to { top:110%; opacity:0; transform:rotate(720deg); } }';
+			document.head.appendChild( style );
+
+		}
+
+		setTimeout( () => container.remove(), 3000 );
 
 	}
 
