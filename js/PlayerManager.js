@@ -5,15 +5,11 @@ import { SmokeTrails } from './Particles.js';
 import { DriftSparks } from './DriftSparks.js';
 import { BoostFlame } from './BoostFlame.js';
 import { TireMarks } from './TireMarks.js';
+import { VEHICLE_TINTS } from './ModelLoader.js';
 
 const REMOTE_ZERO_INPUT = { x: 0, z: 0, touchActive: false };
 
-const VEHICLE_MODEL_NAMES = [
-	'vehicle-truck-yellow',
-	'vehicle-truck-green',
-	'vehicle-truck-purple',
-	'vehicle-truck-red',
-];
+const VEHICLE_MODEL_NAMES = Object.keys( VEHICLE_TINTS );
 
 const CHARACTER_MODEL_NAMES = [
 	'character-default',
