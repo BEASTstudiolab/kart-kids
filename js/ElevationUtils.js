@@ -11,11 +11,16 @@
  */
 export function getElevationModelName( elevation, role, style ) {
 
+	// elevation = steps above ground (1 = 2.5m, 2 = 5m, 3+ = higher)
+	// We only have 2 model variants: 2p5 and 5. For steps >= 2, use the 5m model.
+	// The actual height is applied via Y offset, not the model geometry.
 	const suffix = elevation === 1 ? '2p5' : '5';
 	if ( role === 'flat' ) return 'trk-elev-' + suffix;
 
 	const smooth = style === 'smooth';
 
+	// Ramps: use the model matching the ramp height (max 5m per ramp segment)
+	// For higher elevations, the ramp connects to the highest available (5m model)
 	if ( role === 'ramp-up' ) return smooth ? 'trk-ramp-up-' + suffix + '-smooth' : 'trk-ramp-up-' + suffix;
 	if ( role === 'ramp-down' ) return smooth ? 'trk-ramp-down-' + suffix + '-smooth' : 'trk-ramp-down-' + suffix;
 	return 'trk-straight';

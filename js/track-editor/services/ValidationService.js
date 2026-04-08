@@ -321,7 +321,8 @@ export class ValidationService {
 			const tile = this._project.getTile( gx, gz );
 			if ( ! tile ) continue;
 
-			const exits = tile.getExitMask();
+			// Consumed / flank cells are transparent — walk through in all directions
+			const exits = ( tile._consumed || tile.finishFlank ) ? 15 : tile.getExitMask();
 
 			for ( const dir of DIR_INFO ) {
 
@@ -334,8 +335,9 @@ export class ValidationService {
 
 				if ( ! nTile ) continue;
 
+				// Consumed / flank neighbors are always reachable (transparent)
 				const nExits = nTile.getExitMask();
-				if ( nExits & dir.opposite ) {
+				if ( nTile._consumed || nTile.finishFlank || ( nExits & dir.opposite ) ) {
 
 					if ( ! visited.has( nKey ) || ( nKey === finishKey && visited.size > 2 ) ) {
 

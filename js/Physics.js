@@ -5,6 +5,22 @@ import { getCurveConfig } from './TileMetadata.js';
 
 const _vec3 = new THREE.Vector3();
 
+const ELEV_GROUND = 12;
+const ELEV_STEP_Y = 2.5;
+
+function elevToY( flags ) {
+
+	if ( flags?.fullElevation != null && flags.fullElevation !== ELEV_GROUND ) {
+
+		return ( flags.fullElevation - ELEV_GROUND ) * ELEV_STEP_Y;
+
+	}
+
+	const elev = flags?.elevation || 0;
+	return elev * ELEV_STEP_Y;
+
+}
+
 export function buildTrackColliders( world, models, customCells ) {
 
 	const cells = customCells || TRACK_CELLS;
@@ -29,8 +45,7 @@ export function buildTrackColliders( world, models, customCells ) {
 		// Collision-only cells (consumed by multi-tile piece): flat road quad, no model
 		if ( flags._collisionOnly ) {
 
-			const elev = flags.elevation || 0;
-			const elevY = elev === 1 ? 2.416 : elev === 2 ? 4.832 : 0;
+			const elevY = elevToY( flags );
 			const cx = ( gx + 0.5 ) * CELL_RAW;
 			const cz = ( gz + 0.5 ) * CELL_RAW;
 			const half = CELL_RAW / 2;
@@ -63,8 +78,7 @@ export function buildTrackColliders( world, models, customCells ) {
 		}
 
 		// Elevated tiles use straight model with Y offset
-		const elev = flags.elevation || 0;
-		const elevY = elev === 1 ? 2.416 : elev === 2 ? 4.832 : 0;
+		const elevY = elevToY( flags );
 
 		let posX = ( gx + 0.5 ) * CELL_RAW;
 		let posZ = ( gz + 0.5 ) * CELL_RAW;

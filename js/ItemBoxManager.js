@@ -1,22 +1,9 @@
 import * as THREE from 'three';
+import { rollItem } from './PowerupItem.js';
 
 const PICKUP_RADIUS = 1.5;
 const COOLDOWN_TIME = 10;
 const BOX_Y = 1.0;
-
-// Powerup weights: speed 60%, shield 30%, star 10%
-const POWERUP_SPEED = 'speed';
-const POWERUP_SHIELD = 'shield';
-const POWERUP_STAR = 'star';
-
-function rollPowerup() {
-
-	const r = Math.random();
-	if ( r < 0.6 ) return POWERUP_SPEED;
-	if ( r < 0.9 ) return POWERUP_SHIELD;
-	return POWERUP_STAR;
-
-}
 
 const _boxGeo = new THREE.BoxGeometry( 0.6, 0.6, 0.6 );
 
@@ -26,6 +13,7 @@ export class ItemBoxManager {
 
 		this.scene = scene;
 		this.boxes = [];
+		this._positionRatio = 0.5; // default mid-pack
 
 		// Callback set by main.js for VFX/audio on pickup
 		this.onPickup = null;
@@ -104,8 +92,18 @@ export class ItemBoxManager {
 
 			if ( dx * dx + dz * dz < PICKUP_RADIUS * PICKUP_RADIUS ) {
 
-				const powerup = rollPowerup();
-				this._applyPowerup( localVehicle, powerup );
+				// Roll a combat item and deliver to held slot
+				const item = rollItem( this._positionRatio );
+				if ( localVehicle.itemSlot ) {
+
+					localVehicle.itemSlot.receive( item.id );
+
+				} else {
+
+					// Fallback for vehicles without itemSlot: apply old behavior
+					this._applyPowerupLegacy( localVehicle, item.id );
+
+				}
 
 				// Start cooldown
 				box.available = false;
@@ -113,7 +111,7 @@ export class ItemBoxManager {
 				box.mesh.visible = false;
 				box.mesh.material.opacity = 0;
 
-				if ( this.onPickup ) this.onPickup( box.x, box.z, powerup );
+				if ( this.onPickup ) this.onPickup( box.x, box.z, item.id );
 
 			}
 
@@ -121,25 +119,27 @@ export class ItemBoxManager {
 
 	}
 
-	_applyPowerup( vehicle, type ) {
+	/**
+	 * Set the player's current position ratio (0=first, 1=last) for item weighting.
+	 */
+	setPositionRatio( ratio ) {
 
-		switch ( type ) {
+		this._positionRatio = ratio;
 
-			case POWERUP_SPEED:
-				// Use Math.max to preserve a longer existing mini-boost
-				vehicle.miniBoostTimer = Math.max( vehicle.miniBoostTimer, 2.0 );
-				vehicle.miniBoostTopSpeed = Math.max( vehicle.miniBoostTopSpeed, 300 );
-				break;
+	}
 
-			case POWERUP_SHIELD:
-				vehicle.shieldActive = true;
-				vehicle.shieldTimer = 5.0;
-				break;
+	_applyPowerupLegacy( vehicle, itemId ) {
 
-			case POWERUP_STAR:
-				vehicle.starActive = true;
-				vehicle.starTimer = 3.0;
-				break;
+		// Legacy fallback for vehicles without itemSlot
+		if ( itemId === 'turbo_star' ) {
+
+			vehicle.miniBoostTimer = Math.max( vehicle.miniBoostTimer, 3.0 );
+			vehicle.miniBoostTopSpeed = Math.max( vehicle.miniBoostTopSpeed, 320 );
+
+		} else if ( itemId === 'bubble_shield' ) {
+
+			vehicle.shieldActive = true;
+			vehicle.shieldTimer = 5.0;
 
 		}
 

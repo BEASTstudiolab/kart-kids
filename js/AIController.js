@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { DEFAULT_PROFILE } from './AIProfiles.js';
+import { AICombatBehavior } from './AICombatBehavior.js';
 
 const _forward = new THREE.Vector3();
 const _toTarget = new THREE.Vector3();
@@ -26,7 +27,11 @@ export class AIController {
 		this._reverseSteer = 0;
 
 		// Reusable input object — avoids per-frame allocation
-		this._input = { x: 0, z: 0, touchActive: false, boost: false, drift: false };
+		this._input = { x: 0, z: 0, touchActive: false, boost: false, drift: false, useItem: false };
+
+		// Combat behavior
+		this._combat = new AICombatBehavior();
+		this._wrenchTarget = null;
 
 	}
 
@@ -168,7 +173,50 @@ export class AIController {
 		this._input.x = steerInput;
 		this._input.z = throttle;
 		this._input.boost = boost;
+		this._input.useItem = false;
+
+		// ── Combat behavior ──────────────────────────────────────
+		const profileName = p.name || 'default';
+
+		// Item use decision
+		if ( this._combat.shouldUseItem( vehicle, this._allVehiclesRef || [], profileName ) ) {
+
+			this._input.useItem = true;
+
+		}
+
+		// Wrench seeking: override waypoint target toward nearest wrench
+		if ( this._wrenchPositionsRef && this._combat.shouldSeekWrench( vehicle, profileName ) ) {
+
+			const wrench = this._combat.getNearestWrench( vehicle, this._wrenchPositionsRef );
+			if ( wrench ) {
+
+				// Steer toward wrench instead of waypoint
+				_toTarget.set( wrench.x - pos.x, 0, wrench.z - pos.z );
+				const wDist = _toTarget.length();
+				if ( wDist > 0.5 && wDist < 30 ) {
+
+					_toTarget.normalize();
+					const wCross = _forward.x * _toTarget.z - _forward.z * _toTarget.x;
+					this._input.x = Math.max( - 1, Math.min( 1, wCross * p.steerSensitivity ) );
+
+				}
+
+			}
+
+		}
+
 		return this._input;
+
+	}
+
+	/**
+	 * Set external references for combat decisions (called by AIManager).
+	 */
+	setCombatRefs( allVehicles, wrenchPositions ) {
+
+		this._allVehiclesRef = allVehicles;
+		this._wrenchPositionsRef = wrenchPositions;
 
 	}
 

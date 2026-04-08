@@ -2,6 +2,10 @@ import * as THREE from 'three';
 import { rigidBody } from 'crashcat';
 import { VehicleGroundRaycast } from './vehicle/VehicleGroundRaycast.js';
 import { VehicleRemoteSync } from './vehicle/VehicleRemoteSync.js';
+import { VehicleHealth } from './vehicle/VehicleHealth.js';
+import { VehicleStateMachine, PhysicsState } from './vehicle/VehicleStateMachine.js';
+import { VehicleAirborne } from './vehicle/VehicleAirborne.js';
+import { VehicleRespawn } from './vehicle/VehicleRespawn.js';
 
 const _tmpVec = new THREE.Vector3();
 const _forward = new THREE.Vector3();
@@ -182,6 +186,12 @@ export class Vehicle {
 		this._wallProximityRight = 0;
 		this._grounded = false;
 
+		// Off-track detection
+		this._offTrackTimer = 0;       // seconds spent off-track
+		this._offTrackGrace = 2.0;     // seconds before respawn triggers
+		this._allWheelsMissTimer = 0;  // seconds all 4 wheels have missed
+		this._flipStatus = 'ok';       // anti-flip check result
+
 		// Boost / nitro state
 		this.boostMeter = 0;
 		this.boostActive = false;
@@ -220,6 +230,21 @@ export class Vehicle {
 		this.shieldTimer = 0;
 		this.starActive = false;
 		this.starTimer = 0;
+
+		// Combat: health + quadrant damage
+		this.health = new VehicleHealth();
+
+		// Combat: held item slot (set externally by ItemSlotManager)
+		this.itemSlot = null;
+
+		// Physics state machine (grounded/ramp/airborne/landing/recovery/respawn)
+		this._stateMachine = new VehicleStateMachine();
+
+		// Airborne controller (takeoff impulse, air control, landing severity)
+		this._airborne = new VehicleAirborne();
+
+		// Respawn controller (checkpoint-aware respawn flow)
+		this._respawn = new VehicleRespawn();
 
 	}
 
@@ -561,6 +586,9 @@ export class Vehicle {
 		this.inputX = controlsInput.x;
 		this.inputZ = controlsInput.z;
 
+		// Tick health timers (invuln, consecutive hit cooldown)
+		if ( this.health ) this.health.update( dt );
+
 		{
 
 			// Unified steering + throttle (keyboard, gamepad, and touch all use same model)
@@ -647,7 +675,17 @@ export class Vehicle {
 				let effectiveInputX = this.inputX;
 				const assistCorrection = this._computeSteeringAssist();
 				effectiveInputX = Math.max( - 1, Math.min( 1, effectiveInputX + assistCorrection ) );
-				const targetAngular = - effectiveInputX * this.debug.steeringMultiplier * direction;
+				let targetAngular = - effectiveInputX * this.debug.steeringMultiplier * direction;
+
+				// Combat impairment: steering pull + sluggishness from front quadrant damage
+				if ( this.health && ! this.health.eliminated ) {
+
+					const imp = this.health.getImpairment();
+					targetAngular += imp.steeringPull * this.debug.steeringMultiplier;
+					targetAngular *= ( 1 - imp.steeringSluggish );
+
+				}
+
 				this.angularSpeed = THREE.MathUtils.lerp( this.angularSpeed, targetAngular, dt * this.debug.steeringLerp );
 
 			}
@@ -668,6 +706,20 @@ export class Vehicle {
 			} else {
 
 				this.linearSpeed = THREE.MathUtils.lerp( this.linearSpeed, targetSpeed, dt * this.debug.accelerationRate );
+
+			}
+
+		}
+
+		// Combat impairment: acceleration penalty + traction loss from rear quadrant damage
+		if ( this.health && ! this.health.eliminated ) {
+
+			const imp = this.health.getImpairment();
+			this.linearSpeed *= ( 1 - imp.accelPenalty * dt * 2 );
+			// Traction loss: adds slight fishtail under throttle
+			if ( imp.tractionLoss > 0 && Math.abs( this.linearSpeed ) > 0.3 ) {
+
+				this.angularSpeed += ( Math.random() - 0.5 ) * imp.tractionLoss * 2 * dt;
 
 			}
 
@@ -716,6 +768,10 @@ export class Vehicle {
 		const quatRate = THREE.MathUtils.lerp( 5, 15, Math.min( ( 1 - this.groundNormal.y ) * 5, 1 ) );
 		this.container.quaternion.slerp( targetQuat, 1 - Math.exp( - quatRate * dt ) );
 
+		// Anti-flip check: self-right or trigger respawn if too tilted
+		const flipStatus = this._airborne.checkFlip( dt, this );
+		this._flipStatus = flipStatus;
+
 		if ( this.rigidBody ) {
 
 			// Read XZ position from physics (walls may have pushed it), but keep Y from our system
@@ -759,7 +815,11 @@ export class Vehicle {
 
 			// Position collider above track surface geometry (curbs top out at ~0.5 world space).
 			// halfHeight=0.3, so center at +0.8 keeps bottom at +0.5 (clears curbs).
-			const colliderY = this._vehicleY + 0.8;
+			// On ramps, raise the collider higher to prevent the upright box from
+			// catching on the ramp lip geometry (the collider uses yaw-only, no pitch).
+			const onRampSurface = this.groundNormal.y < 0.96;
+			const colliderLift = onRampSurface ? 1.4 : 0.8;
+			const colliderY = this._vehicleY + colliderLift;
 			rigidBody.setPosition( this.physicsWorld, this.rigidBody,
 				[ this.vehPos.x, colliderY, this.vehPos.z ], false );
 
@@ -774,48 +834,18 @@ export class Vehicle {
 			dt
 		);
 
-		if ( this.groundHeight < - 10 ) {
-
-			if ( this.rigidBody ) {
-
-				rigidBody.setPosition( this.physicsWorld, this.rigidBody, [ 3.5, 0, 5 ], false );
-				rigidBody.setLinearVelocity( this.physicsWorld, this.rigidBody, [ 0, 0, 0 ] );
-				rigidBody.setAngularVelocity( this.physicsWorld, this.rigidBody, [ 0, 0, 0 ] );
-
-			}
-
-			this.vehPos.set( 3.5, 0, 5 );
-			this.vehVel.set( 0, 0, 0 );
-			this._bumpVel.set( 0, 0, 0 );
-			this.groundHeight = 0.5;
-			this._vehicleY = 0.5;
-			this._groundVelocity = 0;
-			this.linearSpeed = 0;
-			this.angularSpeed = 0;
-			this.acceleration = 0;
-			this.shieldActive = false;
-			this.shieldTimer = 0;
-			this.starActive = false;
-			this.starTimer = 0;
-			this.drivingState = DrivingState.NORMAL;
-			this.driftActive = false;
-			this.driftTimer = 0;
-			this.driftSparkTier = 0;
-			this.driftBoostTimer = 0;
-			this.driftBoostMultiplier = 1.0;
-			this.container.rotation.set( 0, 0, 0 );
-			this.container.quaternion.identity();
-
-		}
+		// Kill plane handled by off-track detection → RESPAWNING state below
 
 		// Vertical positioning: grounded spring when wheels touch, gravity when airborne
-		const GRAVITY = 9.81;
 		const targetY = this.groundHeight + this.debug.rideHeight;
 		const recentWallHit = ( performance.now() / 1000 - this._wallHitTime ) < 0.5;
 
 		// Wall/bump contacts force vehicle back to grounded — barriers must
 		// never cause vertical lift, only ramps should launch players.
-		if ( recentWallHit && ! this._grounded ) {
+		// Skip on ramp surfaces: wall contacts there are from side barriers,
+		// not from collisions that would cause unwanted vertical lift.
+		const onRampForWall = this.groundNormal.y < 0.96;
+		if ( recentWallHit && ! this._grounded && ! onRampForWall ) {
 
 			this._grounded = true;
 			this._verticalVelocity = 0;
@@ -825,73 +855,163 @@ export class Vehicle {
 		}
 
 		// ── Surface classification from ground normal ──────────────────
-		// Ramp surfaces have tilted normals (normal.y < 0.95).
-		// Flat surfaces (normal.y >= 0.95) should NEVER launch the vehicle.
 		const onRamp = this.groundNormal.y < 0.96;
+		const frontOffEdge = ! this._wheelOnSurface[ 0 ] && ! this._wheelOnSurface[ 1 ];
 
-		if ( this._grounded ) {
+		// ── Off-track detection ────────────────────────────────────────
+		const allWheelsMiss = this._groundRaycast._wheelMissedFrames[ 0 ] > 3 &&
+			this._groundRaycast._wheelMissedFrames[ 1 ] > 3 &&
+			this._groundRaycast._wheelMissedFrames[ 2 ] > 3 &&
+			this._groundRaycast._wheelMissedFrames[ 3 ] > 3;
 
-			// Grounded: track surface directly (median filter on groundHeight handles jitter)
-			this._vehicleY = targetY;
-			this._airborneTimer = 0;
+		if ( allWheelsMiss ) {
 
-			// Compute upward velocity from slope + speed for launch momentum
-			_forward.set( 0, 0, 1 ).applyQuaternion( this.container.quaternion );
-
-			if ( onRamp ) {
-
-				// On ramp: compute launch velocity from slope angle
-				this._verticalVelocity = _forward.y * Math.abs( this.linearSpeed ) *
-					this.effectiveTopSpeed / this.debug.speedScale;
-
-				// Cap so the vehicle can't fly absurdly high
-				this._verticalVelocity = Math.min( this._verticalVelocity, 5.0 );
-
-			} else {
-
-				// On flat ground: no vertical velocity buildup
-				this._verticalVelocity = 0;
-
-			}
-
-			// Wall contacts suppress all vertical velocity — no launches near barriers
-			if ( recentWallHit ) this._verticalVelocity = 0;
-
-			// Launch ONLY from ramp edges, never on flat ground or near walls
-			const frontOffEdge = ! this._wheelOnSurface[ 0 ] && ! this._wheelOnSurface[ 1 ];
-			if ( onRamp && this._verticalVelocity > 0.5 && frontOffEdge && ! recentWallHit ) {
-
-				this._grounded = false;
-				this._airborneTimer = 0;
-				this._launchCooldown = 0.3;
-
-			}
+			this._allWheelsMissTimer += dt;
 
 		} else {
 
-			// Airborne: real gravity
-			this._airborneTimer = ( this._airborneTimer || 0 ) + dt;
-			this._verticalVelocity -= GRAVITY * dt;
-			this._vehicleY += this._verticalVelocity * dt;
-
-			// Hard ceiling: never fly more than 4 units above ground
-			const MAX_AIR_HEIGHT = 4.0;
-			if ( this._vehicleY > this.groundHeight + MAX_AIR_HEIGHT ) {
-
-				this._vehicleY = this.groundHeight + MAX_AIR_HEIGHT;
-				if ( this._verticalVelocity > 0 ) this._verticalVelocity = 0;
-
-			}
-
-			// Landing detection: hit the ground while falling
-			if ( this._vehicleY <= targetY && this._verticalVelocity < 0 ) {
-
-				this._vehicleY = targetY;
-				this._verticalVelocity = 0;
-
-			}
+			this._allWheelsMissTimer = 0;
 
 		}
+
+		// Check lateral distance from track (if TrackIntel available)
+		let tooFarFromTrack = false;
+
+		if ( this._trackIntel && this._trackIntel.valid ) {
+
+			const nearIdx = this._trackIntel.getNearestWaypoint( this.vehPos.x, this.vehPos.z );
+			const nearWp = this._trackIntel.waypoints[ nearIdx ];
+			const dx = this.vehPos.x - nearWp.x;
+			const dz = this.vehPos.z - nearWp.z;
+			tooFarFromTrack = ( dx * dx + dz * dz ) > 225; // 15² = 225
+
+		}
+
+		const offTrackDetected = ( this._allWheelsMissTimer > 1.0 ) || tooFarFromTrack;
+
+		if ( offTrackDetected ) {
+
+			this._offTrackTimer += dt;
+
+		} else {
+
+			this._offTrackTimer = 0;
+
+		}
+
+		// Kill plane and full flip are instant respawn (no grace period)
+		const killPlaneHit = this.groundHeight < - 10;
+		const flipRespawn = this._flipStatus === 'respawn';
+		const respawnRequested = killPlaneHit || flipRespawn ||
+			( this._offTrackTimer > this._offTrackGrace );
+
+		// ── Evaluate physics state machine ─────────────────────────────
+		this._stateMachine.evaluate( {
+			grounded: this._grounded,
+			onRamp,
+			frontOffEdge,
+			verticalVelocity: this._verticalVelocity,
+			vehicleY: this._vehicleY,
+			targetY,
+			groundHeight: this.groundHeight,
+			speed: Math.abs( this.linearSpeed ),
+			recentWallHit,
+			offTrack: offTrackDetected && ! killPlaneHit,
+			respawnRequested,
+		}, dt );
+
+		const physState = this._stateMachine.currentState;
+
+		// ── State-driven vertical positioning ──────────────────────────
+		if ( physState === PhysicsState.GROUNDED ||
+			 physState === PhysicsState.RAMP_APPROACH ) {
+
+			// Elevation drop float: when ground drops away beneath the vehicle
+			// at speed, don't snap down — go airborne with gentle downward velocity
+			// so the kart floats briefly before landing (arcade feel).
+			const dropAmount = this._vehicleY - targetY;
+
+			if ( dropAmount > 0.3 && Math.abs( this.linearSpeed ) > 0.2 &&
+				 ! recentWallHit && this._launchCooldown <= 0 ) {
+
+				this._grounded = false;
+				this._verticalVelocity = - 0.5;
+				this._airborneTimer = 0;
+				this._launchCooldown = 0.15;
+				this._stateMachine.forceState( PhysicsState.AIRBORNE );
+
+			} else {
+
+				// Normal grounded: track surface directly
+				this._vehicleY = targetY;
+				this._airborneTimer = 0;
+
+				// Compute upward velocity from slope + speed for launch momentum
+				_forward.set( 0, 0, 1 ).applyQuaternion( this.container.quaternion );
+
+				if ( onRamp ) {
+
+					this._verticalVelocity = _forward.y * Math.abs( this.linearSpeed ) *
+						this.effectiveTopSpeed / this.debug.speedScale;
+					this._verticalVelocity = Math.min( this._verticalVelocity, 5.0 );
+
+				} else if ( this._verticalVelocity > 0.5 &&
+							( physState === PhysicsState.RAMP_APPROACH ||
+							  this._stateMachine.previousState === PhysicsState.RAMP_APPROACH ) &&
+							Math.abs( this.linearSpeed ) > 0.3 && ! recentWallHit ) {
+
+					// Ramp crest launch
+					this._grounded = false;
+					this._airborneTimer = 0;
+					this._launchCooldown = 0.3;
+					this._airborne.applyTakeoff( this, this._groundRaycast.surfaceType );
+					this._stateMachine.forceState( PhysicsState.AIRBORNE );
+
+				} else {
+
+					this._verticalVelocity = 0;
+
+				}
+
+				if ( recentWallHit ) this._verticalVelocity = 0;
+
+			}
+
+		} else if ( physState === PhysicsState.TAKEOFF ) {
+
+			// Single-frame launch — apply authored takeoff impulse
+			this._grounded = false;
+			this._airborneTimer = 0;
+			this._launchCooldown = 0.3;
+			this._airborne.applyTakeoff( this, this._groundRaycast.surfaceType );
+
+		} else if ( physState === PhysicsState.AIRBORNE ) {
+
+			// Airborne: gravity, air control, stabilization
+			this._airborne.updateAirborne( dt, this );
+
+		} else if ( physState === PhysicsState.LANDING ) {
+
+			// Landing: severity classification, snap, bounce clamping
+			this._airborne.applyLanding( this );
+
+		} else if ( physState === PhysicsState.RECOVERY ) {
+
+			// Recovery: track surface, apply fading speed penalty
+			this._vehicleY = targetY;
+			this._airborneTimer = 0;
+			this._verticalVelocity = 0;
+			this._airborne.updateRecovery( dt, this );
+
+		} else if ( physState === PhysicsState.RESPAWNING ) {
+
+			// Respawn: teleport to nearest checkpoint, reset state
+			this._respawn.execute( this );
+
+		}
+
+		// Update respawn invulnerability timer
+		this._respawn.update( dt );
 
 		this.container.position.set(
 			this.vehPos.x,
@@ -935,6 +1055,9 @@ export class Vehicle {
 				spikeCount: this._jitterLog ? this._jitterLog.length : 0,
 				lastSpike: this._jitterLog && this._jitterLog.length > 0
 					? this._jitterLog[ this._jitterLog.length - 1 ] : null,
+				physicsState: this._stateMachine.getStateName(),
+				surfaceType: this._groundRaycast.surfaceType,
+				landingSeverity: this._airborne.lastSeverity,
 			};
 
 		}

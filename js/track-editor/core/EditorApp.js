@@ -692,6 +692,7 @@ class EditorApp {
 			{ id: 'route',      icon: icons.route,      label: 'Route Trace',    tip: 'Fly along the race loop + validate',         key: 'T', group: 'edit',    action: 'toggle-route' },
 			{ id: 'gameplay',   icon: icons.gameplay,   label: 'Gameplay',       tip: 'Checkpoints, spawns, boost pads',            key: 'G', group: 'content', action: 'mode' },
 			{ id: 'props',      icon: icons.decor,      label: 'Props',          tip: 'Place decorative props freely',              key: 'D', group: 'content', action: 'mode' },
+			{ id: 'erase-prop', icon: icons.erase,      label: 'Erase Prop',     tip: 'Click to remove placed props/decor',        key: 'E', group: 'content', action: 'props-tool', tool: 'erase-prop' },
 			{ id: 'debug',      icon: icons.debug,      label: 'Debug',          tip: 'Toggle tile info overlay',                   key: '`', group: 'meta',    action: 'toggle-debug' },
 		];
 
@@ -791,6 +792,19 @@ class EditorApp {
 					} else {
 
 						this._state.mode = 'sculpt';
+						this._state.tool = t.tool;
+
+					}
+
+				} else if ( t.action === 'props-tool' ) {
+
+					if ( this._state.mode === 'props' && this._state.tool === t.tool ) {
+
+						this._state.tool = 'place-prop';
+
+					} else {
+
+						this._state.mode = 'props';
 						this._state.tool = t.tool;
 
 					}

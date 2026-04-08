@@ -205,6 +205,9 @@ export class TrackIntel {
 
 		}
 
+		// Store ordered cells for checkpoint anchor tile-type lookup
+		this._orderedCells = ordered;
+
 		// Convert to world-space waypoints
 		this.waypoints = ordered.map( ( [ gx, gz ] ) => ( {
 			x: ( gx + 0.5 ) * CELL_RAW * GRID_SCALE,
@@ -233,6 +236,115 @@ export class TrackIntel {
 		const closeDx = first.x - last.x;
 		const closeDz = first.z - last.z;
 		this.totalLength = this._cumDist[ this.count - 1 ] + Math.sqrt( closeDx * closeDx + closeDz * closeDz );
+
+	}
+
+	// ─── Checkpoint Anchors ─────────────────────────────────
+
+	/**
+	 * Returns an array of checkpoint anchors for respawn positioning.
+	 * One anchor every `interval` waypoints, plus forced anchors after
+	 * ramp-down / jump tiles (safe landing zones).
+	 *
+	 * Each anchor: { x, z, forward: {x,z}, waypointIndex, progress }
+	 */
+	getCheckpointAnchors( interval = 4 ) {
+
+		if ( ! this.valid || this.count === 0 ) return [];
+
+		const anchors = [];
+		const added = new Set();
+
+		// Ramp/jump tile types that warrant a forced checkpoint after them
+		const RAMP_EXIT_TYPES = new Set( [
+			'trk-ramp-down-2p5', 'trk-ramp-down-5',
+			'trk-ramp-down-2p5-smooth', 'trk-ramp-down-5-smooth',
+			'trk-jump-short', 'trk-jump-long',
+		] );
+
+		const addAnchor = ( idx ) => {
+
+			if ( added.has( idx ) ) return;
+			added.add( idx );
+
+			const info = this.getWaypointInfo( idx );
+			anchors.push( {
+				x: info.position.x,
+				z: info.position.z,
+				forward: info.forward,
+				waypointIndex: idx,
+				progress: this.totalLength > 0
+					? this._cumDist[ idx ] / this.totalLength
+					: 0,
+			} );
+
+		};
+
+		for ( let i = 0; i < this.count; i ++ ) {
+
+			// Regular interval checkpoints
+			if ( i % interval === 0 ) addAnchor( i );
+
+			// Forced anchors: the cell after a ramp exit / jump landing
+			if ( this._orderedCells ) {
+
+				const cell = this._orderedCells[ i ];
+				if ( cell && RAMP_EXIT_TYPES.has( cell[ 2 ] ) ) {
+
+					// Add the next waypoint as a safe respawn point
+					const nextIdx = ( i + 1 ) % this.count;
+					addAnchor( nextIdx );
+
+				}
+
+			}
+
+		}
+
+		// Sort by progress for binary search in getNearestCheckpointBehind
+		anchors.sort( ( a, b ) => a.progress - b.progress );
+
+		return anchors;
+
+	}
+
+	/**
+	 * Returns the checkpoint anchor just behind (or at) the given progress.
+	 * Progress is 0.0–1.0. Returns null if no anchors exist.
+	 */
+	getNearestCheckpointBehind( progress ) {
+
+		if ( ! this._checkpointCache ) {
+
+			this._checkpointCache = this.getCheckpointAnchors();
+
+		}
+
+		const anchors = this._checkpointCache;
+		if ( anchors.length === 0 ) return null;
+
+		// Binary search for the last anchor with progress <= input
+		let lo = 0, hi = anchors.length - 1;
+		let best = anchors[ anchors.length - 1 ]; // wrap-around default
+
+		while ( lo <= hi ) {
+
+			const mid = ( lo + hi ) >> 1;
+
+			if ( anchors[ mid ].progress <= progress ) {
+
+				best = anchors[ mid ];
+				lo = mid + 1;
+
+			} else {
+
+				hi = mid - 1;
+
+			}
+
+		}
+
+		return best;
 
 	}
 
@@ -422,6 +534,7 @@ export class TrackIntel {
 		this.valid = false;
 		this.error = reason;
 		this.waypoints = [];
+		this._orderedCells = [];
 		this.count = 0;
 		this._cumDist = new Float64Array( 0 );
 		this.totalLength = 0;

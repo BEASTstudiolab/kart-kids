@@ -28,6 +28,16 @@ import { PostProcessing } from './PostProcessing.js';
 import { setupDebugPanel } from './DebugPanelSetup.js';
 import { LIGHTING_DAY, LIGHTING_NIGHT, buildLightingCache, applyLighting as _applyLighting } from './Lighting.js';
 import { createContactListener } from './ContactHandler.js';
+import { CombatManager } from './CombatManager.js';
+import { DamageSFX } from './DamageSFX.js';
+import { DamageVFX } from './DamageVFX.js';
+import { HUDDamage } from './HUDDamage.js';
+import { ProjectileManager } from './ProjectileManager.js';
+import { ItemSlotManager } from './ItemSlotManager.js';
+import { rollItem } from './PowerupItem.js';
+import { WreckManager } from './WreckManager.js';
+import { EliminationManager } from './EliminationManager.js';
+import { WrenchPickupManager } from './WrenchPickupManager.js';
 import { Settings } from './Settings.js';
 import { SettingsMenu } from './SettingsMenu.js';
 import { PRESETS, TIER_PIXEL_RATIO, AdaptiveQuality } from './QualityTiers.js';
@@ -457,6 +467,9 @@ async function init() {
 	// ── Item boxes ───────────────────────────────────────────────────────────
 	const itemBoxManager = trackIntel.valid ? new ItemBoxManager( scene, trackIntel ) : null;
 
+	// ── Combat systems ──────────────────────────────────────────────────────
+	const wrenchPickupManager = trackIntel.valid ? new WrenchPickupManager( scene, trackIntel ) : null;
+
 	// ── Multiplayer race sync ────────────────────────────────────────────────
 
 	if ( multiplayer ) {
@@ -794,7 +807,34 @@ async function init() {
 	};
 
 	const bodyToVehicle = new Map();
-	const contactListener = createContactListener( { vehicle, audio, cam, wallSparks, haptics, bodyToVehicle } );
+
+	// ── Combat system wiring ────────────────────────────────────────────────
+	const combatManager = new CombatManager( { audio, cam, haptics } );
+	const damageSFX = ( audio.listener && audio.listener.context ) ? new DamageSFX( audio.listener.context ) : null;
+	const damageVFX = new DamageVFX( scene );
+	const hudDamage = new HUDDamage();
+	const projectileManager = new ProjectileManager( scene, combatManager );
+	const wreckManager = new WreckManager( scene, world );
+	const eliminationManager = new EliminationManager();
+
+	combatManager.damageSFX = damageSFX;
+	combatManager.damageVFX = damageVFX;
+	if ( wrenchPickupManager ) wrenchPickupManager._damageSFX = damageSFX;
+
+	// Wire elimination: wreck + remove from race
+	combatManager.onElimination = ( v ) => {
+
+		wreckManager.createWreck( v );
+		eliminationManager.eliminate( v );
+
+	};
+
+	raceMode.eliminationManager = eliminationManager;
+
+	// Attach item slot to local vehicle
+	if ( vehicle ) vehicle.itemSlot = new ItemSlotManager( vehicle );
+
+	const contactListener = createContactListener( { vehicle, audio, cam, wallSparks, haptics, bodyToVehicle, combatManager } );
 
 	const timer = new THREE.Timer();
 
@@ -894,7 +934,64 @@ async function init() {
 		aiManager.update( dt, vehicle, raceMode.state, raceMode.lap );
 
 		// ─── Item box pickups ─────────────────────────────────────────────────
-		if ( ! spectating && itemBoxManager ) itemBoxManager.update( dt, vehicle );
+		if ( ! spectating && itemBoxManager ) {
+
+			// Update position ratio for item weighting (0=first, 1=last)
+			const totalRacers = allActiveVehicles.length || 1;
+			const posRatio = Math.max( 0, ( raceMode.getDisplayState().position - 1 ) / ( totalRacers - 1 || 1 ) );
+			itemBoxManager.setPositionRatio( posRatio );
+			itemBoxManager.update( dt, vehicle );
+
+		}
+
+		// ─── Combat system updates ───────────────────────────────────────────
+		combatManager.update( dt );
+		projectileManager.update( dt, allActiveVehicles );
+		wreckManager.update( dt );
+		if ( ! spectating && wrenchPickupManager ) wrenchPickupManager.update( dt, vehicle );
+		if ( ! spectating && vehicle ) damageVFX.update( dt, vehicle );
+
+		// ─── Item use ────────────────────────────────────────────────────────
+		if ( ! spectating && vehicle && input.useItem && vehicle.itemSlot && vehicle.itemSlot.hasItem() ) {
+
+			const desc = vehicle.itemSlot.use( allActiveVehicles, trackIntel, projectileManager, combatManager );
+			if ( desc ) projectileManager.spawn( desc );
+			// Consume input to prevent held-button repeated firing
+			input.useItem = false;
+
+		}
+
+		// ─── AI combat refs + AI item use + AI item grant ───────────────────
+		const wrenchPositions = wrenchPickupManager ? wrenchPickupManager.getAvailablePositions() : [];
+		if ( aiManager._racers ) {
+
+			for ( const ai of aiManager._racers ) {
+
+				// Pass combat refs to AI controllers
+				if ( ai.controller && ai.controller.setCombatRefs ) {
+
+					ai.controller.setCombatRefs( allActiveVehicles, wrenchPositions );
+
+				}
+
+				// Grant AI items periodically (every ~8 seconds) if they have no item
+				if ( ai.vehicle && ai.vehicle.itemSlot && ! ai.vehicle.itemSlot.hasItem() && Math.random() < dt / 8 ) {
+
+					ai.vehicle.itemSlot.receive( rollItem( 0.5 ).id );
+
+				}
+
+				// AI item use
+				if ( ai.vehicle && ai.vehicle.itemSlot && ai.controller && ai.controller._input && ai.controller._input.useItem && ai.vehicle.itemSlot.hasItem() ) {
+
+					const desc = ai.vehicle.itemSlot.use( allActiveVehicles, trackIntel, projectileManager, combatManager );
+					if ( desc ) projectileManager.spawn( desc );
+
+				}
+
+			}
+
+		}
 
 		// ─── Boost activation feedback ───────────────────────────────────────
 		if ( ! spectating && vehicle ) {
@@ -986,6 +1083,7 @@ async function init() {
 		}
 
 		hud.update( dt, raceMode.getDisplayState(), raceLobby.getDisplayState() );
+		if ( ! spectating && vehicle ) hudDamage.update( vehicle.health, vehicle.itemSlot ? vehicle.itemSlot.heldItemId : null, dt );
 		speedometer.update( dt, vehicle.linearSpeed, vehicle.momentum, vehicle.boostActive, vehicle.effectiveTopSpeed, vehicle.debug.topSpeed );
 		minimap.update( allActiveVehicles, raceMode.getDisplayState().state );
 

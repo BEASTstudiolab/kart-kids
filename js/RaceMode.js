@@ -31,6 +31,9 @@ export class RaceMode extends GameMode {
 
 		// Track intelligence for position ranking (set externally after construction)
 		this.trackIntel = null;
+
+		// Elimination manager (set externally)
+		this.eliminationManager = null;
 		this._lastSegmentHint = null;
 		this._position = 1;
 		this._aiVehicleSet = new Set();
@@ -285,6 +288,10 @@ export class RaceMode extends GameMode {
 			for ( const ai of aiRaceData ) {
 
 				this._aiVehicleSet.add( ai.vehicle );
+
+				// Skip eliminated vehicles in position ranking
+				if ( this.eliminationManager && this.eliminationManager.isEliminated( ai.vehicle ) ) continue;
+
 				const vPos = ai.vehicle.vehPos;
 				const vProgress = ai.lap + this.trackIntel.getProgress( vPos.x, vPos.z );
 				if ( vProgress > myProgress ) ahead ++;

@@ -8,6 +8,7 @@ import { TireMarks } from './TireMarks.js';
 import { FinishLine } from './FinishLine.js';
 import { AIController } from './AIController.js';
 import { AI_PROFILES } from './AIProfiles.js';
+import { ItemSlotManager } from './ItemSlotManager.js';
 import { rigidBody } from 'crashcat';
 
 const VEHICLE_BASE_MODEL = 'vehicle-truck-yellow';
@@ -132,6 +133,7 @@ export class AIManager {
 
 		const profile = AI_PROFILES[ index % AI_PROFILES.length ];
 		vehicle.weight = profile.weight || 5;
+		vehicle.itemSlot = new ItemSlotManager( vehicle );
 		const controller = new AIController( this.trackIntel, index, profile );
 
 		const finishLine = new FinishLine( {

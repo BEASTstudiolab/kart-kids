@@ -23,7 +23,7 @@ const _bumpPushDir = new THREE.Vector3();
  */
 export function createContactListener( ctx ) {
 
-	const { vehicle, audio, cam, wallSparks, haptics, bodyToVehicle } = ctx;
+	const { vehicle, audio, cam, wallSparks, haptics, bodyToVehicle, combatManager } = ctx;
 
 	let lastImpactTime = 0;
 
@@ -103,6 +103,9 @@ export function createContactListener( ctx ) {
 		const counterScale = defender.weight / attacker.weight * 0.3;
 		attacker._bumpVel.x -= _bumpPushDir.x * pushMag * counterScale;
 		attacker._bumpVel.z -= _bumpPushDir.z * pushMag * counterScale;
+
+		// Route damage through combat system
+		if ( combatManager ) combatManager.processVehicleBump( attacker, defender, pushMag );
 
 		vehicleA.lastBumpTime = now;
 		vehicleB.lastBumpTime = now;
@@ -212,9 +215,19 @@ export function createContactListener( ctx ) {
 			const dot = Math.abs( nx * sv.x + nz * sv.z ) / ( speed || 1 );
 			const dampFactor = THREE.MathUtils.lerp( 0.85, 0.45, dot );
 			vehicle.linearSpeed *= dampFactor;
-			vehicle._wallHitTime = now;
-			vehicle._verticalVelocity = 0;
+			// Only suppress vertical velocity on flat ground — on ramp surfaces,
+			// wall contacts are from side barriers and should not kill launch momentum.
+			const onRamp = vehicle.groundNormal && vehicle.groundNormal.y < 0.96;
+			if ( ! onRamp ) {
+
+				vehicle._wallHitTime = now;
+				vehicle._verticalVelocity = 0;
+
+			}
 			audio.playImpact( speed );
+
+			// Route wall damage through combat system
+			if ( combatManager ) combatManager.processWallHit( vehicle, speed, { x: nx, z: nz } );
 
 			// ── Feedback ─────────────────────────────────────────────────────
 			cam.applyShake( nx, nz, speed );

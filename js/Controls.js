@@ -14,6 +14,7 @@ export class Controls {
 		this._brakePressed = false;
 		this._boostPressed = false;
 		this._driftPressed = false;
+		this._itemPressed = false;
 
 		// Touch joystick state
 		this._steerPointerId = null;
@@ -263,10 +264,19 @@ export class Controls {
 
 		} );
 
+		const itemBtn = this._createButton( 'USE', 'touch-btn touch-btn-item', ( pressed ) => {
+
+			this._itemPressed = pressed;
+			if ( pressed ) this.touchActive = true;
+			else this._clearTouchActiveIfIdle();
+
+		} );
+
 		btnZone.appendChild( gasBtn );
 		btnZone.appendChild( brakeBtn );
 		btnZone.appendChild( boostBtn );
 		btnZone.appendChild( driftBtn );
+		btnZone.appendChild( itemBtn );
 		container.appendChild( btnZone );
 
 		document.body.appendChild( container );
@@ -285,7 +295,7 @@ export class Controls {
 
 	_clearTouchActiveIfIdle() {
 
-		if ( ! this._gasPressed && ! this._brakePressed && ! this._boostPressed && ! this._driftPressed && ! this._steerPointerId ) {
+		if ( ! this._gasPressed && ! this._brakePressed && ! this._boostPressed && ! this._driftPressed && ! this._itemPressed && ! this._steerPointerId ) {
 
 			this.touchActive = false;
 
@@ -346,6 +356,7 @@ export class Controls {
 		this._gasPressed = false;
 		this._brakePressed = false;
 		this._boostPressed = false;
+		this._itemPressed = false;
 		this.touchActive = false;
 		this._controlPointers.clear();
 
@@ -566,7 +577,24 @@ export class Controls {
 
 		}
 
-		return { x, z, touchActive: this.touchActive, boost, drift, gas, brake };
+		// Item use: E key, touch button, or gamepad Y/Triangle (button 3)
+		let useItem = !! this.keys[ 'KeyE' ] || this._itemPressed;
+
+		if ( this._gamepadConnected && ! useItem ) {
+
+			const gamepads = navigator.getGamepads();
+
+			for ( const gp of gamepads ) {
+
+				if ( ! gp ) continue;
+				if ( gp.buttons[ 3 ] && gp.buttons[ 3 ].pressed ) useItem = true;
+				break;
+
+			}
+
+		}
+
+		return { x, z, touchActive: this.touchActive, boost, drift, gas, brake, useItem };
 
 	}
 

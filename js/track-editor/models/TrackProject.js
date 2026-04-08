@@ -11,22 +11,33 @@ const ELEV_GROUND = 12;
 
 // Tile type index (v4 ↔ type name)
 const V4_TYPE_NAMES = [
-	'trk-straight',       // 0
-	'trk-corner-1x1',     // 1
-	'trk-straight',       // 2 (reserved/legacy)
-	'trk-finish',         // 3
-	'trk-junction-y',     // 4
-	'trk-junction-t',     // 5
-	'trk-junction-4way',  // 6
-	'trk-bridge-entry',   // 7
-	'trk-bridge-mid',     // 8
-	'trk-tunnel-entry',   // 9
-	'trk-tunnel-mid',     // 10
-	'trk-tunnel-exit',    // 11
-	'trk-tunnel-open',    // 12
-	'trk-jump-short',     // 13
-	'trk-jump-long',      // 14
-	'trk-chicane-3x3-l',  // 15
+	'trk-straight',            // 0
+	'trk-corner-1x1',         // 1
+	'trk-straight',            // 2 (reserved/legacy)
+	'trk-finish',              // 3
+	'trk-junction-y',          // 4
+	'trk-junction-t',          // 5
+	'trk-junction-4way',       // 6
+	'trk-bridge-entry',        // 7
+	'trk-bridge-mid',          // 8
+	'trk-tunnel-entry',        // 9
+	'trk-tunnel-mid',          // 10
+	'trk-tunnel-exit',         // 11
+	'trk-tunnel-open',         // 12
+	'trk-jump-short',          // 13
+	'trk-jump-long',           // 14
+	'trk-chicane-3x3-l',      // 15
+	// ── Elevation & ramp types ──
+	'trk-elev-2p5',            // 16
+	'trk-elev-5',              // 17
+	'trk-ramp-up-2p5',         // 18
+	'trk-ramp-up-5',           // 19
+	'trk-ramp-down-2p5',       // 20
+	'trk-ramp-down-5',         // 21
+	'trk-ramp-up-2p5-smooth',  // 22
+	'trk-ramp-up-5-smooth',    // 23
+	'trk-ramp-down-2p5-smooth', // 24
+	'trk-ramp-down-5-smooth',  // 25
 ];
 
 const V4_TYPE_INDEX = {};
@@ -195,20 +206,27 @@ export class TrackProject {
 
 		for ( const [ key, tile ] of this._grid ) {
 
-			// Skip auto-ramp (derived at load time)
-			if ( tile.autoRamp ) continue;
-			// Skip consumed cells (part of multi-tile piece)
+			// Skip consumed cells and finish flanks (structural, not visual)
 			if ( tile._consumed ) continue;
-			// Skip finish flanks (derived from center)
 			if ( tile.finishFlank ) continue;
 
 			const [ gx, gz ] = key.split( ',' ).map( Number );
 
-			// Normalize: elevated tiles store base type
+			// Keep the exact tile type — no normalization (editor is source of truth)
 			let typeName = tile.type;
-			if ( typeName.startsWith( 'trk-elev-' ) || typeName.startsWith( 'trk-ramp-' ) ) {
 
-				typeName = 'trk-straight';
+			// Curve tiles → normalize to corner + curveVariant (curves are derived)
+			const CURVE_TO_VARIANT_V4 = {
+				'trk-curve-2x2-l': '2x2-wide',
+				'trk-curve-3x3-l': '3x3',
+				'trk-curve-3x3-wide-l': '3x3-wide',
+			};
+
+			if ( CURVE_TO_VARIANT_V4[ typeName ] ) {
+
+				tile.curveVariant = CURVE_TO_VARIANT_V4[ typeName ];
+				tile.curveOverride = true;
+				typeName = 'trk-corner-1x1';
 
 			}
 
@@ -302,7 +320,9 @@ export class TrackProject {
 	}
 
 	/**
-	 * Build the cells array compatible with the existing v3 encoder.
+	 * Build the cells array for the v5 encoder.
+	 * ALL tiles are included (ramps, elevated, etc.) — no filtering, no type normalization.
+	 * The game renders exactly what the editor has.
 	 * Format: [gx, gz, typeName, orient, flags]
 	 * @returns {Array}
 	 */
@@ -312,27 +332,39 @@ export class TrackProject {
 
 		for ( const [ key, tile ] of this._grid ) {
 
-			if ( tile.autoRamp ) continue;
+			// Only skip consumed multi-tile cells and finish flanks (those are structural)
 			if ( tile._consumed ) continue;
 			if ( tile.finishFlank ) continue;
 
 			const [ gx, gz ] = key.split( ',' ).map( Number );
 
+			// Keep the EXACT tile type — no normalization
 			let typeName = tile.type;
-			if ( typeName.startsWith( 'trk-elev-' ) || typeName.startsWith( 'trk-ramp-' ) ) {
 
-				typeName = 'trk-straight';
+			// Curve tiles → normalize to corner + curveVariant (curves are derived from corners)
+			const CURVE_TO_VARIANT = {
+				'trk-curve-2x2-l': '2x2-wide',
+				'trk-curve-3x3-l': '3x3',
+				'trk-curve-3x3-wide-l': '3x3-wide',
+			};
+
+			if ( CURVE_TO_VARIANT[ typeName ] ) {
+
+				tile.curveVariant = CURVE_TO_VARIANT[ typeName ];
+				tile.curveOverride = true;
+				typeName = 'trk-corner-1x1';
 
 			}
 
-			// Map v4 elevation back to v3 elevation (0, 1, 2)
+			const elevStep = tile.elevation ?? ELEV_GROUND;
+			const stepsAboveGround = elevStep - ELEV_GROUND;
 			let v3Elev = 0;
-			if ( tile.elevation === 13 ) v3Elev = 1;
-			else if ( tile.elevation === 14 ) v3Elev = 2;
-			else if ( tile.elevation > ELEV_GROUND ) v3Elev = 2; // clamp for v3
+			if ( stepsAboveGround === 1 ) v3Elev = 1;
+			else if ( stepsAboveGround >= 2 ) v3Elev = 2;
 
 			const flags = {};
 			if ( v3Elev !== 0 ) flags.elevation = v3Elev;
+			flags.fullElevation = elevStep;
 			if ( tile.curveOverride ) flags.curveOverride = true;
 			if ( tile.rotationOverride ) flags.rotationOverride = true;
 			if ( tile.rampStyle === 'smooth' ) flags.rampStyle = 'smooth';

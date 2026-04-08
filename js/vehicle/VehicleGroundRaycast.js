@@ -8,6 +8,14 @@ const _forward = new THREE.Vector3();
 const _edge1 = new THREE.Vector3();
 const _edge2 = new THREE.Vector3();
 
+// Surface classification enum
+export const SurfaceType = {
+	FLAT: 0,
+	RAMP_UP: 1,
+	RAMP_DOWN: 2,
+	RAMP_EXIT: 3,
+};
+
 
 export class VehicleGroundRaycast {
 
@@ -41,6 +49,11 @@ export class VehicleGroundRaycast {
 		this._wheelMissedFrames = [ 0, 0, 0, 0 ];
 
 		this._targetNormal = new THREE.Vector3( 0, 1, 0 );
+
+		// Surface classification
+		this.surfaceType = SurfaceType.FLAT;
+		this._prevNormalY = 1.0;   // previous frame's ground normal Y
+		this._prevFrontOnSurface = true; // previous frame's front-wheel contact
 
 	}
 
@@ -355,6 +368,52 @@ export class VehicleGroundRaycast {
 		const normalRate = THREE.MathUtils.lerp( 5, 15, Math.min( slopeAmount * 5, 1 ) );
 		v.groundNormal.lerp( this._targetNormal, 1 - Math.exp( - normalRate * dt ) );
 		v.groundNormal.normalize();
+
+		// ── Surface classification ────────────────────────────────
+		const ny = v.groundNormal.y;
+		const isRamp = ny < 0.96;
+		const wasRamp = this._prevNormalY < 0.96;
+		const frontOn = this._wheelOnSurface[ 0 ] || this._wheelOnSurface[ 1 ];
+		const rearOn = this._wheelOnSurface[ 2 ] || this._wheelOnSurface[ 3 ];
+
+		if ( ! isRamp ) {
+
+			// Check for ramp exit: was on ramp last frame, now on flat,
+			// AND front wheels have left surface while rear wheels still on
+			if ( wasRamp && rearOn && ! frontOn ) {
+
+				this.surfaceType = SurfaceType.RAMP_EXIT;
+
+			} else {
+
+				this.surfaceType = SurfaceType.FLAT;
+
+			}
+
+		} else {
+
+			// On a ramp — determine direction from forward dot product with normal
+			_forward.set( 0, 0, 1 ).applyQuaternion( v.container.quaternion );
+
+			if ( _forward.y > 0.05 ) {
+
+				this.surfaceType = SurfaceType.RAMP_UP;
+
+			} else if ( _forward.y < - 0.05 ) {
+
+				this.surfaceType = SurfaceType.RAMP_DOWN;
+
+			} else {
+
+				// Very shallow ramp — treat as ramp up (conservative)
+				this.surfaceType = SurfaceType.RAMP_UP;
+
+			}
+
+		}
+
+		this._prevNormalY = ny;
+		this._prevFrontOnSurface = frontOn;
 
 	}
 

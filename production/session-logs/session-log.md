@@ -14774,3 +14774,630 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260408_034738
+### Commits
+40a7374 kart-kids-v0.27-map-builder-v2-fixes
+ec22d3e kart-kids-v0.27-map-builder-v2
+### Uncommitted Changes
+js/AIController.js
+js/AIManager.js
+js/ContactHandler.js
+js/Controls.js
+js/ItemBoxManager.js
+js/RaceMode.js
+js/TrackIntel.js
+js/Vehicle.js
+js/main.js
+js/vehicle/VehicleGroundRaycast.js
+production/session-logs/agent-audit.log
+---
+
+## Session End: 20260408_035553
+### Commits
+40a7374 kart-kids-v0.27-map-builder-v2-fixes
+ec22d3e kart-kids-v0.27-map-builder-v2
+### Uncommitted Changes
+js/AIController.js
+js/AIManager.js
+js/ContactHandler.js
+js/Controls.js
+js/ItemBoxManager.js
+js/RaceMode.js
+js/TrackIntel.js
+js/Vehicle.js
+js/main.js
+js/vehicle/VehicleGroundRaycast.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_040650
+### Commits
+40a7374 kart-kids-v0.27-map-builder-v2-fixes
+ec22d3e kart-kids-v0.27-map-builder-v2
+### Uncommitted Changes
+js/AIController.js
+js/AIManager.js
+js/ContactHandler.js
+js/Controls.js
+js/ItemBoxManager.js
+js/RaceMode.js
+js/TrackIntel.js
+js/Vehicle.js
+js/main.js
+js/vehicle/VehicleGroundRaycast.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_040941
+### Commits
+40a7374 kart-kids-v0.27-map-builder-v2-fixes
+ec22d3e kart-kids-v0.27-map-builder-v2
+### Uncommitted Changes
+index.html
+js/AIController.js
+js/AIManager.js
+js/ContactHandler.js
+js/Controls.js
+js/ItemBoxManager.js
+js/RaceMode.js
+js/TrackIntel.js
+js/Vehicle.js
+js/main.js
+js/vehicle/VehicleGroundRaycast.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_041007
+### Commits
+40a7374 kart-kids-v0.27-map-builder-v2-fixes
+ec22d3e kart-kids-v0.27-map-builder-v2
+### Uncommitted Changes
+index.html
+js/AIController.js
+js/AIManager.js
+js/ContactHandler.js
+js/Controls.js
+js/ItemBoxManager.js
+js/RaceMode.js
+js/TrackIntel.js
+js/Vehicle.js
+js/main.js
+js/vehicle/VehicleGroundRaycast.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_042347
+### Commits
+40a7374 kart-kids-v0.27-map-builder-v2-fixes
+ec22d3e kart-kids-v0.27-map-builder-v2
+### Uncommitted Changes
+index.html
+js/AIController.js
+js/AIManager.js
+js/ContactHandler.js
+js/Controls.js
+js/ItemBoxManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackIntel.js
+js/Vehicle.js
+js/main.js
+js/track-editor/models/TrackProject.js
+js/vehicle/VehicleGroundRaycast.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_042808
+### Commits
+40a7374 kart-kids-v0.27-map-builder-v2-fixes
+ec22d3e kart-kids-v0.27-map-builder-v2
+### Uncommitted Changes
+index.html
+js/AIController.js
+js/AIManager.js
+js/ContactHandler.js
+js/Controls.js
+js/ItemBoxManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackIntel.js
+js/Vehicle.js
+js/main.js
+js/track-editor/models/TrackProject.js
+js/vehicle/VehicleGroundRaycast.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_042844
+### Commits
+40a7374 kart-kids-v0.27-map-builder-v2-fixes
+ec22d3e kart-kids-v0.27-map-builder-v2
+### Uncommitted Changes
+index.html
+js/AIController.js
+js/AIManager.js
+js/ContactHandler.js
+js/Controls.js
+js/ItemBoxManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackIntel.js
+js/Vehicle.js
+js/main.js
+js/track-editor/models/TrackProject.js
+js/vehicle/VehicleGroundRaycast.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_043353
+### Commits
+40a7374 kart-kids-v0.27-map-builder-v2-fixes
+ec22d3e kart-kids-v0.27-map-builder-v2
+### Uncommitted Changes
+index.html
+js/AIController.js
+js/AIManager.js
+js/ContactHandler.js
+js/Controls.js
+js/ItemBoxManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackIntel.js
+js/Vehicle.js
+js/main.js
+js/track-editor/models/TrackProject.js
+js/vehicle/VehicleGroundRaycast.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_044429
+### Commits
+40a7374 kart-kids-v0.27-map-builder-v2-fixes
+ec22d3e kart-kids-v0.27-map-builder-v2
+### Uncommitted Changes
+index.html
+js/AIController.js
+js/AIManager.js
+js/ContactHandler.js
+js/Controls.js
+js/ElevationUtils.js
+js/ItemBoxManager.js
+js/Physics.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/main.js
+js/track-editor/models/TrackProject.js
+js/vehicle/VehicleGroundRaycast.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_045018
+### Commits
+40a7374 kart-kids-v0.27-map-builder-v2-fixes
+ec22d3e kart-kids-v0.27-map-builder-v2
+### Uncommitted Changes
+index.html
+js/AIController.js
+js/AIManager.js
+js/ContactHandler.js
+js/Controls.js
+js/ElevationUtils.js
+js/ItemBoxManager.js
+js/Physics.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/main.js
+js/track-editor/models/TrackProject.js
+js/vehicle/VehicleGroundRaycast.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_045338
+### Commits
+40a7374 kart-kids-v0.27-map-builder-v2-fixes
+ec22d3e kart-kids-v0.27-map-builder-v2
+### Uncommitted Changes
+index.html
+js/AIController.js
+js/AIManager.js
+js/ContactHandler.js
+js/Controls.js
+js/ElevationUtils.js
+js/ItemBoxManager.js
+js/Physics.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/main.js
+js/track-editor/models/TrackProject.js
+js/vehicle/VehicleGroundRaycast.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_045715
+### Commits
+40a7374 kart-kids-v0.27-map-builder-v2-fixes
+ec22d3e kart-kids-v0.27-map-builder-v2
+### Uncommitted Changes
+index.html
+js/AIController.js
+js/AIManager.js
+js/ContactHandler.js
+js/Controls.js
+js/ElevationUtils.js
+js/ItemBoxManager.js
+js/Physics.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/main.js
+js/track-editor/models/TrackProject.js
+js/vehicle/VehicleGroundRaycast.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_050016
+### Commits
+40a7374 kart-kids-v0.27-map-builder-v2-fixes
+ec22d3e kart-kids-v0.27-map-builder-v2
+### Uncommitted Changes
+index.html
+js/AIController.js
+js/AIManager.js
+js/ContactHandler.js
+js/Controls.js
+js/ElevationUtils.js
+js/ItemBoxManager.js
+js/Physics.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/main.js
+js/track-editor/models/TrackProject.js
+js/vehicle/VehicleGroundRaycast.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_050607
+### Commits
+40a7374 kart-kids-v0.27-map-builder-v2-fixes
+ec22d3e kart-kids-v0.27-map-builder-v2
+### Uncommitted Changes
+index.html
+js/AIController.js
+js/AIManager.js
+js/ContactHandler.js
+js/Controls.js
+js/ElevationUtils.js
+js/ItemBoxManager.js
+js/Physics.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/main.js
+js/track-editor/models/TrackProject.js
+js/vehicle/VehicleGroundRaycast.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_051156
+### Commits
+40a7374 kart-kids-v0.27-map-builder-v2-fixes
+ec22d3e kart-kids-v0.27-map-builder-v2
+### Uncommitted Changes
+index.html
+js/AIController.js
+js/AIManager.js
+js/ContactHandler.js
+js/Controls.js
+js/ElevationUtils.js
+js/ItemBoxManager.js
+js/Physics.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/main.js
+js/track-editor/models/TrackProject.js
+js/vehicle/VehicleGroundRaycast.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_051936
+### Commits
+40a7374 kart-kids-v0.27-map-builder-v2-fixes
+ec22d3e kart-kids-v0.27-map-builder-v2
+### Uncommitted Changes
+index.html
+js/AIController.js
+js/AIManager.js
+js/ContactHandler.js
+js/Controls.js
+js/ElevationUtils.js
+js/ItemBoxManager.js
+js/Physics.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/main.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/vehicle/VehicleGroundRaycast.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_052639
+### Commits
+40a7374 kart-kids-v0.27-map-builder-v2-fixes
+ec22d3e kart-kids-v0.27-map-builder-v2
+### Uncommitted Changes
+index.html
+js/AIController.js
+js/AIManager.js
+js/ContactHandler.js
+js/Controls.js
+js/ElevationUtils.js
+js/ItemBoxManager.js
+js/Physics.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/main.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/vehicle/VehicleGroundRaycast.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_053435
+### Commits
+40a7374 kart-kids-v0.27-map-builder-v2-fixes
+ec22d3e kart-kids-v0.27-map-builder-v2
+### Uncommitted Changes
+index.html
+js/AIController.js
+js/AIManager.js
+js/ContactHandler.js
+js/Controls.js
+js/ElevationUtils.js
+js/ItemBoxManager.js
+js/Physics.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/main.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/services/PlacementController.js
+js/vehicle/VehicleGroundRaycast.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_053821
+### Commits
+40a7374 kart-kids-v0.27-map-builder-v2-fixes
+ec22d3e kart-kids-v0.27-map-builder-v2
+### Uncommitted Changes
+index.html
+js/AIController.js
+js/AIManager.js
+js/ContactHandler.js
+js/Controls.js
+js/ElevationUtils.js
+js/ItemBoxManager.js
+js/Physics.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/main.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/services/PlacementController.js
+js/vehicle/VehicleGroundRaycast.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_054956
+### Commits
+40a7374 kart-kids-v0.27-map-builder-v2-fixes
+ec22d3e kart-kids-v0.27-map-builder-v2
+### Uncommitted Changes
+index.html
+js/AIController.js
+js/AIManager.js
+js/ContactHandler.js
+js/Controls.js
+js/ElevationUtils.js
+js/ItemBoxManager.js
+js/Physics.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/main.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/services/PlacementController.js
+js/vehicle/VehicleGroundRaycast.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_060119
+### Commits
+40a7374 kart-kids-v0.27-map-builder-v2-fixes
+ec22d3e kart-kids-v0.27-map-builder-v2
+### Uncommitted Changes
+index.html
+js/AIController.js
+js/AIManager.js
+js/ContactHandler.js
+js/Controls.js
+js/ElevationUtils.js
+js/ItemBoxManager.js
+js/Physics.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/main.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/services/ValidationService.js
+js/vehicle/VehicleGroundRaycast.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_060217
+### Commits
+40a7374 kart-kids-v0.27-map-builder-v2-fixes
+ec22d3e kart-kids-v0.27-map-builder-v2
+### Uncommitted Changes
+index.html
+js/AIController.js
+js/AIManager.js
+js/ContactHandler.js
+js/Controls.js
+js/ElevationUtils.js
+js/ItemBoxManager.js
+js/Physics.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/main.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/services/ValidationService.js
+js/vehicle/VehicleGroundRaycast.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_060414
+### Commits
+40a7374 kart-kids-v0.27-map-builder-v2-fixes
+ec22d3e kart-kids-v0.27-map-builder-v2
+### Uncommitted Changes
+index.html
+js/AIController.js
+js/AIManager.js
+js/ContactHandler.js
+js/Controls.js
+js/ElevationUtils.js
+js/ItemBoxManager.js
+js/Physics.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/main.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/services/ValidationService.js
+js/vehicle/VehicleGroundRaycast.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_060441
+### Commits
+40a7374 kart-kids-v0.27-map-builder-v2-fixes
+ec22d3e kart-kids-v0.27-map-builder-v2
+### Uncommitted Changes
+index.html
+js/AIController.js
+js/AIManager.js
+js/ContactHandler.js
+js/Controls.js
+js/ElevationUtils.js
+js/ItemBoxManager.js
+js/Physics.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/main.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/services/ValidationService.js
+js/vehicle/VehicleGroundRaycast.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_060637
+### Commits
+40a7374 kart-kids-v0.27-map-builder-v2-fixes
+ec22d3e kart-kids-v0.27-map-builder-v2
+### Uncommitted Changes
+index.html
+js/AIController.js
+js/AIManager.js
+js/ContactHandler.js
+js/Controls.js
+js/ElevationUtils.js
+js/ItemBoxManager.js
+js/Physics.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/main.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/services/ValidationService.js
+js/vehicle/VehicleGroundRaycast.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
