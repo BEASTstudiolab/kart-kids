@@ -373,6 +373,72 @@ export class GameAudio {
 
 	}
 
+	playPositionGain() {
+
+		if ( ! this.listener ) return;
+
+		const ctx = this.listener.context;
+		if ( ! ctx || ctx.state === 'suspended' ) return;
+
+		try {
+
+			const osc = ctx.createOscillator();
+			const gain = ctx.createGain();
+
+			osc.type = 'sine';
+			osc.frequency.setValueAtTime( 600, ctx.currentTime );
+			osc.frequency.linearRampToValueAtTime( 900, ctx.currentTime + 0.12 );
+
+			gain.gain.setValueAtTime( 0.2, ctx.currentTime );
+			gain.gain.exponentialRampToValueAtTime( 0.001, ctx.currentTime + 0.15 );
+
+			osc.connect( gain );
+			gain.connect( this._sfxGain );
+
+			osc.start( ctx.currentTime );
+			osc.stop( ctx.currentTime + 0.15 );
+
+		} catch {
+
+			// Silently fail if audio context not ready
+
+		}
+
+	}
+
+	playPositionLoss() {
+
+		if ( ! this.listener ) return;
+
+		const ctx = this.listener.context;
+		if ( ! ctx || ctx.state === 'suspended' ) return;
+
+		try {
+
+			const osc = ctx.createOscillator();
+			const gain = ctx.createGain();
+
+			osc.type = 'sine';
+			osc.frequency.setValueAtTime( 500, ctx.currentTime );
+			osc.frequency.linearRampToValueAtTime( 350, ctx.currentTime + 0.12 );
+
+			gain.gain.setValueAtTime( 0.15, ctx.currentTime );
+			gain.gain.exponentialRampToValueAtTime( 0.001, ctx.currentTime + 0.15 );
+
+			osc.connect( gain );
+			gain.connect( this._sfxGain );
+
+			osc.start( ctx.currentTime );
+			osc.stop( ctx.currentTime + 0.15 );
+
+		} catch {
+
+			// Silently fail if audio context not ready
+
+		}
+
+	}
+
 	playItemPickup() {
 
 		if ( ! this.listener ) return;

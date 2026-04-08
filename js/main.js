@@ -867,6 +867,7 @@ async function init() {
 
 	let lastFrameTime = 0;
 	let shadowFrameCounter = 0;
+	let _prevRacePosition = 0;
 
 	function animate() {
 
@@ -1082,10 +1083,22 @@ async function init() {
 
 		}
 
-		hud.update( dt, raceMode.getDisplayState(), raceLobby.getDisplayState() );
+		const _ds = raceMode.getDisplayState();
+		hud.update( dt, _ds, raceLobby.getDisplayState() );
+
+		// Position-change audio callouts
+		if ( _ds.state === 'racing' && _ds.position !== _prevRacePosition && _prevRacePosition > 0 ) {
+
+			if ( _ds.position < _prevRacePosition ) audio.playPositionGain();
+			else audio.playPositionLoss();
+
+		}
+
+		_prevRacePosition = _ds.state === 'racing' ? _ds.position : 0;
+
 		if ( ! spectating && vehicle ) hudDamage.update( vehicle.health, vehicle.itemSlot ? vehicle.itemSlot.heldItemId : null, dt );
 		speedometer.update( dt, vehicle.linearSpeed, vehicle.momentum, vehicle.boostActive, vehicle.effectiveTopSpeed, vehicle.debug.topSpeed );
-		minimap.update( allActiveVehicles, raceMode.getDisplayState().state );
+		minimap.update( allActiveVehicles, _ds.state );
 
 		// Send local state to server (throttled internally at 20Hz)
 		if ( multiplayer && network.connected && ! spectating ) {
