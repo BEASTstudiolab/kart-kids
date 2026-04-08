@@ -2,10 +2,11 @@ import { SpringAnimator } from './SpringAnimator.js';
 
 export class HUD {
 
-	constructor( onRestart, onReady ) {
+	constructor( onRestart, onReady, onRemix ) {
 
 		this._onRestart = onRestart;
 		this._onReady = onReady;
+		this._onRemix = onRemix;
 		this._currentState = 'idle';
 
 		// ── Inject CSS keyframes for animations ──────────────────────────────
@@ -73,7 +74,7 @@ export class HUD {
 		this._restartBtn = document.createElement( 'button' );
 		this._restartBtn.textContent = 'RESTART';
 		this._restartBtn.style.cssText = [
-			'font:bold 20px monospace', 'margin-top:20px', 'padding:10px 32px',
+			'font:bold 20px monospace', 'padding:10px 32px',
 			'background:#fff', 'color:#000', 'border:none', 'border-radius:6px',
 			'cursor:pointer',
 		].join( ';' );
@@ -83,10 +84,28 @@ export class HUD {
 
 		} );
 
+		this._remixBtn = document.createElement( 'button' );
+		this._remixBtn.textContent = 'REMIX';
+		this._remixBtn.style.cssText = [
+			'font:bold 20px monospace', 'margin-top:10px', 'margin-left:12px', 'padding:10px 32px',
+			'background:#6366f1', 'color:#fff', 'border:none', 'border-radius:6px',
+			'cursor:pointer',
+		].join( ';' );
+		this._remixBtn.addEventListener( 'click', () => {
+
+			if ( this._onRemix ) this._onRemix();
+
+		} );
+
+		const btnRow = document.createElement( 'div' );
+		btnRow.style.cssText = 'margin-top:20px; display:flex; justify-content:center; gap:12px';
+		btnRow.appendChild( this._restartBtn );
+		btnRow.appendChild( this._remixBtn );
+
 		this._resultsEl.appendChild( this._resultsTitle );
 		this._resultsEl.appendChild( this._resultsTotalLine );
 		this._resultsEl.appendChild( this._resultsBestLine );
-		this._resultsEl.appendChild( this._restartBtn );
+		this._resultsEl.appendChild( btnRow );
 		document.body.appendChild( this._resultsEl );
 
 		// ── Boost meter bar ──────────────────────────────────────────────────

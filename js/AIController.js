@@ -35,6 +35,12 @@ export class AIController {
 
 	}
 
+	setProfile( profile ) {
+
+		this._profile = Object.assign( {}, DEFAULT_PROFILE, profile );
+
+	}
+
 	update( dt, vehicle ) {
 
 		const trackIntel = this._trackIntel;

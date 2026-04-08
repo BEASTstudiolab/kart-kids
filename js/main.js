@@ -442,7 +442,8 @@ async function init() {
 
 	const hud = new HUD(
 		() => { raceMode.reset(); aiManager.resetRace(); raceLobby.reset(); },
-		() => raceLobby.setReady( playerManager.localId )
+		() => raceLobby.setReady( playerManager.localId ),
+		() => { aiManager.shuffleProfiles(); raceMode.reset(); aiManager.resetRace(); aiManager.teleportToGrid( vehicle ); raceLobby.reset(); }
 	);
 
 	const intelCells = customCells ? deriveRampCells( activeCells ) : activeCells;

@@ -399,6 +399,29 @@ export class AIManager {
 
 	}
 
+	shuffleProfiles() {
+
+		// Fisher-Yates shuffle of profile assignments
+		const profiles = AI_PROFILES.slice();
+		for ( let i = profiles.length - 1; i > 0; i -- ) {
+
+			const j = Math.floor( Math.random() * ( i + 1 ) );
+			[ profiles[ i ], profiles[ j ] ] = [ profiles[ j ], profiles[ i ] ];
+
+		}
+
+		for ( let i = 0; i < this._racers.length; i ++ ) {
+
+			const ai = this._racers[ i ];
+			const profile = profiles[ i % profiles.length ];
+			ai.profile = profile;
+			ai.controller.setProfile( profile );
+			ai.vehicle.weight = profile.weight || 5;
+
+		}
+
+	}
+
 	// ── Queries ──────────────────────────────────────────────────────────────
 
 	getActiveVehicles() {
