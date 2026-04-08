@@ -53,7 +53,6 @@ import { getTrackId } from './GhostStorage.js';
 const SPECTATE_INPUT = { x: 0, z: 0, touchActive: false, boost: false, gas: false, brake: false };
 
 const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-window.isMobile = isMobile;
 
 let renderer;
 let bloomPass;
@@ -1003,7 +1002,7 @@ async function init() {
 
 				if ( vehicle.underglowLight ) {
 
-					if ( ! window.isMobile ) vehicle.underglowLight.visible = true;
+					if ( ! isMobile ) vehicle.underglowLight.visible = true;
 					vehicle.underglowLight.color.setHex( 0xff8800 );
 
 				}
