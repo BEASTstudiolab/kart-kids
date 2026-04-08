@@ -199,9 +199,7 @@ export function buildTrack( scene, models, customCells ) {
 	//
 	// }
 
-	if ( true ) { // Decorations re-enabled — instanced placement
-
-		// Auto-generate decorations to fill any gaps
+	if ( false ) { // Decorations DISABLED — must be placed via track editor props mode
 		const occupied = new Set();
 		let minX = Infinity, maxX = - Infinity;
 		let minZ = Infinity, maxZ = - Infinity;

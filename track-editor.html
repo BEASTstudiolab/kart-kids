@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>KART KIDS — Track Editor</title>
+	<link rel="stylesheet" href="js/ui/ui-theme.css">
+	<link rel="stylesheet" href="css/track-editor.css">
+	<script type="importmap">
+	{
+		"imports": {
+			"three": "./node_modules/three/build/three.module.js",
+			"three/addons/": "./node_modules/three/examples/jsm/"
+		}
+	}
+	</script>
+</head>
+<body>
+	<div class="kk-editor-shell" id="editor-shell">
+		<!-- Top Bar -->
+		<header class="kk-editor-shell__topbar" id="editor-topbar"></header>
+
+		<!-- Left Tool Rail -->
+		<nav class="kk-editor-shell__toolrail" id="editor-toolrail"></nav>
+
+		<!-- Center Viewport -->
+		<main class="kk-editor-shell__viewport" id="editor-viewport">
+			<canvas id="editor-canvas"></canvas>
+			<div class="kk-editor-minimap" id="editor-minimap">
+				<canvas id="minimap-canvas" width="180" height="180"></canvas>
+			</div>
+			<div class="kk-editor-stats" id="editor-stats"></div>
+		</main>
+
+		<!-- Right Inspector -->
+		<aside class="kk-editor-shell__inspector" id="editor-inspector"></aside>
+
+		<!-- Bottom Carousel -->
+		<section class="kk-editor-shell__carousel" id="editor-carousel"></section>
+
+		<!-- Bottom Status Bar -->
+		<footer class="kk-editor-shell__statusbar" id="editor-statusbar"></footer>
+	</div>
+
+	<script type="module" src="js/track-editor/core/EditorApp.js"></script>
+</body>
+</html>

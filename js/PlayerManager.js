@@ -96,8 +96,19 @@ export class PlayerManager {
 			this.spawnPosition[ 2 ] + offset[ 1 ],
 		];
 
-		const vehicle = this._createVehicle( joinData.vehicleIndex, joinData.characterIndex, joinData.tint, spawnPos, this.spawnAngle );
+		const vehicle = this._createVehicle( joinData.vehicleIndex, joinData.characterIndex, joinData.tint, spawnPos, this.spawnAngle, true );
 		vehicle.remote = true;
+
+		// Remove SpotLights/PointLight to avoid Three.js shader recompilation
+		for ( const hl of vehicle.headlights ) {
+
+			if ( hl.target ) vehicle.container.remove( hl.target );
+			vehicle.container.remove( hl );
+
+		}
+
+		vehicle.headlights.length = 0;
+		if ( vehicle.underglowLight ) vehicle.underglowLight.visible = false;
 
 		if ( joinData.spectating ) {
 
@@ -198,7 +209,7 @@ export class PlayerManager {
 			const pos = this.spawnPosition;
 			entry.vehicle.rigidBody = createVehicleBody( this.world, pos );
 			entry.vehicle.physicsWorld = this.world;
-			entry.vehicle.initRaycast( this.world );
+			if ( ! entry.vehicle.remote ) entry.vehicle.initRaycast( this.world );
 
 			const [ sx, sy, sz ] = pos;
 			entry.vehicle.vehPos.set( sx, sy, sz );
@@ -282,7 +293,7 @@ export class PlayerManager {
 
 	}
 
-	_createVehicle( vehicleIndex, characterIndex, tint, position, angle ) {
+	_createVehicle( vehicleIndex, characterIndex, tint, position, angle, isRemote ) {
 
 		const modelName = VEHICLE_MODEL_NAMES[ vehicleIndex % VEHICLE_MODEL_NAMES.length ];
 		const model = this.models[ modelName ];
@@ -304,7 +315,7 @@ export class PlayerManager {
 		vehicle.container.rotation.y = angle;
 
 		const group = vehicle.init( model, characterModel );
-		vehicle.initRaycast( this.world );
+		if ( ! isRemote ) vehicle.initRaycast( this.world );
 
 		// Apply tint to body mesh for players 5+
 		if ( tint && vehicle.bodyNode ) {
@@ -332,7 +343,7 @@ export class PlayerManager {
 	_computeSpawnOffset( playerIndex ) {
 
 		// Offset laterally perpendicular to the spawn direction
-		const laneOffset = ( playerIndex % 4 ) * 2.5 - 3.75;
+		const laneOffset = ( playerIndex % 4 ) * 3.0 - 4.5;
 		const perpX = - Math.sin( this.spawnAngle ) * laneOffset;
 		const perpZ = Math.cos( this.spawnAngle ) * laneOffset;
 		return [ perpX, perpZ ];

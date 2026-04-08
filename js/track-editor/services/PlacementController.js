@@ -1,0 +1,500 @@
+// ─── PlacementController ─────────────────────────────────────────────────────
+// Handles ghost preview, placement validation, and delegates to commands.
+
+import * as THREE from 'three';
+import { CELL_RAW, ORIENT_DEG } from '../../TrackConstants.js';
+import { ELEV_GROUND } from '../models/TrackProject.js';
+import { PlaceTileCommand } from '../commands/PlaceTileCommand.js';
+import { EraseTileCommand } from '../commands/EraseTileCommand.js';
+import { PlaceFinishCommand } from '../commands/PlaceFinishCommand.js';
+import { PlaceSpecialTileCommand } from '../commands/PlaceSpecialTileCommand.js';
+import { ReplaceTileCommand } from '../commands/ReplaceTileCommand.js';
+import { TILES_3X3 } from '../models/TrackTile.js';
+
+export class PlacementController {
+
+	/**
+	 * @param {import('./OccupancyGrid.js').OccupancyGrid} [occupancy]
+	 */
+	constructor( project, meshFactory, autoTile, commandHistory, eventBus, editorState, occupancy ) {
+
+		this._project = project;
+		this._meshFactory = meshFactory;
+		this._autoTile = autoTile;
+		this._commandHistory = commandHistory;
+		this._eventBus = eventBus;
+		this._state = editorState;
+		this._occupancy = occupancy ?? null;
+
+		/** Three.js group for ghost preview meshes. */
+		this.ghostGroup = new THREE.Group();
+		this.ghostGroup.name = 'ghost-preview';
+
+		this._lastGhostCell = null;
+		this._lastGhostTool = null;
+
+		// Footprint indicator material (green translucent plane)
+		this._footprintMat = new THREE.MeshBasicMaterial( {
+			color: 0x22c55e,
+			transparent: true,
+			opacity: 0.2,
+			depthWrite: false,
+			side: THREE.DoubleSide,
+		} );
+
+		// Invalid footprint material (red)
+		this._footprintInvalidMat = new THREE.MeshBasicMaterial( {
+			color: 0xef4444,
+			transparent: true,
+			opacity: 0.3,
+			depthWrite: false,
+			side: THREE.DoubleSide,
+		} );
+
+		// Clearance warning material (orange/yellow)
+		this._footprintClearanceMat = new THREE.MeshBasicMaterial( {
+			color: 0xf59e0b,
+			transparent: true,
+			opacity: 0.25,
+			depthWrite: false,
+			side: THREE.DoubleSide,
+		} );
+
+	}
+
+	/**
+	 * Update ghost preview at grid cell.
+	 * @param {number} gx
+	 * @param {number} gz
+	 * @param {string} tool
+	 * @param {string} [selectedTileType]  For 'special' tool
+	 */
+	updateGhost( gx, gz, tool, selectedTileType ) {
+
+		// Skip if same cell + same tool
+		if ( this._lastGhostCell &&
+			this._lastGhostCell.gx === gx &&
+			this._lastGhostCell.gz === gz &&
+			this._lastGhostTool === tool ) return;
+
+		this.clearGhost();
+		this._lastGhostCell = { gx, gz };
+		this._lastGhostTool = tool;
+
+		if ( tool === 'road' || tool === 'special' ) {
+
+			// Manual placement ghost: show the exact tile the user selected
+			const tileType = selectedTileType || this._state?.selectedTileType || 'trk-straight';
+			const orient = this._state?.selectedOrient ?? 0;
+			const activeElev = this._state ? this._state.activeElevation : 12;
+
+			const existing = this._project.getTile( gx, gz );
+			if ( existing && ! existing._consumed ) return;
+
+			const ghost = this._meshFactory.createGhostMesh( tileType, orient, gx, gz, activeElev );
+			if ( ghost ) this.ghostGroup.add( ghost );
+
+			this._addClearanceIndicator( gx, gz, activeElev );
+
+		} else if ( tool === 'finish' ) {
+
+			// Determine orientation: from existing tile, or auto-detect from neighbors
+			const existing = this._project.getTile( gx, gz );
+			let orient = existing ? existing.orient : 0;
+
+			// If no existing tile, check neighbors to detect road direction
+			if ( ! existing ) {
+
+				const nN = this._project.getTile( gx, gz - 1 );
+				const nS = this._project.getTile( gx, gz + 1 );
+				const nE = this._project.getTile( gx + 1, gz );
+				const nW = this._project.getTile( gx - 1, gz );
+				const hasNS = ( nN && ! nN._consumed ) || ( nS && ! nS._consumed );
+				const hasEW = ( nE && ! nE._consumed ) || ( nW && ! nW._consumed );
+
+				if ( hasEW && ! hasNS ) orient = 16; // E-W road
+				// else default 0 (N-S) is fine
+
+			}
+
+			const isNS = orient === 0 || orient === 10;
+
+			// Show finish ghost model with correct orientation
+			const ghost = this._meshFactory.createGhostMesh( 'trk-finish', orient, gx, gz );
+			if ( ghost ) this.ghostGroup.add( ghost );
+
+			// 3x1 wireframe bounding box matching the tile geometry
+			const worldX = ( gx + 0.5 ) * CELL_RAW;
+			const worldZ = ( gz + 0.5 ) * CELL_RAW;
+			// Finish arch spans PERPENDICULAR to road direction
+			// N-S road: arch spans X-axis (wide in X)
+			// E-W road: arch spans Z-axis (wide in Z)
+			const boxW = isNS ? CELL_RAW * 3 : CELL_RAW;
+			const boxD = isNS ? CELL_RAW : CELL_RAW * 3;
+			const boxH = 3.0;
+
+			const boxGeo = new THREE.BoxGeometry( boxW * 0.98, boxH, boxD * 0.98 );
+			const edgeMat = new THREE.LineBasicMaterial( { color: 0x22c55e, transparent: true, opacity: 0.7 } );
+			const wireframe = new THREE.LineSegments( new THREE.EdgesGeometry( boxGeo ), edgeMat );
+			wireframe.position.set( worldX, boxH / 2, worldZ );
+			this.ghostGroup.add( wireframe );
+
+			// Semi-transparent fill
+			const fillMat = new THREE.MeshBasicMaterial( {
+				color: 0x22c55e, transparent: true, opacity: 0.08,
+				depthWrite: false, side: THREE.DoubleSide,
+			} );
+			const fillMesh = new THREE.Mesh( boxGeo, fillMat );
+			fillMesh.position.set( worldX, boxH / 2, worldZ );
+			this.ghostGroup.add( fillMesh );
+
+			// Direction arrows on BOTH ends of the finish tile
+			const arrowShape = new THREE.Shape();
+			arrowShape.moveTo( 0, 1.2 );
+			arrowShape.lineTo( - 0.7, - 0.3 );
+			arrowShape.lineTo( 0, 0.2 );
+			arrowShape.lineTo( 0.7, - 0.3 );
+			arrowShape.closePath();
+
+			const arrowGeo = new THREE.ShapeGeometry( arrowShape );
+			const arrowMat = new THREE.MeshBasicMaterial( {
+				color: 0x22c55e, transparent: true, opacity: 0.9,
+				side: THREE.DoubleSide, depthWrite: false,
+			} );
+
+			const orientRad = THREE.MathUtils.degToRad( ORIENT_DEG[ orient ] ?? 0 );
+
+			// Arrow at the start (behind finish line)
+			const behindDist = isNS ? CELL_RAW * 0.8 : CELL_RAW * 0.8;
+			const arrow1 = new THREE.Mesh( arrowGeo, arrowMat );
+			arrow1.rotation.x = - Math.PI / 2;
+			arrow1.rotation.z = - orientRad;
+			arrow1.position.set(
+				worldX - Math.sin( orientRad ) * behindDist,
+				0.1,
+				worldZ + Math.cos( orientRad ) * behindDist
+			);
+			this.ghostGroup.add( arrow1 );
+
+			// Arrow at the front (ahead of finish line)
+			const aheadDist = CELL_RAW * 0.8;
+			const arrow2 = new THREE.Mesh( arrowGeo, arrowMat );
+			arrow2.rotation.x = - Math.PI / 2;
+			arrow2.rotation.z = - orientRad;
+			arrow2.position.set(
+				worldX + Math.sin( orientRad ) * aheadDist,
+				0.1,
+				worldZ - Math.cos( orientRad ) * aheadDist
+			);
+			this.ghostGroup.add( arrow2 );
+
+		} else if ( tool === 'erase' ) {
+
+			// Red highlight on tile that would be erased
+			const existing = this._project.getTile( gx, gz );
+			const isRamp = existing && ( existing.autoRamp || existing.type.startsWith( 'trk-ramp-' ) );
+			if ( existing && ! existing._consumed && ! isRamp ) {
+
+				const geo = new THREE.PlaneGeometry( CELL_RAW * 0.95, CELL_RAW * 0.95 );
+				const plane = new THREE.Mesh( geo, this._footprintInvalidMat );
+				plane.rotation.x = - Math.PI / 2;
+				plane.position.set(
+					( gx + 0.5 ) * CELL_RAW,
+					0.03,
+					( gz + 0.5 ) * CELL_RAW
+				);
+				this.ghostGroup.add( plane );
+
+			}
+
+		}
+
+	}
+
+	/** Clear ghost preview meshes. */
+	clearGhost() {
+
+		while ( this.ghostGroup.children.length > 0 ) {
+
+			this.ghostGroup.remove( this.ghostGroup.children[ 0 ] );
+
+		}
+
+		this._lastGhostCell = null;
+		this._lastGhostTool = null;
+
+	}
+
+	/**
+	 * Place a road tile at (gx, gz) via command.
+	 * Enforces occupancy and clearance rules before placement.
+	 * @returns {PlaceTileCommand|null}
+	 */
+	placeRoad( gx, gz ) {
+
+		const existing = this._project.getTile( gx, gz );
+		if ( existing && ! existing._consumed && ! existing.autoRamp ) return null;
+
+		const activeElev = this._state ? this._state.activeElevation : 12;
+
+		// Clearance enforcement: block if occupancy says invalid
+		if ( this._occupancy ) {
+
+			const check = this._occupancy.checkClearance( gx, gz, activeElev );
+			if ( ! check.valid ) return null;
+
+		}
+
+		// Manual placement: use the exact tile type and orient the user selected
+		const tileType = this._state?.selectedTileType || 'trk-straight';
+		const orient = this._state?.selectedOrient ?? 0;
+
+		const cmd = new PlaceTileCommand(
+			this._project, gx, gz,
+			tileType, orient, activeElev,
+			this._meshFactory, this._eventBus
+		);
+
+		this._commandHistory.execute( cmd );
+		this.clearGhost();
+		return cmd;
+
+	}
+
+	/**
+	 * Erase a tile at (gx, gz) via command.
+	 * @returns {EraseTileCommand|null}
+	 */
+	eraseRoad( gx, gz ) {
+
+		const tile = this._project.getTile( gx, gz );
+		if ( ! tile || tile._consumed ) return null;
+
+		// Block erasing auto-ramps AND any ramp-typed tiles adjacent to elevated tiles
+		if ( tile.autoRamp || tile.type.startsWith( 'trk-ramp-' ) ) return null;
+
+		const cmd = new EraseTileCommand(
+			this._project, gx, gz,
+			this._meshFactory, this._autoTile, this._eventBus
+		);
+
+		this._commandHistory.execute( cmd );
+		return cmd;
+
+	}
+
+	/**
+	 * Replace a tile's type in-place (no delete+recreate).
+	 * @param {number} gx
+	 * @param {number} gz
+	 * @param {string} newType
+	 * @returns {import('../commands/ReplaceTileCommand.js').ReplaceTileCommand|null}
+	 */
+	replaceRoad( gx, gz, newType ) {
+
+		const tile = this._project.getTile( gx, gz );
+		if ( ! tile || tile._consumed || tile.autoRamp || tile.finishFlank ) return null;
+		if ( ! newType || tile.type === newType ) return null;
+
+		const cmd = new ReplaceTileCommand(
+			this._project, gx, gz, newType,
+			this._meshFactory, this._eventBus
+		);
+
+		this._commandHistory.execute( cmd );
+		return cmd;
+
+	}
+
+	/**
+	 * Place the start/finish line.
+	 */
+	placeFinishAt( gx, gz ) {
+
+		const existing = this._project.getTile( gx, gz );
+		const orient = existing ? existing.orient : 0;
+
+		const cmd = new PlaceFinishCommand(
+			this._project, gx, gz, orient,
+			this._meshFactory, this._autoTile, this._eventBus
+		);
+
+		this._commandHistory.execute( cmd );
+
+	}
+
+	/**
+	 * Place a special tile (junction, bridge, tunnel, jump, chicane).
+	 */
+	placeSpecialTile( gx, gz, tileType ) {
+
+		const cmd = new PlaceSpecialTileCommand(
+			this._project, gx, gz, tileType,
+			this._meshFactory, this._autoTile, this._eventBus
+		);
+
+		this._commandHistory.execute( cmd );
+
+	}
+
+	// ── Clearance visualization ──
+
+	/**
+	 * Add a clearance indicator plane at a cell.
+	 * Green = valid, red = occupied/blocked, orange = clearance too low.
+	 * @private
+	 */
+	_addClearanceIndicator( gx, gz, elevation ) {
+
+		if ( ! this._occupancy ) return;
+
+		const result = this._occupancy.checkClearance( gx, gz, elevation );
+
+		let mat;
+		if ( result.valid ) {
+
+			mat = this._footprintMat; // green
+
+		} else if ( result.conflict && result.conflict.reason === 'clearance' ) {
+
+			mat = this._footprintClearanceMat; // orange — too close but not same level
+
+		} else {
+
+			mat = this._footprintInvalidMat; // red — direct occupancy conflict
+
+		}
+
+		const Y_PER_STEP = 2.416;
+		const worldY = ( elevation - ELEV_GROUND ) * Y_PER_STEP + 0.03;
+
+		const geo = new THREE.PlaneGeometry( CELL_RAW * 0.95, CELL_RAW * 0.95 );
+		const plane = new THREE.Mesh( geo, mat );
+		plane.rotation.x = - Math.PI / 2;
+		plane.position.set(
+			( gx + 0.5 ) * CELL_RAW,
+			worldY,
+			( gz + 0.5 ) * CELL_RAW
+		);
+		this.ghostGroup.add( plane );
+
+	}
+
+	// ── Elevation highlight ──
+
+	/**
+	 * Show a persistent green highlight on a tile being elevated.
+	 * Stays visible until clearGhost() or another setElevationHighlight() call.
+	 * @param {number} gx
+	 * @param {number} gz
+	 */
+	setElevationHighlight( gx, gz ) {
+
+		this._clearElevHighlight();
+
+		const tile = this._project.getTile( gx, gz );
+		if ( ! tile ) return;
+
+		const elevStep = tile._derivedElevation || tile.elevation || ELEV_GROUND;
+		const Y_PER_STEP = 2.416;
+		const tileY = ( elevStep - ELEV_GROUND ) * Y_PER_STEP;
+		const worldX = ( gx + 0.5 ) * CELL_RAW;
+		const worldZ = ( gz + 0.5 ) * CELL_RAW;
+
+		const group = new THREE.Group();
+		group.userData._isElevHighlight = true;
+
+		// Green wireframe bounding box
+		const boxW = CELL_RAW * 0.96;
+		const boxH = 2.0;
+		const boxGeo = new THREE.BoxGeometry( boxW, boxH, boxW );
+		const edgeMat = new THREE.LineBasicMaterial( { color: 0x22c55e, transparent: true, opacity: 0.7 } );
+		const edges = new THREE.EdgesGeometry( boxGeo );
+		const wireframe = new THREE.LineSegments( edges, edgeMat );
+		wireframe.position.set( worldX, tileY + boxH / 2, worldZ );
+		group.add( wireframe );
+
+		// Semi-transparent fill
+		const fillMat = new THREE.MeshBasicMaterial( {
+			color: 0x22c55e, transparent: true, opacity: 0.12,
+			depthWrite: false, side: THREE.DoubleSide,
+		} );
+		const boxMesh = new THREE.Mesh( boxGeo, fillMat );
+		boxMesh.position.set( worldX, tileY + boxH / 2, worldZ );
+		group.add( boxMesh );
+
+		// Drop-line + height label (if elevated)
+		if ( Math.abs( tileY ) > 0.1 ) {
+
+			// Dashed drop-line to ground
+			const lineGeo = new THREE.BufferGeometry().setFromPoints( [
+				new THREE.Vector3( worldX, tileY, worldZ ),
+				new THREE.Vector3( worldX, 0, worldZ ),
+			] );
+			const lineMat = new THREE.LineDashedMaterial( {
+				color: 0x22c55e, transparent: true, opacity: 0.5,
+				dashSize: 0.3, gapSize: 0.2,
+			} );
+			const dropLine = new THREE.Line( lineGeo, lineMat );
+			dropLine.computeLineDistances();
+			group.add( dropLine );
+
+			// Ground cross
+			const crossGeo = new THREE.BufferGeometry().setFromPoints( [
+				new THREE.Vector3( worldX - 0.6, 0.02, worldZ ),
+				new THREE.Vector3( worldX + 0.6, 0.02, worldZ ),
+				new THREE.Vector3( worldX, 0.02, worldZ - 0.6 ),
+				new THREE.Vector3( worldX, 0.02, worldZ + 0.6 ),
+			] );
+			crossGeo.setIndex( [ 0, 1, 2, 3 ] );
+			group.add( new THREE.LineSegments( crossGeo, edgeMat ) );
+
+			// Height label sprite
+			const heightM = ( ( elevStep - ELEV_GROUND ) * 2.5 ).toFixed( 1 );
+			const sign = elevStep >= ELEV_GROUND ? '+' : '';
+			const canvas = document.createElement( 'canvas' );
+			canvas.width = 128;
+			canvas.height = 48;
+			const ctx = canvas.getContext( '2d' );
+			ctx.fillStyle = 'rgba(0,0,0,0.75)';
+			ctx.roundRect( 2, 2, 124, 44, 6 );
+			ctx.fill();
+			ctx.strokeStyle = '#22c55e';
+			ctx.lineWidth = 2;
+			ctx.roundRect( 2, 2, 124, 44, 6 );
+			ctx.stroke();
+			ctx.fillStyle = '#22c55e';
+			ctx.font = 'bold 24px monospace';
+			ctx.textAlign = 'center';
+			ctx.textBaseline = 'middle';
+			ctx.fillText( `${ sign }${ heightM }m`, 64, 24 );
+
+			const texture = new THREE.CanvasTexture( canvas );
+			texture.minFilter = THREE.LinearFilter;
+			const spriteMat = new THREE.SpriteMaterial( { map: texture, transparent: true, depthTest: false } );
+			const sprite = new THREE.Sprite( spriteMat );
+			sprite.position.set( worldX + CELL_RAW * 0.6, tileY / 2, worldZ );
+			sprite.scale.set( 3, 1.2, 1 );
+			group.add( sprite );
+
+		}
+
+		this.ghostGroup.add( group );
+
+	}
+
+	/** @private Remove elevation highlight meshes. */
+	_clearElevHighlight() {
+
+		const toRemove = [];
+		for ( const child of this.ghostGroup.children ) {
+
+			if ( child.userData._isElevHighlight ) toRemove.push( child );
+
+		}
+
+		for ( const mesh of toRemove ) this.ghostGroup.remove( mesh );
+
+	}
+
+}

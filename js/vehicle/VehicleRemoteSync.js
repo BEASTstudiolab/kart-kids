@@ -102,6 +102,8 @@ export class VehicleRemoteSync {
 		const dz = this._targetPos[ 2 ] - this._renderPos.z;
 		const distSq = dx * dx + dy * dy + dz * dz;
 
+		let t = 1.0; // default: snap instantly (used when distSq > 25)
+
 		if ( distSq > 25 ) { // 5m threshold squared
 
 			this._renderPos.set( this._targetPos[ 0 ], this._targetPos[ 1 ], this._targetPos[ 2 ] );
@@ -116,7 +118,7 @@ export class VehicleRemoteSync {
 
 			// Smooth correction toward latest server position (dt-independent)
 			const correctionSpeed = 8; // higher = snappier, lower = smoother
-			const t = 1 - Math.exp( - correctionSpeed * dt );
+			t = 1 - Math.exp( - correctionSpeed * dt );
 
 			this._renderPos.x += ( this._targetPos[ 0 ] - this._renderPos.x ) * t;
 			this._renderPos.y += ( this._targetPos[ 1 ] - this._renderPos.y ) * t;
@@ -127,8 +129,9 @@ export class VehicleRemoteSync {
 		}
 
 		// Update physics body for collisions (snap, don't fight the sim)
+		// activate: true keeps the body awake so it participates in collision detection
 		rigidBody.setPosition( v.physicsWorld, v.rigidBody,
-			[ this._renderPos.x, this._renderPos.y, this._renderPos.z ], false );
+			[ this._renderPos.x, this._renderPos.y, this._renderPos.z ], true );
 		rigidBody.setLinearVelocity( v.physicsWorld, v.rigidBody, this._targetVel );
 		rigidBody.setAngularVelocity( v.physicsWorld, v.rigidBody, [ 0, 0, 0 ] );
 

@@ -13,7 +13,7 @@ const DRAFT_BRIGHT = 0x88bbdd;
 // ── Tier Configurations ─────────────────────────────────────────────────────
 const TIER_OPPORTUNITY = {
 	color: DRAFT_GREY,
-	baseOpacity: 0.14,
+	baseOpacity: 0.07,
 	lifetime: 0.25,
 	minInterval: 0.10,
 	maxInterval: 0.14,
@@ -23,13 +23,13 @@ const TIER_OPPORTUNITY = {
 	spreadMax: 0.16,
 	speedBase: 2.0,
 	speedIntensity: 1.0,
-	widthBase: 0.03,
-	widthRand: 0.02,
+	widthBase: 0.02,
+	widthRand: 0.01,
 };
 
 const TIER_ACTIVE = {
 	color: DRAFT_BLUE,
-	baseOpacity: 0.22,
+	baseOpacity: 0.11,
 	lifetime: 0.28,
 	minInterval: 0.05,
 	maxInterval: 0.09,
@@ -39,13 +39,13 @@ const TIER_ACTIVE = {
 	spreadMax: 0.24,
 	speedBase: 2.6,
 	speedIntensity: 1.8,
-	widthBase: 0.04,
-	widthRand: 0.03,
+	widthBase: 0.025,
+	widthRand: 0.015,
 };
 
 const TIER_BOOST = {
 	color: DRAFT_BRIGHT,
-	baseOpacity: 0.35,
+	baseOpacity: 0.18,
 	lifetime: 0.32,
 	minInterval: 0.025,
 	maxInterval: 0.04,
@@ -55,8 +55,8 @@ const TIER_BOOST = {
 	spreadMax: 0.30,
 	speedBase: 3.2,
 	speedIntensity: 2.4,
-	widthBase: 0.05,
-	widthRand: 0.04,
+	widthBase: 0.03,
+	widthRand: 0.02,
 };
 
 // ── Cone Shader ─────────────────────────────────────────────────────────────
@@ -293,10 +293,10 @@ export class DraftLines {
 					const draftState = activeDrafts instanceof Map ? activeDrafts.get( trailerVehicle ) : null;
 					const isDrafting = draftState && draftState.leadVehicle === leadVehicle && draftState.intensity > 0;
 
-					// Cone stays at 0.10 during proximity, dims slightly during active draft
+					// Cone stays at 0.06 during proximity, dims slightly during active draft
 					const coneOpacity = isDrafting
-						? THREE.MathUtils.lerp( 0.10, 0.06, draftState.intensity )
-						: 0.10;
+						? THREE.MathUtils.lerp( 0.06, 0.03, draftState.intensity )
+						: 0.06;
 
 					cone.material.uniforms.uOpacity.value = coneOpacity;
 					cone.material.uniforms.uTime.value = this._time;

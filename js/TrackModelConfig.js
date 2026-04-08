@@ -68,6 +68,11 @@ export function getTrackModelConfig( name, tileSet = 'standard' ) {
 
 	}
 
+	// ─── Decoration / Props (moved to props/ folder) ────────
+	if ( name === 'decoration-buildings-1' ) return { path: 'props/decoration-buildings-1.glb', rotationY: 0 };
+	if ( name === 'decoration-buildings-2' ) return { path: 'props/decoration-buildings-2.glb', rotationY: 0 };
+	if ( name === 'decoration-empty-night' ) return { path: 'props/decoration-empty-night.glb', rotationY: 0 };
+
 	return { path: name + '.glb', rotationY: 0 };
 
 }

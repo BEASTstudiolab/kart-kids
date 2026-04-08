@@ -45,8 +45,12 @@ const httpServer = createServer( async ( req, res ) => {
 		const data = await readFile( filePath );
 		const headers = { 'Content-Type': MIME[ ext ] || 'application/octet-stream' };
 
-		// Cache headers
-		if ( LONG_CACHE.has( ext ) ) {
+		// Cache headers — dev mode: no-cache for JS/HTML/CSS so edits are instant
+		if ( ext === '.js' || ext === '.html' || ext === '.css' ) {
+
+			headers[ 'Cache-Control' ] = 'no-cache, must-revalidate';
+
+		} else if ( LONG_CACHE.has( ext ) ) {
 
 			headers[ 'Cache-Control' ] = 'public, max-age=604800, immutable';
 

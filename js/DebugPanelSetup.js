@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { DebugMenu } from './DebugMenu.js';
 import { CELL_RAW, GRID_SCALE, ORIENT_DEG } from './Track.js';
+import { setBarrierEmissive, getBarrierEmissiveColor, getBarrierEmissiveIntensity } from './Lighting.js';
 
 
 // ── Helper: text sprite for debug labels ────────────────────────────────────
@@ -681,6 +682,11 @@ export function setupDebugPanel( ctx ) {
 	debugMenu.addSlider( lightingTab, 'HL angle', 0.05, 1.57, 0.01, vehicle.headlights[ 0 ] ? vehicle.headlights[ 0 ].angle : Math.PI / 8, ( v ) => { for ( const hl of vehicle.headlights ) hl.angle = v; } );
 	debugMenu.addSlider( lightingTab, 'HL penumbra', 0, 1.0, 0.01, vehicle.headlights[ 0 ] ? vehicle.headlights[ 0 ].penumbra : 0.3, ( v ) => { for ( const hl of vehicle.headlights ) hl.penumbra = v; } );
 	debugMenu.addColorPicker( lightingTab, 'HL color', vehicle.headlights[ 0 ] ? vehicle.headlights[ 0 ].color.getHex() : 0xffe0b0, ( v ) => { for ( const hl of vehicle.headlights ) hl.color.setHex( v ); } );
+
+	debugMenu.addHeader( lightingTab, 'Barrier glow' );
+
+	debugMenu.addSlider( lightingTab, 'Barrier intensity', 0, 5.0, 0.05, getBarrierEmissiveIntensity(), ( v ) => { setBarrierEmissive( v, undefined ); } );
+	debugMenu.addColorPicker( lightingTab, 'Barrier color', getBarrierEmissiveColor(), ( v ) => { setBarrierEmissive( undefined, v ); } );
 
 	// ── M key toggle ─────────────────────────────────────────────────────────
 	window.addEventListener( 'keydown', ( e ) => {

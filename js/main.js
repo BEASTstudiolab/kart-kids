@@ -438,6 +438,8 @@ async function init() {
 	const intelCells = customCells ? deriveRampCells( activeCells ) : activeCells;
 	const trackIntel = new TrackIntel( intelCells );
 
+	console.log( `[TrackIntel] valid=${trackIntel.valid}, cells=${intelCells.length}, customCells=${!!customCells}`, trackIntel.valid ? '' : trackIntel.error );
+
 	if ( ! trackIntel.valid ) {
 
 		console.warn( 'TrackIntel invalid — AI, position ranking, and item boxes disabled:', trackIntel.error );
@@ -945,6 +947,9 @@ async function init() {
 		allActiveVehicles.length = 0;
 		for ( const v of playerManager.getActiveVehicles() ) allActiveVehicles.push( v );
 		for ( const v of aiManager.getActiveVehicles() ) allActiveVehicles.push( v );
+
+		// Game-level vehicle bump check (works reliably with teleported remote bodies)
+		if ( ! spectating ) contactListener.checkVehicleBumps( allActiveVehicles );
 
 		// Stereo whoosh when vehicles pass nearby
 		if ( ! spectating ) passByAudio.update( dt, vehicle, allActiveVehicles );

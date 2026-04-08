@@ -26,6 +26,11 @@ const BASE_CONNECTIVITY = {
 	'trk-finish':         [ 'N', 'S' ],
 	'trk-corner-1x1':   [ 'S', 'W' ],
 
+	// Multi-tile curves — same corner connectivity
+	'trk-curve-2x2-l':      [ 'S', 'W' ],
+	'trk-curve-3x3-l':      [ 'S', 'W' ],
+	'trk-curve-3x3-wide-l': [ 'S', 'W' ],
+
 	// Elevation tiles — same connectivity as straights
 	'trk-elev-2p5':       [ 'N', 'S' ],
 	'trk-elev-5':         [ 'N', 'S' ],

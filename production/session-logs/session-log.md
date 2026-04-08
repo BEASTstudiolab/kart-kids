@@ -13516,3 +13516,1132 @@ production/session-logs/session-log.md
 server.js
 ---
 
+## Session End: 20260407_183350
+### Commits
+1a07438 fix: 3x3 tile support, ghost replay, AIManager null guard, topdown debug camera
+109ef73 Merge branch 'ce-auto-coder/webgl-context-loss-handler'
+5a83a2d Merge branch 'ce-auto-coder/vehicle-local-shadow'
+8e9641f Merge branch 'ce-auto-coder/trackintel-missing-tile-connectivity'
+c2d6e15 Merge branch 'ce-auto-coder/trackintel-graceful-failure'
+af6fa43 Merge branch 'ce-auto-coder/trackcodec-base64-guard'
+4ec2ea5 Merge branch 'ce-auto-coder/track-sharing-url'
+5eb7afe Merge branch 'ce-auto-coder/skip-multiplayer-editor-maps'
+f14b06d Merge branch 'ce-auto-coder/shared-vfx-texture'
+34e73e5 Merge branch 'ce-auto-coder/settings-schema-version'
+a99ab54 Merge branch 'ce-auto-coder/settings-save-warning'
+192811f Merge branch 'ce-auto-coder/settings-menu-aria'
+d7f1bce Merge branch 'ce-auto-coder/remove-unused-routeids-import'
+eeaade3 Merge branch 'ce-auto-coder/remove-unused-buttonids-imports'
+d53fa63 Merge branch 'ce-auto-coder/remove-dead-getRampNeighborKeys'
+c9248bb Merge branch 'ce-auto-coder/remote-vehicle-snap-threshold'
+7484214 Merge branch 'ce-auto-coder/racemode-countdown-timeout'
+efec2e0 Merge branch 'ce-auto-coder/persistence-localstorage-guard'
+1a83272 Merge branch 'ce-auto-coder/passby-audio-sfx-gain'
+eab841d Merge branch 'ce-auto-coder/network-error-logging'
+7257a97 Merge branch 'ce-auto-coder/network-clear-interval-reconnect'
+9cc3ea8 Merge branch 'ce-auto-coder/modelloader-progress-fix'
+8faa0d1 Merge branch 'ce-auto-coder/hoist-wallsparks-colors'
+cecf560 Merge branch 'ce-auto-coder/hoist-spectating-input'
+200b00e merge: resolve VehicleRemoteSync conflict (keep hoisted buffers)
+8d72239 Merge branch 'ce-auto-coder/hoist-remotesync-angvel'
+3beeb17 Merge branch 'ce-auto-coder/hoist-rearview-viewport'
+915d608 Merge branch 'ce-auto-coder/hoist-playermanager-input'
+3b75851 Merge branch 'ce-auto-coder/hoist-minimap-worldtocanvas'
+8d1401f Merge branch 'ce-auto-coder/hoist-editor-screentogrid'
+4db42e8 Merge branch 'ce-auto-coder/hoist-driftsparks-vector3'
+f366aec Merge branch 'ce-auto-coder/hoist-aicontroller-input'
+2b27f46 Merge branch 'ce-auto-coder/guard-persistence-array'
+4c721be Merge branch 'ce-auto-coder/ghost-replay'
+cbc10b5 Merge branch 'ce-auto-coder/fix-underglow-null-check'
+96c61f7 Merge branch 'ce-auto-coder/fix-touchactive-drift-stuck'
+751f024 Merge branch 'ce-auto-coder/fix-toast-id-dedup'
+ce3c6f1 Merge branch 'ce-auto-coder/fix-stale-waypoint-hint'
+821a0f4 Merge branch 'ce-auto-coder/fix-raycast-alloc'
+036e9e2 Merge branch 'ce-auto-coder/fix-playermanager-smoketrails-dispose'
+fb7ff0f Merge branch 'ce-auto-coder/fix-pinch-stale-pointers'
+12c7f66 Merge branch 'ce-auto-coder/fix-material-leak'
+b5b690c Merge branch 'ce-auto-coder/fix-itembox-dispose'
+ea199f9 Merge branch 'ce-auto-coder/fix-ai-smoketrails-dispose'
+0241303 Merge branch 'ce-auto-coder/fix-accel-permission-ux'
+431f8e0 Merge branch 'ce-auto-coder/extract-math-utils'
+f838fd3 Merge branch 'ce-auto-coder/editor-toast-duration'
+cdf27e0 Merge branch 'ce-auto-coder/editor-presave-track-validation'
+60e9412 Merge branch 'ce-auto-coder/cleanup-console-logs'
+113f2d7 Merge branch 'ce-auto-coder/camera-dispose-listeners'
+19cd64f Merge branch 'ce-auto-coder/cache-passby-noise-buffer'
+091c403 Merge branch 'ce-auto-coder/audio-loader-error-callbacks'
+2a838da Merge branch 'ce-auto-coder/audio-context-resume-on-focus'
+f4af933 perf(editor): hoist per-call allocations in screenToGrid and getCameraPanAxes
+8fc6527 fix(render): handle WebGL context loss on mobile tab switches
+8428116 fix(loader): increment progress counter on optional model failure
+f4789dd fix(net): clear send interval before reconnect
+917befa fix(codec): guard base64urlToBytes against invalid input
+2d9e3d7 perf(vfx): hoist per-frame Vector3 allocation in DriftSparks
+7428bef fix(render): guard underglowLight access against null
+918eb0a fix(memory): dispose cloned materials in applyPlayerTints
+7a2efb6 fix(input): revert accelerometer setting when permission is denied
+6980e41 fix(ui): deduplicate toast IDs and prevent dismiss double-fire
+78570f5 fix(audio): add error callbacks to audio file loaders
+92ad424 fix(input): clear pinch-to-zoom pointers on tab visibility change
+97d1cc9 fix(input): clear touchActive when all touch controls are released
+0462a32 fix(audio): route PassByAudio whooshes through SFX gain node
+611882a fix(audio): resume AudioContext when tab regains focus
+### Uncommitted Changes
+js/PlayerManager.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+---
+
+## Session End: 20260407_184049
+### Commits
+1a07438 fix: 3x3 tile support, ghost replay, AIManager null guard, topdown debug camera
+109ef73 Merge branch 'ce-auto-coder/webgl-context-loss-handler'
+5a83a2d Merge branch 'ce-auto-coder/vehicle-local-shadow'
+8e9641f Merge branch 'ce-auto-coder/trackintel-missing-tile-connectivity'
+c2d6e15 Merge branch 'ce-auto-coder/trackintel-graceful-failure'
+af6fa43 Merge branch 'ce-auto-coder/trackcodec-base64-guard'
+4ec2ea5 Merge branch 'ce-auto-coder/track-sharing-url'
+5eb7afe Merge branch 'ce-auto-coder/skip-multiplayer-editor-maps'
+f14b06d Merge branch 'ce-auto-coder/shared-vfx-texture'
+34e73e5 Merge branch 'ce-auto-coder/settings-schema-version'
+a99ab54 Merge branch 'ce-auto-coder/settings-save-warning'
+192811f Merge branch 'ce-auto-coder/settings-menu-aria'
+d7f1bce Merge branch 'ce-auto-coder/remove-unused-routeids-import'
+eeaade3 Merge branch 'ce-auto-coder/remove-unused-buttonids-imports'
+d53fa63 Merge branch 'ce-auto-coder/remove-dead-getRampNeighborKeys'
+c9248bb Merge branch 'ce-auto-coder/remote-vehicle-snap-threshold'
+7484214 Merge branch 'ce-auto-coder/racemode-countdown-timeout'
+efec2e0 Merge branch 'ce-auto-coder/persistence-localstorage-guard'
+1a83272 Merge branch 'ce-auto-coder/passby-audio-sfx-gain'
+eab841d Merge branch 'ce-auto-coder/network-error-logging'
+7257a97 Merge branch 'ce-auto-coder/network-clear-interval-reconnect'
+9cc3ea8 Merge branch 'ce-auto-coder/modelloader-progress-fix'
+8faa0d1 Merge branch 'ce-auto-coder/hoist-wallsparks-colors'
+cecf560 Merge branch 'ce-auto-coder/hoist-spectating-input'
+200b00e merge: resolve VehicleRemoteSync conflict (keep hoisted buffers)
+8d72239 Merge branch 'ce-auto-coder/hoist-remotesync-angvel'
+3beeb17 Merge branch 'ce-auto-coder/hoist-rearview-viewport'
+915d608 Merge branch 'ce-auto-coder/hoist-playermanager-input'
+3b75851 Merge branch 'ce-auto-coder/hoist-minimap-worldtocanvas'
+8d1401f Merge branch 'ce-auto-coder/hoist-editor-screentogrid'
+4db42e8 Merge branch 'ce-auto-coder/hoist-driftsparks-vector3'
+f366aec Merge branch 'ce-auto-coder/hoist-aicontroller-input'
+2b27f46 Merge branch 'ce-auto-coder/guard-persistence-array'
+4c721be Merge branch 'ce-auto-coder/ghost-replay'
+cbc10b5 Merge branch 'ce-auto-coder/fix-underglow-null-check'
+96c61f7 Merge branch 'ce-auto-coder/fix-touchactive-drift-stuck'
+751f024 Merge branch 'ce-auto-coder/fix-toast-id-dedup'
+ce3c6f1 Merge branch 'ce-auto-coder/fix-stale-waypoint-hint'
+821a0f4 Merge branch 'ce-auto-coder/fix-raycast-alloc'
+036e9e2 Merge branch 'ce-auto-coder/fix-playermanager-smoketrails-dispose'
+fb7ff0f Merge branch 'ce-auto-coder/fix-pinch-stale-pointers'
+12c7f66 Merge branch 'ce-auto-coder/fix-material-leak'
+b5b690c Merge branch 'ce-auto-coder/fix-itembox-dispose'
+ea199f9 Merge branch 'ce-auto-coder/fix-ai-smoketrails-dispose'
+0241303 Merge branch 'ce-auto-coder/fix-accel-permission-ux'
+431f8e0 Merge branch 'ce-auto-coder/extract-math-utils'
+f838fd3 Merge branch 'ce-auto-coder/editor-toast-duration'
+cdf27e0 Merge branch 'ce-auto-coder/editor-presave-track-validation'
+60e9412 Merge branch 'ce-auto-coder/cleanup-console-logs'
+113f2d7 Merge branch 'ce-auto-coder/camera-dispose-listeners'
+19cd64f Merge branch 'ce-auto-coder/cache-passby-noise-buffer'
+091c403 Merge branch 'ce-auto-coder/audio-loader-error-callbacks'
+2a838da Merge branch 'ce-auto-coder/audio-context-resume-on-focus'
+f4af933 perf(editor): hoist per-call allocations in screenToGrid and getCameraPanAxes
+8fc6527 fix(render): handle WebGL context loss on mobile tab switches
+8428116 fix(loader): increment progress counter on optional model failure
+f4789dd fix(net): clear send interval before reconnect
+917befa fix(codec): guard base64urlToBytes against invalid input
+2d9e3d7 perf(vfx): hoist per-frame Vector3 allocation in DriftSparks
+7428bef fix(render): guard underglowLight access against null
+918eb0a fix(memory): dispose cloned materials in applyPlayerTints
+7a2efb6 fix(input): revert accelerometer setting when permission is denied
+6980e41 fix(ui): deduplicate toast IDs and prevent dismiss double-fire
+78570f5 fix(audio): add error callbacks to audio file loaders
+92ad424 fix(input): clear pinch-to-zoom pointers on tab visibility change
+### Uncommitted Changes
+js/PlayerManager.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260407_184054
+### Commits
+1a07438 fix: 3x3 tile support, ghost replay, AIManager null guard, topdown debug camera
+109ef73 Merge branch 'ce-auto-coder/webgl-context-loss-handler'
+5a83a2d Merge branch 'ce-auto-coder/vehicle-local-shadow'
+8e9641f Merge branch 'ce-auto-coder/trackintel-missing-tile-connectivity'
+c2d6e15 Merge branch 'ce-auto-coder/trackintel-graceful-failure'
+af6fa43 Merge branch 'ce-auto-coder/trackcodec-base64-guard'
+4ec2ea5 Merge branch 'ce-auto-coder/track-sharing-url'
+5eb7afe Merge branch 'ce-auto-coder/skip-multiplayer-editor-maps'
+f14b06d Merge branch 'ce-auto-coder/shared-vfx-texture'
+34e73e5 Merge branch 'ce-auto-coder/settings-schema-version'
+a99ab54 Merge branch 'ce-auto-coder/settings-save-warning'
+192811f Merge branch 'ce-auto-coder/settings-menu-aria'
+d7f1bce Merge branch 'ce-auto-coder/remove-unused-routeids-import'
+eeaade3 Merge branch 'ce-auto-coder/remove-unused-buttonids-imports'
+d53fa63 Merge branch 'ce-auto-coder/remove-dead-getRampNeighborKeys'
+c9248bb Merge branch 'ce-auto-coder/remote-vehicle-snap-threshold'
+7484214 Merge branch 'ce-auto-coder/racemode-countdown-timeout'
+efec2e0 Merge branch 'ce-auto-coder/persistence-localstorage-guard'
+1a83272 Merge branch 'ce-auto-coder/passby-audio-sfx-gain'
+eab841d Merge branch 'ce-auto-coder/network-error-logging'
+7257a97 Merge branch 'ce-auto-coder/network-clear-interval-reconnect'
+9cc3ea8 Merge branch 'ce-auto-coder/modelloader-progress-fix'
+8faa0d1 Merge branch 'ce-auto-coder/hoist-wallsparks-colors'
+cecf560 Merge branch 'ce-auto-coder/hoist-spectating-input'
+200b00e merge: resolve VehicleRemoteSync conflict (keep hoisted buffers)
+8d72239 Merge branch 'ce-auto-coder/hoist-remotesync-angvel'
+3beeb17 Merge branch 'ce-auto-coder/hoist-rearview-viewport'
+915d608 Merge branch 'ce-auto-coder/hoist-playermanager-input'
+3b75851 Merge branch 'ce-auto-coder/hoist-minimap-worldtocanvas'
+8d1401f Merge branch 'ce-auto-coder/hoist-editor-screentogrid'
+4db42e8 Merge branch 'ce-auto-coder/hoist-driftsparks-vector3'
+f366aec Merge branch 'ce-auto-coder/hoist-aicontroller-input'
+2b27f46 Merge branch 'ce-auto-coder/guard-persistence-array'
+4c721be Merge branch 'ce-auto-coder/ghost-replay'
+cbc10b5 Merge branch 'ce-auto-coder/fix-underglow-null-check'
+96c61f7 Merge branch 'ce-auto-coder/fix-touchactive-drift-stuck'
+751f024 Merge branch 'ce-auto-coder/fix-toast-id-dedup'
+ce3c6f1 Merge branch 'ce-auto-coder/fix-stale-waypoint-hint'
+821a0f4 Merge branch 'ce-auto-coder/fix-raycast-alloc'
+036e9e2 Merge branch 'ce-auto-coder/fix-playermanager-smoketrails-dispose'
+fb7ff0f Merge branch 'ce-auto-coder/fix-pinch-stale-pointers'
+12c7f66 Merge branch 'ce-auto-coder/fix-material-leak'
+b5b690c Merge branch 'ce-auto-coder/fix-itembox-dispose'
+ea199f9 Merge branch 'ce-auto-coder/fix-ai-smoketrails-dispose'
+0241303 Merge branch 'ce-auto-coder/fix-accel-permission-ux'
+431f8e0 Merge branch 'ce-auto-coder/extract-math-utils'
+f838fd3 Merge branch 'ce-auto-coder/editor-toast-duration'
+cdf27e0 Merge branch 'ce-auto-coder/editor-presave-track-validation'
+60e9412 Merge branch 'ce-auto-coder/cleanup-console-logs'
+113f2d7 Merge branch 'ce-auto-coder/camera-dispose-listeners'
+19cd64f Merge branch 'ce-auto-coder/cache-passby-noise-buffer'
+091c403 Merge branch 'ce-auto-coder/audio-loader-error-callbacks'
+2a838da Merge branch 'ce-auto-coder/audio-context-resume-on-focus'
+f4af933 perf(editor): hoist per-call allocations in screenToGrid and getCameraPanAxes
+8fc6527 fix(render): handle WebGL context loss on mobile tab switches
+8428116 fix(loader): increment progress counter on optional model failure
+f4789dd fix(net): clear send interval before reconnect
+917befa fix(codec): guard base64urlToBytes against invalid input
+2d9e3d7 perf(vfx): hoist per-frame Vector3 allocation in DriftSparks
+7428bef fix(render): guard underglowLight access against null
+918eb0a fix(memory): dispose cloned materials in applyPlayerTints
+7a2efb6 fix(input): revert accelerometer setting when permission is denied
+6980e41 fix(ui): deduplicate toast IDs and prevent dismiss double-fire
+78570f5 fix(audio): add error callbacks to audio file loaders
+92ad424 fix(input): clear pinch-to-zoom pointers on tab visibility change
+### Uncommitted Changes
+js/PlayerManager.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260407_184117
+### Commits
+1a07438 fix: 3x3 tile support, ghost replay, AIManager null guard, topdown debug camera
+109ef73 Merge branch 'ce-auto-coder/webgl-context-loss-handler'
+5a83a2d Merge branch 'ce-auto-coder/vehicle-local-shadow'
+8e9641f Merge branch 'ce-auto-coder/trackintel-missing-tile-connectivity'
+c2d6e15 Merge branch 'ce-auto-coder/trackintel-graceful-failure'
+af6fa43 Merge branch 'ce-auto-coder/trackcodec-base64-guard'
+4ec2ea5 Merge branch 'ce-auto-coder/track-sharing-url'
+5eb7afe Merge branch 'ce-auto-coder/skip-multiplayer-editor-maps'
+f14b06d Merge branch 'ce-auto-coder/shared-vfx-texture'
+34e73e5 Merge branch 'ce-auto-coder/settings-schema-version'
+a99ab54 Merge branch 'ce-auto-coder/settings-save-warning'
+192811f Merge branch 'ce-auto-coder/settings-menu-aria'
+d7f1bce Merge branch 'ce-auto-coder/remove-unused-routeids-import'
+eeaade3 Merge branch 'ce-auto-coder/remove-unused-buttonids-imports'
+d53fa63 Merge branch 'ce-auto-coder/remove-dead-getRampNeighborKeys'
+c9248bb Merge branch 'ce-auto-coder/remote-vehicle-snap-threshold'
+7484214 Merge branch 'ce-auto-coder/racemode-countdown-timeout'
+efec2e0 Merge branch 'ce-auto-coder/persistence-localstorage-guard'
+1a83272 Merge branch 'ce-auto-coder/passby-audio-sfx-gain'
+eab841d Merge branch 'ce-auto-coder/network-error-logging'
+7257a97 Merge branch 'ce-auto-coder/network-clear-interval-reconnect'
+9cc3ea8 Merge branch 'ce-auto-coder/modelloader-progress-fix'
+8faa0d1 Merge branch 'ce-auto-coder/hoist-wallsparks-colors'
+cecf560 Merge branch 'ce-auto-coder/hoist-spectating-input'
+200b00e merge: resolve VehicleRemoteSync conflict (keep hoisted buffers)
+8d72239 Merge branch 'ce-auto-coder/hoist-remotesync-angvel'
+3beeb17 Merge branch 'ce-auto-coder/hoist-rearview-viewport'
+915d608 Merge branch 'ce-auto-coder/hoist-playermanager-input'
+3b75851 Merge branch 'ce-auto-coder/hoist-minimap-worldtocanvas'
+8d1401f Merge branch 'ce-auto-coder/hoist-editor-screentogrid'
+4db42e8 Merge branch 'ce-auto-coder/hoist-driftsparks-vector3'
+f366aec Merge branch 'ce-auto-coder/hoist-aicontroller-input'
+2b27f46 Merge branch 'ce-auto-coder/guard-persistence-array'
+4c721be Merge branch 'ce-auto-coder/ghost-replay'
+cbc10b5 Merge branch 'ce-auto-coder/fix-underglow-null-check'
+96c61f7 Merge branch 'ce-auto-coder/fix-touchactive-drift-stuck'
+751f024 Merge branch 'ce-auto-coder/fix-toast-id-dedup'
+ce3c6f1 Merge branch 'ce-auto-coder/fix-stale-waypoint-hint'
+821a0f4 Merge branch 'ce-auto-coder/fix-raycast-alloc'
+036e9e2 Merge branch 'ce-auto-coder/fix-playermanager-smoketrails-dispose'
+fb7ff0f Merge branch 'ce-auto-coder/fix-pinch-stale-pointers'
+12c7f66 Merge branch 'ce-auto-coder/fix-material-leak'
+b5b690c Merge branch 'ce-auto-coder/fix-itembox-dispose'
+ea199f9 Merge branch 'ce-auto-coder/fix-ai-smoketrails-dispose'
+0241303 Merge branch 'ce-auto-coder/fix-accel-permission-ux'
+431f8e0 Merge branch 'ce-auto-coder/extract-math-utils'
+f838fd3 Merge branch 'ce-auto-coder/editor-toast-duration'
+cdf27e0 Merge branch 'ce-auto-coder/editor-presave-track-validation'
+60e9412 Merge branch 'ce-auto-coder/cleanup-console-logs'
+113f2d7 Merge branch 'ce-auto-coder/camera-dispose-listeners'
+19cd64f Merge branch 'ce-auto-coder/cache-passby-noise-buffer'
+091c403 Merge branch 'ce-auto-coder/audio-loader-error-callbacks'
+2a838da Merge branch 'ce-auto-coder/audio-context-resume-on-focus'
+f4af933 perf(editor): hoist per-call allocations in screenToGrid and getCameraPanAxes
+8fc6527 fix(render): handle WebGL context loss on mobile tab switches
+8428116 fix(loader): increment progress counter on optional model failure
+f4789dd fix(net): clear send interval before reconnect
+917befa fix(codec): guard base64urlToBytes against invalid input
+2d9e3d7 perf(vfx): hoist per-frame Vector3 allocation in DriftSparks
+7428bef fix(render): guard underglowLight access against null
+918eb0a fix(memory): dispose cloned materials in applyPlayerTints
+7a2efb6 fix(input): revert accelerometer setting when permission is denied
+6980e41 fix(ui): deduplicate toast IDs and prevent dismiss double-fire
+78570f5 fix(audio): add error callbacks to audio file loaders
+92ad424 fix(input): clear pinch-to-zoom pointers on tab visibility change
+### Uncommitted Changes
+js/PlayerManager.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260407_184715
+### Commits
+1a07438 fix: 3x3 tile support, ghost replay, AIManager null guard, topdown debug camera
+109ef73 Merge branch 'ce-auto-coder/webgl-context-loss-handler'
+5a83a2d Merge branch 'ce-auto-coder/vehicle-local-shadow'
+8e9641f Merge branch 'ce-auto-coder/trackintel-missing-tile-connectivity'
+c2d6e15 Merge branch 'ce-auto-coder/trackintel-graceful-failure'
+af6fa43 Merge branch 'ce-auto-coder/trackcodec-base64-guard'
+4ec2ea5 Merge branch 'ce-auto-coder/track-sharing-url'
+5eb7afe Merge branch 'ce-auto-coder/skip-multiplayer-editor-maps'
+f14b06d Merge branch 'ce-auto-coder/shared-vfx-texture'
+34e73e5 Merge branch 'ce-auto-coder/settings-schema-version'
+a99ab54 Merge branch 'ce-auto-coder/settings-save-warning'
+192811f Merge branch 'ce-auto-coder/settings-menu-aria'
+d7f1bce Merge branch 'ce-auto-coder/remove-unused-routeids-import'
+eeaade3 Merge branch 'ce-auto-coder/remove-unused-buttonids-imports'
+d53fa63 Merge branch 'ce-auto-coder/remove-dead-getRampNeighborKeys'
+c9248bb Merge branch 'ce-auto-coder/remote-vehicle-snap-threshold'
+7484214 Merge branch 'ce-auto-coder/racemode-countdown-timeout'
+efec2e0 Merge branch 'ce-auto-coder/persistence-localstorage-guard'
+1a83272 Merge branch 'ce-auto-coder/passby-audio-sfx-gain'
+eab841d Merge branch 'ce-auto-coder/network-error-logging'
+7257a97 Merge branch 'ce-auto-coder/network-clear-interval-reconnect'
+9cc3ea8 Merge branch 'ce-auto-coder/modelloader-progress-fix'
+8faa0d1 Merge branch 'ce-auto-coder/hoist-wallsparks-colors'
+cecf560 Merge branch 'ce-auto-coder/hoist-spectating-input'
+200b00e merge: resolve VehicleRemoteSync conflict (keep hoisted buffers)
+8d72239 Merge branch 'ce-auto-coder/hoist-remotesync-angvel'
+3beeb17 Merge branch 'ce-auto-coder/hoist-rearview-viewport'
+915d608 Merge branch 'ce-auto-coder/hoist-playermanager-input'
+3b75851 Merge branch 'ce-auto-coder/hoist-minimap-worldtocanvas'
+8d1401f Merge branch 'ce-auto-coder/hoist-editor-screentogrid'
+4db42e8 Merge branch 'ce-auto-coder/hoist-driftsparks-vector3'
+f366aec Merge branch 'ce-auto-coder/hoist-aicontroller-input'
+2b27f46 Merge branch 'ce-auto-coder/guard-persistence-array'
+4c721be Merge branch 'ce-auto-coder/ghost-replay'
+cbc10b5 Merge branch 'ce-auto-coder/fix-underglow-null-check'
+96c61f7 Merge branch 'ce-auto-coder/fix-touchactive-drift-stuck'
+751f024 Merge branch 'ce-auto-coder/fix-toast-id-dedup'
+ce3c6f1 Merge branch 'ce-auto-coder/fix-stale-waypoint-hint'
+821a0f4 Merge branch 'ce-auto-coder/fix-raycast-alloc'
+036e9e2 Merge branch 'ce-auto-coder/fix-playermanager-smoketrails-dispose'
+fb7ff0f Merge branch 'ce-auto-coder/fix-pinch-stale-pointers'
+12c7f66 Merge branch 'ce-auto-coder/fix-material-leak'
+b5b690c Merge branch 'ce-auto-coder/fix-itembox-dispose'
+ea199f9 Merge branch 'ce-auto-coder/fix-ai-smoketrails-dispose'
+0241303 Merge branch 'ce-auto-coder/fix-accel-permission-ux'
+431f8e0 Merge branch 'ce-auto-coder/extract-math-utils'
+f838fd3 Merge branch 'ce-auto-coder/editor-toast-duration'
+cdf27e0 Merge branch 'ce-auto-coder/editor-presave-track-validation'
+60e9412 Merge branch 'ce-auto-coder/cleanup-console-logs'
+113f2d7 Merge branch 'ce-auto-coder/camera-dispose-listeners'
+19cd64f Merge branch 'ce-auto-coder/cache-passby-noise-buffer'
+091c403 Merge branch 'ce-auto-coder/audio-loader-error-callbacks'
+2a838da Merge branch 'ce-auto-coder/audio-context-resume-on-focus'
+f4af933 perf(editor): hoist per-call allocations in screenToGrid and getCameraPanAxes
+8fc6527 fix(render): handle WebGL context loss on mobile tab switches
+8428116 fix(loader): increment progress counter on optional model failure
+f4789dd fix(net): clear send interval before reconnect
+917befa fix(codec): guard base64urlToBytes against invalid input
+2d9e3d7 perf(vfx): hoist per-frame Vector3 allocation in DriftSparks
+7428bef fix(render): guard underglowLight access against null
+918eb0a fix(memory): dispose cloned materials in applyPlayerTints
+### Uncommitted Changes
+js/Audio.js
+js/DraftLines.js
+js/PlayerManager.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260407_185539
+### Commits
+1a07438 fix: 3x3 tile support, ghost replay, AIManager null guard, topdown debug camera
+109ef73 Merge branch 'ce-auto-coder/webgl-context-loss-handler'
+5a83a2d Merge branch 'ce-auto-coder/vehicle-local-shadow'
+8e9641f Merge branch 'ce-auto-coder/trackintel-missing-tile-connectivity'
+c2d6e15 Merge branch 'ce-auto-coder/trackintel-graceful-failure'
+af6fa43 Merge branch 'ce-auto-coder/trackcodec-base64-guard'
+4ec2ea5 Merge branch 'ce-auto-coder/track-sharing-url'
+5eb7afe Merge branch 'ce-auto-coder/skip-multiplayer-editor-maps'
+f14b06d Merge branch 'ce-auto-coder/shared-vfx-texture'
+34e73e5 Merge branch 'ce-auto-coder/settings-schema-version'
+a99ab54 Merge branch 'ce-auto-coder/settings-save-warning'
+192811f Merge branch 'ce-auto-coder/settings-menu-aria'
+d7f1bce Merge branch 'ce-auto-coder/remove-unused-routeids-import'
+eeaade3 Merge branch 'ce-auto-coder/remove-unused-buttonids-imports'
+d53fa63 Merge branch 'ce-auto-coder/remove-dead-getRampNeighborKeys'
+c9248bb Merge branch 'ce-auto-coder/remote-vehicle-snap-threshold'
+7484214 Merge branch 'ce-auto-coder/racemode-countdown-timeout'
+efec2e0 Merge branch 'ce-auto-coder/persistence-localstorage-guard'
+1a83272 Merge branch 'ce-auto-coder/passby-audio-sfx-gain'
+eab841d Merge branch 'ce-auto-coder/network-error-logging'
+7257a97 Merge branch 'ce-auto-coder/network-clear-interval-reconnect'
+9cc3ea8 Merge branch 'ce-auto-coder/modelloader-progress-fix'
+8faa0d1 Merge branch 'ce-auto-coder/hoist-wallsparks-colors'
+cecf560 Merge branch 'ce-auto-coder/hoist-spectating-input'
+200b00e merge: resolve VehicleRemoteSync conflict (keep hoisted buffers)
+8d72239 Merge branch 'ce-auto-coder/hoist-remotesync-angvel'
+3beeb17 Merge branch 'ce-auto-coder/hoist-rearview-viewport'
+915d608 Merge branch 'ce-auto-coder/hoist-playermanager-input'
+3b75851 Merge branch 'ce-auto-coder/hoist-minimap-worldtocanvas'
+8d1401f Merge branch 'ce-auto-coder/hoist-editor-screentogrid'
+4db42e8 Merge branch 'ce-auto-coder/hoist-driftsparks-vector3'
+f366aec Merge branch 'ce-auto-coder/hoist-aicontroller-input'
+2b27f46 Merge branch 'ce-auto-coder/guard-persistence-array'
+4c721be Merge branch 'ce-auto-coder/ghost-replay'
+cbc10b5 Merge branch 'ce-auto-coder/fix-underglow-null-check'
+96c61f7 Merge branch 'ce-auto-coder/fix-touchactive-drift-stuck'
+751f024 Merge branch 'ce-auto-coder/fix-toast-id-dedup'
+ce3c6f1 Merge branch 'ce-auto-coder/fix-stale-waypoint-hint'
+821a0f4 Merge branch 'ce-auto-coder/fix-raycast-alloc'
+036e9e2 Merge branch 'ce-auto-coder/fix-playermanager-smoketrails-dispose'
+fb7ff0f Merge branch 'ce-auto-coder/fix-pinch-stale-pointers'
+12c7f66 Merge branch 'ce-auto-coder/fix-material-leak'
+b5b690c Merge branch 'ce-auto-coder/fix-itembox-dispose'
+ea199f9 Merge branch 'ce-auto-coder/fix-ai-smoketrails-dispose'
+0241303 Merge branch 'ce-auto-coder/fix-accel-permission-ux'
+431f8e0 Merge branch 'ce-auto-coder/extract-math-utils'
+f838fd3 Merge branch 'ce-auto-coder/editor-toast-duration'
+cdf27e0 Merge branch 'ce-auto-coder/editor-presave-track-validation'
+60e9412 Merge branch 'ce-auto-coder/cleanup-console-logs'
+113f2d7 Merge branch 'ce-auto-coder/camera-dispose-listeners'
+19cd64f Merge branch 'ce-auto-coder/cache-passby-noise-buffer'
+091c403 Merge branch 'ce-auto-coder/audio-loader-error-callbacks'
+2a838da Merge branch 'ce-auto-coder/audio-context-resume-on-focus'
+f4af933 perf(editor): hoist per-call allocations in screenToGrid and getCameraPanAxes
+8fc6527 fix(render): handle WebGL context loss on mobile tab switches
+8428116 fix(loader): increment progress counter on optional model failure
+f4789dd fix(net): clear send interval before reconnect
+917befa fix(codec): guard base64urlToBytes against invalid input
+2d9e3d7 perf(vfx): hoist per-frame Vector3 allocation in DriftSparks
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260407_191057
+### Commits
+1a07438 fix: 3x3 tile support, ghost replay, AIManager null guard, topdown debug camera
+109ef73 Merge branch 'ce-auto-coder/webgl-context-loss-handler'
+5a83a2d Merge branch 'ce-auto-coder/vehicle-local-shadow'
+8e9641f Merge branch 'ce-auto-coder/trackintel-missing-tile-connectivity'
+c2d6e15 Merge branch 'ce-auto-coder/trackintel-graceful-failure'
+af6fa43 Merge branch 'ce-auto-coder/trackcodec-base64-guard'
+4ec2ea5 Merge branch 'ce-auto-coder/track-sharing-url'
+5eb7afe Merge branch 'ce-auto-coder/skip-multiplayer-editor-maps'
+f14b06d Merge branch 'ce-auto-coder/shared-vfx-texture'
+34e73e5 Merge branch 'ce-auto-coder/settings-schema-version'
+a99ab54 Merge branch 'ce-auto-coder/settings-save-warning'
+192811f Merge branch 'ce-auto-coder/settings-menu-aria'
+d7f1bce Merge branch 'ce-auto-coder/remove-unused-routeids-import'
+eeaade3 Merge branch 'ce-auto-coder/remove-unused-buttonids-imports'
+d53fa63 Merge branch 'ce-auto-coder/remove-dead-getRampNeighborKeys'
+c9248bb Merge branch 'ce-auto-coder/remote-vehicle-snap-threshold'
+7484214 Merge branch 'ce-auto-coder/racemode-countdown-timeout'
+efec2e0 Merge branch 'ce-auto-coder/persistence-localstorage-guard'
+1a83272 Merge branch 'ce-auto-coder/passby-audio-sfx-gain'
+eab841d Merge branch 'ce-auto-coder/network-error-logging'
+7257a97 Merge branch 'ce-auto-coder/network-clear-interval-reconnect'
+9cc3ea8 Merge branch 'ce-auto-coder/modelloader-progress-fix'
+8faa0d1 Merge branch 'ce-auto-coder/hoist-wallsparks-colors'
+cecf560 Merge branch 'ce-auto-coder/hoist-spectating-input'
+200b00e merge: resolve VehicleRemoteSync conflict (keep hoisted buffers)
+8d72239 Merge branch 'ce-auto-coder/hoist-remotesync-angvel'
+3beeb17 Merge branch 'ce-auto-coder/hoist-rearview-viewport'
+915d608 Merge branch 'ce-auto-coder/hoist-playermanager-input'
+3b75851 Merge branch 'ce-auto-coder/hoist-minimap-worldtocanvas'
+8d1401f Merge branch 'ce-auto-coder/hoist-editor-screentogrid'
+4db42e8 Merge branch 'ce-auto-coder/hoist-driftsparks-vector3'
+f366aec Merge branch 'ce-auto-coder/hoist-aicontroller-input'
+2b27f46 Merge branch 'ce-auto-coder/guard-persistence-array'
+4c721be Merge branch 'ce-auto-coder/ghost-replay'
+cbc10b5 Merge branch 'ce-auto-coder/fix-underglow-null-check'
+96c61f7 Merge branch 'ce-auto-coder/fix-touchactive-drift-stuck'
+751f024 Merge branch 'ce-auto-coder/fix-toast-id-dedup'
+ce3c6f1 Merge branch 'ce-auto-coder/fix-stale-waypoint-hint'
+821a0f4 Merge branch 'ce-auto-coder/fix-raycast-alloc'
+036e9e2 Merge branch 'ce-auto-coder/fix-playermanager-smoketrails-dispose'
+fb7ff0f Merge branch 'ce-auto-coder/fix-pinch-stale-pointers'
+12c7f66 Merge branch 'ce-auto-coder/fix-material-leak'
+b5b690c Merge branch 'ce-auto-coder/fix-itembox-dispose'
+ea199f9 Merge branch 'ce-auto-coder/fix-ai-smoketrails-dispose'
+0241303 Merge branch 'ce-auto-coder/fix-accel-permission-ux'
+431f8e0 Merge branch 'ce-auto-coder/extract-math-utils'
+f838fd3 Merge branch 'ce-auto-coder/editor-toast-duration'
+cdf27e0 Merge branch 'ce-auto-coder/editor-presave-track-validation'
+60e9412 Merge branch 'ce-auto-coder/cleanup-console-logs'
+113f2d7 Merge branch 'ce-auto-coder/camera-dispose-listeners'
+19cd64f Merge branch 'ce-auto-coder/cache-passby-noise-buffer'
+091c403 Merge branch 'ce-auto-coder/audio-loader-error-callbacks'
+2a838da Merge branch 'ce-auto-coder/audio-context-resume-on-focus'
+f4af933 perf(editor): hoist per-call allocations in screenToGrid and getCameraPanAxes
+8fc6527 fix(render): handle WebGL context loss on mobile tab switches
+8428116 fix(loader): increment progress counter on optional model failure
+f4789dd fix(net): clear send interval before reconnect
+917befa fix(codec): guard base64urlToBytes against invalid input
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260407_191828
+### Commits
+1a07438 fix: 3x3 tile support, ghost replay, AIManager null guard, topdown debug camera
+109ef73 Merge branch 'ce-auto-coder/webgl-context-loss-handler'
+5a83a2d Merge branch 'ce-auto-coder/vehicle-local-shadow'
+8e9641f Merge branch 'ce-auto-coder/trackintel-missing-tile-connectivity'
+c2d6e15 Merge branch 'ce-auto-coder/trackintel-graceful-failure'
+af6fa43 Merge branch 'ce-auto-coder/trackcodec-base64-guard'
+4ec2ea5 Merge branch 'ce-auto-coder/track-sharing-url'
+5eb7afe Merge branch 'ce-auto-coder/skip-multiplayer-editor-maps'
+f14b06d Merge branch 'ce-auto-coder/shared-vfx-texture'
+34e73e5 Merge branch 'ce-auto-coder/settings-schema-version'
+a99ab54 Merge branch 'ce-auto-coder/settings-save-warning'
+192811f Merge branch 'ce-auto-coder/settings-menu-aria'
+d7f1bce Merge branch 'ce-auto-coder/remove-unused-routeids-import'
+eeaade3 Merge branch 'ce-auto-coder/remove-unused-buttonids-imports'
+d53fa63 Merge branch 'ce-auto-coder/remove-dead-getRampNeighborKeys'
+c9248bb Merge branch 'ce-auto-coder/remote-vehicle-snap-threshold'
+7484214 Merge branch 'ce-auto-coder/racemode-countdown-timeout'
+efec2e0 Merge branch 'ce-auto-coder/persistence-localstorage-guard'
+1a83272 Merge branch 'ce-auto-coder/passby-audio-sfx-gain'
+eab841d Merge branch 'ce-auto-coder/network-error-logging'
+7257a97 Merge branch 'ce-auto-coder/network-clear-interval-reconnect'
+9cc3ea8 Merge branch 'ce-auto-coder/modelloader-progress-fix'
+8faa0d1 Merge branch 'ce-auto-coder/hoist-wallsparks-colors'
+cecf560 Merge branch 'ce-auto-coder/hoist-spectating-input'
+200b00e merge: resolve VehicleRemoteSync conflict (keep hoisted buffers)
+8d72239 Merge branch 'ce-auto-coder/hoist-remotesync-angvel'
+3beeb17 Merge branch 'ce-auto-coder/hoist-rearview-viewport'
+915d608 Merge branch 'ce-auto-coder/hoist-playermanager-input'
+3b75851 Merge branch 'ce-auto-coder/hoist-minimap-worldtocanvas'
+8d1401f Merge branch 'ce-auto-coder/hoist-editor-screentogrid'
+4db42e8 Merge branch 'ce-auto-coder/hoist-driftsparks-vector3'
+f366aec Merge branch 'ce-auto-coder/hoist-aicontroller-input'
+2b27f46 Merge branch 'ce-auto-coder/guard-persistence-array'
+4c721be Merge branch 'ce-auto-coder/ghost-replay'
+cbc10b5 Merge branch 'ce-auto-coder/fix-underglow-null-check'
+96c61f7 Merge branch 'ce-auto-coder/fix-touchactive-drift-stuck'
+751f024 Merge branch 'ce-auto-coder/fix-toast-id-dedup'
+ce3c6f1 Merge branch 'ce-auto-coder/fix-stale-waypoint-hint'
+821a0f4 Merge branch 'ce-auto-coder/fix-raycast-alloc'
+036e9e2 Merge branch 'ce-auto-coder/fix-playermanager-smoketrails-dispose'
+fb7ff0f Merge branch 'ce-auto-coder/fix-pinch-stale-pointers'
+12c7f66 Merge branch 'ce-auto-coder/fix-material-leak'
+b5b690c Merge branch 'ce-auto-coder/fix-itembox-dispose'
+ea199f9 Merge branch 'ce-auto-coder/fix-ai-smoketrails-dispose'
+0241303 Merge branch 'ce-auto-coder/fix-accel-permission-ux'
+431f8e0 Merge branch 'ce-auto-coder/extract-math-utils'
+f838fd3 Merge branch 'ce-auto-coder/editor-toast-duration'
+cdf27e0 Merge branch 'ce-auto-coder/editor-presave-track-validation'
+60e9412 Merge branch 'ce-auto-coder/cleanup-console-logs'
+113f2d7 Merge branch 'ce-auto-coder/camera-dispose-listeners'
+19cd64f Merge branch 'ce-auto-coder/cache-passby-noise-buffer'
+091c403 Merge branch 'ce-auto-coder/audio-loader-error-callbacks'
+2a838da Merge branch 'ce-auto-coder/audio-context-resume-on-focus'
+f4af933 perf(editor): hoist per-call allocations in screenToGrid and getCameraPanAxes
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260407_195705
+### Commits
+1a07438 fix: 3x3 tile support, ghost replay, AIManager null guard, topdown debug camera
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260407_195734
+### Commits
+1a07438 fix: 3x3 tile support, ghost replay, AIManager null guard, topdown debug camera
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260407_195846
+### Commits
+1a07438 fix: 3x3 tile support, ghost replay, AIManager null guard, topdown debug camera
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260407_200239
+### Commits
+1a07438 fix: 3x3 tile support, ghost replay, AIManager null guard, topdown debug camera
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260407_200351
+### Commits
+1a07438 fix: 3x3 tile support, ghost replay, AIManager null guard, topdown debug camera
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260407_201032
+### Commits
+1a07438 fix: 3x3 tile support, ghost replay, AIManager null guard, topdown debug camera
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260407_201407
+### Commits
+1a07438 fix: 3x3 tile support, ghost replay, AIManager null guard, topdown debug camera
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260407_214333
+### Commits
+1a07438 fix: 3x3 tile support, ghost replay, AIManager null guard, topdown debug camera
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260407_214428
+### Commits
+1a07438 fix: 3x3 tile support, ghost replay, AIManager null guard, topdown debug camera
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260407_214440
+### Commits
+1a07438 fix: 3x3 tile support, ghost replay, AIManager null guard, topdown debug camera
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260407_215332
+### Commits
+1a07438 fix: 3x3 tile support, ghost replay, AIManager null guard, topdown debug camera
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260407_220450
+### Commits
+1a07438 fix: 3x3 tile support, ghost replay, AIManager null guard, topdown debug camera
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260407_221301
+### Commits
+1a07438 fix: 3x3 tile support, ghost replay, AIManager null guard, topdown debug camera
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260407_221455
+### Commits
+1a07438 fix: 3x3 tile support, ghost replay, AIManager null guard, topdown debug camera
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260407_222649
+### Commits
+1a07438 fix: 3x3 tile support, ghost replay, AIManager null guard, topdown debug camera
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260407_223316
+### Commits
+1a07438 fix: 3x3 tile support, ghost replay, AIManager null guard, topdown debug camera
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260407_223602
+### Commits
+1a07438 fix: 3x3 tile support, ghost replay, AIManager null guard, topdown debug camera
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260407_223755
+### Commits
+1a07438 fix: 3x3 tile support, ghost replay, AIManager null guard, topdown debug camera
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260407_224246
+### Commits
+1a07438 fix: 3x3 tile support, ghost replay, AIManager null guard, topdown debug camera
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260407_230740
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260407_231600
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260407_235732
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260408_003017
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260408_003222
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260408_005741
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260408_010504
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260408_010758
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260408_012415
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260408_013442
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+models/decoration-buildings-1.glb
+models/decoration-buildings-2.glb
+models/decoration-empty-night.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260408_014952
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/Track.js
+js/TrackModelConfig.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+models/decoration-buildings-1.glb
+models/decoration-buildings-2.glb
+models/decoration-empty-night.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260408_015159
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/Track.js
+js/TrackModelConfig.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+models/decoration-buildings-1.glb
+models/decoration-buildings-2.glb
+models/decoration-empty-night.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260408_015512
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/Track.js
+js/TrackModelConfig.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+models/decoration-buildings-1.glb
+models/decoration-buildings-2.glb
+models/decoration-empty-night.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260408_020214
+### Uncommitted Changes
+js/Audio.js
+js/ContactHandler.js
+js/DraftLines.js
+js/PlayerManager.js
+js/Track.js
+js/TrackModelConfig.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+models/decoration-buildings-1.glb
+models/decoration-buildings-2.glb
+models/decoration-empty-night.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260408_021132
+### Uncommitted Changes
+js/AIManager.js
+js/Audio.js
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/DraftLines.js
+js/Lighting.js
+js/PlayerManager.js
+js/Track.js
+js/TrackIntel.js
+js/TrackModelConfig.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+models/decoration-buildings-1.glb
+models/decoration-buildings-2.glb
+models/decoration-empty-night.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260408_021142
+### Uncommitted Changes
+js/AIManager.js
+js/Audio.js
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/DraftLines.js
+js/Lighting.js
+js/PlayerManager.js
+js/Track.js
+js/TrackIntel.js
+js/TrackModelConfig.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+models/decoration-buildings-1.glb
+models/decoration-buildings-2.glb
+models/decoration-empty-night.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+
+## Session End: 20260408_021320
+### Uncommitted Changes
+js/AIManager.js
+js/Audio.js
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/DraftLines.js
+js/Lighting.js
+js/PlayerManager.js
+js/Track.js
+js/TrackIntel.js
+js/TrackModelConfig.js
+js/main.js
+js/vehicle/VehicleRemoteSync.js
+models/decoration-buildings-1.glb
+models/decoration-buildings-2.glb
+models/decoration-empty-night.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+---
+

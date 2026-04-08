@@ -250,9 +250,9 @@ export class GameAudio {
 
 		// Tier-aware volume: louder at boost, subtle at opportunity
 		let targetVol;
-		if ( intensity >= 0.95 ) targetVol = 0.22;
-		else if ( intensity >= 0.3 ) targetVol = intensity * 0.16;
-		else targetVol = intensity * 0.10;
+		if ( intensity >= 0.95 ) targetVol = 0.05;
+		else if ( intensity >= 0.3 ) targetVol = intensity * 0.04;
+		else targetVol = intensity * 0.02;
 
 		const ctx = this.listener.context;
 		this._draftGain.gain.linearRampToValueAtTime( targetVol, ctx.currentTime + 0.05 );
