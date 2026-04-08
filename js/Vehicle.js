@@ -13,6 +13,8 @@ const _zAxis = new THREE.Vector3();
 const _newZ = new THREE.Vector3();
 const _mat4 = new THREE.Matrix4();
 const _quat = new THREE.Quaternion();
+const _stageFillMultiplier = [ 1.0, 1.0, 1.5, 2.0 ];
+const _suspDevs = [ 0, 0, 0, 0 ];
 
 export const DrivingState = { NORMAL: 0, DRIFTING: 1, AIRBORNE: 2 };
 
@@ -80,6 +82,11 @@ export class Vehicle {
 
 		this.underglowLight = null;
 		this.headlights = [];
+
+		this.debugJitterInfo = {
+			lastDelta: 0, rawAvg: 0, spikeCount: 0, lastSpike: null,
+			physicsState: '', surfaceType: '', landingSeverity: 0,
+		};
 
 		// Remote player state (delegated to VehicleRemoteSync)
 		this.remote = false;
@@ -335,6 +342,7 @@ export class Vehicle {
 			this.wheelBL ? this.wheelBL.position.y : 0,
 			this.wheelBR ? this.wheelBR.position.y : 0,
 		];
+		this._wheelNodes = [ this.wheelFL, this.wheelFR, this.wheelBL, this.wheelBR ];
 
 		// ─── Underglow ────────────────────────────────────────────────────────
 		this.underglowLight = new THREE.PointLight( 0x00ffff, 1, 3 );
@@ -1048,17 +1056,16 @@ export class Vehicle {
 
 			this._prevDebugY = this._vehicleY;
 
-			// Expose for debug overlay
-			this.debugJitterInfo = {
-				lastDelta: yDelta,
-				rawAvg,
-				spikeCount: this._jitterLog ? this._jitterLog.length : 0,
-				lastSpike: this._jitterLog && this._jitterLog.length > 0
-					? this._jitterLog[ this._jitterLog.length - 1 ] : null,
-				physicsState: this._stateMachine.getStateName(),
-				surfaceType: this._groundRaycast.surfaceType,
-				landingSeverity: this._airborne.lastSeverity,
-			};
+			// Expose for debug overlay (reuse object to avoid per-frame allocation)
+			const dji = this.debugJitterInfo;
+			dji.lastDelta = yDelta;
+			dji.rawAvg = rawAvg;
+			dji.spikeCount = this._jitterLog ? this._jitterLog.length : 0;
+			dji.lastSpike = this._jitterLog && this._jitterLog.length > 0
+				? this._jitterLog[ this._jitterLog.length - 1 ] : null;
+			dji.physicsState = this._stateMachine.getStateName();
+			dji.surfaceType = this._groundRaycast.surfaceType;
+			dji.landingSeverity = this._airborne.lastSeverity;
 
 		}
 
@@ -1257,8 +1264,7 @@ export class Vehicle {
 			}
 
 			// Faster nitro fill at higher drift tiers
-			const stageFillMultiplier = [ 1.0, 1.0, 1.5, 2.0 ];
-			fillRate *= stageFillMultiplier[ this.driftSparkTier ];
+			fillRate *= _stageFillMultiplier[ this.driftSparkTier ];
 
 			this.boostMeter = Math.min( 1, this.boostMeter + fillRate );
 
@@ -1458,22 +1464,22 @@ export class Vehicle {
 			const n = this._targetNormal;
 			const rawCentroidY = ( this._wheelRawHitY[ 0 ] + this._wheelRawHitY[ 1 ] +
 				this._wheelRawHitY[ 2 ] + this._wheelRawHitY[ 3 ] ) / 4;
-			const devs = [ 0, 0, 0, 0 ];
+			_suspDevs[ 0 ] = _suspDevs[ 1 ] = _suspDevs[ 2 ] = _suspDevs[ 3 ] = 0;
 
 			for ( let i = 0; i < 4; i ++ ) {
 
 				const localOff = this._wheelOffsets[ i ];
 				_forward.copy( localOff ).applyQuaternion( this.container.quaternion );
 				const expectedY = rawCentroidY - ( n.x * _forward.x + n.z * _forward.z ) / ( n.y || 1 );
-				devs[ i ] = this._wheelRawHitY[ i ] - expectedY;
+				_suspDevs[ i ] = this._wheelRawHitY[ i ] - expectedY;
 
 			}
 
 			// Pitch from deviation: front deviated up vs back = nose up
-			suspPitch = ( ( devs[ 0 ] + devs[ 1 ] ) / 2 - ( devs[ 2 ] + devs[ 3 ] ) / 2 ) * 3.0;
+			suspPitch = ( ( _suspDevs[ 0 ] + _suspDevs[ 1 ] ) / 2 - ( _suspDevs[ 2 ] + _suspDevs[ 3 ] ) / 2 ) * 3.0;
 
 			// Roll from deviation: right deviated up vs left = roll left
-			suspRoll = ( ( devs[ 1 ] + devs[ 3 ] ) / 2 - ( devs[ 0 ] + devs[ 2 ] ) / 2 ) * 3.0;
+			suspRoll = ( ( _suspDevs[ 1 ] + _suspDevs[ 3 ] ) / 2 - ( _suspDevs[ 0 ] + _suspDevs[ 2 ] ) / 2 ) * 3.0;
 
 		}
 
@@ -1511,9 +1517,7 @@ export class Vehicle {
 
 	updateWheels( dt ) {
 
-		// Use the 4 named wheel nodes — these are the top-level groups
-		// (this.wheels from traverse may include sub-meshes, so don't use it for suspension)
-		const wheelNodes = [ this.wheelFL, this.wheelFR, this.wheelBL, this.wheelBR ];
+		const wheelNodes = this._wheelNodes;
 
 		for ( let i = 0; i < 4; i ++ ) {
 
