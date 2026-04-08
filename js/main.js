@@ -854,6 +854,21 @@ async function init() {
 	const draftingSystem = new DraftingSystem();
 	const draftLines = new DraftLines( scene );
 
+	// Auto-pause when tab loses focus to protect race timer accuracy
+	document.addEventListener( 'visibilitychange', () => {
+
+		if ( document.hidden ) {
+
+			gamePaused = true;
+
+		} else {
+
+			gamePaused = false;
+
+		}
+
+	} );
+
 	document.addEventListener( 'keydown', ( e ) => {
 
 		if ( e.code === 'KeyP' ) {
