@@ -147,7 +147,7 @@ export function getSavedTracks() {
 
 }
 
-export function saveNamedTrack( grid, name ) {
+export function saveNamedTrack( grid, name, thumbnail ) {
 
 	const tracks = getSavedTracks();
 	const encoded = encodeCells( getCellsArray( grid ) );
@@ -159,6 +159,8 @@ export function saveNamedTrack( grid, name ) {
 		pieces: grid.size,
 		date: new Date().toLocaleDateString()
 	};
+
+	if ( thumbnail ) entry.thumbnail = thumbnail;
 
 	if ( existing >= 0 ) {
 

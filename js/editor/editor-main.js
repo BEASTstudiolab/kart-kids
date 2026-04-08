@@ -68,7 +68,12 @@ const cycleElevation = ( gx, gz ) => _cycleElevation( { grid, placeMesh, pushUnd
 const getCellsArray = () => _getCellsArray( grid );
 const save = () => _save( grid );
 const loadSaved = () => _loadSaved( { grid, placeMesh, deriveRampsFromElevation, deriveAllCurves } );
-const saveNamedTrack = ( name ) => _saveNamedTrack( grid, name );
+const saveNamedTrack = ( name ) => {
+
+	const thumbnail = generateThumbnail();
+	_saveNamedTrack( grid, name, thumbnail );
+
+};
 const loadNamedTrack = ( encoded ) => _loadNamedTrack( { grid, trackGroup, placeMesh, pushUndo, save, updateStats, updateFinishCar, deriveRampsFromElevation, deriveAllCurves }, encoded );
 const updateDebugTooltip = ( gx, gz, clientX, clientY ) => _updateDebugTooltip( grid, trackTileSet, gx, gz, clientX, clientY );
 const resolveCellAndNeighbors = ( gx, gz ) => _resolveCellAndNeighbors( grid, models, trackGroup, gx, gz, renderCurves );
@@ -211,6 +216,55 @@ const camera = new THREE.OrthographicCamera(
 );
 const cellCenter = 0.5 * CELL_RAW * GRID_SCALE;
 const camTarget = new THREE.Vector3( cellCenter, 0, cellCenter );
+
+// ─── Track thumbnail generator ───────────────────────────
+
+function generateThumbnail() {
+
+	try {
+
+		// Compute bounding box of placed track tiles
+		const box = new THREE.Box3();
+		trackGroup.traverse( ( child ) => {
+
+			if ( child.isMesh ) box.expandByObject( child );
+
+		} );
+
+		if ( box.isEmpty() ) return null;
+
+		const center = box.getCenter( new THREE.Vector3() );
+		const size = box.getSize( new THREE.Vector3() );
+		const extent = Math.max( size.x, size.z ) * 0.6;
+
+		// Set up temporary orthographic camera looking straight down
+		const thumbCam = new THREE.OrthographicCamera(
+			- extent, extent, extent, - extent, 0.1, 200
+		);
+		thumbCam.position.set( center.x, 80, center.z );
+		thumbCam.lookAt( center.x, 0, center.z );
+		thumbCam.updateMatrixWorld();
+
+		// Render to a small target
+		const prevSize = renderer.getSize( new THREE.Vector2() );
+		renderer.setSize( 160, 160, false );
+		renderer.render( scene, thumbCam );
+
+		// Capture as data URL
+		const dataUrl = renderer.domElement.toDataURL( 'image/jpeg', 0.6 );
+
+		// Restore original size
+		renderer.setSize( prevSize.x, prevSize.y, false );
+
+		return dataUrl;
+
+	} catch {
+
+		return null;
+
+	}
+
+}
 
 // ─── Orbit / tilt / height state ──────────────────────────
 
@@ -1685,6 +1739,18 @@ document.getElementById( 'btn-load' ).addEventListener( 'click', () => {
 		for ( const t of tracks ) {
 
 			const li = document.createElement( 'li' );
+			li.style.display = 'flex';
+			li.style.alignItems = 'center';
+			li.style.gap = '10px';
+
+			if ( t.thumbnail ) {
+
+				const thumb = document.createElement( 'img' );
+				thumb.src = t.thumbnail;
+				thumb.style.cssText = 'width:48px; height:48px; border-radius:4px; object-fit:cover; flex-shrink:0';
+				li.appendChild( thumb );
+
+			}
 
 			const info = document.createElement( 'div' );
 			info.innerHTML = `<div class="track-name">${ t.name }</div><div class="track-meta">${ t.pieces } pieces &middot; ${ t.date }</div>`;
