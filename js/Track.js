@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { getTrackModelConfig } from './TrackModelConfig.js';
 import { getCurveConfig, getCurveLR } from './TileMetadata.js';
-import { getElevationModelName, scanElevatedRun } from './ElevationUtils.js';
+import { getElevationModelName, scanElevatedRun, elevToY, ELEV_GROUND, ELEV_STEP_Y } from './ElevationUtils.js';
 
 // Re-export from focused modules for backward compatibility
 export { ORIENT_DEG, CELL_RAW, GRID_SCALE } from './TrackConstants.js';
@@ -15,26 +15,6 @@ import { DECO_CELLS } from './TrackData.js';
 const _dummy = new THREE.Object3D();
 const _childMat = new THREE.Matrix4();
 const _combinedMat = new THREE.Matrix4();
-
-// Elevation step → world Y offset
-// Editor uses steps 0-24 (12=ground), each step = 2.5m (matches model geometry)
-// Legacy v3 elevation: 0=ground, 1=2.5m, 2=5.0m
-const ELEV_GROUND = 12;
-const ELEV_STEP_Y = 2.5;
-
-function elevToY( flags ) {
-
-	// Use fullElevation (v4) if available, fall back to legacy v3 elevation
-	if ( flags?.fullElevation != null && flags.fullElevation !== ELEV_GROUND ) {
-
-		return ( flags.fullElevation - ELEV_GROUND ) * ELEV_STEP_Y;
-
-	}
-
-	const elev = flags?.elevation || 0;
-	return elev * ELEV_STEP_Y;
-
-}
 
 
 
