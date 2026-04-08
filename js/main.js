@@ -32,6 +32,7 @@ import { CombatManager } from './CombatManager.js';
 import { DamageSFX } from './DamageSFX.js';
 import { DamageVFX } from './DamageVFX.js';
 import { HUDDamage } from './HUDDamage.js';
+import { AdaptiveDifficulty } from './AdaptiveDifficulty.js';
 import { ProjectileManager } from './ProjectileManager.js';
 import { ItemSlotManager } from './ItemSlotManager.js';
 import { rollItem } from './PowerupItem.js';
@@ -555,6 +556,7 @@ async function init() {
 
 	const settings = new Settings();
 	const adaptiveQuality = new AdaptiveQuality( settings );
+	const adaptiveDifficulty = new AdaptiveDifficulty( settings );
 
 	// Apply custom vehicle/character colors from settings
 	applyPlayerTints( vehicle, settings );
@@ -867,6 +869,7 @@ async function init() {
 
 	let lastFrameTime = 0;
 	let shadowFrameCounter = 0;
+	let _prevRaceState = 'idle';
 
 	function animate() {
 
@@ -1082,10 +1085,21 @@ async function init() {
 
 		}
 
-		hud.update( dt, raceMode.getDisplayState(), raceLobby.getDisplayState() );
+		const _rds = raceMode.getDisplayState();
+		hud.update( dt, _rds, raceLobby.getDisplayState() );
+
+		// Adaptive difficulty — record finish position on race end
+		if ( _rds.state === 'finished' && _prevRaceState !== 'finished' ) {
+
+			adaptiveDifficulty.recordFinish( _rds.position, allActiveVehicles.length );
+
+		}
+
+		_prevRaceState = _rds.state;
+
 		if ( ! spectating && vehicle ) hudDamage.update( vehicle.health, vehicle.itemSlot ? vehicle.itemSlot.heldItemId : null, dt );
 		speedometer.update( dt, vehicle.linearSpeed, vehicle.momentum, vehicle.boostActive, vehicle.effectiveTopSpeed, vehicle.debug.topSpeed );
-		minimap.update( allActiveVehicles, raceMode.getDisplayState().state );
+		minimap.update( allActiveVehicles, _rds.state );
 
 		// Send local state to server (throttled internally at 20Hz)
 		if ( multiplayer && network.connected && ! spectating ) {
