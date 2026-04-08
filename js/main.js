@@ -1014,19 +1014,26 @@ async function init() {
 
 			}
 
-			if ( boostJustEnded && vehicle.underglowLight ) {
+			if ( boostJustEnded ) {
 
-				vehicle.underglowLight.visible = false;
-				vehicle.underglowLight.color.setHex( 0x00ffff );
+				audio.playBoostEnd();
+
+				if ( vehicle.underglowLight ) {
+
+					vehicle.underglowLight.visible = false;
+					vehicle.underglowLight.color.setHex( 0x00ffff );
+
+				}
 
 			}
 
 			wasBoostActive = vehicle.boostActive;
 
-			// Drift stage transition haptic pulse
+			// Drift stage transition haptic + audio
 			if ( vehicle.driftStage !== prevDriftStage && vehicle.driftStage > prevDriftStage ) {
 
 				haptics.pulse();
+				audio.playDriftStageUp( vehicle.driftStage );
 
 			}
 
