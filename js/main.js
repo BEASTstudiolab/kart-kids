@@ -1190,8 +1190,7 @@ async function init() {
 		// Update dynamic post-processing effects
 		if ( postFX ) {
 
-			const followV = spectating ? cam.spectatorTarget : vehicle;
-			postFX.update( dt, cam.getVelocity(), followV ? followV.boostActive : false );
+			postFX.update( dt, cam.getVelocity(), followVehicle ? followVehicle.boostActive : false );
 
 		}
 
