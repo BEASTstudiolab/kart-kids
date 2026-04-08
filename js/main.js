@@ -546,6 +546,7 @@ async function init() {
 
 	const cam = new Camera();
 	cam.targetPosition.copy( vehicle.vehPos );
+	cam.onModeChange = ( mode ) => hud.showCameraMode( mode );
 
 	const rearview = new RearviewMirror( renderer );
 
