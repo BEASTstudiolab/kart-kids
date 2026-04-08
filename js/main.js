@@ -650,6 +650,16 @@ async function init() {
 	].join( ';' );
 	document.body.appendChild( ghostHudEl );
 
+	// Ghost split delta HUD element
+	const ghostDeltaEl = document.createElement( 'div' );
+	ghostDeltaEl.style.cssText = [
+		'position:fixed', 'top:80px', 'left:50%', 'transform:translateX(-50%)',
+		'font:bold 18px/1 monospace',
+		'z-index:1000', 'pointer-events:none', 'user-select:none', 'display:none',
+		'transition:opacity 0.3s',
+	].join( ';' );
+	document.body.appendChild( ghostDeltaEl );
+
 	if ( ghostPlayer.hasGhost ) {
 
 		const gt = ghostPlayer.lapTime;
@@ -1065,6 +1075,36 @@ async function init() {
 			if ( ghostHudEl.style.display === 'none' && settings.get( 'ghostEnabled' ) !== false ) {
 
 				ghostHudEl.style.display = 'block';
+
+			}
+
+			// Ghost split delta — compare track progress between player and ghost
+			if ( raceMode.state === 'racing' && trackIntel && trackIntel.valid && ghostPlayer.currentPosition ) {
+
+				const playerProgress = trackIntel.getProgress( vehicle.vehPos.x, vehicle.vehPos.z );
+				const gPos = ghostPlayer.currentPosition;
+				const ghostProgress = trackIntel.getProgress( gPos.x, gPos.z );
+
+				// Time delta: positive = player is behind ghost, negative = player is ahead
+				const progressDelta = ghostProgress - playerProgress;
+				const timeDelta = progressDelta * ghostPlayer.lapTime;
+
+				if ( Math.abs( timeDelta ) < 30 ) {
+
+					const sign = timeDelta > 0 ? '+' : '';
+					ghostDeltaEl.textContent = `${ sign }${ timeDelta.toFixed( 1 ) }s`;
+					ghostDeltaEl.style.color = timeDelta > 0 ? '#ff4444' : '#44ff44';
+					ghostDeltaEl.style.display = 'block';
+
+				} else {
+
+					ghostDeltaEl.style.display = 'none';
+
+				}
+
+			} else {
+
+				ghostDeltaEl.style.display = 'none';
 
 			}
 
