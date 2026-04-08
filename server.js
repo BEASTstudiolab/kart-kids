@@ -280,7 +280,24 @@ wss.on( 'connection', ( ws ) => {
 
 		if ( msg.type === 'state' ) {
 
-			player.lastState = msg;
+			if ( msg.full || ! player.lastState ) {
+
+				player.lastState = msg;
+
+			} else {
+
+				// Merge delta into existing state
+				if ( msg.pos ) player.lastState.pos = msg.pos;
+				if ( msg.rot ) player.lastState.rot = msg.rot;
+				if ( msg.vel ) player.lastState.vel = msg.vel;
+				if ( msg.angVel ) player.lastState.angVel = msg.angVel;
+				if ( 'speed' in msg ) player.lastState.speed = msg.speed;
+				if ( 'drift' in msg ) player.lastState.drift = msg.drift;
+				if ( 'boost' in msg ) player.lastState.boost = msg.boost;
+				if ( 'shield' in msg ) player.lastState.shield = msg.shield;
+				if ( 'star' in msg ) player.lastState.star = msg.star;
+
+			}
 
 		} else if ( msg.type === 'spectate' ) {
 
