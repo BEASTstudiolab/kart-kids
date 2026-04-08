@@ -16,6 +16,9 @@ const _quat = new THREE.Quaternion();
 
 export const DrivingState = { NORMAL: 0, DRIFTING: 1, AIRBORNE: 2 };
 
+/** Vehicles below this Y height trigger an automatic respawn (safety-net is at Y=-5). */
+const KILL_PLANE_Y = - 3;
+
 function lerpAngle( a, b, t ) {
 
 	let diff = b - a;
@@ -900,7 +903,7 @@ export class Vehicle {
 		}
 
 		// Kill plane and full flip are instant respawn (no grace period)
-		const killPlaneHit = this.groundHeight < - 10;
+		const killPlaneHit = this.groundHeight < KILL_PLANE_Y;
 		const flipRespawn = this._flipStatus === 'respawn';
 		const respawnRequested = killPlaneHit || flipRespawn ||
 			( this._offTrackTimer > this._offTrackGrace );
