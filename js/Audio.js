@@ -406,6 +406,75 @@ export class GameAudio {
 
 	}
 
+	playBoostEnd() {
+
+		if ( ! this.listener ) return;
+
+		const ctx = this.listener.context;
+		if ( ! ctx || ctx.state === 'suspended' ) return;
+
+		try {
+
+			const osc = ctx.createOscillator();
+			const gain = ctx.createGain();
+
+			osc.type = 'sawtooth';
+			osc.frequency.setValueAtTime( 500, ctx.currentTime );
+			osc.frequency.exponentialRampToValueAtTime( 150, ctx.currentTime + 0.3 );
+
+			gain.gain.setValueAtTime( 0.3, ctx.currentTime );
+			gain.gain.exponentialRampToValueAtTime( 0.001, ctx.currentTime + 0.3 );
+
+			osc.connect( gain );
+			gain.connect( this._sfxGain );
+
+			osc.start( ctx.currentTime );
+			osc.stop( ctx.currentTime + 0.3 );
+
+		} catch {
+
+			// Silently fail if audio context not ready
+
+		}
+
+	}
+
+	playDriftStageUp( stage ) {
+
+		if ( ! this.listener ) return;
+
+		const ctx = this.listener.context;
+		if ( ! ctx || ctx.state === 'suspended' ) return;
+
+		// Rising pitch per drift tier: stage 1 = 500Hz, 2 = 700Hz, 3 = 900Hz
+		const freq = 300 + stage * 200;
+
+		try {
+
+			const osc = ctx.createOscillator();
+			const gain = ctx.createGain();
+
+			osc.type = 'sine';
+			osc.frequency.setValueAtTime( freq, ctx.currentTime );
+			osc.frequency.linearRampToValueAtTime( freq * 1.2, ctx.currentTime + 0.1 );
+
+			gain.gain.setValueAtTime( 0.2, ctx.currentTime );
+			gain.gain.exponentialRampToValueAtTime( 0.001, ctx.currentTime + 0.15 );
+
+			osc.connect( gain );
+			gain.connect( this._sfxGain );
+
+			osc.start( ctx.currentTime );
+			osc.stop( ctx.currentTime + 0.15 );
+
+		} catch {
+
+			// Silently fail if audio context not ready
+
+		}
+
+	}
+
 	playShieldBreak() {
 
 		if ( ! this.listener ) return;
