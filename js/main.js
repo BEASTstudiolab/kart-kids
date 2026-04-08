@@ -32,6 +32,7 @@ import { CombatManager } from './CombatManager.js';
 import { DamageSFX } from './DamageSFX.js';
 import { DamageVFX } from './DamageVFX.js';
 import { HUDDamage } from './HUDDamage.js';
+import { RaceCallouts } from './RaceCallouts.js';
 import { ProjectileManager } from './ProjectileManager.js';
 import { ItemSlotManager } from './ItemSlotManager.js';
 import { rollItem } from './PowerupItem.js';
@@ -813,6 +814,7 @@ async function init() {
 	const damageSFX = ( audio.listener && audio.listener.context ) ? new DamageSFX( audio.listener.context ) : null;
 	const damageVFX = new DamageVFX( scene );
 	const hudDamage = new HUDDamage();
+	const raceCallouts = new RaceCallouts();
 	const projectileManager = new ProjectileManager( scene, combatManager );
 	const wreckManager = new WreckManager( scene, world );
 	const eliminationManager = new EliminationManager();
@@ -1085,6 +1087,7 @@ async function init() {
 		hud.update( dt, raceMode.getDisplayState(), raceLobby.getDisplayState() );
 		if ( ! spectating && vehicle ) hudDamage.update( vehicle.health, vehicle.itemSlot ? vehicle.itemSlot.heldItemId : null, dt );
 		speedometer.update( dt, vehicle.linearSpeed, vehicle.momentum, vehicle.boostActive, vehicle.effectiveTopSpeed, vehicle.debug.topSpeed );
+		raceCallouts.update( dt, raceMode.getDisplayState(), vehicle );
 		minimap.update( allActiveVehicles, raceMode.getDisplayState().state );
 
 		// Send local state to server (throttled internally at 20Hz)
