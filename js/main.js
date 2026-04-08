@@ -373,6 +373,7 @@ async function init() {
 
 			console.log( 'Disconnected from server' );
 			multiplayer = false;
+			setConnBadge( false );
 			if ( spectateBtn ) spectateBtn.style.display = 'none';
 
 		};
@@ -383,6 +384,25 @@ async function init() {
 		playerManager.initSinglePlayer();
 
 	}
+
+	// ── Connection status badge ──────────────────────────────────────────────
+	const connBadge = document.createElement( 'div' );
+	connBadge.style.cssText = [
+		'position:fixed', 'top:8px', 'left:8px', 'z-index:900',
+		'font:bold 12px/1 monospace', 'padding:4px 8px', 'border-radius:4px',
+		'user-select:none', 'pointer-events:none', 'opacity:0.7',
+	].join( ';' );
+
+	const setConnBadge = ( online ) => {
+
+		connBadge.textContent = online ? 'ONLINE' : 'OFFLINE';
+		connBadge.style.background = online ? '#2a7' : '#666';
+		connBadge.style.color = '#fff';
+
+	};
+
+	setConnBadge( multiplayer );
+	document.body.appendChild( connBadge );
 
 	// Direct reference for debug panel compatibility
 	const vehicle = playerManager.localVehicle;
