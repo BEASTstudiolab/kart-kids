@@ -127,10 +127,10 @@ export class PlacementController {
 			const worldX = ( gx + 0.5 ) * CELL_RAW;
 			const worldZ = ( gz + 0.5 ) * CELL_RAW;
 			// Finish arch spans PERPENDICULAR to road direction
-			// N-S road: arch spans X-axis (wide in X)
-			// E-W road: arch spans Z-axis (wide in Z)
-			const boxW = isNS ? CELL_RAW * 3 : CELL_RAW;
-			const boxD = isNS ? CELL_RAW : CELL_RAW * 3;
+			// N-S road (orient 0/10): flanks along X → box narrow in X, wide in Z (road direction)
+			// E-W road (orient 16/22): flanks along Z → box wide in X (road direction), narrow in Z
+			const boxW = isNS ? CELL_RAW : CELL_RAW * 3;
+			const boxD = isNS ? CELL_RAW * 3 : CELL_RAW;
 			const boxH = 3.0;
 
 			const boxGeo = new THREE.BoxGeometry( boxW * 0.98, boxH, boxD * 0.98 );
@@ -192,8 +192,7 @@ export class PlacementController {
 
 			// Red highlight on tile that would be erased
 			const existing = this._project.getTile( gx, gz );
-			const isRamp = existing && ( existing.autoRamp || existing.type.startsWith( 'trk-ramp-' ) );
-			if ( existing && ! existing._consumed && ! isRamp ) {
+			if ( existing && ! existing._consumed ) {
 
 				const geo = new THREE.PlaneGeometry( CELL_RAW * 0.95, CELL_RAW * 0.95 );
 				const plane = new THREE.Mesh( geo, this._footprintInvalidMat );
@@ -270,8 +269,7 @@ export class PlacementController {
 		const tile = this._project.getTile( gx, gz );
 		if ( ! tile || tile._consumed ) return null;
 
-		// Block erasing auto-ramps AND any ramp-typed tiles adjacent to elevated tiles
-		if ( tile.autoRamp || tile.type.startsWith( 'trk-ramp-' ) ) return null;
+		// All tiles are manually placed and can be erased
 
 		const cmd = new EraseTileCommand(
 			this._project, gx, gz,

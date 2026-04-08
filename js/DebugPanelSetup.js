@@ -667,6 +667,11 @@ export function setupDebugPanel( ctx ) {
 	debugMenu.addSlider( lightingTab, 'Fog far', 0, 400, 1, scene.fog ? scene.fog.far : 55, ( v ) => { if ( scene.fog ) scene.fog.far = v; } );
 	debugMenu.addColorPicker( lightingTab, 'Fog color', scene.fog ? scene.fog.color.getHex() : 0xadb2ba, ( v ) => { if ( scene.fog ) scene.fog.color.setHex( v ); } );
 
+	debugMenu.addHeader( lightingTab, 'Skybox' );
+
+	debugMenu.addSlider( lightingTab, 'Sky intensity', 0, 3.0, 0.05, scene.backgroundIntensity ?? 1.0, ( v ) => { scene.backgroundIntensity = v; } );
+	debugMenu.addSlider( lightingTab, 'Sky blurriness', 0, 1.0, 0.01, scene.backgroundBlurriness ?? 0.0, ( v ) => { scene.backgroundBlurriness = v; } );
+
 	debugMenu.addHeader( lightingTab, 'Shadows' );
 
 	debugMenu.addCheckbox( lightingTab, 'Shadows enabled', true, ( v ) => { renderer.shadowMap.enabled = v; dirLight.castShadow = v; } );

@@ -327,72 +327,9 @@ export class ElevationController {
 	 */
 	_applyElevation( gx, gz, cell ) {
 
-		const isStraight = cell.type === 'trk-straight' || cell.type.startsWith( 'trk-elev-' );
-
-		if ( cell.elevation > ELEV_GROUND ) {
-
-			if ( isStraight ) {
-
-				// Straight tiles swap to elevated model
-				const v3Elev = this._toV3Elev( cell.elevation );
-				cell.type = getElevationModelName( v3Elev, 'flat' );
-
-			}
-
-			// All tiles: rebuild mesh at new Y position
-			this._meshFactory.createTileMesh( gx, gz, cell );
-
-			if ( isStraight ) this.recalculateRunRamps( gx, gz );
-
-		} else if ( cell.elevation === ELEV_GROUND ) {
-
-			if ( isStraight ) {
-
-				cell.type = 'trk-straight';
-
-			}
-
-			this._meshFactory.createTileMesh( gx, gz, cell );
-
-			// Clear orphaned ramps (only relevant for straight tiles)
-			if ( isStraight ) {
-
-				const key = this._project.cellKey( gx, gz );
-				for ( const [ rKey, rCell ] of this._project.getGrid() ) {
-
-					if ( rCell.autoRamp && rCell.rampParent === key ) {
-
-						rCell.autoRamp = false;
-						rCell.rampParent = null;
-						rCell.type = 'trk-straight';
-						rCell.elevation = ELEV_GROUND;
-						const [ rx, rz ] = rKey.split( ',' ).map( Number );
-						this._meshFactory.createTileMesh( rx, rz, rCell );
-
-					}
-
-				}
-
-				for ( const dir of DIR_INFO ) {
-
-					const nCell = this._project.getTile( gx + dir.dx, gz + dir.dz );
-					if ( nCell && nCell.elevation > ELEV_GROUND ) {
-
-						this.recalculateRunRamps( gx + dir.dx, gz + dir.dz );
-
-					}
-
-				}
-
-			}
-
-		} else {
-
-			// Below ground (< 12) — use straight model at negative Y
-			cell.type = 'trk-straight';
-			this._meshFactory.createTileMesh( gx, gz, cell );
-
-		}
+		// Manual mode: only rebuild this tile's mesh at its new Y position.
+		// No type swapping, no auto-ramp creation, no neighbor changes.
+		this._meshFactory.createTileMesh( gx, gz, cell );
 
 	}
 

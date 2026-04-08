@@ -7,6 +7,14 @@ const CORNER_EXITS = { 0: 5, 16: 6, 10: 10, 22: 9 };  // S+W, S+E, N+E, N+W
 // Straight exit masks: N+S or E+W
 const STRAIGHT_EXITS = { 0: 12, 10: 12, 16: 3, 22: 3 };
 
+// Junction exit masks by orient code
+// Y-split: 3 exits (one stem + two forks)
+const JUNCTION_Y_EXITS = { 0: 14, 16: 7, 10: 13, 22: 11 };  // N+S+E, S+E+W, N+S+W, N+E+W
+// T-junction: 3 exits (crossbar + one stem)
+const JUNCTION_T_EXITS = { 0: 11, 16: 14, 10: 7, 22: 13 };   // N+E+W, N+S+E, S+E+W, N+S+W
+// 4-way: all 4 exits regardless of orient
+const JUNCTION_4WAY_EXITS = 15;
+
 // 3x3 tiles with consumed cells
 const TILES_3X3 = new Set( [
 	'trk-junction-y', 'trk-junction-t', 'trk-junction-4way', 'trk-chicane-3x3-l',
@@ -76,13 +84,34 @@ export class TrackTile {
 	 */
 	getExitMask() {
 
+		// Consumed cells of multi-tile pieces have no exits of their own
+		if ( this._consumed ) return 0;
+
 		if ( this.type === 'trk-corner-1x1' ) {
 
 			return CORNER_EXITS[ this.orient ] ?? 5;
 
 		}
 
-		// All other 1x1 road tiles are treated as through-tiles
+		if ( this.type === 'trk-junction-y' ) {
+
+			return JUNCTION_Y_EXITS[ this.orient ] ?? 14;
+
+		}
+
+		if ( this.type === 'trk-junction-t' ) {
+
+			return JUNCTION_T_EXITS[ this.orient ] ?? 11;
+
+		}
+
+		if ( this.type === 'trk-junction-4way' ) {
+
+			return JUNCTION_4WAY_EXITS;
+
+		}
+
+		// All other road tiles (straight, chicane, bridges, tunnels, etc.) are through-tiles
 		return STRAIGHT_EXITS[ this.orient ] ?? 12;
 
 	}

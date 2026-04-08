@@ -27,8 +27,7 @@ export class EraseTileCommand {
 		if ( ! tile ) return;
 		if ( tile._consumed ) return;
 
-		// Block erasing auto-ramps and any ramp-typed tiles
-		if ( tile.autoRamp || tile.type.startsWith( 'trk-ramp-' ) ) return;
+		// All tiles are manually placed and can be erased
 
 		// Snapshot affected area
 		this._takeWideSnapshot( gx, gz, tile );

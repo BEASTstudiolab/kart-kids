@@ -3,6 +3,9 @@ import * as THREE from 'three';
 
 export const LIGHTING_DAY = {
 	background: 0xadb2ba,
+	skybox: 'sunshine',
+	skyboxIntensity: 1.0,
+	skyboxBlurriness: 0.0,
 	hemiSky: 0xc8d8e8,
 	hemiGround: 0x7a8a5a,
 	hemiIntensity: 1.5,
@@ -16,6 +19,9 @@ export const LIGHTING_DAY = {
 
 export const LIGHTING_NIGHT = {
 	background: 0x1a0a2e,
+	skybox: 'moon',
+	skyboxIntensity: 0.8,
+	skyboxBlurriness: 0.0,
 	hemiSky: 0x1a0a2e,
 	hemiGround: 0x2a1a3a,
 	hemiIntensity: 0.5,
@@ -88,10 +94,55 @@ export function setBarrierEmissive( intensity, color ) {
 export function getBarrierEmissiveColor() { return _barrierEmissiveColor.getHex(); }
 export function getBarrierEmissiveIntensity() { return _barrierEmissiveIntensity; }
 
+// ── Skybox ──────────────────────────────────────────────────────────────────
+
+const _skyboxCache = {};
+const _fallbackColor = new THREE.Color();
+
+function _getSkyboxTexture( name ) {
+
+	if ( ! _skyboxCache[ name ] ) {
+
+		_skyboxCache[ name ] = new THREE.CubeTextureLoader()
+			.setPath( 'skybox/' )
+			.load( [
+				`jettelly_${ name }_RIGHT.png`,
+				`jettelly_${ name }_LEFT.png`,
+				`jettelly_${ name }_UP.png`,
+				`jettelly_${ name }_DOWN.png`,
+				`jettelly_${ name }_FRONT.png`,
+				`jettelly_${ name }_BACK.png`,
+			] );
+
+	}
+
+	return _skyboxCache[ name ];
+
+}
+
 export function applyLighting( preset, { scene, hemiLight, dirLight, bloomPass, renderer } ) {
 
-	scene.background.setHex( preset.background );
-	if ( scene.fog ) scene.fog.color.setHex( preset.background );
+	if ( preset.skybox ) {
+
+		scene.background = _getSkyboxTexture( preset.skybox );
+
+	} else {
+
+		if ( ! scene.background || ! scene.background.isColor ) {
+
+			scene.background = new THREE.Color();
+
+		}
+
+		scene.background.setHex( preset.background );
+
+	}
+
+	scene.backgroundIntensity = preset.skyboxIntensity ?? 1.0;
+	scene.backgroundBlurriness = preset.skyboxBlurriness ?? 0.0;
+
+	const fogColor = _fallbackColor.setHex( preset.background );
+	if ( scene.fog ) scene.fog.color.copy( fogColor );
 	hemiLight.color.setHex( preset.hemiSky );
 	hemiLight.groundColor.setHex( preset.hemiGround );
 	hemiLight.intensity = preset.hemiIntensity;

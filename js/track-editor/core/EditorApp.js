@@ -542,6 +542,13 @@ class EditorApp {
 			const msg = result.valid ? 'Track valid!' : `${ errors } error(s), ${ warnings } warning(s)`;
 			console.log( '[Validate]', msg, result.issues );
 
+			// Show the validation panel if there are issues
+			if ( this._validationPanel && result.issues.length > 0 ) {
+
+				this._validationPanel.classList.remove( 'kk-validation-panel--hidden' );
+
+			}
+
 			// Focus first issue with location
 			if ( ! result.valid ) {
 
@@ -984,6 +991,7 @@ class EditorApp {
 		const modeLabel = isPropsMode ? 'PROPS' : 'TRACK TILES';
 
 		carousel.innerHTML = `
+			<div class="kk-carousel__resize-handle" id="carousel-resize-handle"></div>
 			<div class="kk-carousel__header">
 				<span class="kk-carousel__category">${ modeLabel }</span>
 				<div class="kk-carousel__tabs">${ tabsHtml }</div>
@@ -1075,6 +1083,38 @@ class EditorApp {
 
 		} );
 
+		// Drag-to-resize carousel via handle
+		const handle = carousel.querySelector( '#carousel-resize-handle' );
+		if ( handle ) {
+
+			let startY = 0;
+			let startH = 0;
+
+			const onMove = ( e ) => {
+
+				const delta = startY - e.clientY;
+				carousel.style.height = Math.max( 80, Math.min( window.innerHeight * 0.5, startH + delta ) ) + 'px';
+
+			};
+
+			const onUp = () => {
+
+				document.removeEventListener( 'pointermove', onMove );
+				document.removeEventListener( 'pointerup', onUp );
+
+			};
+
+			handle.addEventListener( 'pointerdown', ( e ) => {
+
+				startY = e.clientY;
+				startH = carousel.offsetHeight;
+				document.addEventListener( 'pointermove', onMove );
+				document.addEventListener( 'pointerup', onUp );
+
+			} );
+
+		}
+
 	}
 
 	/** @private */
@@ -1163,6 +1203,9 @@ class EditorApp {
 
 		} );
 
+		// ── Validation panel ──
+		this._buildValidationPanel();
+
 		// Validation summary update
 		this._eventBus.on( 'validation:result', ( result ) => {
 
@@ -1170,7 +1213,7 @@ class EditorApp {
 			const errors = result.issues.filter( i => i.severity === 'error' ).length;
 			const warnings = result.issues.filter( i => i.severity === 'warning' ).length;
 
-			el.className = 'kk-statusbar__segment';
+			el.className = 'kk-statusbar__segment kk-statusbar__segment--clickable';
 
 			if ( errors > 0 ) {
 
@@ -1188,6 +1231,8 @@ class EditorApp {
 				el.classList.add( 'kk-statusbar__segment--ok' );
 
 			}
+
+			this._renderValidationPanel( result.issues );
 
 		} );
 
@@ -1209,6 +1254,108 @@ class EditorApp {
 			document.getElementById( 'status-save' ).textContent = 'Unsaved';
 
 		} );
+
+	}
+
+	/** @private Create the validation issues flyout panel. */
+	_buildValidationPanel() {
+
+		const panel = document.createElement( 'div' );
+		panel.id = 'validation-panel';
+		panel.className = 'kk-validation-panel kk-validation-panel--hidden';
+		panel.innerHTML = `
+			<div class="kk-validation-panel__header">
+				<span class="kk-validation-panel__title">Validation Issues</span>
+				<button class="kk-validation-panel__close" aria-label="Close">&times;</button>
+			</div>
+			<div class="kk-validation-panel__list">
+				<div class="kk-validation-panel__empty">No issues found</div>
+			</div>
+		`;
+
+		document.querySelector( '.kk-editor-shell__viewport' ).appendChild( panel );
+
+		// Close button
+		panel.querySelector( '.kk-validation-panel__close' ).addEventListener( 'click', () => {
+
+			panel.classList.add( 'kk-validation-panel--hidden' );
+
+		} );
+
+		// Click an issue → focus camera on that cell
+		panel.querySelector( '.kk-validation-panel__list' ).addEventListener( 'click', ( e ) => {
+
+			const item = e.target.closest( '.kk-validation-panel__item' );
+			if ( ! item || item.dataset.gx == null ) return;
+			this._camera.focusCell( Number( item.dataset.gx ), Number( item.dataset.gz ) );
+
+		} );
+
+		// Toggle panel when clicking the status bar validation segment
+		document.getElementById( 'status-valid' ).addEventListener( 'click', () => {
+
+			panel.classList.toggle( 'kk-validation-panel--hidden' );
+
+		} );
+
+		this._validationPanel = panel;
+
+	}
+
+	/** @private Render validation issues into the flyout panel. */
+	_renderValidationPanel( issues ) {
+
+		const list = this._validationPanel.querySelector( '.kk-validation-panel__list' );
+
+		if ( ! issues || issues.length === 0 ) {
+
+			list.innerHTML = '<div class="kk-validation-panel__empty">No issues — track is valid!</div>';
+			return;
+
+		}
+
+		const errors = issues.filter( i => i.severity === 'error' );
+		const warnings = issues.filter( i => i.severity === 'warning' );
+
+		let html = '';
+
+		if ( errors.length > 0 ) {
+
+			html += `<div class="kk-validation-panel__group-label kk-validation-panel__group-label--error">Errors (${ errors.length })</div>`;
+			for ( const issue of errors ) {
+
+				const hasLocus = issue.locus && issue.locus.gx != null;
+				const coords = hasLocus ? `(${ issue.locus.gx }, ${ issue.locus.gz })` : '';
+				const dataAttrs = hasLocus ? ` data-gx="${ issue.locus.gx }" data-gz="${ issue.locus.gz }"` : '';
+				html += `<div class="kk-validation-panel__item kk-validation-panel__item--error"${ dataAttrs }>
+					<span class="kk-validation-panel__severity">&#x2716;</span>
+					<span class="kk-validation-panel__message">${ issue.message }</span>
+					<span class="kk-validation-panel__coords">${ coords }</span>
+				</div>`;
+
+			}
+
+		}
+
+		if ( warnings.length > 0 ) {
+
+			html += `<div class="kk-validation-panel__group-label kk-validation-panel__group-label--warn">Warnings (${ warnings.length })</div>`;
+			for ( const issue of warnings ) {
+
+				const hasLocus = issue.locus && issue.locus.gx != null;
+				const coords = hasLocus ? `(${ issue.locus.gx }, ${ issue.locus.gz })` : '';
+				const dataAttrs = hasLocus ? ` data-gx="${ issue.locus.gx }" data-gz="${ issue.locus.gz }"` : '';
+				html += `<div class="kk-validation-panel__item kk-validation-panel__item--warn"${ dataAttrs }>
+					<span class="kk-validation-panel__severity">&#x26A0;</span>
+					<span class="kk-validation-panel__message">${ issue.message }</span>
+					<span class="kk-validation-panel__coords">${ coords }</span>
+				</div>`;
+
+			}
+
+		}
+
+		list.innerHTML = html;
 
 	}
 
