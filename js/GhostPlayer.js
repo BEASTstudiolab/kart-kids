@@ -155,6 +155,16 @@ export class GhostPlayer {
 	}
 
 	/**
+	 * Get the ghost's current world position, or null if not active.
+	 */
+	get currentPosition() {
+
+		if ( ! this._loaded || ! this._mesh || ! this._visible ) return null;
+		return this._mesh.position;
+
+	}
+
+	/**
 	 * Whether a ghost recording is loaded.
 	 */
 	get hasGhost() {
