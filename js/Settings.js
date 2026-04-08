@@ -17,6 +17,7 @@ const DEFAULTS = {
 	vehicleColor: '',
 	characterColor: '',
 	ghostEnabled: true,
+	reverseTrack: false,
 };
 
 export class Settings {
