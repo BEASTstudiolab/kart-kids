@@ -37,6 +37,8 @@ import {
 	saveNamedTrack as _saveNamedTrack,
 	deleteNamedTrack,
 	loadNamedTrack as _loadNamedTrack,
+	exportToFile,
+	importFromFile,
 } from './Persistence.js';
 import {
 	initDebugMode,
@@ -1734,6 +1736,51 @@ document.getElementById( 'load-cancel' ).addEventListener( 'click', () => {
 	modalLoad.classList.add( 'hidden' );
 
 } );
+
+// ── Export current track to file ─────────────────────────────────────
+const exportBtn = document.getElementById( 'btn-export' );
+if ( exportBtn ) {
+
+	exportBtn.addEventListener( 'click', () => {
+
+		if ( grid.size === 0 ) { showToast( 'Draw some road first!' ); return; }
+
+		// Try to use the last saved track name, else 'track'
+		const tracks = getSavedTracks();
+		const lastName = tracks.length > 0 ? tracks[ 0 ].name : 'track';
+		exportToFile( grid, lastName );
+		showToast( 'Track exported!' );
+
+	} );
+
+}
+
+// ── Import track from file ───────────────────────────────────────────
+const importBtn = document.getElementById( 'btn-import' );
+if ( importBtn ) {
+
+	importBtn.addEventListener( 'click', () => {
+
+		const input = document.createElement( 'input' );
+		input.type = 'file';
+		input.accept = '.json';
+		input.addEventListener( 'change', async () => {
+
+			if ( ! input.files || input.files.length === 0 ) return;
+			const result = await importFromFile( input.files[ 0 ] );
+
+			if ( ! result ) { showToast( 'Invalid track file' ); return; }
+
+			loadNamedTrack( result.cells );
+			showToast( `Imported "${ result.name }"` );
+
+		} );
+
+		input.click();
+
+	} );
+
+}
 
 // Close modals on overlay click
 modalSave.addEventListener( 'click', ( e ) => {
