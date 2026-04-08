@@ -70,6 +70,12 @@ export class HUD {
 		this._resultsTotalLine = document.createElement( 'div' );
 		this._resultsBestLine = document.createElement( 'div' );
 
+		this._resultsLapContainer = document.createElement( 'div' );
+		this._resultsLapContainer.style.cssText = [
+			'font-size:14px', 'margin-top:12px', 'text-align:left',
+			'max-height:120px', 'overflow-y:auto',
+		].join( ';' );
+
 		this._restartBtn = document.createElement( 'button' );
 		this._restartBtn.textContent = 'RESTART';
 		this._restartBtn.style.cssText = [
@@ -86,6 +92,7 @@ export class HUD {
 		this._resultsEl.appendChild( this._resultsTitle );
 		this._resultsEl.appendChild( this._resultsTotalLine );
 		this._resultsEl.appendChild( this._resultsBestLine );
+		this._resultsEl.appendChild( this._resultsLapContainer );
 		this._resultsEl.appendChild( this._restartBtn );
 		document.body.appendChild( this._resultsEl );
 
@@ -193,6 +200,7 @@ export class HUD {
 			case 'countdown': {
 				this._lobbyPanel.style.display = 'none';
 				this._resultsEl.style.display = 'none';
+				this._resultsLapContainer.innerHTML = '';
 				this._raceHud.style.display = 'none';
 				this._boostContainer.style.display = 'none';
 				this._countdownEl.style.display = 'block';
@@ -258,6 +266,41 @@ export class HUD {
 				this._resultsEl.style.display = 'block';
 				this._resultsTotalLine.textContent = `Total: ${ this._formatTime( displayState.totalTime ) }`;
 				this._resultsBestLine.textContent = `Best Lap: ${ this._formatTime( displayState.bestLap ) }`;
+
+				// Per-lap breakdown (populate once)
+				if ( displayState.lapTimes && displayState.lapTimes.length > 0 &&
+					this._resultsLapContainer.childElementCount === 0 ) {
+
+					const best = displayState.bestLap;
+					let worst = 0;
+
+					for ( let i = 0; i < displayState.lapTimes.length; i ++ ) {
+
+						if ( displayState.lapTimes[ i ] > worst ) worst = displayState.lapTimes[ i ];
+
+					}
+
+					for ( let i = 0; i < displayState.lapTimes.length; i ++ ) {
+
+						const t = displayState.lapTimes[ i ];
+						const row = document.createElement( 'div' );
+						row.style.cssText = 'display:flex; justify-content:space-between; padding:2px 0';
+
+						let color = '#ccc';
+						if ( displayState.lapTimes.length > 1 ) {
+
+							if ( t <= best ) color = '#44ff44';
+							else if ( t >= worst ) color = '#ff4444';
+
+						}
+
+						row.innerHTML = `<span>Lap ${ i + 1 }</span><span style="color:${ color }">${ this._formatTime( t ) }</span>`;
+						this._resultsLapContainer.appendChild( row );
+
+					}
+
+				}
+
 				break;
 
 		}

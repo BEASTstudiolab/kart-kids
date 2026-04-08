@@ -49,6 +49,7 @@ export class RaceMode extends GameMode {
 		this._lapStartTime = 0;
 		this._bestLap = Infinity;
 		this._totalTime = 0;
+		this._lapTimes = [];
 
 		this._finishLine = null;
 		this._prevPos = null;
@@ -77,6 +78,7 @@ export class RaceMode extends GameMode {
 		this._lapStartTime = 0;
 		this._bestLap = Infinity;
 		this._totalTime = 0;
+		this._lapTimes = [];
 		this._prevPos = null;
 
 		if ( this._finishLine ) this._finishLine.resetCooldown();
@@ -147,6 +149,7 @@ export class RaceMode extends GameMode {
 			this._lapStartTime = 0;
 			this._bestLap = Infinity;
 			this._totalTime = 0;
+			this._lapTimes = [];
 			this._prevPos = null;
 			if ( this._finishLine ) this._finishLine.resetCooldown();
 
@@ -204,6 +207,7 @@ export class RaceMode extends GameMode {
 		s.starActive = v ? v.starActive : false;
 		s.driftActive = v ? v.driftActive : false;
 		s.driftSparkTier = v ? v.driftSparkTier : 0;
+		s.lapTimes = this._lapTimes;
 
 		return s;
 
@@ -223,6 +227,7 @@ export class RaceMode extends GameMode {
 			totalTime: this._totalTime,
 			bestLap: this._bestLap === Infinity ? 0 : this._bestLap,
 			laps: this.totalLaps,
+			lapTimes: this._lapTimes,
 		};
 
 	}
@@ -240,6 +245,7 @@ export class RaceMode extends GameMode {
 		this._lapStartTime = 0;
 		this._bestLap = Infinity;
 		this._totalTime = 0;
+		this._lapTimes = [];
 		this._prevPos = null;
 		this._lastSegmentHint = null;
 		this._position = 1;
@@ -339,6 +345,7 @@ export class RaceMode extends GameMode {
 			this._lap ++;
 
 			const lapTime = this._elapsedTime - this._lapStartTime;
+			this._lapTimes.push( lapTime );
 
 			if ( lapTime > 0 && lapTime < this._bestLap ) {
 
