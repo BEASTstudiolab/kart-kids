@@ -26,7 +26,20 @@ import { QUADRANT } from './vehicle/VehicleHealth.js';
 
 const _fwd = new THREE.Vector3();
 const _tmpPos = new THREE.Vector3();
+const _zeroVel = new THREE.Vector3( 0, 0, 0 );
 
+// ── Shared geometries & materials (hoisted to avoid per-use allocation) ──
+const _gloveGeo = new THREE.BoxGeometry( 0.4, 0.4, 0.4 );
+const _gloveMat = new THREE.MeshStandardMaterial( { color: 0xff4444, emissive: 0xff2222, emissiveIntensity: 0.5 } );
+
+const _slimeGeo = new THREE.CylinderGeometry( 0.6, 0.6, 0.05, 8 );
+const _slimeMat = new THREE.MeshStandardMaterial( { color: 0x44ff44, transparent: true, opacity: 0.7 } );
+
+const _mineGeo = new THREE.SphereGeometry( 0.25, 8, 6 );
+const _mineMat = new THREE.MeshStandardMaterial( { color: 0xff8800, emissive: 0xff4400, emissiveIntensity: 0.6 } );
+
+const _confettiGeo = new THREE.SphereGeometry( 0.2, 8, 6 );
+const _confettiMat = new THREE.MeshStandardMaterial( { color: 0xff44ff, emissive: 0xff22ff, emissiveIntensity: 0.5 } );
 
 // ── Item definitions ─────────────────────────────────────────────────
 
@@ -41,9 +54,7 @@ export const ITEMS = {
 			_fwd.set( 0, 0, 1 ).applyQuaternion( owner.container.quaternion );
 			_tmpPos.copy( owner.vehPos ).addScaledVector( _fwd, 1.5 );
 
-			const geo = new THREE.BoxGeometry( 0.4, 0.4, 0.4 );
-			const mat = new THREE.MeshStandardMaterial( { color: 0xff4444, emissive: 0xff2222, emissiveIntensity: 0.5 } );
-			const mesh = new THREE.Mesh( geo, mat );
+			const mesh = new THREE.Mesh( _gloveGeo, _gloveMat.clone() );
 
 			return {
 				type: 'projectile',
@@ -91,15 +102,13 @@ export const ITEMS = {
 			_fwd.set( 0, 0, - 1 ).applyQuaternion( owner.container.quaternion );
 			_tmpPos.copy( owner.vehPos ).addScaledVector( _fwd, 1.5 );
 
-			const geo = new THREE.CylinderGeometry( 0.6, 0.6, 0.05, 8 );
-			const mat = new THREE.MeshStandardMaterial( { color: 0x44ff44, transparent: true, opacity: 0.7 } );
-			const mesh = new THREE.Mesh( geo, mat );
+			const mesh = new THREE.Mesh( _slimeGeo, _slimeMat.clone() );
 
 			return {
 				type: 'hazard',
 				mesh,
 				position: _tmpPos.clone(),
-				velocity: new THREE.Vector3( 0, 0, 0 ),
+				velocity: _zeroVel.clone(),
 				lifetime: 5.0,
 				radius: 1.0,
 				damage: 8,
@@ -172,15 +181,13 @@ export const ITEMS = {
 			_fwd.set( 0, 0, - 1 ).applyQuaternion( owner.container.quaternion );
 			_tmpPos.copy( owner.vehPos ).addScaledVector( _fwd, 2.0 );
 
-			const geo = new THREE.SphereGeometry( 0.25, 8, 6 );
-			const mat = new THREE.MeshStandardMaterial( { color: 0xff8800, emissive: 0xff4400, emissiveIntensity: 0.6 } );
-			const mesh = new THREE.Mesh( geo, mat );
+			const mesh = new THREE.Mesh( _mineGeo, _mineMat.clone() );
 
 			return {
 				type: 'hazard',
 				mesh,
 				position: _tmpPos.clone(),
-				velocity: new THREE.Vector3( 0, 0, 0 ),
+				velocity: _zeroVel.clone(),
 				lifetime: 8.0,
 				radius: 0.8,
 				damage: 20,
@@ -310,9 +317,7 @@ export const ITEMS = {
 			_tmpPos.copy( owner.vehPos ).addScaledVector( _fwd, 1.5 );
 			_tmpPos.y += 0.5;
 
-			const geo = new THREE.SphereGeometry( 0.2, 8, 6 );
-			const mat = new THREE.MeshStandardMaterial( { color: 0xff44ff, emissive: 0xff22ff, emissiveIntensity: 0.5 } );
-			const mesh = new THREE.Mesh( geo, mat );
+			const mesh = new THREE.Mesh( _confettiGeo, _confettiMat.clone() );
 
 			return {
 				type: 'projectile',
@@ -354,6 +359,8 @@ export const ITEMS = {
 // Item list for weighted selection
 export const ITEM_LIST = Object.values( ITEMS );
 
+const _offensiveIds = new Set( [ 'boxing_glove', 'slime_slick', 'magnet_pulse', 'spring_mine', 'wand_zap', 'hammer_smash', 'confetti_bomb' ] );
+
 /**
  * Roll a random item with position-based weighting.
  * Leaders get more defensive items, trailers get more offensive.
@@ -363,10 +370,6 @@ export const ITEM_LIST = Object.values( ITEMS );
  */
 export function rollItem( positionRatio = 0.5 ) {
 
-	// Offensive items: boxing_glove, slime_slick, magnet_pulse, spring_mine, wand_zap, hammer_smash, confetti_bomb
-	// Defensive items: bubble_shield, turbo_star, repair_crate
-	const offensiveIds = new Set( [ 'boxing_glove', 'slime_slick', 'magnet_pulse', 'spring_mine', 'wand_zap', 'hammer_smash', 'confetti_bomb' ] );
-
 	// Bias: trailing players get 1.5x offensive weight, leading players get 1.5x defensive
 	let totalWeight = 0;
 	const weights = [];
@@ -374,7 +377,7 @@ export function rollItem( positionRatio = 0.5 ) {
 	for ( const item of ITEM_LIST ) {
 
 		let w = item.weight;
-		if ( offensiveIds.has( item.id ) ) {
+		if ( _offensiveIds.has( item.id ) ) {
 
 			w *= THREE.MathUtils.lerp( 0.7, 1.5, positionRatio );
 
