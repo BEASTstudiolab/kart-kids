@@ -40,6 +40,7 @@ import { EliminationManager } from './EliminationManager.js';
 import { WrenchPickupManager } from './WrenchPickupManager.js';
 import { Settings } from './Settings.js';
 import { SettingsMenu } from './SettingsMenu.js';
+import { ControlsHelp } from './ControlsHelp.js';
 import { PRESETS, TIER_PIXEL_RATIO, AdaptiveQuality } from './QualityTiers.js';
 import { DraftingSystem } from './DraftingSystem.js';
 import { DraftLines } from './DraftLines.js';
@@ -562,6 +563,7 @@ async function init() {
 	const controls = new Controls( settings, cam );
 	const settingsMenu = new SettingsMenu( settings, controls, audio );
 	const speedometer = new Speedometer( settings );
+	const controlsHelp = new ControlsHelp();
 
 	// Re-apply tints live when settings change
 	window.addEventListener( 'settings-changed', ( e ) => {
