@@ -1,5 +1,7 @@
 const MAX_REPLAY_BYTES = 500 * 1024; // 500KB cap per recording
+const MAX_TOTAL_BYTES = 2 * 1024 * 1024; // 2MB total ghost storage cap
 const KEY_PREFIX = 'ghost:';
+const META_KEY = 'ghost:_meta';
 
 
 /**
@@ -61,7 +63,11 @@ export function save( trackId, frames, lapTime ) {
 
 		if ( data.length > MAX_REPLAY_BYTES ) return;
 
+		// Evict oldest entries if total ghost storage would exceed cap
+		_evictIfNeeded( data.length, trackId );
+
 		localStorage.setItem( KEY_PREFIX + trackId, data );
+		_touchMeta( trackId );
 
 	} catch ( e ) {
 
@@ -120,5 +126,70 @@ export function load( trackId ) {
 		return null;
 
 	}
+
+}
+
+
+/**
+ * Update LRU metadata for a track's ghost entry.
+ */
+function _touchMeta( trackId ) {
+
+	try {
+
+		const raw = localStorage.getItem( META_KEY );
+		const meta = raw ? JSON.parse( raw ) : {};
+		meta[ trackId ] = Date.now();
+		localStorage.setItem( META_KEY, JSON.stringify( meta ) );
+
+	} catch ( e ) { /* */ }
+
+}
+
+
+/**
+ * Evict oldest ghost entries until adding newSize bytes stays under the total cap.
+ */
+function _evictIfNeeded( newSize, currentTrackId ) {
+
+	try {
+
+		// Sum all ghost entries
+		const entries = [];
+		for ( let i = 0; i < localStorage.length; i ++ ) {
+
+			const key = localStorage.key( i );
+			if ( ! key.startsWith( KEY_PREFIX ) || key === META_KEY ) continue;
+
+			const trackId = key.slice( KEY_PREFIX.length );
+			if ( trackId === currentTrackId ) continue; // will be overwritten
+
+			const val = localStorage.getItem( key );
+			entries.push( { trackId, size: val ? val.length : 0 } );
+
+		}
+
+		let totalSize = entries.reduce( ( sum, e ) => sum + e.size, 0 ) + newSize;
+		if ( totalSize <= MAX_TOTAL_BYTES ) return;
+
+		// Sort by LRU (oldest first)
+		const raw = localStorage.getItem( META_KEY );
+		const meta = raw ? JSON.parse( raw ) : {};
+
+		entries.sort( ( a, b ) => ( meta[ a.trackId ] || 0 ) - ( meta[ b.trackId ] || 0 ) );
+
+		// Evict until under cap
+		for ( const entry of entries ) {
+
+			if ( totalSize <= MAX_TOTAL_BYTES ) break;
+			localStorage.removeItem( KEY_PREFIX + entry.trackId );
+			delete meta[ entry.trackId ];
+			totalSize -= entry.size;
+
+		}
+
+		localStorage.setItem( META_KEY, JSON.stringify( meta ) );
+
+	} catch ( e ) { /* */ }
 
 }
