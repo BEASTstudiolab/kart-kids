@@ -31,7 +31,6 @@ import { Page23TutorialView }    from './Page23TutorialView.js';
 import { RouteIds }              from '../../enums/RouteIds.js';
 import { PageIds }               from '../../enums/PageIds.js';
 import { EventIds }              from '../../enums/EventIds.js';
-import * as Nav                  from '../../core/NavigationService.js';
 
 /** localStorage key for tutorial completion flag. */
 const TUTORIAL_COMPLETE_KEY = 'kk:tutorial:complete';
