@@ -10,8 +10,7 @@ import { AIController } from './AIController.js';
 import { AI_PROFILES } from './AIProfiles.js';
 import { ItemSlotManager } from './ItemSlotManager.js';
 import { rigidBody } from 'crashcat';
-
-const VEHICLE_BASE_MODEL = 'vehicle-truck-yellow';
+import { VEHICLE_BASE } from './ModelLoader.js';
 
 // Golden-angle hue distribution — ensures no two adjacent AIs share similar colors
 function generateAIColors( count ) {
@@ -97,7 +96,7 @@ export class AIManager {
 
 	_spawnAI( index ) {
 
-		const model = this.models[ VEHICLE_BASE_MODEL ];
+		const model = this.models[ VEHICLE_BASE ];
 
 		const charName = CHARACTER_MODEL_NAMES[ index % CHARACTER_MODEL_NAMES.length ];
 		const characterModel = this.models[ charName ] || null;
