@@ -660,7 +660,8 @@ async function init() {
 
 	}
 
-	// Wrap existing onLapComplete to add ghost recording
+	// Wrap existing onLapComplete to add ghost recording + delta flash
+	let prevBestLap = Infinity;
 	const _prevOnLapComplete = raceMode.onLapComplete;
 	raceMode.onLapComplete = ( lap, time ) => {
 
@@ -681,6 +682,15 @@ async function init() {
 		}
 
 		ghostPlayer.restart();
+
+		// Show lap delta flash (compare to previous best lap)
+		if ( prevBestLap < Infinity ) {
+
+			hud.showLapDelta( time - prevBestLap );
+
+		}
+
+		if ( time < prevBestLap ) prevBestLap = time;
 
 	};
 
