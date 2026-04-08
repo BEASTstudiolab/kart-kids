@@ -336,6 +336,13 @@ export class Vehicle {
 			this.wheelBR ? this.wheelBR.position.y : 0,
 		];
 
+		// ─── Brake light ─────────────────────────────────────────────────────
+		this.brakeLight = new THREE.PointLight( 0xff2200, 2, 3 );
+		this.brakeLight.position.set( 0, 0.2, - 0.6 );
+		this.brakeLight.castShadow = false;
+		this.brakeLight.visible = false;
+		this.container.add( this.brakeLight );
+
 		// ─── Underglow ────────────────────────────────────────────────────────
 		this.underglowLight = new THREE.PointLight( 0x00ffff, 1, 3 );
 		this.underglowLight.position.set( 0, - 0.1, 0 );
@@ -585,6 +592,13 @@ export class Vehicle {
 
 		this.inputX = controlsInput.x;
 		this.inputZ = controlsInput.z;
+
+		// Brake light — visible when braking at speed
+		if ( this.brakeLight ) {
+
+			this.brakeLight.visible = this.inputZ < - 0.1 && this.linearSpeed > 0.5;
+
+		}
 
 		// Tick health timers (invuln, consecutive hit cooldown)
 		if ( this.health ) this.health.update( dt );
