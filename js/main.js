@@ -854,14 +854,86 @@ async function init() {
 	const draftingSystem = new DraftingSystem();
 	const draftLines = new DraftLines( scene );
 
+	// ── Pause menu overlay ──────────────────────────────────────────────────
+	const pauseOverlay = document.createElement( 'div' );
+	pauseOverlay.style.cssText = [
+		'position:fixed', 'inset:0', 'z-index:1100',
+		'background:rgba(0,0,0,0.75)', 'display:none',
+		'justify-content:center', 'align-items:center', 'flex-direction:column',
+		'font:bold 22px/1.6 monospace', 'color:#fff', 'user-select:none',
+	].join( ';' );
+
+	const pauseTitle = document.createElement( 'div' );
+	pauseTitle.textContent = 'PAUSED';
+	pauseTitle.style.cssText = 'font-size:36px; margin-bottom:24px';
+	pauseOverlay.appendChild( pauseTitle );
+
+	const makePauseBtn = ( label ) => {
+
+		const btn = document.createElement( 'button' );
+		btn.textContent = label;
+		btn.style.cssText = [
+			'font:bold 18px monospace', 'margin:6px 0', 'padding:10px 40px',
+			'background:#fff', 'color:#000', 'border:none', 'border-radius:6px',
+			'cursor:pointer', 'min-width:200px',
+		].join( ';' );
+		return btn;
+
+	};
+
+	const resumeBtn = makePauseBtn( 'RESUME' );
+	const restartPauseBtn = makePauseBtn( 'RESTART RACE' );
+
+	const togglePause = () => {
+
+		if ( raceMode.state === 'finished' ) return; // don't pause on results screen
+		gamePaused = ! gamePaused;
+		pauseOverlay.style.display = gamePaused ? 'flex' : 'none';
+
+	};
+
+	resumeBtn.addEventListener( 'click', () => {
+
+		gamePaused = false;
+		pauseOverlay.style.display = 'none';
+
+	} );
+
+	restartPauseBtn.addEventListener( 'click', () => {
+
+		gamePaused = false;
+		pauseOverlay.style.display = 'none';
+		raceMode.reset();
+		aiManager.resetRace();
+		raceLobby.reset();
+		raceStatsResult = null;
+
+	} );
+
+	pauseOverlay.appendChild( resumeBtn );
+	pauseOverlay.appendChild( restartPauseBtn );
+	document.body.appendChild( pauseOverlay );
+
+	// Mobile pause button (top-left, below connection badge)
+	const pauseBtn = document.createElement( 'button' );
+	pauseBtn.textContent = '⏸';
+	pauseBtn.style.cssText = [
+		'position:fixed', 'top:32px', 'left:8px', 'z-index:900',
+		'font-size:20px', 'width:36px', 'height:36px',
+		'background:rgba(0,0,0,0.5)', 'color:#fff', 'border:none', 'border-radius:6px',
+		'cursor:pointer', 'touch-action:manipulation',
+	].join( ';' );
+	pauseBtn.addEventListener( 'click', togglePause );
+	document.body.appendChild( pauseBtn );
+
 	document.addEventListener( 'keydown', ( e ) => {
 
-		if ( e.code === 'KeyP' ) {
+		if ( e.code === 'KeyP' || e.code === 'Escape' ) {
 
-			gamePaused = ! gamePaused;
+			e.stopPropagation();
+			togglePause();
 
 		}
-
 
 	} );
 
