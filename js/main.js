@@ -79,6 +79,21 @@ const _boostFwd = new THREE.Vector3();
 // Bound lighting helper — wraps _applyLighting with scene/light references
 const applyLighting = ( preset ) => _applyLighting( preset, { scene, hemiLight, dirLight, bloomPass, renderer } );
 
+// Apply a quality tier: post-FX preset, shadow resolution, pixel ratio, and resize
+function applyQualityTier( tier ) {
+
+	const preset = PRESETS[ tier ];
+	if ( ! preset ) return;
+
+	postFX.applyPreset( preset );
+	dirLight.shadow.mapSize.setScalar( preset.shadowMapSize );
+	dirLight.shadow.map = null;
+	renderer.shadowMap.needsUpdate = true;
+	renderer.setPixelRatio( TIER_PIXEL_RATIO[ tier ] );
+	renderer.setSize( window.innerWidth, window.innerHeight );
+
+}
+
 
 window.addEventListener( 'resize', () => {
 
@@ -706,17 +721,7 @@ async function init() {
 	{
 
 		const tier = settings.get( 'quality' );
-		const preset = PRESETS[ tier ];
-		if ( preset ) {
-
-			postFX.applyPreset( preset );
-			dirLight.shadow.mapSize.setScalar( preset.shadowMapSize );
-			dirLight.shadow.map = null;
-			renderer.shadowMap.needsUpdate = true;
-			renderer.setPixelRatio( TIER_PIXEL_RATIO[ tier ] );
-			renderer.setSize( window.innerWidth, window.innerHeight );
-
-		}
+		applyQualityTier( tier );
 
 		// Notify debug label of initial quality
 		window.dispatchEvent( new CustomEvent( 'settings-changed', { detail: { key: 'quality', value: tier } } ) );
@@ -741,13 +746,7 @@ async function init() {
 
 		if ( key === 'quality' && postFX ) {
 
-			if ( ! PRESETS[ value ] ) return;
-			postFX.applyPreset( PRESETS[ value ] );
-			dirLight.shadow.mapSize.setScalar( PRESETS[ value ].shadowMapSize );
-			dirLight.shadow.map = null;
-			renderer.shadowMap.needsUpdate = true;
-			renderer.setPixelRatio( TIER_PIXEL_RATIO[ value ] );
-			renderer.setSize( window.innerWidth, window.innerHeight );
+			applyQualityTier( value );
 
 		}
 
