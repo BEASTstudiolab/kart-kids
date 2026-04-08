@@ -2,8 +2,6 @@
 // Cycles elevation on a straight tile. Uses full grid snapshot because
 // elevation changes affect the entire elevated run + ramps.
 
-import { Command } from '../core/Command.js';
-
 export class CycleElevationCommand {
 
 	/**

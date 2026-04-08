@@ -1,8 +1,6 @@
 // ─── ReplaceTileCommand ──────────────────────────────────────────────────────
 // Replaces a tile's type in-place, preserving elevation, orient, and flags.
 
-import { Command } from '../core/Command.js';
-
 export class ReplaceTileCommand {
 
 	constructor( project, gx, gz, newType, meshFactory, eventBus ) {
