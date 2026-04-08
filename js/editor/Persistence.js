@@ -182,6 +182,72 @@ export function saveNamedTrack( grid, name ) {
 
 }
 
+/**
+ * Export current grid to a downloadable .json file.
+ */
+export function exportToFile( grid, trackName ) {
+
+	const encoded = encodeCells( getCellsArray( grid ) );
+	const data = {
+		version: 1,
+		name: trackName || 'Untitled Track',
+		cells: encoded,
+		pieces: grid.size,
+		exportedAt: new Date().toISOString(),
+	};
+
+	const blob = new Blob( [ JSON.stringify( data, null, 2 ) ], { type: 'application/json' } );
+	const url = URL.createObjectURL( blob );
+	const a = document.createElement( 'a' );
+	a.href = url;
+	a.download = ( trackName || 'track' ).replace( /[^a-zA-Z0-9_-]/g, '_' ) + '.json';
+	a.click();
+	URL.revokeObjectURL( url );
+
+}
+
+/**
+ * Import a track from a .json file.
+ * @param {File} file
+ * @returns {Promise<{name: string, cells: string}|null>}
+ */
+export function importFromFile( file ) {
+
+	return new Promise( ( resolve ) => {
+
+		const reader = new FileReader();
+		reader.onload = () => {
+
+			try {
+
+				const data = JSON.parse( reader.result );
+
+				if ( ! data.cells || typeof data.cells !== 'string' ) {
+
+					console.warn( 'Invalid track file: missing cells data' );
+					resolve( null );
+					return;
+
+				}
+
+				resolve( { name: data.name || file.name.replace( /\.json$/, '' ), cells: data.cells } );
+
+			} catch ( e ) {
+
+				console.warn( 'Failed to parse track file:', e.message );
+				resolve( null );
+
+			}
+
+		};
+
+		reader.onerror = () => resolve( null );
+		reader.readAsText( file );
+
+	} );
+
+}
+
 export function deleteNamedTrack( name ) {
 
 	const tracks = getSavedTracks().filter( t => t.name !== name );
