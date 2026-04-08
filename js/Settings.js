@@ -17,6 +17,7 @@ const DEFAULTS = {
 	vehicleColor: '',
 	characterColor: '',
 	ghostEnabled: true,
+	ghostRival: false,
 };
 
 export class Settings {

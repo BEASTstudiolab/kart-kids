@@ -698,6 +698,39 @@ async function init() {
 
 			}
 		) );
+
+		const enableGhostRival = () => {
+
+			ghostPlayer.enableRival( world, ( w ) => {
+
+				return rigidBody.create( w, {
+					shape: box.create( { halfExtents: [ 0.4, 0.3, 0.7 ] } ),
+					motionType: MotionType.KINEMATIC,
+					objectLayer: w._OL_MOVING,
+					position: [ 0, - 100, 0 ],
+					friction: 1.0,
+					restitution: 0.3,
+				} );
+
+			}, ( body, pos, quat, deltaTime ) => rigidBody.moveKinematic( body, pos, quat, deltaTime ) );
+
+		};
+
+		ghostSec.appendChild( settingsMenu._toggleRowCustom(
+			'Ghost Rival (solid)',
+			settings.get( 'ghostRival' ) === true,
+			( v ) => {
+
+				settings.set( 'ghostRival', v );
+				if ( v ) enableGhostRival();
+				else ghostPlayer.disableRival();
+
+			}
+		) );
+
+		// Enable rival on startup if setting is on
+		if ( settings.get( 'ghostRival' ) === true ) enableGhostRival();
+
 		settingsMenu.addSection( ghostSec );
 
 	}
@@ -1061,7 +1094,7 @@ async function init() {
 		if ( ghostPlayer.hasGhost ) {
 
 			const ghostTime = raceMode.state === 'racing' ? raceMode.lapElapsed : ( ghostPlayer._freeRoamTime = ( ghostPlayer._freeRoamTime || 0 ) + dt );
-			ghostPlayer.update( ghostTime );
+			ghostPlayer.update( ghostTime, dt );
 			if ( ghostHudEl.style.display === 'none' && settings.get( 'ghostEnabled' ) !== false ) {
 
 				ghostHudEl.style.display = 'block';
