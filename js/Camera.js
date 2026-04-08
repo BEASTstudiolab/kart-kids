@@ -65,6 +65,9 @@ export class Camera {
 		this.dashboardOffset = new THREE.Vector3( 0.0, 0.40, -0.05 );
 		this.dashboardFOV = 80;
 
+		// Top-down camera
+		this._topdownHeight = 50;
+
 		// Look-behind (hold Backspace)
 		this.lookBehind = false;
 
@@ -539,7 +542,9 @@ export class Camera {
 		if ( this.mode === 'chase' ) this.mode = 'cockpit';
 		else if ( this.mode === 'cockpit' ) this.mode = 'dashboard';
 		else if ( this.mode === 'dashboard' ) this.mode = 'isometric';
-		else if ( this.mode === 'isometric' ) this.mode = 'chase';
+		else if ( this.mode === 'isometric' ) this.mode = 'topdown';
+		else if ( this.mode === 'topdown' ) this.mode = 'chase';
+		else this.mode = 'chase';
 
 	}
 
