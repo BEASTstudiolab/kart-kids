@@ -6,7 +6,7 @@ import { applyTrackAsphaltMode } from './TrackAsphaltMode.js';
 THREE.Cache.enabled = true;
 
 // Vehicle color tints — load only the yellow base, derive others via clone+tint
-const VEHICLE_BASE = 'vehicle-truck-yellow';
+export const VEHICLE_BASE = 'vehicle-truck-yellow';
 const VEHICLE_TINTS = {
 	'vehicle-truck-yellow': null, // base model, no tint
 	'vehicle-truck-green': new THREE.Color( 0.45, 1.0, 0.45 ),
