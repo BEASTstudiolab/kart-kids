@@ -33,7 +33,6 @@ import { Page21SettingsView }    from './Page21SettingsView.js';
 import { RouteIds }              from '../../enums/RouteIds.js';
 import { PageIds }               from '../../enums/PageIds.js';
 import { EventIds }              from '../../enums/EventIds.js';
-import * as Nav                  from '../../core/NavigationService.js';
 
 /** Map URL hash fragments to Tabs activeId values. */
 const HASH_TO_TAB = Object.freeze( {
