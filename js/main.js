@@ -48,6 +48,7 @@ import { RearviewMirror } from './RearviewMirror.js';
 import { GhostRecorder } from './GhostRecorder.js';
 import { GhostPlayer } from './GhostPlayer.js';
 import { getTrackId } from './GhostStorage.js';
+import { applyPhysicsProfile, PHYSICS_PROFILES } from './PhysicsProfiles.js';
 
 
 const SPECTATE_INPUT = { x: 0, z: 0, touchActive: false, boost: false, gas: false, brake: false };
@@ -199,6 +200,7 @@ async function init() {
 	const mapParam = urlParams.get( 'map' )
 		|| new URLSearchParams( window.location.hash.slice( 1 ) ).get( 'map' );
 	const debugTopdown = urlParams.get( 'debug' ) === 'topdown';
+	const physicsProfile = urlParams.get( 'physics' ) || 'arcade';
 	let customCells = null;
 
 	if ( mapParam ) {
@@ -387,6 +389,13 @@ async function init() {
 	// Direct reference for debug panel compatibility
 	const vehicle = playerManager.localVehicle;
 
+	// Apply physics profile from URL param (?physics=ice|moon|turbo)
+	if ( physicsProfile !== 'arcade' && PHYSICS_PROFILES[ physicsProfile ] ) {
+
+		applyPhysicsProfile( vehicle, physicsProfile );
+		console.log( `[physics] Applied profile: ${ PHYSICS_PROFILES[ physicsProfile ].name }` );
+
+	}
 
 	const dirLightOffset = { x: 11.4, y: 15, z: - 5.3 };
 	let lastShadowX = 0, lastShadowZ = 0;
