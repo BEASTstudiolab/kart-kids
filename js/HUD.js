@@ -54,6 +54,18 @@ export class HUD {
 		this._raceHud.appendChild( this._timeLine );
 		document.body.appendChild( this._raceHud );
 
+		// ── Race position indicator (top-right) ─────────────────────────────
+		this._positionEl = document.createElement( 'div' );
+		this._positionEl.style.cssText = [
+			'position:fixed', 'top:16px', 'right:16px',
+			'background:rgba(0,0,0,0.65)', 'color:#fff', 'font:bold 28px/1 monospace',
+			'padding:8px 14px', 'border-radius:8px', 'z-index:1000',
+			'pointer-events:none', 'user-select:none', 'display:none',
+			'text-align:center',
+		].join( ';' );
+		document.body.appendChild( this._positionEl );
+		this._lastPosition = 0;
+
 		// ── Results overlay (centered panel) ─────────────────────────────────
 		this._resultsEl = document.createElement( 'div' );
 		this._resultsEl.style.cssText = [
@@ -187,6 +199,7 @@ export class HUD {
 				this._resultsEl.style.display = 'none';
 				this._boostContainer.style.display = 'none';
 				this._powerupEl.style.display = 'none';
+				this._positionEl.style.display = 'none';
 				this._updateLobby( lobbyState );
 				break;
 
@@ -195,6 +208,7 @@ export class HUD {
 				this._resultsEl.style.display = 'none';
 				this._raceHud.style.display = 'none';
 				this._boostContainer.style.display = 'none';
+				this._positionEl.style.display = 'none';
 				this._countdownEl.style.display = 'block';
 
 				const countText = displayState.countdown > 0
@@ -228,8 +242,25 @@ export class HUD {
 				this._resultsEl.style.display = 'none';
 				this._raceHud.style.display = 'block';
 				this._boostContainer.style.display = 'block';
+				this._positionEl.style.display = 'block';
 				this._lapLine.textContent = `Lap ${ displayState.lap + 1 }/${ displayState.totalLaps }`;
 				this._timeLine.textContent = this._formatTime( displayState.elapsedTime );
+
+				// Update position display
+				if ( displayState.position !== this._lastPosition ) {
+
+					this._lastPosition = displayState.position;
+					const p = displayState.position;
+					const suffix = p === 1 ? 'st' : p === 2 ? 'nd' : p === 3 ? 'rd' : 'th';
+					this._positionEl.textContent = `${ p }${ suffix }`;
+
+					// Color by position
+					if ( p === 1 ) this._positionEl.style.color = '#ffd700';
+					else if ( p === 2 ) this._positionEl.style.color = '#c0c0c0';
+					else if ( p === 3 ) this._positionEl.style.color = '#cd7f32';
+					else this._positionEl.style.color = '#fff';
+
+				}
 
 				// Spring bounce on lap change
 				if ( displayState.lap !== this._lastLap ) {
@@ -255,6 +286,7 @@ export class HUD {
 				this._raceHud.style.display = 'none';
 				this._boostContainer.style.display = 'none';
 				this._powerupEl.style.display = 'none';
+				this._positionEl.style.display = 'none';
 				this._resultsEl.style.display = 'block';
 				this._resultsTotalLine.textContent = `Total: ${ this._formatTime( displayState.totalTime ) }`;
 				this._resultsBestLine.textContent = `Best Lap: ${ this._formatTime( displayState.bestLap ) }`;
