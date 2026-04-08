@@ -52,6 +52,7 @@ export class RaceMode extends GameMode {
 
 		this._finishLine = null;
 		this._prevPos = null;
+		this._maxProgressThisLap = 0;
 
 		this._displayState = {};
 
@@ -241,6 +242,7 @@ export class RaceMode extends GameMode {
 		this._bestLap = Infinity;
 		this._totalTime = 0;
 		this._prevPos = null;
+		this._maxProgressThisLap = 0;
 		this._lastSegmentHint = null;
 		this._position = 1;
 
@@ -334,7 +336,25 @@ export class RaceMode extends GameMode {
 		const result = this._finishLine.check( this._prevPos, currPos );
 		this._prevPos.copy( currPos );
 
+		// Track max progress for lap validation
+		if ( this.trackIntel && this._state === STATE_RACING ) {
+
+			const p = this.trackIntel.getProgress( currPos.x, currPos.z );
+			if ( p > this._maxProgressThisLap ) this._maxProgressThisLap = p;
+
+		}
+
 		if ( result.crossed && result.direction === 'forward' ) {
+
+			// Reject shortcut laps: must have reached 75%+ track progress
+			if ( this.trackIntel && this._lap > 0 && this._maxProgressThisLap < 0.75 ) {
+
+				this._maxProgressThisLap = 0;
+				return;
+
+			}
+
+			this._maxProgressThisLap = 0;
 
 			this._lap ++;
 
