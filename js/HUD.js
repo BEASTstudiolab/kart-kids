@@ -50,8 +50,21 @@ export class HUD {
 
 		this._lapLine = document.createElement( 'div' );
 		this._timeLine = document.createElement( 'div' );
+
+		// Lap delta flash element (shows +/- time vs best lap)
+		this._lapDeltaEl = document.createElement( 'div' );
+		this._lapDeltaEl.style.cssText = [
+			'font-size:28px', 'font-weight:bold', 'text-align:center',
+			'opacity:0', 'transition:opacity 0.3s',
+			'position:absolute', 'top:100%', 'left:50%', 'transform:translateX(-50%)',
+			'text-shadow:0 2px 4px rgba(0,0,0,0.8)', 'pointer-events:none',
+			'white-space:nowrap',
+		].join( ';' );
+		this._lapDeltaTimeout = null;
+
 		this._raceHud.appendChild( this._lapLine );
 		this._raceHud.appendChild( this._timeLine );
+		this._raceHud.appendChild( this._lapDeltaEl );
 		document.body.appendChild( this._raceHud );
 
 		// ── Results overlay (centered panel) ─────────────────────────────────
@@ -400,6 +413,28 @@ export class HUD {
 			this._powerupEl.style.display = 'none';
 
 		}
+
+	}
+
+	/**
+	 * Show a lap time delta flash (e.g., "+0.42s" or "-0.31s").
+	 * @param {number} delta — seconds difference (positive = slower, negative = faster)
+	 */
+	showLapDelta( delta ) {
+
+		if ( this._lapDeltaTimeout ) clearTimeout( this._lapDeltaTimeout );
+
+		const sign = delta >= 0 ? '+' : '';
+		this._lapDeltaEl.textContent = `${ sign }${ delta.toFixed( 2 ) }s`;
+		this._lapDeltaEl.style.color = delta <= 0 ? '#4f4' : '#f44';
+		this._lapDeltaEl.style.opacity = '1';
+
+		this._lapDeltaTimeout = setTimeout( () => {
+
+			this._lapDeltaEl.style.opacity = '0';
+			this._lapDeltaTimeout = null;
+
+		}, 2000 );
 
 	}
 
