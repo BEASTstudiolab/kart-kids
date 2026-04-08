@@ -541,6 +541,8 @@ export class Camera {
 		else if ( this.mode === 'dashboard' ) this.mode = 'isometric';
 		else if ( this.mode === 'isometric' ) this.mode = 'chase';
 
+		if ( this.onModeChange ) this.onModeChange( this.mode );
+
 	}
 
 	getVelocity() {

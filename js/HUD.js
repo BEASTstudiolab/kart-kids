@@ -54,6 +54,18 @@ export class HUD {
 		this._raceHud.appendChild( this._timeLine );
 		document.body.appendChild( this._raceHud );
 
+		// ── Camera mode toast ────────────────────────────────────────────────
+		this._cameraModeEl = document.createElement( 'div' );
+		this._cameraModeEl.style.cssText = [
+			'position:fixed', 'bottom:80px', 'left:50%', 'transform:translateX(-50%)',
+			'background:rgba(0,0,0,0.65)', 'color:#fff', 'font:bold 14px/1 monospace',
+			'padding:6px 14px', 'border-radius:6px', 'z-index:1001',
+			'pointer-events:none', 'user-select:none', 'display:none',
+			'transition:opacity 0.3s',
+		].join( ';' );
+		document.body.appendChild( this._cameraModeEl );
+		this._cameraModeTimer = 0;
+
 		// ── Results overlay (centered panel) ─────────────────────────────────
 		this._resultsEl = document.createElement( 'div' );
 		this._resultsEl.style.cssText = [
@@ -262,6 +274,20 @@ export class HUD {
 
 		}
 
+		// Camera mode toast fade
+		if ( this._cameraModeTimer > 0 ) {
+
+			this._cameraModeTimer -= dt;
+
+			if ( this._cameraModeTimer <= 0 ) {
+
+				this._cameraModeEl.style.opacity = '0';
+				setTimeout( () => { this._cameraModeEl.style.display = 'none'; }, 300 );
+
+			}
+
+		}
+
 	}
 
 	_updateLobby( lobbyState ) {
@@ -400,6 +426,23 @@ export class HUD {
 			this._powerupEl.style.display = 'none';
 
 		}
+
+	}
+
+	showCameraMode( modeName ) {
+
+		const labels = {
+			chase: 'CHASE CAM',
+			cockpit: 'COCKPIT',
+			dashboard: 'DASHBOARD',
+			isometric: 'ISOMETRIC',
+			topdown: 'TOP DOWN',
+		};
+
+		this._cameraModeEl.textContent = labels[ modeName ] || modeName.toUpperCase();
+		this._cameraModeEl.style.display = 'block';
+		this._cameraModeEl.style.opacity = '1';
+		this._cameraModeTimer = 1.5;
 
 	}
 

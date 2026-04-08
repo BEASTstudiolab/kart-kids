@@ -279,6 +279,23 @@ export class Controls {
 		btnZone.appendChild( itemBtn );
 		container.appendChild( btnZone );
 
+		// Camera cycle button (top-left, separate from action zone)
+		const camBtn = document.createElement( 'div' );
+		camBtn.textContent = 'CAM';
+		camBtn.style.cssText = [
+			'position:fixed', 'top:16px', 'left:16px', 'width:48px', 'height:48px',
+			'background:rgba(255,255,255,0.15)', 'color:#fff', 'font:bold 12px/48px monospace',
+			'text-align:center', 'border-radius:50%', 'z-index:1000',
+			'touch-action:none', 'user-select:none',
+		].join( ';' );
+		camBtn.addEventListener( 'pointerdown', ( e ) => {
+
+			e.preventDefault();
+			if ( this.camera ) this.camera.cycleMode();
+
+		} );
+		container.appendChild( camBtn );
+
 		document.body.appendChild( container );
 		this._touchContainer = container;
 
