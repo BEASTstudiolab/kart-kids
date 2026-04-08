@@ -204,6 +204,8 @@ export class RaceMode extends GameMode {
 		s.starActive = v ? v.starActive : false;
 		s.driftActive = v ? v.driftActive : false;
 		s.driftSparkTier = v ? v.driftSparkTier : 0;
+		s.offTrackTimer = v ? v._offTrackTimer : 0;
+		s.offTrackGrace = v ? v._offTrackGrace : 2.0;
 
 		return s;
 

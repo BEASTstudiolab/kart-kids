@@ -13,6 +13,7 @@ export class HUD {
 		styleEl.textContent = [
 			'@keyframes boostPulse { from { opacity: 0.7; } to { opacity: 1.0; } }',
 			'@keyframes countPunch { from { transform: scale(1.4); } to { transform: scale(1.0); } }',
+			'@keyframes offTrackPulse { 0%,100% { opacity: 0.7; } 50% { opacity: 1.0; } }',
 		].join( ' ' );
 		document.head.appendChild( styleEl );
 
@@ -53,6 +54,18 @@ export class HUD {
 		this._raceHud.appendChild( this._lapLine );
 		this._raceHud.appendChild( this._timeLine );
 		document.body.appendChild( this._raceHud );
+
+		// ── Off-track warning (below race HUD) ──────────────────────────────
+		this._offTrackEl = document.createElement( 'div' );
+		this._offTrackEl.style.cssText = [
+			'position:fixed', 'top:72px', 'left:50%', 'transform:translateX(-50%)',
+			'background:rgba(255,0,0,0.75)', 'color:#fff', 'font:bold 16px/1.4 monospace',
+			'padding:6px 16px', 'border-radius:6px', 'z-index:1001',
+			'pointer-events:none', 'user-select:none', 'display:none',
+			'animation:offTrackPulse 0.6s ease-in-out infinite',
+		].join( ';' );
+		this._offTrackEl.textContent = 'RETURN TO TRACK';
+		document.body.appendChild( this._offTrackEl );
 
 		// ── Results overlay (centered panel) ─────────────────────────────────
 		this._resultsEl = document.createElement( 'div' );
@@ -187,6 +200,7 @@ export class HUD {
 				this._resultsEl.style.display = 'none';
 				this._boostContainer.style.display = 'none';
 				this._powerupEl.style.display = 'none';
+				this._offTrackEl.style.display = 'none';
 				this._updateLobby( lobbyState );
 				break;
 
@@ -195,6 +209,7 @@ export class HUD {
 				this._resultsEl.style.display = 'none';
 				this._raceHud.style.display = 'none';
 				this._boostContainer.style.display = 'none';
+				this._offTrackEl.style.display = 'none';
 				this._countdownEl.style.display = 'block';
 
 				const countText = displayState.countdown > 0
@@ -247,6 +262,20 @@ export class HUD {
 				this._updateBoostBar( displayState );
 				this._updateDriftIndicator( displayState );
 				this._updatePowerupIndicator( dt, displayState );
+
+				// Off-track warning with countdown
+				if ( displayState.offTrackTimer > 0 ) {
+
+					const remaining = Math.max( 0, displayState.offTrackGrace - displayState.offTrackTimer );
+					this._offTrackEl.textContent = `RETURN TO TRACK  ${ remaining.toFixed( 1 ) }s`;
+					this._offTrackEl.style.display = 'block';
+
+				} else {
+
+					this._offTrackEl.style.display = 'none';
+
+				}
+
 				break;
 
 			case 'finished':
@@ -255,6 +284,7 @@ export class HUD {
 				this._raceHud.style.display = 'none';
 				this._boostContainer.style.display = 'none';
 				this._powerupEl.style.display = 'none';
+				this._offTrackEl.style.display = 'none';
 				this._resultsEl.style.display = 'block';
 				this._resultsTotalLine.textContent = `Total: ${ this._formatTime( displayState.totalTime ) }`;
 				this._resultsBestLine.textContent = `Best Lap: ${ this._formatTime( displayState.bestLap ) }`;
