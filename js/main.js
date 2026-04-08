@@ -48,6 +48,7 @@ import { RearviewMirror } from './RearviewMirror.js';
 import { GhostRecorder } from './GhostRecorder.js';
 import { GhostPlayer } from './GhostPlayer.js';
 import { getTrackId } from './GhostStorage.js';
+import { saveRaceStats, loadRaceStats } from './RaceStats.js';
 
 
 const SPECTATE_INPUT = { x: 0, z: 0, touchActive: false, boost: false, gas: false, brake: false };
@@ -441,7 +442,7 @@ async function init() {
 	} );
 
 	const hud = new HUD(
-		() => { raceMode.reset(); aiManager.resetRace(); raceLobby.reset(); },
+		() => { raceMode.reset(); aiManager.resetRace(); raceLobby.reset(); raceStatsResult = null; },
 		() => raceLobby.setReady( playerManager.localId )
 	);
 
@@ -631,8 +632,12 @@ async function init() {
 
 	}
 
+	// ── Race stats persistence ─────────────────────────────────────────────
+	const raceStatsTrackId = getTrackId( activeCells );
+	let raceStatsResult = null; // set once on finish
+
 	// ── Ghost replay setup ──────────────────────────────────────────────────
-	const ghostTrackId = getTrackId( activeCells );
+	const ghostTrackId = raceStatsTrackId;
 	const ghostRecorder = new GhostRecorder();
 	ghostRecorder.init( ghostTrackId );
 
@@ -1082,7 +1087,18 @@ async function init() {
 
 		}
 
-		hud.update( dt, raceMode.getDisplayState(), raceLobby.getDisplayState() );
+		// ── Save race stats on finish transition ───────────────────────
+		const ds = raceMode.getDisplayState();
+		if ( ds.state === 'finished' && ! raceStatsResult ) {
+
+			const results = raceMode.getResults();
+			if ( results ) raceStatsResult = saveRaceStats( raceStatsTrackId, results );
+
+		}
+
+		ds.raceStatsResult = raceStatsResult;
+
+		hud.update( dt, ds, raceLobby.getDisplayState() );
 		if ( ! spectating && vehicle ) hudDamage.update( vehicle.health, vehicle.itemSlot ? vehicle.itemSlot.heldItemId : null, dt );
 		speedometer.update( dt, vehicle.linearSpeed, vehicle.momentum, vehicle.boostActive, vehicle.effectiveTopSpeed, vehicle.debug.topSpeed );
 		minimap.update( allActiveVehicles, raceMode.getDisplayState().state );

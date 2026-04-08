@@ -70,6 +70,15 @@ export class HUD {
 		this._resultsTotalLine = document.createElement( 'div' );
 		this._resultsBestLine = document.createElement( 'div' );
 
+		this._resultsPrevBestLine = document.createElement( 'div' );
+		this._resultsPrevBestLine.style.cssText = 'color:#aaa; font-size:16px; margin-top:4px';
+
+		this._resultsRecordLine = document.createElement( 'div' );
+		this._resultsRecordLine.style.cssText = [
+			'color:#ffdd00', 'font-size:28px', 'margin-top:12px',
+			'animation:kk-record-pulse 0.6s ease-in-out infinite alternate',
+		].join( ';' );
+
 		this._restartBtn = document.createElement( 'button' );
 		this._restartBtn.textContent = 'RESTART';
 		this._restartBtn.style.cssText = [
@@ -86,8 +95,20 @@ export class HUD {
 		this._resultsEl.appendChild( this._resultsTitle );
 		this._resultsEl.appendChild( this._resultsTotalLine );
 		this._resultsEl.appendChild( this._resultsBestLine );
+		this._resultsEl.appendChild( this._resultsPrevBestLine );
+		this._resultsEl.appendChild( this._resultsRecordLine );
 		this._resultsEl.appendChild( this._restartBtn );
 		document.body.appendChild( this._resultsEl );
+
+		// Keyframe animation for NEW RECORD pulse
+		if ( ! document.getElementById( 'kk-record-pulse-style' ) ) {
+
+			const style = document.createElement( 'style' );
+			style.id = 'kk-record-pulse-style';
+			style.textContent = '@keyframes kk-record-pulse { from { opacity:1; transform:scale(1); } to { opacity:0.7; transform:scale(1.05); } }';
+			document.head.appendChild( style );
+
+		}
 
 		// ── Boost meter bar ──────────────────────────────────────────────────
 		this._boostContainer = document.createElement( 'div' );
@@ -249,7 +270,8 @@ export class HUD {
 				this._updatePowerupIndicator( dt, displayState );
 				break;
 
-			case 'finished':
+			case 'finished': {
+
 				this._lobbyPanel.style.display = 'none';
 				this._countdownEl.style.display = 'none';
 				this._raceHud.style.display = 'none';
@@ -258,7 +280,35 @@ export class HUD {
 				this._resultsEl.style.display = 'block';
 				this._resultsTotalLine.textContent = `Total: ${ this._formatTime( displayState.totalTime ) }`;
 				this._resultsBestLine.textContent = `Best Lap: ${ this._formatTime( displayState.bestLap ) }`;
+
+				const stats = displayState.raceStatsResult;
+				if ( stats ) {
+
+					const isNewRecord = stats.newBestLap || stats.newBestTotal;
+					this._resultsRecordLine.textContent = isNewRecord ? 'NEW RECORD!' : '';
+					this._resultsRecordLine.style.display = isNewRecord ? 'block' : 'none';
+
+					if ( stats.prevBestTotal > 0 ) {
+
+						this._resultsPrevBestLine.textContent = `Previous Best: ${ this._formatTime( stats.prevBestTotal ) }`;
+						this._resultsPrevBestLine.style.display = 'block';
+
+					} else {
+
+						this._resultsPrevBestLine.style.display = 'none';
+
+					}
+
+				} else {
+
+					this._resultsRecordLine.style.display = 'none';
+					this._resultsPrevBestLine.style.display = 'none';
+
+				}
+
 				break;
+
+			}
 
 		}
 
