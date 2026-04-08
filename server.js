@@ -1,5 +1,6 @@
 import { createServer } from 'http';
 import { readFile, stat } from 'fs/promises';
+import { watch } from 'fs';
 import { join, extname } from 'path';
 import { gzipSync } from 'zlib';
 import { WebSocketServer } from 'ws';
@@ -73,18 +74,30 @@ const httpServer = createServer( async ( req, res ) => {
 
 		}
 
+		// Inject live-reload script into HTML responses
+		let body = data;
+		if ( ext === '.html' ) {
+
+			const html = data.toString();
+			const idx = html.lastIndexOf( '</body>' );
+			body = Buffer.from( idx !== - 1
+				? html.slice( 0, idx ) + LIVE_RELOAD_SNIPPET + html.slice( idx )
+				: html + LIVE_RELOAD_SNIPPET );
+
+		}
+
 		// Gzip for compressible types
 		const acceptGzip = ( req.headers[ 'accept-encoding' ] || '' ).includes( 'gzip' );
 		if ( acceptGzip && COMPRESSIBLE.has( ext ) ) {
 
 			headers[ 'Content-Encoding' ] = 'gzip';
 			res.writeHead( 200, headers );
-			res.end( gzipSync( data ) );
+			res.end( gzipSync( body ) );
 
 		} else {
 
 			res.writeHead( 200, headers );
-			res.end( data );
+			res.end( body );
 
 		}
 
@@ -369,10 +382,72 @@ setInterval( () => {
 
 }, 1000 / TICK_RATE );
 
+// ── Live reload (dev only) ──────────────────────────────────────────────────
+
+const LIVE_RELOAD_PORT = parseInt( PORT ) + 1;
+const lrServer = createServer();
+const lrWss = new WebSocketServer( { server: lrServer } );
+
+const WATCH_EXTS = new Set( [ '.js', '.html', '.css' ] );
+let reloadTimeout = null;
+
+const scheduleReload = () => {
+
+	if ( reloadTimeout ) return;
+	reloadTimeout = setTimeout( () => {
+
+		reloadTimeout = null;
+		for ( const client of lrWss.clients ) {
+
+			if ( client.readyState === 1 ) client.send( 'reload' );
+
+		}
+
+	}, 150 ); // debounce 150ms
+
+};
+
+const watchDirs = [ 'js', 'css' ];
+for ( const dir of watchDirs ) {
+
+	try {
+
+		watch( join( ROOT, dir ), { recursive: true }, ( event, filename ) => {
+
+			if ( filename && WATCH_EXTS.has( extname( filename ).toLowerCase() ) ) {
+
+				scheduleReload();
+
+			}
+
+		} );
+
+	} catch { /* directory may not exist */ }
+
+}
+
+// Also watch root HTML files
+watch( ROOT, ( event, filename ) => {
+
+	if ( filename && extname( filename ).toLowerCase() === '.html' ) {
+
+		scheduleReload();
+
+	}
+
+} );
+
+lrServer.listen( LIVE_RELOAD_PORT );
+
+// ── Live reload client snippet (injected into HTML responses) ───────────────
+
+const LIVE_RELOAD_SNIPPET = `<script>(function(){var ws=new WebSocket("ws://"+location.hostname+":${LIVE_RELOAD_PORT}");ws.onmessage=function(){location.reload()};ws.onclose=function(){setTimeout(function(){location.reload()},2000)}})()</script>`;
+
 // ── Start ────────────────────────────────────────────────────────────────────
 
 httpServer.listen( PORT, () => {
 
 	console.log( `Kart Kids server running at http://localhost:${ PORT }` );
+	console.log( `Live reload active on port ${ LIVE_RELOAD_PORT }` );
 
 } );
