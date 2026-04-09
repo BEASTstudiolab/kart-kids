@@ -381,6 +381,7 @@ export class ResultsOverlay {
 		const mode = this._results.mode || this._services.selectedMode || 'solo';
 
 		this.hide();
+		this.dispose();
 
 		if ( mode === 'private' && this._onRaceAgainPrivate ) {
 

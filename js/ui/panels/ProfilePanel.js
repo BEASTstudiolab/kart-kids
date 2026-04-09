@@ -532,10 +532,24 @@ function _formatTime( seconds ) {
 
 	if ( typeof seconds !== 'number' || isNaN( seconds ) ) return '--:--.---';
 
-	const mins = Math.floor( seconds / 60 );
+	let mins = Math.floor( seconds / 60 );
 	const secs = seconds % 60;
-	const whole = Math.floor( secs );
-	const ms = Math.round( ( secs - whole ) * 1000 );
+	let whole = Math.floor( secs );
+	let ms = Math.round( ( secs - whole ) * 1000 );
+
+	if ( ms >= 1000 ) {
+
+		ms -= 1000;
+		whole += 1;
+
+	}
+
+	if ( whole >= 60 ) {
+
+		whole -= 60;
+		mins += 1;
+
+	}
 
 	return `${mins}:${String( whole ).padStart( 2, '0' )}.${String( ms ).padStart( 3, '0' )}`;
 

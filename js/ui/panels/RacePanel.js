@@ -42,9 +42,6 @@ export class RacePanel {
 		/** @type {object} */
 		this._services = services;
 
-		/** @type {Settings} */
-		this._settings = new Settings();
-
 		/** @type {NetworkClient | null} */
 		this._network = null;
 
@@ -178,7 +175,7 @@ export class RacePanel {
 		// Player name
 		const nameEl = document.createElement( 'div' );
 		nameEl.className = 'kk-race-panel__name';
-		nameEl.textContent = this._settings.getDisplayName() || 'PLAYER';
+		nameEl.textContent = new Settings().getDisplayName() || 'PLAYER';
 		root.appendChild( nameEl );
 		this._nameEl = nameEl;
 
@@ -201,9 +198,9 @@ export class RacePanel {
 			chip.className = 'kk-race-panel__chip';
 			chip.textContent = mode.label;
 			chip.dataset.mode = mode.id;
-			chip.setAttribute( 'aria-pressed', mode.id === 'solo' ? 'true' : 'false' );
+			chip.setAttribute( 'aria-pressed', mode.id === this._services.selectedMode ? 'true' : 'false' );
 
-			if ( mode.id === 'solo' ) {
+			if ( mode.id === this._services.selectedMode ) {
 
 				chip.classList.add( 'kk-race-panel__chip--active' );
 
@@ -290,8 +287,9 @@ export class RacePanel {
 
 	_startSoloRace() {
 
+		const settings = new Settings();
 		const track = getRandomTrack();
-		const vehicleId = this._settings.getSelectedKartId();
+		const vehicleId = settings.getSelectedKartId();
 
 		this._services.startRace( {
 			mode:      'solo',
@@ -330,7 +328,8 @@ export class RacePanel {
 
 			}
 
-			const vehicleId = this._settings.getSelectedKartId();
+			const settings = new Settings();
+			const vehicleId = settings.getSelectedKartId();
 			const result = await this._network.findRoom( vehicleId );
 
 			// Hide overlay and start the race
@@ -421,9 +420,11 @@ export class RacePanel {
 	show() {
 
 		// Refresh player name (may have changed in Settings)
+		const settings = new Settings();
+
 		if ( this._nameEl ) {
 
-			this._nameEl.textContent = this._settings.getDisplayName() || 'PLAYER';
+			this._nameEl.textContent = settings.getDisplayName() || 'PLAYER';
 
 		}
 

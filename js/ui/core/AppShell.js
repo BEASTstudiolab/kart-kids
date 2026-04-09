@@ -260,8 +260,10 @@ export class AppShell {
 		if ( settings.isFirstRun() ) {
 
 			// First run: show name modal, then land on RACE tab.
-			this._router.start();
+			// Handle first-run BEFORE router.start() to avoid the fallback
+			// firing switchTab('race') before the name modal shows.
 			this._handleFirstRun( settings );
+			this._router.start();
 
 		} else {
 
