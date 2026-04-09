@@ -20,6 +20,7 @@
  */
 
 import { CTAButton }      from '../components/CTAButton.js';
+import { HudButton }      from '../components/HudButton.js';
 import { LoadingOverlay }  from '../components/LoadingOverlay.js';
 import { LobbyOverlay }   from '../overlays/LobbyOverlay.js';
 import { Settings }        from '../../Settings.js';
@@ -51,7 +52,7 @@ export class RacePanel {
 		/** @type {LobbyOverlay | null} */
 		this._lobbyOverlay = null;
 
-		/** @type {CTAButton | null} */
+		/** @type {HudButton | null} */
 		this._raceBtn = null;
 
 		/** @type {HTMLElement | null} */
@@ -198,6 +199,11 @@ export class RacePanel {
 				animation: kk-shimmer-sweep 0.6s ease-out;
 			}
 
+			/* HudButton in the CTA slot */
+			.kk-race-panel__cta .kk-hud-button {
+				min-width: 12rem;
+			}
+
 			@media (prefers-reduced-motion: reduce) {
 				.kk-race-panel__cta .kk-cta-button {
 					animation: none;
@@ -264,15 +270,14 @@ export class RacePanel {
 
 		root.appendChild( chipStrip );
 
-		// RACE button
+		// RACE button — HudButton with scramble effect
 		const ctaWrap = document.createElement( 'div' );
 		ctaWrap.className = 'kk-race-panel__cta';
 
-		this._raceBtn = new CTAButton( {
-			label:    'RACE',
-			variant:  'primary',
-			actionId: 'start-race',
-			onClick:  () => this._handleRace(),
+		this._raceBtn = new HudButton( {
+			text:    'RACE',
+			color:   '--color-accent-orange',
+			onClick: () => this._handleRace(),
 		} );
 
 		ctaWrap.appendChild( this._raceBtn.el );

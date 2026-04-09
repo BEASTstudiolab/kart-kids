@@ -21,6 +21,8 @@ import { getAllVehicles, getVehicleById } from '../../VehicleRegistry.js';
 import { Settings }                      from '../../Settings.js';
 import { ProgressBar }                   from '../components/ProgressBar.js';
 import { CTAButton }                     from '../components/CTAButton.js';
+import { HudButton }                     from '../components/HudButton.js';
+import { HyperText }                     from '../effects/HyperText.js';
 
 /** Stat definitions — order matches the stats panel top-to-bottom. */
 const STAT_DEFS = [
@@ -63,8 +65,11 @@ export class GaragePanel {
 		/** @type {HTMLElement|null} */
 		this._kartNameEl = null;
 
-		/** @type {CTAButton|null} */
+		/** @type {HudButton|null} */
 		this._equipBtn = null;
+
+		/** @type {HyperText|null} */
+		this._kartNameHyper = null;
 
 		/** @type {CTAButton|null} */
 		this._raceBtn = null;
@@ -227,6 +232,11 @@ export class GaragePanel {
 
 			.kk-garage__equip-wrap--equipped .kk-cta-button--primary:hover {
 				box-shadow: none;
+			}
+
+			/* HudButton variant in equip wrap */
+			.kk-garage__equip-wrap--equipped .kk-hud-button {
+				opacity: 0.6;
 			}
 
 			/* ===================================================
@@ -534,15 +544,17 @@ export class GaragePanel {
 		this._kartNameEl.setAttribute( 'aria-live', 'polite' );
 		root.appendChild( this._kartNameEl );
 
-		// EQUIP button wrapper
+		// HyperText scramble on kart name changes.
+		this._kartNameHyper = new HyperText( this._kartNameEl );
+
+		// EQUIP button wrapper — HudButton with scramble effect
 		this._equipWrap = document.createElement( 'div' );
 		this._equipWrap.className = 'kk-garage__equip-wrap';
 
-		this._equipBtn = new CTAButton( {
-			label:     'EQUIP',
-			variant:   'primary',
-			ariaLabel: 'Equip selected kart',
-			onClick:   () => this._handleEquip(),
+		this._equipBtn = new HudButton( {
+			text:    'EQUIP',
+			color:   '--color-accent-cyan',
+			onClick: () => this._handleEquip(),
 		} );
 		this._equipWrap.appendChild( this._equipBtn.el );
 		root.appendChild( this._equipWrap );
@@ -685,8 +697,12 @@ export class GaragePanel {
 		const equippedId = this._settings.getSelectedKartId();
 		const isEquipped = vehicle.id === equippedId;
 
-		// Kart name
-		if ( this._kartNameEl ) {
+		// Kart name — scramble to new name.
+		if ( this._kartNameHyper ) {
+
+			this._kartNameHyper.scrambleTo( vehicle.label, 800 );
+
+		} else if ( this._kartNameEl ) {
 
 			this._kartNameEl.textContent = vehicle.label;
 
@@ -718,12 +734,14 @@ export class GaragePanel {
 
 			if ( isEquipped ) {
 
-				this._equipBtn.setLabel( 'EQUIPPED' );
+				this._equipBtn.setText( 'EQUIPPED' );
+				this._equipBtn.setDimmed( true );
 				this._equipWrap.classList.add( 'kk-garage__equip-wrap--equipped' );
 
 			} else {
 
-				this._equipBtn.setLabel( 'EQUIP' );
+				this._equipBtn.setText( 'EQUIP' );
+				this._equipBtn.setDimmed( false );
 				this._equipWrap.classList.remove( 'kk-garage__equip-wrap--equipped' );
 
 			}
@@ -757,7 +775,8 @@ export class GaragePanel {
 		this._settings.setSelectedKartId( vehicle.id );
 
 		// Update equip button label.
-		this._equipBtn.setLabel( 'EQUIPPED' );
+		this._equipBtn.setText( 'EQUIPPED' );
+		this._equipBtn.setDimmed( true );
 		this._equipWrap.classList.add( 'kk-garage__equip-wrap--equipped' );
 
 		// Toast confirmation.
@@ -852,7 +871,21 @@ export class GaragePanel {
 		}
 
 		this._statBars.clear();
-		this._equipBtn = null;
+
+		if ( this._equipBtn ) {
+
+			this._equipBtn.dispose();
+			this._equipBtn = null;
+
+		}
+
+		if ( this._kartNameHyper ) {
+
+			this._kartNameHyper.dispose();
+			this._kartNameHyper = null;
+
+		}
+
 		this._raceBtn = null;
 		this._kartNameEl = null;
 		this._equipWrap = null;
