@@ -235,9 +235,9 @@ export class AppShell {
 		// Primary nav links — wired to routes.
 		const navItems = [
 			{ label: 'PLAY MODES', route: RouteIds.PLAY },
-			{ label: 'PARTY',      route: RouteIds.PARTY },
 			{ label: 'GARAGE',     route: RouteIds.GARAGE },
 			{ label: 'CREATE',     route: RouteIds.CREATE },
+			{ label: 'PROFILE',    route: RouteIds.PROFILE },
 		];
 
 		const list = document.createElement( 'ul' );
@@ -447,28 +447,7 @@ export class AppShell {
 
 		} );
 
-		// ── M3: Social & Progression ─────────────────────────────────────
-
-		r.register( RouteIds.PARTY, async () => {
-
-			const { Page06PartyController } = await import( '../pages/page06-party/Page06PartyController.js' );
-			return new Page06PartyController( s );
-
-		} );
-
-		r.register( RouteIds.EVENTS, async () => {
-
-			const { Page07EventsController } = await import( '../pages/page07-events/Page07EventsController.js' );
-			return new Page07EventsController( s );
-
-		} );
-
-		r.register( RouteIds.RANKED, async () => {
-
-			const { Page08RankedController } = await import( '../pages/page08-ranked/Page08RankedController.js' );
-			return new Page08RankedController( s );
-
-		} );
+		// ── M3: Profile ─────────────────────────────────────────────────
 
 		r.register( RouteIds.PROFILE, async () => {
 
@@ -477,77 +456,28 @@ export class AppShell {
 
 		} );
 
-		r.register( RouteIds.CHALLENGES, async () => {
-
-			const { Page13ChallengesController } = await import( '../pages/page13-challenges/Page13ChallengesController.js' );
-			return new Page13ChallengesController( s );
-
-		} );
-
-		r.register( RouteIds.SEASON, async () => {
-
-			const { Page14SeasonController } = await import( '../pages/page14-season/Page14SeasonController.js' );
-			return new Page14SeasonController( s );
-
-		} );
-
-		r.register( RouteIds.SHOP, async () => {
-
-			const { Page15ShopController } = await import( '../pages/page15-shop/Page15ShopController.js' );
-			return new Page15ShopController( s );
-
-		} );
-
-		r.register( RouteIds.INBOX, async () => {
-
-			const { Page20InboxController } = await import( '../pages/page20-inbox/Page20InboxController.js' );
-			return new Page20InboxController( s );
-
-		} );
-
 		// ── M4: Customization ────────────────────────────────────────────
 
 		r.register( RouteIds.GARAGE, async () => {
 
 			const { Page09GarageController } = await import( '../pages/page09-garage/Page09GarageController.js' );
-			return new Page09GarageController( s );
-
-		} );
-
-		r.register( RouteIds.CHARACTERS, async () => {
-
-			const { Page10CharacterSelectController } = await import( '../pages/page10-character-select/Page10CharacterSelectController.js' );
-			return new Page10CharacterSelectController( s );
+			return new Page09GarageController( {}, s );
 
 		} );
 
 		r.register( RouteIds.KARTS, async () => {
 
 			const { Page11KartSelectController } = await import( '../pages/page11-kart-select/Page11KartSelectController.js' );
-			return new Page11KartSelectController( s );
+			return new Page11KartSelectController( {}, s );
 
 		} );
 
-		// ── M5: Creation / UGC ───────────────────────────────────────────
+		// ── M5: Creation ─────────────────────────────────────────────────
 
 		r.register( RouteIds.CREATE, async () => {
 
 			const { Page16CreateHubController } = await import( '../pages/page16-create-hub/Page16CreateHubController.js' );
 			return new Page16CreateHubController( s );
-
-		} );
-
-		r.register( RouteIds.EDITOR, async () => {
-
-			const { Page17TrackEditorController } = await import( '../pages/page17-track-editor/Page17TrackEditorController.js' );
-			return new Page17TrackEditorController( s );
-
-		} );
-
-		r.register( RouteIds.DISCOVER, async () => {
-
-			const { Page18DiscoverController } = await import( '../pages/page18-discover/Page18DiscoverController.js' );
-			return new Page18DiscoverController( s );
 
 		} );
 
@@ -560,12 +490,11 @@ export class AppShell {
 
 		} );
 
-		r.register( RouteIds.TUTORIAL, async () => {
-
-			const { Page23TutorialController } = await import( '../pages/page23-tutorial/Page23TutorialController.js' );
-			return new Page23TutorialController( s );
-
-		} );
+		// ── CUT v1: Routes removed ───────────────────────────────────────
+		// Party (06), Events (07), Ranked (08), Characters (10),
+		// Challenges (13), Season (14), Shop (15), Editor (17),
+		// Discover (18), Inbox (20), Tutorial (23)
+		// Code remains in repo for future re-enablement.
 
 	}
 

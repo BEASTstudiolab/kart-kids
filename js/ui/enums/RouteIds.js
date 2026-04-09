@@ -12,23 +12,25 @@ export const RouteIds = Object.freeze( {
 	QUICK_PLAY: '/quick-play',
 	PLAY:       '/play',
 	LOBBY:      '/lobby',
-	PARTY:      '/party',
-	EVENTS:     '/events',
-	RANKED:     '/ranked',
 	GARAGE:     '/garage',
-	CHARACTERS: '/characters',
 	KARTS:      '/karts',
 	PROFILE:    '/profile',
-	CHALLENGES: '/challenges',
-	SEASON:     '/season',
-	SHOP:       '/shop',
 	CREATE:     '/create',
-	EDITOR:     '/editor',
-	DISCOVER:   '/discover',
 	RESULTS:    '/results',
-	INBOX:      '/inbox',
 	SETTINGS:   '/settings',
 	PAUSE:      '/pause',
-	TUTORIAL:   '/tutorial',
+
+	// ── CUT v1 — Routes exist for backward compat but are NOT registered ──
+	PARTY:      '/party',       // Replaced by Lobby room system
+	EVENTS:     '/events',      // Needs backend scheduling
+	RANKED:     '/ranked',      // Needs ranked infrastructure
+	CHARACTERS: '/characters',  // Only 1 character exists
+	CHALLENGES: '/challenges',  // Needs backend scheduling
+	SEASON:     '/season',      // Needs season pass infrastructure
+	SHOP:       '/shop',        // Needs shop infrastructure
+	EDITOR:     '/editor',      // Track editor stays separate
+	DISCOVER:   '/discover',    // Needs UGC platform
+	INBOX:      '/inbox',       // Needs messaging infrastructure
+	TUTORIAL:   '/tutorial',    // Deferred
 
 } );
