@@ -252,7 +252,7 @@ export class Vehicle {
 
 	}
 
-	init( vehicleModel, characterModel, characterOffset ) {
+	init( vehicleModel, characterModel, characterOffset, bodyHeight ) {
 
 		const clonedVehicle = vehicleModel.clone();
 
@@ -272,7 +272,7 @@ export class Vehicle {
 				child.rotation.order = 'YXZ';
 				this.bodyNode = child;
 
-			} else if ( name === 'seat_anchor' ) {
+			} else if ( name === 'seat_anchor' || name.startsWith( 'seat_anchor.' ) ) {
 
 				this.seatAnchor = child;
 
@@ -339,6 +339,9 @@ export class Vehicle {
 			this.wheelBL ? this.wheelBL.position.y : 0,
 			this.wheelBR ? this.wheelBR.position.y : 0,
 		];
+
+		// Per-vehicle body height
+		if ( bodyHeight !== undefined ) this.debug.bodyHeight = bodyHeight;
 
 		// ─── Underglow ────────────────────────────────────────────────────────
 		this.underglowLight = new THREE.PointLight( 0x00ffff, 1, 3 );
@@ -437,7 +440,7 @@ export class Vehicle {
 	 * Strips old model meshes from the container, clones the new model in,
 	 * re-finds named nodes, and re-attaches the character.
 	 */
-	swapModel( newVehicleModel, characterModel, characterOffset ) {
+	swapModel( newVehicleModel, characterModel, characterOffset, bodyHeight ) {
 
 		// Dispose old character + animator
 		if ( this.characterAnimator ) {
@@ -489,7 +492,7 @@ export class Vehicle {
 				child.rotation.order = 'YXZ';
 				this.bodyNode = child;
 
-			} else if ( name === 'seat_anchor' ) {
+			} else if ( name === 'seat_anchor' || name.startsWith( 'seat_anchor.' ) ) {
 
 				this.seatAnchor = child;
 
@@ -539,6 +542,9 @@ export class Vehicle {
 			this.wheelBL ? this.wheelBL.position.y : 0,
 			this.wheelBR ? this.wheelBR.position.y : 0,
 		];
+
+		// Per-vehicle body height
+		if ( bodyHeight !== undefined ) this.debug.bodyHeight = bodyHeight;
 
 		// Re-attach character
 		if ( characterModel && this.seatAnchor ) {
@@ -1765,7 +1771,7 @@ export class Vehicle {
 	 * @param {object} [opts.options] - { forceWheelCorrection }
 	 * @returns {Vehicle}
 	 */
-	static spawn( { world, createBody, model, characterModel, characterOffset, position, angle, options = {} } ) {
+	static spawn( { world, createBody, model, characterModel, characterOffset, bodyHeight, position, angle, options = {} } ) {
 
 		const vehicle = new Vehicle();
 		if ( options.forceWheelCorrection ) vehicle.forceWheelCorrection = true;
@@ -1780,7 +1786,7 @@ export class Vehicle {
 		vehicle.prevModelPos.set( sx, sy, sz );
 		vehicle.container.rotation.y = angle;
 
-		vehicle.init( model, characterModel, characterOffset );
+		vehicle.init( model, characterModel, characterOffset, bodyHeight );
 		vehicle.initRaycast( world );
 
 		return vehicle;

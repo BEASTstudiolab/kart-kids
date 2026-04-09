@@ -59,11 +59,16 @@ export class Camera {
 		// Cockpit camera
 		this.cockpitOffset = new THREE.Vector3( 0, 0.8, 0.3 );
 		this.cockpitFOV = 75;
+		this.cockpitNear = 0.1;
 		this._cockpitRollIntensity = 0.15;
 
 		// Dashboard camera (just behind steering wheel, looking over it)
-		this.dashboardOffset = new THREE.Vector3( 0.0, 0.40, -0.05 );
+		this.dashboardOffset = new THREE.Vector3( 0.0, 1.0, -0.05 );
 		this.dashboardFOV = 80;
+		this.dashboardNear = 0.01;
+
+		// Chase camera near clip
+		this.chaseNear = 1.5;
 
 		// Look-behind (hold Backspace)
 		this.lookBehind = false;
@@ -219,7 +224,7 @@ export class Camera {
 
 			// Dynamic near clip: smaller when zoomed in (avoids frame clipping),
 			// larger when zoomed out (hides geometry the camera clips into)
-			this.camera.near = THREE.MathUtils.lerp( 0.3, 1.5, zoomT );
+			this.camera.near = THREE.MathUtils.lerp( 0.3, this.chaseNear, zoomT );
 			this.camera.updateProjectionMatrix();
 
 			// Camera offset: behind vehicle normally, in front when looking behind
@@ -367,7 +372,7 @@ export class Camera {
 			this.camera.position.copy( _cockpitPos );
 
 			// Near clip tight for cockpit
-			this.camera.near = 0.1;
+			this.camera.near = this.cockpitNear;
 
 			// Look forward or behind
 			if ( this.lookBehind ) {
@@ -437,7 +442,7 @@ export class Camera {
 			_cockpitPos.copy( this.dashboardOffset ).applyQuaternion( vehicleQuaternion ).add( target );
 			this.camera.position.copy( _cockpitPos );
 
-			this.camera.near = 0.01;
+			this.camera.near = this.dashboardNear;
 
 			if ( this.lookBehind ) {
 

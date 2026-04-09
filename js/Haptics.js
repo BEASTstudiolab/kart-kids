@@ -5,6 +5,7 @@ export class Haptics {
 		this._gamepad = null;
 		this._rumbleTimer = 0;
 		this._rumbleInterval = 0.1; // re-trigger every 100ms
+		this.gamepadIndex = - 1; // -1 = auto, or specific index
 
 	}
 
@@ -15,12 +16,21 @@ export class Haptics {
 
 		this._gamepad = null;
 
-		for ( const gp of gamepads ) {
+		if ( this.gamepadIndex >= 0 ) {
 
-			if ( gp && gp.vibrationActuator ) {
+			const gp = gamepads[ this.gamepadIndex ];
+			if ( gp && gp.vibrationActuator ) this._gamepad = gp;
 
-				this._gamepad = gp;
-				break;
+		} else {
+
+			for ( const gp of gamepads ) {
+
+				if ( gp && gp.vibrationActuator ) {
+
+					this._gamepad = gp;
+					break;
+
+				}
 
 			}
 

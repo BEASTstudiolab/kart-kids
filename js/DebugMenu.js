@@ -27,7 +27,7 @@ export class DebugMenu {
 		// ── Tab bar ───────────────────────────────────────────────────────────
 		this.tabBar = document.createElement( 'div' );
 		this.tabBar.style.cssText = [
-			'display:flex', 'gap:4px', 'margin-bottom:8px',
+			'display:flex', 'flex-wrap:wrap', 'gap:4px', 'margin-bottom:8px',
 			'border-bottom:1px solid #0f044', 'padding-bottom:6px',
 		].join( ';' );
 		this.panel.appendChild( this.tabBar );

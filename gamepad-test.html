@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Gamepad Test</title>
+<style>
+body { background: #111; color: #0f0; font: 14px monospace; padding: 20px; }
+#log { white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<h2>Gamepad API Test</h2>
+<p>1. Click anywhere on this page first (to focus it)</p>
+<p>2. Press any button on your Xbox controller</p>
+<p>3. Watch below for output</p>
+<hr>
+<div id="log">Waiting...\n</div>
+<script>
+const log = document.getElementById('log');
+function write(msg) { log.textContent += msg + '\n'; }
+
+write('Secure context: ' + window.isSecureContext);
+write('navigator.getGamepads exists: ' + !!navigator.getGamepads);
+write('');
+
+window.addEventListener('gamepadconnected', (e) => {
+    write('=== GAMEPAD CONNECTED ===');
+    write('Index: ' + e.gamepad.index);
+    write('ID: ' + e.gamepad.id);
+    write('Buttons: ' + e.gamepad.buttons.length);
+    write('Axes: ' + e.gamepad.axes.length);
+    write('Mapping: ' + e.gamepad.mapping);
+    write('Connected: ' + e.gamepad.connected);
+    write('');
+});
+
+window.addEventListener('gamepaddisconnected', (e) => {
+    write('=== GAMEPAD DISCONNECTED === ' + e.gamepad.id);
+    write('');
+});
+
+// Also poll every second
+setInterval(() => {
+    const gps = navigator.getGamepads();
+    let found = 0;
+    for (let i = 0; i < gps.length; i++) {
+        if (gps[i]) {
+            found++;
+            const gp = gps[i];
+            const pressed = [];
+            for (let b = 0; b < gp.buttons.length; b++) {
+                if (gp.buttons[b].pressed) pressed.push(b);
+            }
+            const axes = [];
+            for (let a = 0; a < gp.axes.length; a++) {
+                if (Math.abs(gp.axes[a]) > 0.1) axes.push(a + ':' + gp.axes[a].toFixed(2));
+            }
+            if (pressed.length || axes.length) {
+                write('[' + i + '] ' + gp.id.substring(0, 40) + ' | btn: ' + (pressed.join(',') || 'none') + ' | axes: ' + (axes.join(',') || 'none'));
+            }
+        }
+    }
+    if (found === 0) {
+        document.title = 'Gamepad Test - no gamepads (' + gps.length + ' slots)';
+    } else {
+        document.title = 'Gamepad Test - ' + found + ' gamepad(s)';
+    }
+}, 500);
+</script>
+</body>
+</html>
