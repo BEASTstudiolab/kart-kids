@@ -15,7 +15,7 @@
  * Architecture decisions:
  *   - AppShell is a class (not a singleton module) so it can be unit-tested
  *     by constructing a fresh instance with a test container.
- *   - Bottom tab bar (RACE, GARAGE, CREATE, PROFILE) replaces the old TopNav.
+ *   - Bottom tab bar (RACE, GARAGE, TRACKS, PROFILE) replaces the old TopNav.
  *     Tab panels are persistent — show/hide via CSS, never destroyed on switch.
  *   - RouterService still handles overlay routes (Pause, Results) but tab
  *     navigation bypasses it entirely via switchTab().
@@ -29,7 +29,7 @@
  *     <main class="kk-page-container" id="kk-page-container">
  *       <div class="kk-panel kk-panel--active" data-panel="race"></div>
  *       <div class="kk-panel" data-panel="garage"></div>
- *       <div class="kk-panel" data-panel="create"></div>
+ *       <div class="kk-panel" data-panel="tracks"></div>
  *       <div class="kk-panel" data-panel="profile"></div>
  *     </main>
  *     <nav class="kk-tab-bar" role="tablist" aria-label="Main navigation">
@@ -56,13 +56,14 @@ import { showNameEntryModal } from '../components/NameEntryModal.js';
 import { RacePanel }         from '../panels/RacePanel.js';
 import { ProfilePanel }      from '../panels/ProfilePanel.js';
 import { GaragePanel }       from '../panels/GaragePanel.js';
+import { TracksPanel }       from '../panels/TracksPanel.js';
 import { ResultsOverlay }    from '../overlays/ResultsOverlay.js';
 
 // Tab definitions — order matches the tab bar left-to-right.
 const TAB_DEFS = [
 	{ id: 'race',    label: 'RACE' },
 	{ id: 'garage',  label: 'GARAGE' },
-	{ id: 'create',  label: 'CREATE' },
+	{ id: 'tracks',  label: 'TRACKS' },
 	{ id: 'profile', label: 'PROFILE' },
 ];
 
@@ -70,7 +71,7 @@ const TAB_DEFS = [
 const TAB_RENDER_MODES = {
 	race:    'garage',
 	garage:  'garage',
-	create:  'idle',
+	tracks:  'idle',
 	profile: 'idle',
 };
 
@@ -113,6 +114,7 @@ export class AppShell {
 			setRenderMode:  ( mode ) => this.setRenderMode( mode ),
 			garagePreview:  null,  // populated in bootstrap() after engine creation
 			selectedMode:   'solo',
+			switchTab:      ( name ) => this.switchTab( name ),
 		};
 
 		// -----------------------------------------------------------------------
@@ -189,6 +191,9 @@ export class AppShell {
 		/** @type {import('../panels/GaragePanel.js').GaragePanel | null} */
 		this._garagePanel = null;
 
+		/** @type {import('../panels/TracksPanel.js').TracksPanel | null} */
+		this._tracksPanel = null;
+
 		/** @type {import('../overlays/ResultsOverlay.js').ResultsOverlay | null} */
 		this._resultsOverlay = null;
 
@@ -220,6 +225,14 @@ export class AppShell {
 		if ( garageContainer ) {
 
 			this._garagePanel = new GaragePanel( garageContainer, this._services );
+
+		}
+
+		// Mount TracksPanel into the TRACKS tab container.
+		const tracksContainer = this._panels.get( 'tracks' );
+		if ( tracksContainer ) {
+
+			this._tracksPanel = new TracksPanel( tracksContainer, this._services );
 
 		}
 
@@ -368,7 +381,7 @@ export class AppShell {
 	// ---------------------------------------------------------------------------
 
 	/**
-	 * Create the bottom tab bar with RACE, GARAGE, CREATE, PROFILE buttons.
+	 * Create the bottom tab bar with RACE, GARAGE, TRACKS, PROFILE buttons.
 	 *
 	 * @returns {HTMLElement}
 	 */
@@ -463,7 +476,6 @@ export class AppShell {
 
 	/**
 	 * Create 4 panel container divs inside the page container.
-	 * CreatePanel content is built inline — a static card with an editor link.
 	 *
 	 * @param {HTMLElement} container
 	 */
@@ -490,60 +502,6 @@ export class AppShell {
 
 		}
 
-		// Build CreatePanel content inline — editor launch card.
-		this._buildCreatePanelContent();
-
-	}
-
-	/**
-	 * Build the CREATE panel content inline: a card with description and
-	 * LAUNCH EDITOR button that opens editor.html in a new tab.
-	 */
-	_buildCreatePanelContent() {
-
-		const panel = this._panels.get( 'create' );
-		if ( ! panel ) return;
-
-		const card = document.createElement( 'div' );
-		card.className = 'kk-page';
-		card.style.cssText = 'max-width:32rem;margin:2rem auto;padding:2rem;text-align:center;border-radius:var(--radius-md);';
-
-		const title = document.createElement( 'h2' );
-		title.className = 'kk-text-display';
-		title.style.cssText = 'font-size:var(--text-2xl);margin-bottom:var(--space-4);';
-		title.textContent = 'TRACK EDITOR';
-		card.appendChild( title );
-
-		const desc = document.createElement( 'p' );
-		desc.style.cssText = 'color:var(--color-ink-300);margin-bottom:var(--space-6);line-height:var(--leading-relaxed);';
-		desc.textContent = 'Design custom tracks with the drag-and-drop editor. Place straights, corners, ramps, and more to build your dream circuit.';
-		card.appendChild( desc );
-
-		const btn = document.createElement( 'a' );
-		btn.href = 'editor.html';
-		btn.target = '_blank';
-		btn.rel = 'noopener';
-		btn.className = 'kk-tab-bar__editor-btn';
-		btn.style.cssText = [
-			'display:inline-block',
-			'padding:var(--space-3) var(--space-8)',
-			'background:var(--color-cta-primary)',
-			'color:var(--color-cta-primary-text)',
-			'font-family:var(--font-ui)',
-			'font-weight:var(--weight-bold)',
-			'font-size:var(--text-md)',
-			'text-transform:uppercase',
-			'letter-spacing:var(--tracking-wider)',
-			'text-decoration:none',
-			'border-radius:var(--radius-md)',
-			'cursor:pointer',
-			'transition:background var(--duration-normal) var(--ease-standard)',
-		].join( ';' );
-		btn.textContent = 'LAUNCH EDITOR';
-		card.appendChild( btn );
-
-		panel.appendChild( card );
-
 	}
 
 	// ---------------------------------------------------------------------------
@@ -554,7 +512,7 @@ export class AppShell {
 	 * Switch to a tab by id. Hides all panels, shows the target, updates
 	 * tab bar active state, render mode, and analytics.
 	 *
-	 * @param {string} name  Tab id: 'race' | 'garage' | 'create' | 'profile'
+	 * @param {string} name  Tab id: 'race' | 'garage' | 'tracks' | 'profile'
 	 */
 	switchTab( name ) {
 
@@ -611,6 +569,20 @@ export class AppShell {
 			} else {
 
 				this._garagePanel.hide();
+
+			}
+
+		}
+
+		if ( this._tracksPanel ) {
+
+			if ( name === 'tracks' ) {
+
+				this._tracksPanel.show();
+
+			} else {
+
+				this._tracksPanel.hide();
 
 			}
 
@@ -705,7 +677,7 @@ export class AppShell {
 		// HOME → RacePanel, QUICK_PLAY → RacePanel, PLAY → RacePanel
 		// LOBBY → LobbyOverlay, RESULTS → ResultsOverlay
 		// PROFILE → ProfilePanel, GARAGE → GaragePanel, KARTS → GaragePanel
-		// CREATE → CreatePanel (inline in AppShell)
+		// TRACKS → TracksPanel
 		// Page controllers remain in repo for reference.
 
 		r.register( RouteIds.PAUSE, async () => {

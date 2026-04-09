@@ -5,6 +5,7 @@
  *   - Transparent content area (3D kart preview shows through from behind)
  *   - Player name display
  *   - Mode chip strip: SOLO | ONLINE | PRIVATE
+ *   - Track preview card (tapping navigates to TRACKS tab)
  *   - Large RACE CTA button
  *
  * Mode behaviour:
@@ -24,7 +25,9 @@ import { HudButton }      from '../components/HudButton.js';
 import { LoadingOverlay }  from '../components/LoadingOverlay.js';
 import { LobbyOverlay }   from '../overlays/LobbyOverlay.js';
 import { Settings }        from '../../Settings.js';
-import { getRandomTrack }  from '../../TrackRegistry.js';
+import { getRandomTrack, getTrackById, getTracks } from '../../TrackRegistry.js';
+import { decodeCells }     from '../../TrackCodec.js';
+import { getSavedTracks }  from '../../editor/Persistence.js';
 import { NetworkClient }   from '../../Network.js';
 
 export class RacePanel {
@@ -60,6 +63,15 @@ export class RacePanel {
 
 		/** @type {Map<string, HTMLButtonElement>} mode id -> chip button */
 		this._chips = new Map();
+
+		/** @type {HTMLElement | null} */
+		this._trackCard = null;
+
+		/** @type {HTMLElement | null} */
+		this._trackNameEl = null;
+
+		/** @type {HTMLElement | null} */
+		this._trackBadgeEl = null;
 
 		this._injectCSS();
 		this._build();
@@ -150,6 +162,59 @@ export class RacePanel {
 				background: rgba(255, 107, 0, 0.15);
 				border-color: var(--color-accent-orange);
 				box-shadow: 0 0 12px var(--color-accent-orange-glow), inset 0 0 12px rgba(255, 107, 0, 0.1);
+			}
+
+			/* ── Track preview card ─────────────────────────────────────── */
+
+			.kk-race-panel__track-card {
+				display: flex;
+				align-items: center;
+				gap: var(--space-3);
+				padding: var(--space-2) var(--space-4);
+				border-radius: var(--radius-md);
+				background: rgba(0, 0, 0, 0.4);
+				backdrop-filter: blur(4px);
+				border: 1px solid rgba(255, 255, 255, 0.12);
+				cursor: pointer;
+				transition:
+					border-color 0.25s ease,
+					box-shadow 0.25s ease;
+			}
+
+			.kk-race-panel__track-card:hover {
+				border-color: var(--color-accent-orange);
+				box-shadow: 0 0 10px var(--color-accent-orange-glow);
+			}
+
+			.kk-race-panel__track-name {
+				font-family: var(--font-ui);
+				font-size: var(--text-sm);
+				font-weight: var(--weight-semibold);
+				color: var(--color-white);
+				letter-spacing: var(--tracking-wide);
+			}
+
+			.kk-race-panel__track-badge {
+				font-family: var(--font-ui);
+				font-size: 0.625rem;
+				font-weight: var(--weight-bold);
+				text-transform: uppercase;
+				letter-spacing: 0.05em;
+				padding: 2px 6px;
+				border-radius: var(--radius-sm);
+				line-height: 1;
+			}
+
+			.kk-race-panel__track-badge--official {
+				color: var(--color-cta-primary-text);
+				background: rgba(255, 107, 0, 0.25);
+				border: 1px solid rgba(255, 107, 0, 0.4);
+			}
+
+			.kk-race-panel__track-badge--custom {
+				color: var(--color-accent-blue, #4fc3f7);
+				background: rgba(79, 195, 247, 0.15);
+				border: 1px solid rgba(79, 195, 247, 0.3);
 			}
 
 			/* ── Race button wrapper ────────────────────────────────────── */
@@ -270,6 +335,30 @@ export class RacePanel {
 
 		root.appendChild( chipStrip );
 
+		// Track preview card
+		const trackCard = document.createElement( 'div' );
+		trackCard.className = 'kk-race-panel__track-card';
+		trackCard.setAttribute( 'role', 'button' );
+		trackCard.setAttribute( 'aria-label', 'Change track' );
+
+		const trackName = document.createElement( 'span' );
+		trackName.className = 'kk-race-panel__track-name';
+
+		const trackBadge = document.createElement( 'span' );
+		trackBadge.className = 'kk-race-panel__track-badge';
+
+		trackCard.appendChild( trackName );
+		trackCard.appendChild( trackBadge );
+		trackCard.addEventListener( 'click', () => this._services.switchTab( 'tracks' ) );
+
+		root.appendChild( trackCard );
+
+		this._trackCard = trackCard;
+		this._trackNameEl = trackName;
+		this._trackBadgeEl = trackBadge;
+
+		this._refreshTrackCard();
+
 		// RACE button — HudButton with scramble effect
 		const ctaWrap = document.createElement( 'div' );
 		ctaWrap.className = 'kk-race-panel__cta';
@@ -336,14 +425,92 @@ export class RacePanel {
 	}
 
 	// ---------------------------------------------------------------------------
+	// Track card helpers
+	// ---------------------------------------------------------------------------
+
+	/**
+	 * Resolve the selected track from Settings. Returns { name, cells, decoCells, source }.
+	 * Falls back to the first built-in track if the selected track is missing.
+	 */
+	_resolveSelectedTrack() {
+
+		const settings = new Settings();
+		const trackId = settings.getSelectedTrackId();
+
+		// User-created track
+		if ( trackId && trackId.startsWith( 'user:' ) ) {
+
+			const trackName = trackId.slice( 5 );
+			const saved = getSavedTracks().find( ( t ) => t.name === trackName );
+
+			if ( saved ) {
+
+				return {
+					name:     saved.name,
+					cells:    decodeCells( saved.cells ),
+					decoCells: undefined,
+					source:   'custom',
+				};
+
+			}
+
+			// Deleted track — fall through to default
+
+		}
+
+		// Built-in track
+		const builtIn = getTrackById( trackId );
+
+		if ( builtIn ) {
+
+			return {
+				name:     builtIn.name,
+				cells:    builtIn.cells,
+				decoCells: builtIn.decoCells,
+				source:   'official',
+			};
+
+		}
+
+		// Fallback
+		const fallback = getTracks()[ 0 ];
+
+		return {
+			name:     fallback.name,
+			cells:    fallback.cells,
+			decoCells: fallback.decoCells,
+			source:   'official',
+		};
+
+	}
+
+	/**
+	 * Re-read Settings and update the track card's display.
+	 */
+	_refreshTrackCard() {
+
+		if ( ! this._trackNameEl || ! this._trackBadgeEl ) return;
+
+		const track = this._resolveSelectedTrack();
+
+		this._trackNameEl.textContent = track.name;
+
+		const isOfficial = track.source === 'official';
+		this._trackBadgeEl.textContent = isOfficial ? 'OFFICIAL' : 'CUSTOM';
+		this._trackBadgeEl.className = 'kk-race-panel__track-badge '
+			+ ( isOfficial ? 'kk-race-panel__track-badge--official' : 'kk-race-panel__track-badge--custom' );
+
+	}
+
+	// ---------------------------------------------------------------------------
 	// SOLO race
 	// ---------------------------------------------------------------------------
 
 	_startSoloRace() {
 
 		const settings = new Settings();
-		const track = getRandomTrack();
 		const vehicleId = settings.getSelectedKartId();
+		const track = this._resolveSelectedTrack();
 
 		this._services.startRace( {
 			mode:      'solo',
@@ -482,6 +649,9 @@ export class RacePanel {
 
 		}
 
+		// Refresh track card (track may have changed in TRACKS tab)
+		this._refreshTrackCard();
+
 		// Sync chip selection with services bag (may have been changed externally)
 		const currentMode = this._services.selectedMode || 'solo';
 
@@ -545,6 +715,9 @@ export class RacePanel {
 
 		this._root = null;
 		this._nameEl = null;
+		this._trackCard = null;
+		this._trackNameEl = null;
+		this._trackBadgeEl = null;
 		this._chips.clear();
 
 	}
