@@ -234,17 +234,56 @@ export class Page03QuickPlayController extends PageControllerBase {
 	// Internal handlers
 	// ---------------------------------------------------------------------------
 
-	_handleStartRace() {
+	async _handleStartRace() {
 
 		this._analytics?.track( EventIds.QUICK_PLAY_STARTED, {
 			matchType: this._matchType,
 			botFill:   this._botFill,
 		} );
 
-		// Enter loading state while lobby spins up
+		// Enter loading state while connecting
 		this._view.actionBar.setPrimaryLoading( true );
 
-		// Navigate to lobby — short delay simulates lobby initialization
+		const settings = new Settings();
+		const vehicleId = settings.get( 'vehicleModel' ) ?? 'kart-1';
+
+		// Attempt multiplayer matchmaking
+		if ( this._network ) {
+
+			try {
+
+				if ( ! this._network.connected ) {
+
+					await this._network.connect();
+
+				}
+
+				const result = await this._network.findRoom( vehicleId );
+
+				this.navigate( RouteIds.LOBBY, {
+					roomCode: result.roomCode,
+					members:  result.members ?? [],
+					hostId:   result.hostId ?? null,
+				} );
+				return;
+
+			} catch ( err ) {
+
+				console.warn( '[QuickPlay] Matchmaking failed:', err.message );
+				this._view.actionBar.setPrimaryLoading( false );
+
+				this.showToast( {
+					message:  'COULD NOT FIND A MATCH — TRY AGAIN OR PLAY SOLO',
+					variant:  'warning',
+					duration: 3000,
+				} );
+				return;
+
+			}
+
+		}
+
+		// Fallback: no network service — navigate to lobby in solo mode
 		setTimeout( () => {
 
 			this.navigate( RouteIds.LOBBY );

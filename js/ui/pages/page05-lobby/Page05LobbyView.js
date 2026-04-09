@@ -26,9 +26,10 @@
  *   get trackVoteBtns()
  */
 
-import { PageViewBase } from '../../core/PageViewBase.js';
-import { CTAButton }    from '../../components/CTAButton.js';
-import { ButtonIds }    from '../../enums/ButtonIds.js';
+import { PageViewBase }         from '../../core/PageViewBase.js';
+import { CTAButton }            from '../../components/CTAButton.js';
+import { ButtonIds }            from '../../enums/ButtonIds.js';
+import { sanitizePlayerName }   from '../../utils/sanitize.js';
 
 export class Page05LobbyView extends PageViewBase {
 
@@ -768,10 +769,12 @@ export class Page05LobbyView extends PageViewBase {
 
 		for ( const m of members ) {
 
+			const safeName = sanitizePlayerName( m.name );
+
 			const li = document.createElement( 'li' );
 			li.className = 'page-lobby__member';
 			li.setAttribute( 'role', 'listitem' );
-			li.setAttribute( 'aria-label', `${m.name} — ${m.role} — ${m.ready ? 'ready' : 'not ready'}` );
+			li.setAttribute( 'aria-label', `${safeName} — ${m.role} — ${m.ready ? 'ready' : 'not ready'}` );
 
 			const avatar = document.createElement( 'div' );
 			avatar.className = 'page-lobby__member-avatar';
@@ -784,7 +787,7 @@ export class Page05LobbyView extends PageViewBase {
 
 			const name = document.createElement( 'div' );
 			name.className = 'page-lobby__member-name';
-			name.textContent = m.name;
+			name.textContent = safeName;
 			info.appendChild( name );
 
 			const role = document.createElement( 'div' );
