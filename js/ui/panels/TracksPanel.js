@@ -1,9 +1,9 @@
 /**
  * TracksPanel — TRACKS tab content panel.
  *
- * Scrollable list of official tracks (from TrackRegistry) and user-created
- * tracks (from editor localStorage). Supports select, share, edit, and
- * delete actions.
+ * Horizontal card carousel with CSS scroll-snap. Two rows: official tracks
+ * and user-created tracks. Each card is a dark glass tile with angular cuts,
+ * neon glow on selection, and inline action buttons for user tracks.
  *
  * Lifecycle: constructor(container, services), show(), hide(), dispose().
  *
@@ -17,7 +17,6 @@
 import { getTracks }                          from '../../TrackRegistry.js';
 import { getSavedTracks, deleteNamedTrack }   from '../../editor/Persistence.js';
 import { Settings }                           from '../../Settings.js';
-import { HudButton }                          from '../components/HudButton.js';
 
 export class TracksPanel {
 
@@ -40,13 +39,13 @@ export class TracksPanel {
 		this._root = null;
 
 		/** @type {HTMLElement|null} */
-		this._officialSection = null;
+		this._officialRow = null;
 
 		/** @type {HTMLElement|null} */
-		this._myTracksSection = null;
+		this._myTracksRow = null;
 
-		/** @type {Array<HudButton>} Track select/action buttons for disposal. */
-		this._buttons = [];
+		/** @type {Function|null} Bound keyboard handler for cleanup. */
+		this._keyHandler = null;
 
 		this._injectCSS();
 		this._build();
@@ -67,7 +66,7 @@ export class TracksPanel {
 		style.textContent = `
 
 			/* ===================================================
-			   Tracks panel root — scrollable content
+			   Tracks panel root — full page, opaque background
 			   =================================================== */
 
 			.kk-tracks {
@@ -75,23 +74,28 @@ export class TracksPanel {
 				height: 100%;
 				overflow-y: auto;
 				overflow-x: hidden;
-				padding: var(--space-6, 1.5rem);
+				background: rgba( 10, 10, 10, 0.85 );
+				padding: var(--space-6, 1.5rem) 0;
 				padding-bottom: calc( var(--space-6, 1.5rem) + 5rem );
 				box-sizing: border-box;
 				-webkit-overflow-scrolling: touch;
 			}
 
 			.kk-tracks__inner {
-				max-width: 36rem;
-				margin: 0 auto;
 				display: flex;
 				flex-direction: column;
 				gap: var(--space-6, 1.5rem);
 			}
 
 			/* ===================================================
-			   Section heading
+			   Section: label + carousel row
 			   =================================================== */
+
+			.kk-tracks__section {
+				display: flex;
+				flex-direction: column;
+				gap: var(--space-3, 0.75rem);
+			}
 
 			.kk-tracks__heading {
 				font-family: var(--font-display, sans-serif);
@@ -101,82 +105,187 @@ export class TracksPanel {
 				letter-spacing: var(--tracking-widest, 0.14em);
 				color: var(--color-ink-300, #aaa);
 				margin: 0;
-				padding-bottom: var(--space-2, 0.5rem);
-				border-bottom: var(--border-thin, 1px) solid rgba( 255, 255, 255, 0.08 );
+				padding: 0 var(--space-6, 1.5rem);
 			}
 
 			/* ===================================================
-			   Track card — HUD-style border with glow
+			   Carousel container — horizontal scroll-snap
+			   =================================================== */
+
+			.kk-tracks__carousel-wrap {
+				position: relative;
+			}
+
+			.kk-tracks__carousel {
+				display: flex;
+				gap: var(--space-4, 1rem);
+				overflow-x: auto;
+				overflow-y: hidden;
+				scroll-snap-type: x mandatory;
+				-webkit-overflow-scrolling: touch;
+				padding: var(--space-2, 0.5rem) var(--space-6, 1.5rem);
+				scrollbar-width: none;
+			}
+
+			.kk-tracks__carousel::-webkit-scrollbar {
+				display: none;
+			}
+
+			/* ===================================================
+			   Nav arrows — left / right edge of carousel
+			   =================================================== */
+
+			.kk-tracks__arrow {
+				position: absolute;
+				top: 50%;
+				transform: translateY( -50% );
+				width: 2.5rem;
+				height: 2.5rem;
+				border-radius: 50%;
+				background: rgba( 0, 0, 0, 0.7 );
+				border: var(--border-thin, 1px) solid rgba( 255, 255, 255, 0.15 );
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
+				z-index: 2;
+				transition:
+					background var(--duration-fast, 100ms) var(--ease-standard, ease),
+					transform var(--duration-fast, 100ms) var(--ease-spring, ease);
+				-webkit-tap-highlight-color: transparent;
+				touch-action: manipulation;
+			}
+
+			.kk-tracks__arrow:hover {
+				background: rgba( 255, 255, 255, 0.16 );
+				transform: translateY( -50% ) scale( 1.1 );
+			}
+
+			.kk-tracks__arrow:active {
+				transform: translateY( -50% ) scale( 0.95 );
+			}
+
+			.kk-tracks__arrow--left {
+				left: var(--space-2, 0.5rem);
+			}
+
+			.kk-tracks__arrow--right {
+				right: var(--space-2, 0.5rem);
+			}
+
+			.kk-tracks__arrow-chevron {
+				width: 0.75rem;
+				height: 0.75rem;
+				border-top: 2px solid var(--color-white, #fff);
+				border-right: 2px solid var(--color-white, #fff);
+			}
+
+			.kk-tracks__arrow--left .kk-tracks__arrow-chevron {
+				transform: rotate( -135deg );
+				margin-left: 3px;
+			}
+
+			.kk-tracks__arrow--right .kk-tracks__arrow-chevron {
+				transform: rotate( 45deg );
+				margin-right: 3px;
+			}
+
+			/* ===================================================
+			   Track card — dark glass with angular cuts
 			   =================================================== */
 
 			.kk-tracks__card {
+				flex: 0 0 200px;
+				min-width: 200px;
+				aspect-ratio: 3 / 2;
+				scroll-snap-align: center;
 				position: relative;
-				background: rgba( 0, 0, 0, 0.55 );
+				background: rgba( 20, 20, 30, 0.75 );
 				border: var(--border-base, 2px) solid rgba( 255, 255, 255, 0.1 );
-				border-radius: var(--radius-md, 4px);
-				padding: var(--space-4, 1rem);
 				backdrop-filter: blur( 8px );
+				clip-path: polygon(
+					0 8px, 8px 0, 100% 0,
+					100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%
+				);
+				padding: var(--space-3, 0.75rem);
+				box-sizing: border-box;
+				display: flex;
+				flex-direction: column;
+				justify-content: space-between;
+				cursor: pointer;
 				transition:
 					border-color var(--duration-normal, 200ms) var(--ease-standard, ease),
-					box-shadow var(--duration-normal, 200ms) var(--ease-standard, ease);
+					box-shadow var(--duration-normal, 200ms) var(--ease-standard, ease),
+					transform var(--duration-normal, 200ms) var(--ease-standard, ease);
+				-webkit-tap-highlight-color: transparent;
+				touch-action: manipulation;
 			}
 
 			.kk-tracks__card:hover {
-				border-color: rgba( 255, 255, 255, 0.2 );
+				border-color: var(--color-accent-orange, #f97316);
+				box-shadow: 0 0 14px rgba( 249, 115, 22, 0.3 );
+				transform: scale( 1.04 );
 			}
+
+			/* Selected state — cyan glow */
 
 			.kk-tracks__card--selected {
 				border-color: var(--color-accent-cyan, #00d4e8);
 				box-shadow:
-					0 0 12px rgba( 0, 212, 232, 0.3 ),
-					inset 0 0 12px rgba( 0, 212, 232, 0.05 );
+					0 0 16px rgba( 0, 212, 232, 0.4 ),
+					inset 0 0 16px rgba( 0, 212, 232, 0.06 );
 			}
 
-			.kk-tracks__card--selected::before {
-				content: '';
-				position: absolute;
-				inset: -1px;
-				border-radius: inherit;
-				border: var(--border-thin, 1px) solid rgba( 0, 212, 232, 0.3 );
-				pointer-events: none;
+			.kk-tracks__card--selected:hover {
+				border-color: var(--color-accent-cyan, #00d4e8);
+				box-shadow:
+					0 0 20px rgba( 0, 212, 232, 0.5 ),
+					inset 0 0 16px rgba( 0, 212, 232, 0.08 );
 			}
 
 			/* ===================================================
-			   Card layout
+			   Card content
 			   =================================================== */
 
-			.kk-tracks__card-header {
+			.kk-tracks__card-top {
 				display: flex;
-				align-items: center;
-				justify-content: space-between;
-				gap: var(--space-3, 0.75rem);
-				margin-bottom: var(--space-3, 0.75rem);
+				flex-direction: column;
+				gap: var(--space-1, 0.25rem);
 			}
 
 			.kk-tracks__card-name {
 				font-family: var(--font-display, sans-serif);
-				font-size: var(--text-md, 1rem);
-				font-weight: var(--weight-bold, 700);
+				font-size: var(--text-sm, 0.875rem);
+				font-weight: var(--weight-black, 900);
 				text-transform: uppercase;
 				letter-spacing: var(--tracking-wider, 0.1em);
 				color: var(--color-white, #fff);
-				flex: 1;
-				min-width: 0;
 				overflow: hidden;
 				text-overflow: ellipsis;
 				white-space: nowrap;
 			}
 
+			.kk-tracks__card-meta {
+				font-family: var(--font-ui, sans-serif);
+				font-size: 0.65rem;
+				color: var(--color-ink-400, #666);
+				letter-spacing: var(--tracking-wider, 0.1em);
+			}
+
+			/* ===================================================
+			   Badges
+			   =================================================== */
+
 			.kk-tracks__badge {
 				display: inline-block;
 				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-xs, 0.75rem);
+				font-size: 0.6rem;
 				font-weight: var(--weight-bold, 700);
 				text-transform: uppercase;
 				letter-spacing: var(--tracking-wider, 0.1em);
-				padding: 2px var(--space-2, 0.5rem);
+				padding: 1px var(--space-2, 0.5rem);
 				border-radius: var(--radius-sm, 2px);
-				flex-shrink: 0;
+				align-self: flex-start;
 			}
 
 			.kk-tracks__badge--easy {
@@ -197,89 +306,117 @@ export class TracksPanel {
 				border: 1px solid rgba( 255, 58, 140, 0.3 );
 			}
 
-			.kk-tracks__card-meta {
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-xs, 0.75rem);
-				color: var(--color-ink-400, #666);
-				margin-bottom: var(--space-3, 0.75rem);
+			.kk-tracks__badge--selected {
+				background: rgba( 0, 212, 232, 0.2 );
+				color: var(--color-accent-cyan, #00d4e8);
+				border: 1px solid rgba( 0, 212, 232, 0.4 );
 			}
 
 			/* ===================================================
-			   Card actions row
+			   Card bottom — action icons for user tracks
 			   =================================================== */
 
 			.kk-tracks__card-actions {
 				display: flex;
 				align-items: center;
-				gap: var(--space-2, 0.5rem);
-				flex-wrap: wrap;
+				gap: var(--space-1, 0.25rem);
+				justify-content: flex-end;
 			}
 
-			.kk-tracks__card-actions .kk-hud-button {
-				font-size: var(--text-xs, 0.75rem);
-			}
-
-			/* Small text buttons for secondary actions */
-
-			.kk-tracks__action-btn {
-				background: rgba( 255, 255, 255, 0.06 );
-				border: 1px solid rgba( 255, 255, 255, 0.12 );
+			.kk-tracks__icon-btn {
+				width: 1.75rem;
+				height: 1.75rem;
 				border-radius: var(--radius-sm, 2px);
-				padding: var(--space-1, 0.25rem) var(--space-3, 0.75rem);
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-xs, 0.75rem);
-				font-weight: var(--weight-bold, 700);
-				text-transform: uppercase;
-				letter-spacing: var(--tracking-wider, 0.1em);
+				background: rgba( 255, 255, 255, 0.06 );
+				border: 1px solid rgba( 255, 255, 255, 0.1 );
 				color: var(--color-ink-200, #ddd);
 				cursor: pointer;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 0.8rem;
 				transition:
 					background var(--duration-fast, 100ms) var(--ease-standard, ease),
 					border-color var(--duration-fast, 100ms) var(--ease-standard, ease);
 				-webkit-tap-highlight-color: transparent;
 				touch-action: manipulation;
+				padding: 0;
 			}
 
-			.kk-tracks__action-btn:hover {
-				background: rgba( 255, 255, 255, 0.12 );
-				border-color: rgba( 255, 255, 255, 0.25 );
+			.kk-tracks__icon-btn:hover {
+				background: rgba( 255, 255, 255, 0.14 );
+				border-color: rgba( 255, 255, 255, 0.3 );
 			}
 
-			.kk-tracks__action-btn--delete {
+			.kk-tracks__icon-btn--delete {
 				color: var(--color-accent-pink, #ff3a8c);
 				border-color: rgba( 255, 58, 140, 0.25 );
 			}
 
-			.kk-tracks__action-btn--delete:hover {
+			.kk-tracks__icon-btn--delete:hover {
 				background: rgba( 255, 58, 140, 0.15 );
 				border-color: rgba( 255, 58, 140, 0.4 );
 			}
 
 			/* ===================================================
-			   Empty state
+			   Create card — dashed border, big +
 			   =================================================== */
 
-			.kk-tracks__empty {
-				text-align: center;
-				padding: var(--space-6, 1.5rem) var(--space-4, 1rem);
-				color: var(--color-ink-400, #666);
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-sm, 0.875rem);
-				line-height: var(--leading-relaxed, 1.65);
+			.kk-tracks__card--create {
+				border-style: dashed;
+				border-color: rgba( 255, 255, 255, 0.2 );
+				background: rgba( 20, 20, 30, 0.4 );
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				gap: var(--space-2, 0.5rem);
 			}
 
-			.kk-tracks__empty-text {
-				margin-bottom: var(--space-4, 1rem);
+			.kk-tracks__card--create:hover {
+				border-color: var(--color-accent-orange, #f97316);
+				box-shadow: 0 0 14px rgba( 249, 115, 22, 0.25 );
+			}
+
+			.kk-tracks__create-plus {
+				font-size: 2.5rem;
+				font-weight: 300;
+				line-height: 1;
+				color: var(--color-ink-300, #aaa);
+				transition: color var(--duration-fast, 100ms) var(--ease-standard, ease);
+			}
+
+			.kk-tracks__card--create:hover .kk-tracks__create-plus {
+				color: var(--color-accent-orange, #f97316);
+			}
+
+			.kk-tracks__create-label {
+				font-family: var(--font-display, sans-serif);
+				font-size: var(--text-xs, 0.75rem);
+				font-weight: var(--weight-bold, 700);
+				text-transform: uppercase;
+				letter-spacing: var(--tracking-widest, 0.14em);
+				color: var(--color-ink-300, #aaa);
 			}
 
 			/* ===================================================
-			   Make Your Own section
+			   Empty state — inline in carousel
 			   =================================================== */
 
-			.kk-tracks__create-wrap {
+			.kk-tracks__empty-card {
+				flex: 0 0 200px;
+				min-width: 200px;
+				aspect-ratio: 3 / 2;
+				scroll-snap-align: center;
 				display: flex;
+				align-items: center;
 				justify-content: center;
-				padding: var(--space-4, 1rem) 0;
+				font-family: var(--font-ui, sans-serif);
+				font-size: var(--text-sm, 0.875rem);
+				color: var(--color-ink-400, #666);
+				text-align: center;
+				padding: var(--space-3, 0.75rem);
+				box-sizing: border-box;
 			}
 
 			/* ===================================================
@@ -289,16 +426,37 @@ export class TracksPanel {
 			@media ( max-width: 480px ) {
 
 				.kk-tracks {
-					padding: var(--space-4, 1rem);
+					padding: var(--space-4, 1rem) 0;
 					padding-bottom: calc( var(--space-4, 1rem) + 5rem );
 				}
 
-				.kk-tracks__card {
-					padding: var(--space-3, 0.75rem);
+				.kk-tracks__heading {
+					padding: 0 var(--space-4, 1rem);
 				}
 
-				.kk-tracks__card-actions {
-					gap: var(--space-1, 0.25rem);
+				.kk-tracks__carousel {
+					padding: var(--space-2, 0.5rem) var(--space-4, 1rem);
+					gap: var(--space-3, 0.75rem);
+				}
+
+				.kk-tracks__card {
+					flex: 0 0 170px;
+					min-width: 170px;
+				}
+
+				.kk-tracks__empty-card {
+					flex: 0 0 170px;
+					min-width: 170px;
+				}
+
+				.kk-tracks__arrow {
+					width: 2rem;
+					height: 2rem;
+				}
+
+				.kk-tracks__arrow-chevron {
+					width: 0.6rem;
+					height: 0.6rem;
 				}
 
 			}
@@ -310,6 +468,10 @@ export class TracksPanel {
 			@media ( prefers-reduced-motion: reduce ) {
 
 				.kk-tracks__card {
+					transition: none;
+				}
+
+				.kk-tracks__arrow {
 					transition: none;
 				}
 
@@ -334,38 +496,133 @@ export class TracksPanel {
 		const inner = document.createElement( 'div' );
 		inner.className = 'kk-tracks__inner';
 
-		// Official tracks section.
-		this._officialSection = document.createElement( 'section' );
-		this._officialSection.setAttribute( 'aria-label', 'Official tracks' );
-		inner.appendChild( this._officialSection );
+		// --- Official tracks section ---
 
-		// My Tracks section.
-		this._myTracksSection = document.createElement( 'section' );
-		this._myTracksSection.setAttribute( 'aria-label', 'My tracks' );
-		inner.appendChild( this._myTracksSection );
+		const officialSection = document.createElement( 'section' );
+		officialSection.className = 'kk-tracks__section';
+		officialSection.setAttribute( 'aria-label', 'Official tracks' );
 
-		// Make Your Own button.
-		const createWrap = document.createElement( 'div' );
-		createWrap.className = 'kk-tracks__create-wrap';
+		const officialHeading = document.createElement( 'h2' );
+		officialHeading.className = 'kk-tracks__heading';
+		officialHeading.textContent = 'OFFICIAL TRACKS';
+		officialSection.appendChild( officialHeading );
 
-		const createBtn = new HudButton( {
-			text: 'MAKE YOUR OWN',
-			color: '--color-accent-orange',
-			onClick: () => {
+		const officialCarouselWrap = document.createElement( 'div' );
+		officialCarouselWrap.className = 'kk-tracks__carousel-wrap';
 
-				window.open( 'editor.html', '_blank', 'noopener' );
+		this._officialRow = document.createElement( 'div' );
+		this._officialRow.className = 'kk-tracks__carousel';
+		officialCarouselWrap.appendChild( this._officialRow );
 
-			},
-		} );
-		this._buttons.push( createBtn );
-		createWrap.appendChild( createBtn.el );
-		inner.appendChild( createWrap );
+		// Nav arrows for official row.
+		this._buildArrows( officialCarouselWrap, this._officialRow );
+
+		officialSection.appendChild( officialCarouselWrap );
+		inner.appendChild( officialSection );
+
+		// --- My Tracks section ---
+
+		const myTracksSection = document.createElement( 'section' );
+		myTracksSection.className = 'kk-tracks__section';
+		myTracksSection.setAttribute( 'aria-label', 'My tracks' );
+
+		const myTracksHeading = document.createElement( 'h2' );
+		myTracksHeading.className = 'kk-tracks__heading';
+		myTracksHeading.textContent = 'MY TRACKS';
+		myTracksSection.appendChild( myTracksHeading );
+
+		const myTracksCarouselWrap = document.createElement( 'div' );
+		myTracksCarouselWrap.className = 'kk-tracks__carousel-wrap';
+
+		this._myTracksRow = document.createElement( 'div' );
+		this._myTracksRow.className = 'kk-tracks__carousel';
+		myTracksCarouselWrap.appendChild( this._myTracksRow );
+
+		// Nav arrows for my tracks row.
+		this._buildArrows( myTracksCarouselWrap, this._myTracksRow );
+
+		myTracksSection.appendChild( myTracksCarouselWrap );
+		inner.appendChild( myTracksSection );
 
 		root.appendChild( inner );
 		this._root = root;
 
 		this._renderOfficialTracks();
 		this._renderMyTracks();
+
+		// Keyboard navigation.
+		this._keyHandler = ( e ) => this._onKeyDown( e );
+		document.addEventListener( 'keydown', this._keyHandler );
+
+	}
+
+	/**
+	 * Build left/right nav arrows for a carousel wrapper.
+	 *
+	 * @param {HTMLElement} wrap      The .kk-tracks__carousel-wrap element.
+	 * @param {HTMLElement} carousel  The .kk-tracks__carousel element to scroll.
+	 */
+	_buildArrows( wrap, carousel ) {
+
+		const leftArrow = document.createElement( 'button' );
+		leftArrow.type = 'button';
+		leftArrow.className = 'kk-tracks__arrow kk-tracks__arrow--left';
+		leftArrow.setAttribute( 'aria-label', 'Scroll left' );
+
+		const leftChevron = document.createElement( 'div' );
+		leftChevron.className = 'kk-tracks__arrow-chevron';
+		leftChevron.setAttribute( 'aria-hidden', 'true' );
+		leftArrow.appendChild( leftChevron );
+
+		leftArrow.addEventListener( 'click', () => {
+
+			carousel.scrollBy( { left: - 220, behavior: 'smooth' } );
+
+		} );
+		wrap.appendChild( leftArrow );
+
+		const rightArrow = document.createElement( 'button' );
+		rightArrow.type = 'button';
+		rightArrow.className = 'kk-tracks__arrow kk-tracks__arrow--right';
+		rightArrow.setAttribute( 'aria-label', 'Scroll right' );
+
+		const rightChevron = document.createElement( 'div' );
+		rightChevron.className = 'kk-tracks__arrow-chevron';
+		rightChevron.setAttribute( 'aria-hidden', 'true' );
+		rightArrow.appendChild( rightChevron );
+
+		rightArrow.addEventListener( 'click', () => {
+
+			carousel.scrollBy( { left: 220, behavior: 'smooth' } );
+
+		} );
+		wrap.appendChild( rightArrow );
+
+	}
+
+	// ---------------------------------------------------------------------------
+	// Keyboard
+	// ---------------------------------------------------------------------------
+
+	/**
+	 * Handle left/right arrow keys to scroll the focused carousel.
+	 *
+	 * @param {KeyboardEvent} e
+	 */
+	_onKeyDown( e ) {
+
+		if ( ! this._root || this._root.offsetParent === null ) return;
+
+		if ( e.key === 'ArrowLeft' || e.key === 'ArrowRight' ) {
+
+			const dir = e.key === 'ArrowLeft' ? - 1 : 1;
+
+			// Scroll whichever carousel the user's pointer is nearest to,
+			// or default to the official row.
+			const target = this._officialRow;
+			target.scrollBy( { left: dir * 220, behavior: 'smooth' } );
+
+		}
 
 	}
 
@@ -375,13 +632,8 @@ export class TracksPanel {
 
 	_renderOfficialTracks() {
 
-		const section = this._officialSection;
-		section.innerHTML = '';
-
-		const heading = document.createElement( 'h2' );
-		heading.className = 'kk-tracks__heading';
-		heading.textContent = 'OFFICIAL TRACKS';
-		section.appendChild( heading );
+		const row = this._officialRow;
+		row.innerHTML = '';
 
 		const tracks = getTracks();
 		const selectedId = this._settings.getSelectedTrackId();
@@ -389,7 +641,7 @@ export class TracksPanel {
 		for ( const track of tracks ) {
 
 			const card = this._buildOfficialCard( track, selectedId );
-			section.appendChild( card );
+			row.appendChild( card );
 
 		}
 
@@ -397,57 +649,33 @@ export class TracksPanel {
 
 	_renderMyTracks() {
 
-		const section = this._myTracksSection;
-		section.innerHTML = '';
-
-		const heading = document.createElement( 'h2' );
-		heading.className = 'kk-tracks__heading';
-		heading.textContent = 'MY TRACKS';
-		section.appendChild( heading );
+		const row = this._myTracksRow;
+		row.innerHTML = '';
 
 		const userTracks = getSavedTracks();
+		const selectedId = this._settings.getSelectedTrackId();
 
 		if ( userTracks.length === 0 ) {
 
-			this._renderEmptyState( section );
-			return;
+			// Empty-state placeholder.
+			const emptyCard = document.createElement( 'div' );
+			emptyCard.className = 'kk-tracks__empty-card';
+			emptyCard.textContent = 'No tracks yet';
+			row.appendChild( emptyCard );
+
+		} else {
+
+			for ( const track of userTracks ) {
+
+				const card = this._buildUserCard( track, selectedId );
+				row.appendChild( card );
+
+			}
 
 		}
 
-		const selectedId = this._settings.getSelectedTrackId();
-
-		for ( const track of userTracks ) {
-
-			const card = this._buildUserCard( track, selectedId );
-			section.appendChild( card );
-
-		}
-
-	}
-
-	_renderEmptyState( section ) {
-
-		const empty = document.createElement( 'div' );
-		empty.className = 'kk-tracks__empty';
-
-		const text = document.createElement( 'p' );
-		text.className = 'kk-tracks__empty-text';
-		text.textContent = 'No tracks yet \u2014 create one!';
-		empty.appendChild( text );
-
-		const createBtn = new HudButton( {
-			text: 'MAKE YOUR OWN',
-			color: '--color-accent-orange',
-			onClick: () => {
-
-				window.open( 'editor.html', '_blank', 'noopener' );
-
-			},
-		} );
-		this._buttons.push( createBtn );
-		empty.appendChild( createBtn.el );
-
-		section.appendChild( empty );
+		// Always append "CREATE TRACK" card at the end.
+		row.appendChild( this._buildCreateCard() );
 
 	}
 
@@ -470,44 +698,47 @@ export class TracksPanel {
 		card.className = 'kk-tracks__card';
 		if ( isSelected ) card.classList.add( 'kk-tracks__card--selected' );
 
-		// Header: name + difficulty badge.
-		const header = document.createElement( 'div' );
-		header.className = 'kk-tracks__card-header';
+		// Click to select.
+		card.addEventListener( 'click', () => {
+
+			this._selectTrack( track.id );
+
+		} );
+
+		// Top area: name + badges.
+		const top = document.createElement( 'div' );
+		top.className = 'kk-tracks__card-top';
 
 		const name = document.createElement( 'div' );
 		name.className = 'kk-tracks__card-name';
 		name.textContent = track.name;
-		header.appendChild( name );
+		top.appendChild( name );
 
 		if ( track.difficulty ) {
 
 			const badge = document.createElement( 'span' );
 			badge.className = `kk-tracks__badge kk-tracks__badge--${ track.difficulty }`;
 			badge.textContent = track.difficulty.toUpperCase();
-			header.appendChild( badge );
+			top.appendChild( badge );
 
 		}
 
-		card.appendChild( header );
+		card.appendChild( top );
 
-		// Actions row.
-		const actions = document.createElement( 'div' );
-		actions.className = 'kk-tracks__card-actions';
+		// Bottom area: selected badge.
+		const bottom = document.createElement( 'div' );
+		bottom.className = 'kk-tracks__card-actions';
 
-		const selectBtn = new HudButton( {
-			text: isSelected ? 'SELECTED' : 'SELECT',
-			color: '--color-accent-cyan',
-			onClick: () => {
+		if ( isSelected ) {
 
-				this._selectTrack( track.id );
+			const selectedBadge = document.createElement( 'span' );
+			selectedBadge.className = 'kk-tracks__badge kk-tracks__badge--selected';
+			selectedBadge.textContent = 'SELECTED';
+			bottom.appendChild( selectedBadge );
 
-			},
-		} );
-		if ( isSelected ) selectBtn.setDimmed( true );
-		this._buttons.push( selectBtn );
-		actions.appendChild( selectBtn.el );
+		}
 
-		card.appendChild( actions );
+		card.appendChild( bottom );
 
 		return card;
 
@@ -529,83 +760,119 @@ export class TracksPanel {
 		card.className = 'kk-tracks__card';
 		if ( isSelected ) card.classList.add( 'kk-tracks__card--selected' );
 
-		// Header: name.
-		const header = document.createElement( 'div' );
-		header.className = 'kk-tracks__card-header';
+		// Click body to select (but not when clicking action buttons).
+		card.addEventListener( 'click', ( e ) => {
+
+			if ( e.target.closest( '.kk-tracks__icon-btn' ) ) return;
+			this._selectTrack( trackId );
+
+		} );
+
+		// Top area: name + meta.
+		const top = document.createElement( 'div' );
+		top.className = 'kk-tracks__card-top';
 
 		const name = document.createElement( 'div' );
 		name.className = 'kk-tracks__card-name';
 		name.textContent = track.name;
-		header.appendChild( name );
+		top.appendChild( name );
 
-		card.appendChild( header );
-
-		// Meta: piece count + date.
 		const meta = document.createElement( 'div' );
 		meta.className = 'kk-tracks__card-meta';
-
 		const parts = [];
-		if ( track.pieces != null ) parts.push( `${ track.pieces } pieces` );
+		if ( track.pieces != null ) parts.push( `${ track.pieces } pcs` );
 		if ( track.date ) parts.push( track.date );
 		meta.textContent = parts.join( ' \u2022 ' );
+		top.appendChild( meta );
 
-		card.appendChild( meta );
+		if ( isSelected ) {
 
-		// Actions row.
+			const selectedBadge = document.createElement( 'span' );
+			selectedBadge.className = 'kk-tracks__badge kk-tracks__badge--selected';
+			selectedBadge.textContent = 'SELECTED';
+			top.appendChild( selectedBadge );
+
+		}
+
+		card.appendChild( top );
+
+		// Bottom area: action icon buttons.
 		const actions = document.createElement( 'div' );
 		actions.className = 'kk-tracks__card-actions';
 
-		// SELECT button.
-		const selectBtn = new HudButton( {
-			text: isSelected ? 'SELECTED' : 'SELECT',
-			color: '--color-accent-cyan',
-			onClick: () => {
-
-				this._selectTrack( trackId );
-
-			},
-		} );
-		if ( isSelected ) selectBtn.setDimmed( true );
-		this._buttons.push( selectBtn );
-		actions.appendChild( selectBtn.el );
-
-		// SHARE button.
+		// SHARE icon.
 		const shareBtn = document.createElement( 'button' );
 		shareBtn.type = 'button';
-		shareBtn.className = 'kk-tracks__action-btn';
-		shareBtn.textContent = 'SHARE';
-		shareBtn.addEventListener( 'click', () => {
+		shareBtn.className = 'kk-tracks__icon-btn';
+		shareBtn.setAttribute( 'aria-label', 'Share track' );
+		shareBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>`;
+		shareBtn.addEventListener( 'click', ( e ) => {
 
+			e.stopPropagation();
 			this._shareTrack( track );
 
 		} );
 		actions.appendChild( shareBtn );
 
-		// EDIT button.
+		// EDIT icon.
 		const editBtn = document.createElement( 'button' );
 		editBtn.type = 'button';
-		editBtn.className = 'kk-tracks__action-btn';
-		editBtn.textContent = 'EDIT';
-		editBtn.addEventListener( 'click', () => {
+		editBtn.className = 'kk-tracks__icon-btn';
+		editBtn.setAttribute( 'aria-label', 'Edit track' );
+		editBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>`;
+		editBtn.addEventListener( 'click', ( e ) => {
 
+			e.stopPropagation();
 			window.open( `editor.html?load=${ encodeURIComponent( track.name ) }`, '_blank', 'noopener' );
 
 		} );
 		actions.appendChild( editBtn );
 
-		// DELETE button.
+		// DELETE icon.
 		const deleteBtn = document.createElement( 'button' );
 		deleteBtn.type = 'button';
-		deleteBtn.className = 'kk-tracks__action-btn kk-tracks__action-btn--delete';
-		deleteBtn.textContent = 'DELETE';
-		deleteBtn.addEventListener( 'click', () => {
+		deleteBtn.className = 'kk-tracks__icon-btn kk-tracks__icon-btn--delete';
+		deleteBtn.setAttribute( 'aria-label', 'Delete track' );
+		deleteBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`;
+		deleteBtn.addEventListener( 'click', ( e ) => {
 
+			e.stopPropagation();
 			this._deleteTrack( track );
 
 		} );
 		actions.appendChild( deleteBtn );
 
 		card.appendChild( actions );
+
+		return card;
+
+	}
+
+	/**
+	 * Build the "CREATE TRACK" card with a big + icon.
+	 *
+	 * @returns {HTMLElement}
+	 */
+	_buildCreateCard() {
+
+		const card = document.createElement( 'div' );
+		card.className = 'kk-tracks__card kk-tracks__card--create';
+
+		const plus = document.createElement( 'div' );
+		plus.className = 'kk-tracks__create-plus';
+		plus.textContent = '+';
+		card.appendChild( plus );
+
+		const label = document.createElement( 'div' );
+		label.className = 'kk-tracks__create-label';
+		label.textContent = 'CREATE TRACK';
+		card.appendChild( label );
+
+		card.addEventListener( 'click', () => {
+
+			window.open( 'editor.html', '_blank', 'noopener' );
+
+		} );
 
 		return card;
 
@@ -625,7 +892,6 @@ export class TracksPanel {
 		this._settings.setSelectedTrackId( trackId );
 
 		// Re-render both sections to update highlight states.
-		this._disposeButtons();
 		this._renderOfficialTracks();
 		this._renderMyTracks();
 
@@ -688,8 +954,7 @@ export class TracksPanel {
 
 		}
 
-		// Re-render My Tracks section.
-		this._disposeButtons();
+		// Re-render both sections.
 		this._renderOfficialTracks();
 		this._renderMyTracks();
 
@@ -698,25 +963,6 @@ export class TracksPanel {
 			variant: 'info',
 			duration: 2000,
 		} );
-
-	}
-
-	// ---------------------------------------------------------------------------
-	// Helpers
-	// ---------------------------------------------------------------------------
-
-	/**
-	 * Dispose all tracked HudButton instances. Called before re-rendering.
-	 */
-	_disposeButtons() {
-
-		for ( const btn of this._buttons ) {
-
-			btn.dispose();
-
-		}
-
-		this._buttons = [];
 
 	}
 
@@ -734,7 +980,6 @@ export class TracksPanel {
 		this._settings = new Settings();
 
 		// Re-render to pick up new user tracks or selection changes.
-		this._disposeButtons();
 		this._renderOfficialTracks();
 		this._renderMyTracks();
 
@@ -754,7 +999,12 @@ export class TracksPanel {
 	 */
 	dispose() {
 
-		this._disposeButtons();
+		if ( this._keyHandler ) {
+
+			document.removeEventListener( 'keydown', this._keyHandler );
+			this._keyHandler = null;
+
+		}
 
 		if ( this._root && this._root.parentNode ) {
 
@@ -763,8 +1013,8 @@ export class TracksPanel {
 		}
 
 		this._root = null;
-		this._officialSection = null;
-		this._myTracksSection = null;
+		this._officialRow = null;
+		this._myTracksRow = null;
 
 	}
 
