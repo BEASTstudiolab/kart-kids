@@ -707,36 +707,12 @@ export class AppShell {
 
 		} );
 
-		r.register( RouteIds.HOME, async () => {
-
-			const { Page02HomeController } = await import( '../pages/page02-home/Page02HomeController.js' );
-			return new Page02HomeController( s );
-
-		} );
-
-		r.register( RouteIds.QUICK_PLAY, async () => {
-
-			const { Page03QuickPlayController } = await import( '../pages/page03-quick-play/Page03QuickPlayController.js' );
-			return new Page03QuickPlayController( s );
-
-		} );
-
-		r.register( RouteIds.PLAY, async () => {
-
-			const { Page04PlayModesController } = await import( '../pages/page04-play-modes/Page04PlayModesController.js' );
-			return new Page04PlayModesController( {}, s );
-
-		} );
-
-		r.register( RouteIds.LOBBY, async () => {
-
-			const { Page05LobbyController } = await import( '../pages/page05-lobby/Page05LobbyController.js' );
-			return new Page05LobbyController( s );
-
-		} );
-
-		// RESULTS route REMOVED — ResultsOverlay is now shown directly by endRace().
-		// Page19ResultsController remains in repo for reference.
+		// ── ABSORBED into tabs/overlays (tab bar overhaul) ───────────────
+		// HOME → RacePanel, QUICK_PLAY → RacePanel, PLAY → RacePanel
+		// LOBBY → LobbyOverlay, RESULTS → ResultsOverlay
+		// PROFILE → ProfilePanel, GARAGE → GaragePanel, KARTS → GaragePanel
+		// CREATE → CreatePanel (inline in AppShell)
+		// Page controllers remain in repo for reference.
 
 		r.register( RouteIds.PAUSE, async () => {
 
@@ -744,42 +720,6 @@ export class AppShell {
 			return new Page22PauseController( s );
 
 		} );
-
-		// ── M3: Profile ─────────────────────────────────────────────────
-
-		r.register( RouteIds.PROFILE, async () => {
-
-			const { Page12ProfileController } = await import( '../pages/page12-profile/Page12ProfileController.js' );
-			return new Page12ProfileController( s );
-
-		} );
-
-		// ── M4: Customization ────────────────────────────────────────────
-
-		r.register( RouteIds.GARAGE, async () => {
-
-			const { Page09GarageController } = await import( '../pages/page09-garage/Page09GarageController.js' );
-			return new Page09GarageController( {}, s );
-
-		} );
-
-		r.register( RouteIds.KARTS, async () => {
-
-			const { Page11KartSelectController } = await import( '../pages/page11-kart-select/Page11KartSelectController.js' );
-			return new Page11KartSelectController( {}, s );
-
-		} );
-
-		// ── M5: Creation ─────────────────────────────────────────────────
-
-		r.register( RouteIds.CREATE, async () => {
-
-			const { Page16CreateHubController } = await import( '../pages/page16-create-hub/Page16CreateHubController.js' );
-			return new Page16CreateHubController( s );
-
-		} );
-
-		// ── M6: Support ──────────────────────────────────────────────────
 
 		r.register( RouteIds.SETTINGS, async () => {
 
