@@ -56,7 +56,7 @@ The current menu has 12 routed pages with 4-5 clicks to race. Navigation is disc
 - **Shared mode state**: The selected mode chip (SOLO/ONLINE/PRIVATE) is stored on AppShell (or a lightweight state object in the services bag). GARAGE tab's RACE button reads from it. Mode persists across tab switches.
 - **Lobby as non-modal positioned panel**: LobbyOverlay is a slide-up panel positioned above tab content but below tab bar. Does NOT use ModalService (focus trap + scroll lock block tab bar interaction). Tab bar remains clickable underneath.
 - **Results as ModalService overlay**: Results uses ModalService (full focus trap is fine — tab bar is hidden during results per R17b). AppShell.endRace() must be rewritten atomically with ResultsOverlay — the existing endRace navigates via RouterService to RESULTS route which must be replaced, not left as a broken intermediate state.
-- **Router fallback to RACE tab**: Register a catch-all route in RouterService that calls AppShell.switchTab('race'). This handles removed routes (#/home, #/play) and direct URL entry gracefully.
+- **Router fallback to RACE tab**: Extend RouterService.setFallback() to accept either a route string (existing) or a callback function. Pass `() => this.switchTab('race')` as the fallback. This handles removed routes (#/home, #/play) and direct URL entry. Also change NavigationService.setRoot() from RouteIds.HOME (being removed) to RouteIds.TITLE, or remove the setRoot call entirely since tab navigation bypasses the back stack.
 - **services.selectedMode initialized in constructor**: `services.selectedMode = 'solo'` set in AppShell constructor alongside other services bag properties. Eliminates nil path if user navigates to GARAGE before touching RacePanel.
 - **RACE tab render mode is 'garage'**: Both RACE and GARAGE tabs use setRenderMode('garage') so the kart turntable animates. Only CREATE and PROFILE use 'idle' (dimmed/static). This keeps the kart hero alive on the main menu.
 - **RacePanel creates its own NetworkClient**: Same pattern as Page03QuickPlayController. Not injected via services bag — instantiated on demand when ONLINE mode is selected.
@@ -128,7 +128,10 @@ RACE button: reads mode chip → SOLO: engine.start() | ONLINE: findRoom() | PRI
 - Test: `tests/e2e/tab-navigation.spec.js`
 
 **Approach:**
-- Build tab bar inline in AppShell via _createTabBar() (same pattern as existing _createTopNav which it replaces). 4 buttons: RACE, GARAGE, CREATE, PROFILE with labels and aria attributes.
+- Evaluate reusing the existing js/ui/components/Tabs.js component (has ARIA, keyboard nav, panel switching, kk:tabs:change event). If its internal panel management fits (panels are created by Tabs component), use it positioned at the bottom via CSS. If it needs external panel content management, build tab bar inline in _createTabBar() following the TopNav pattern.
+- Either way: 4 tabs (RACE, GARAGE, CREATE, PROFILE) with labels, aria attributes, keyboard navigation.
+- Remove the hashchange listener for _syncTopNavVisibility (TopNav is gone). Add analytics.trackPageView() calls to switchTab() instead.
+- Change NavigationService.setRoot() from RouteIds.HOME to RouteIds.TITLE (HOME being removed). Extend RouterService.setFallback() to accept a callback: `() => this.switchTab('race')`.
 - AppShell.bootstrap() creates 4 panel container divs inside .kk-page-container. CreatePanel content (editor card + LAUNCH button) built inline — it's ~15 lines of DOM.
 - switchTab(name): hide all panels (display:none), show target (display:block), update tab bar active state, update render mode ('garage' for RACE/GARAGE tabs, 'idle' for CREATE/PROFILE).
 - Remove _createTopNav() and TOPNAV_HIDDEN_ROUTES.
@@ -352,7 +355,7 @@ RACE button: reads mode chip → SOLO: engine.start() | ONLINE: findRoom() | PRI
 | Risk | Mitigation |
 |------|------------|
 | RouterService conflict with TabManager | TabManager bypasses RouterService for tab navigation. RouterService only handles Pause route. Test both work simultaneously. |
-| Existing E2E tests break | Unit 7 explicitly updates all tests. Run full suite after each unit. |
+| Existing E2E tests break | E2E test updates are co-located with each unit. Run full suite after each unit. |
 | Same-day rework of page controllers | Accepted cost per origin doc. Page controller logic is extracted into panels, not thrown away. |
 | GaragePreview render mode coordination | Already works — AppShell.setRenderMode('garage') / 'idle' is proven. TabManager calls it on tab switch. |
 
