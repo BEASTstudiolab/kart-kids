@@ -53,6 +53,9 @@ import { createGameEngine }   from '../../GameEngine.js';
 import { GaragePreview }      from '../GaragePreview.js';
 import { Settings }           from '../../Settings.js';
 import { showNameEntryModal } from '../components/NameEntryModal.js';
+import { RacePanel }         from '../panels/RacePanel.js';
+import { ProfilePanel }      from '../panels/ProfilePanel.js';
+import { GaragePanel }       from '../panels/GaragePanel.js';
 
 // Tab definitions — order matches the tab bar left-to-right.
 const TAB_DEFS = [
@@ -172,6 +175,19 @@ export class AppShell {
 		/** @type {string} currently active tab id */
 		this._activeTab = 'race';
 
+		// -----------------------------------------------------------------------
+		// Tab panel controllers (created in bootstrap)
+		// -----------------------------------------------------------------------
+
+		/** @type {import('../panels/RacePanel.js').RacePanel | null} */
+		this._racePanel = null;
+
+		/** @type {import('../panels/ProfilePanel.js').ProfilePanel | null} */
+		this._profilePanel = null;
+
+		/** @type {import('../panels/GaragePanel.js').GaragePanel | null} */
+		this._garagePanel = null;
+
 	}
 
 	// ---------------------------------------------------------------------------
@@ -186,6 +202,30 @@ export class AppShell {
 
 		this._buildShell();
 		this._initServices();
+
+		// Mount RacePanel into the RACE tab container.
+		const raceContainer = this._panels.get( 'race' );
+		if ( raceContainer ) {
+
+			this._racePanel = new RacePanel( raceContainer, this._services );
+
+		}
+
+		// Mount GaragePanel into the GARAGE tab container.
+		const garageContainer = this._panels.get( 'garage' );
+		if ( garageContainer ) {
+
+			this._garagePanel = new GaragePanel( garageContainer, this._services );
+
+		}
+
+		// Mount ProfilePanel into the PROFILE tab container.
+		const profileContainer = this._panels.get( 'profile' );
+		if ( profileContainer ) {
+
+			this._profilePanel = new ProfilePanel( profileContainer, this._services );
+
+		}
 
 		// Create GameEngine — renderer canvas lives inside #canvas-container (z-index 0).
 		const canvasContainer = this._config.canvasContainer || document.getElementById( 'canvas-container' );
@@ -538,6 +578,49 @@ export class AppShell {
 			btn.setAttribute( 'aria-selected', isActive ? 'true' : 'false' );
 			btn.setAttribute( 'tabindex', isActive ? '0' : '-1' );
 			btn.classList.toggle( 'kk-tab-bar__btn--active', isActive );
+
+		}
+
+		// Notify panel controllers of show/hide.
+		if ( this._racePanel ) {
+
+			if ( name === 'race' ) {
+
+				this._racePanel.show();
+
+			} else {
+
+				this._racePanel.hide();
+
+			}
+
+		}
+
+		if ( this._garagePanel ) {
+
+			if ( name === 'garage' ) {
+
+				this._garagePanel.show();
+
+			} else {
+
+				this._garagePanel.hide();
+
+			}
+
+		}
+
+		if ( this._profilePanel ) {
+
+			if ( name === 'profile' ) {
+
+				this._profilePanel.show();
+
+			} else {
+
+				this._profilePanel.hide();
+
+			}
 
 		}
 
