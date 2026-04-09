@@ -9,13 +9,10 @@
  *   - Wire QUICK PLAY CTA → RouteIds.QUICK_PLAY.
  *   - Wire navigation rail buttons to their respective routes.
  *   - Wire Current Loadout link → RouteIds.GARAGE.
- *   - Wire Featured Event card → RouteIds.EVENTS.
- *   - Wire Daily Challenges heading → RouteIds.CHALLENGES.
- *   - Populate all MockData bindings before render.
+ *   - Populate player data from Settings.
  *   - Emit analytics page view on mount.
  *
- * Data: MockData.player, MockData.loadout, MockData.wallet,
- *       MockData.featuredEvent, MockData.challenges (no async required).
+ * Data: Settings (profile + stats), VehicleRegistry (selected kart label).
  */
 
 import { PageControllerBase } from '../../core/PageControllerBase.js';
@@ -24,7 +21,9 @@ import { RouteIds }           from '../../enums/RouteIds.js';
 import { ButtonIds }          from '../../enums/ButtonIds.js';
 import { PageIds }            from '../../enums/PageIds.js';
 import { EventIds }           from '../../enums/EventIds.js';
-import { MockData }           from '../../repositories/mocks/MockData.js';
+import { Settings }           from '../../../Settings.js';
+import { getVehicleById }     from '../../../VehicleRegistry.js';
+import { PLAYER_CHARACTERS }  from '../../../VehicleRegistry.js';
 
 export class Page02HomeController extends PageControllerBase {
 
@@ -129,46 +128,48 @@ export class Page02HomeController extends PageControllerBase {
 
 	loadData() {
 
-		// No async work required. MockData is synchronous.
+		// All data comes from synchronous sources (Settings, VehicleRegistry).
 		return Promise.resolve();
 
 	}
 
 	render( container ) {
 
-		const view   = this._view;
-		const player = MockData.player;
-		const wallet = MockData.wallet;
-		const loadout = MockData.loadout;
-		const event   = MockData.featuredEvent;
-		const daily   = MockData.challenges.filter( ( c ) => c.category === 'daily' ).slice( 0, 3 );
+		const view     = this._view;
+		const settings = new Settings();
+		const stats    = settings.getStats();
+		const kartId   = settings.getSelectedKartId();
+		const kart     = getVehicleById( kartId );
+		const charName = PLAYER_CHARACTERS[ 0 ]?.label ?? 'Racer';
+		const kartName = kart.label;
+		const displayName = settings.getDisplayName() ?? 'Player';
 
 		// Populate all data before mounting so first paint is complete
 		view.setPlayerSummary( {
-			rank:       player.rank,
-			totalWins:  player.totalWins,
-			totalRaces: player.totalRaces,
+			rank:       0,
+			totalWins:  stats.wins,
+			totalRaces: stats.totalRaces,
 		} );
 
 		view.setLoadout( {
-			characterName: loadout.characterName,
-			kartName:      loadout.kartName,
+			characterName: charName,
+			kartName:      kartName,
 		} );
 
 		view.setFeaturedEvent( {
-			name:        event.name,
-			description: event.description,
+			name:        'Kart Kids Racing',
+			description: 'Hit the track!',
 		} );
 
-		view.setDailyChallenges( daily );
+		view.setDailyChallenges( [] );
 
 		view.setWallet( {
-			coins: wallet.coins,
-			gems:  wallet.gems,
+			coins: 0,
+			gems:  0,
 		} );
 
-		view.setHeroAriaLabel( `${loadout.characterName} on ${loadout.kartName}` );
-		view.setHeroCaption( player.name );
+		view.setHeroAriaLabel( `${charName} on ${kartName}` );
+		view.setHeroCaption( displayName );
 
 		view.mount( container );
 

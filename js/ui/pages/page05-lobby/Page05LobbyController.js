@@ -5,13 +5,12 @@
  *
  * Responsibilities:
  *   - Create and configure Page05LobbyView.
- *   - Populate member list, track vote options, and race rules from MockData.
+ *   - Populate member list, track vote options, and race rules.
  *   - Bind READY UP toggle, track vote buttons, INVITE FRIENDS, and START MATCH.
  *   - Simulate countdown timer via setInterval.
- *   - Determine host status from MockData (first member with role 'HOST' matching
- *     MockData.player.name) and show/hide host-only controls accordingly.
+ *   - Host status: local player is always host in solo/offline mode.
  *
- * Data: MockData.lobbyMembers, MockData.tracks, MockData.loadout (no async required).
+ * Data: Settings (player name, selected kart), VehicleRegistry, TrackRegistry.
  */
 
 import { PageControllerBase } from '../../core/PageControllerBase.js';
@@ -20,7 +19,9 @@ import { RouteIds }           from '../../enums/RouteIds.js';
 import { ModalIds }           from '../../enums/ModalIds.js';
 import { PageIds }            from '../../enums/PageIds.js';
 import { EventIds }           from '../../enums/EventIds.js';
-import { MockData }           from '../../repositories/mocks/MockData.js';
+import { Settings }           from '../../../Settings.js';
+import { getVehicleById, PLAYER_CHARACTERS } from '../../../VehicleRegistry.js';
+import { getTracks }          from '../../../TrackRegistry.js';
 
 // Default countdown in seconds shown while waiting for all players to ready.
 const COUNTDOWN_SECONDS = 180;
@@ -68,11 +69,9 @@ export class Page05LobbyController extends PageControllerBase {
 
 		this._view = new Page05LobbyView();
 
-		// Determine host status: player is host if they appear as HOST in the lobby.
-		const playerName = MockData.player.name.toUpperCase();
-		this._isHost = MockData.lobbyMembers.some(
-			m => m.role === 'HOST' && m.name.replace( '@', '' ).toUpperCase() === playerName.replace( '@', '' ).toUpperCase()
-		);
+		// In solo/offline mode the local player is always the host.
+		// NetworkClient-based lobbies will override this via room events.
+		this._isHost = true;
 
 	}
 
@@ -111,23 +110,31 @@ export class Page05LobbyController extends PageControllerBase {
 
 	loadData() {
 
-		// All data is synchronous MockData — nothing to fetch.
+		// All data comes from synchronous sources (Settings, registries).
 		return Promise.resolve();
 
 	}
 
 	render( container ) {
 
-		const view = this._view;
+		const view     = this._view;
+		const settings = new Settings();
+		const displayName = settings.getDisplayName() ?? 'Player';
+		const kartId   = settings.getSelectedKartId();
+		const kartEntry = getVehicleById( kartId );
+		const charEntry = PLAYER_CHARACTERS[ 0 ];
 
-		// Populate member list.
-		view.setMembers( MockData.lobbyMembers );
+		// Populate member list — local player only until NetworkClient events arrive.
+		view.setMembers( [
+			{ id: 'local', name: `@${displayName.toUpperCase()}`, role: 'HOST', ready: false, online: true },
+		] );
 
-		// Track vote options — use first two tracks from MockData.
-		const trackVoteData = MockData.tracks.slice( 0, 2 ).map( ( t, i ) => ( {
+		// Track vote options from TrackRegistry.
+		const tracks = getTracks();
+		const trackVoteData = tracks.slice( 0, 2 ).map( ( t, i ) => ( {
 			id:    t.id,
 			name:  t.name,
-			votes: i === 0 ? 3 : 1,   // Mock vote counts.
+			votes: i === 0 ? 1 : 0,
 		} ) );
 		view.setTrackVotes( trackVoteData );
 		this._bindTrackVoteBtns();
@@ -135,12 +142,12 @@ export class Page05LobbyController extends PageControllerBase {
 		// Race rules.
 		view.setRaceRules( MOCK_RACE_RULES );
 
-		// Loadout — match kart data from MockData.
-		const kart = MockData.karts.find( k => k.id === MockData.loadout.kartId );
+		// Loadout from real registries.
+		const kartStats = kartEntry?.stats;
 		view.setLoadout( {
-			kartName:      MockData.loadout.kartName,
-			characterName: MockData.loadout.characterName,
-			kart:          kart ? { speed: kart.speed, accel: kart.accel, handling: kart.handling } : null,
+			kartName:      kartEntry?.label ?? 'Unknown Kart',
+			characterName: charEntry?.label ?? 'Racer',
+			kart:          kartStats ? { speed: kartStats.speed, accel: kartStats.acceleration, handling: kartStats.handling } : null,
 		} );
 
 		// Host controls.

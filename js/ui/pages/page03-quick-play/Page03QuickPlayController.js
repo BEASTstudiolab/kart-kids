@@ -5,7 +5,7 @@
  *
  * Responsibilities:
  *   - Create and configure Page03QuickPlayView.
- *   - Populate character, kart, track, and rule data from MockData.
+ *   - Populate character, kart, and track data from real registries.
  *   - Wire back button → RouteIds.HOME.
  *   - Wire character card → RouteIds.CHARACTERS.
  *   - Wire kart card → RouteIds.KARTS.
@@ -16,7 +16,8 @@
  *   - Wire START RACE → loading state then RouteIds.LOBBY.
  *   - Emit analytics page view on mount.
  *
- * Data: MockData.loadout, MockData.characters, MockData.karts, MockData.tracks.
+ * Data: Settings (selected kart), VehicleRegistry (kart info), TrackRegistry (tracks),
+ *       PLAYER_CHARACTERS (single character).
  */
 
 import { PageControllerBase }    from '../../core/PageControllerBase.js';
@@ -25,7 +26,10 @@ import { RouteIds }              from '../../enums/RouteIds.js';
 import { ButtonIds }             from '../../enums/ButtonIds.js';
 import { PageIds }               from '../../enums/PageIds.js';
 import { EventIds }              from '../../enums/EventIds.js';
-import { MockData }              from '../../repositories/mocks/MockData.js';
+import { Settings }              from '../../../Settings.js';
+import { getVehicleById, PLAYER_CHARACTERS } from '../../../VehicleRegistry.js';
+import { getTracks }             from '../../../TrackRegistry.js';
+import { NetworkClient }         from '../../../Network.js';
 
 export class Page03QuickPlayController extends PageControllerBase {
 
@@ -45,6 +49,9 @@ export class Page03QuickPlayController extends PageControllerBase {
 
 		/** @type {number} Current bot fill count 0-11 */
 		this._botFill = 0;
+
+		/** @type {NetworkClient|null} */
+		this._network = services.network ?? null;
 
 	}
 
@@ -191,15 +198,20 @@ export class Page03QuickPlayController extends PageControllerBase {
 
 	render( container ) {
 
-		const view      = this._view;
-		const loadout   = MockData.loadout;
-		const character = MockData.characters.find( ( c ) => c.id === loadout.characterId ) ?? null;
-		const kart      = MockData.karts.find( ( k ) => k.id === loadout.kartId ) ?? null;
-		const tracks    = MockData.tracks.slice( 0, 2 );
+		const view     = this._view;
+		const settings = new Settings();
+		const kartId   = settings.getSelectedKartId();
+		const kartEntry = getVehicleById( kartId );
+		const charEntry = PLAYER_CHARACTERS[ 0 ] ?? null;
+		const tracks   = getTracks().slice( 0, 2 );
+
+		// Map registry entries to the shape the view expects
+		const character = charEntry ? { id: charEntry.id, name: charEntry.label } : null;
+		const kart      = kartEntry ? { id: kartEntry.id, name: kartEntry.label, owned: true, ...kartEntry.stats } : null;
 
 		view.setCharacter( character );
 		view.setKart( kart );
-		view.setTracks( tracks );
+		view.setTracks( tracks.map( ( t ) => ( { id: t.id, name: t.name } ) ) );
 
 		// Hero aria-label reflects current loadout
 		const charName = character?.name ?? 'Unknown Character';

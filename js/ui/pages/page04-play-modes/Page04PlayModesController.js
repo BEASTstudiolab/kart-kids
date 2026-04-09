@@ -5,27 +5,20 @@
  *
  * Responsibilities:
  *   - Create and configure Page04PlayModesView.
- *   - Populate mode card grid from MockData.modes.
+ *   - Populate mode card grid from hardcoded PLAY_MODES list.
  *   - Wire back button → RouteIds.HOME.
  *   - Wire CardGrid selection → enable SELECT button with correct label.
  *   - Wire CardGrid activate (double-click / Enter) → navigate immediately.
  *   - Wire ActionBar BACK → navigateBack().
  *   - Wire ActionBar SELECT → navigate to mode-specific route.
- *   - Update SELECT button label for special modes (tournaments, ranked).
  *   - Emit analytics page view on mount.
  *
  * Navigation map:
- *   grand_prix   → RouteIds.LOBBY   (mode='grand_prix')
- *   single_race  → RouteIds.LOBBY   (mode='single_race')
- *   time_trial   → RouteIds.LOBBY   (mode='time_trial')
- *   battle_mode  → RouteIds.LOBBY   (mode='battle_mode')
- *   team_race    → RouteIds.LOBBY   (mode='team_race')
- *   elimination  → RouteIds.LOBBY   (mode='elimination')
- *   custom_game  → RouteIds.LOBBY   (mode='custom_game')
- *   tournaments  → RouteIds.EVENTS
- *   ranked       → RouteIds.RANKED
+ *   solo_race    → RouteIds.LOBBY   (mode='solo_race')
+ *   quick_play   → RouteIds.QUICK_PLAY
+ *   private_lobby → RouteIds.LOBBY  (mode='private_lobby')
  *
- * Data: MockData.modes, MockData.loadout, MockData.characters.
+ * Data: Static — hardcoded mode list.
  */
 
 import { PageControllerBase }      from '../../core/PageControllerBase.js';
@@ -33,18 +26,17 @@ import { Page04PlayModesView }     from './Page04PlayModesView.js';
 import { RouteIds }                from '../../enums/RouteIds.js';
 import { PageIds }                 from '../../enums/PageIds.js';
 import { EventIds }                from '../../enums/EventIds.js';
-import { MockData }                from '../../repositories/mocks/MockData.js';
+
+// Hardcoded play modes — replaces MockData.modes
+const PLAY_MODES = Object.freeze( [
+	{ id: 'solo_race',     name: 'Solo Race',     desc: 'Race against AI opponents', icon: 'flag',   playerCount: '1', online: false },
+	{ id: 'quick_play',    name: 'Quick Play',    desc: 'Find an online match fast', icon: 'clock',  playerCount: '2-8', online: true },
+	{ id: 'private_lobby', name: 'Private Lobby', desc: 'Create or join a room',     icon: 'users',  playerCount: '2-8', online: true },
+] );
 
 // Maps mode IDs that navigate to something other than LOBBY
 const MODE_ROUTE_OVERRIDES = {
-	tournaments: RouteIds.EVENTS,
-	ranked:      RouteIds.RANKED,
-};
-
-// Label overrides for SELECT button when a special mode is selected
-const SELECT_LABEL_OVERRIDES = {
-	tournaments: 'VIEW EVENTS',
-	ranked:      'VIEW RANKED',
+	quick_play: RouteIds.QUICK_PLAY,
 };
 
 export class Page04PlayModesController extends PageControllerBase {
@@ -140,12 +132,10 @@ export class Page04PlayModesController extends PageControllerBase {
 
 	render( container ) {
 
-		const view      = this._view;
-		const loadout   = MockData.loadout;
-		const character = MockData.characters.find( ( c ) => c.id === loadout.characterId ) ?? null;
+		const view = this._view;
 
-		view.setModes( MockData.modes );
-		view.setCharacterPreview( character );
+		view.setModes( PLAY_MODES );
+		view.setCharacterPreview( null );
 
 		view.mount( container );
 
@@ -174,8 +164,8 @@ export class Page04PlayModesController extends PageControllerBase {
 
 		this._analytics?.track( EventIds.MODE_SELECTED, { modeId } );
 
-		const mode = MockData.modes.find( ( m ) => m.id === modeId );
-		const selectLabel = SELECT_LABEL_OVERRIDES[ modeId ] ?? 'SELECT';
+		const mode = PLAY_MODES.find( ( m ) => m.id === modeId );
+		const selectLabel = 'SELECT';
 		const sublabel    = mode?.name ?? '';
 
 		this._view.setSelectState( {
