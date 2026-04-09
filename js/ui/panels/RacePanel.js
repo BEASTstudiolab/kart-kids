@@ -65,13 +65,7 @@ export class RacePanel {
 		this._chips = new Map();
 
 		/** @type {HTMLElement | null} */
-		this._trackCard = null;
-
-		/** @type {HTMLElement | null} */
-		this._trackNameEl = null;
-
-		/** @type {HTMLElement | null} */
-		this._trackBadgeEl = null;
+		this._trackCarousel = null;
 
 		this._injectCSS();
 		this._build();
@@ -164,57 +158,144 @@ export class RacePanel {
 				box-shadow: 0 0 12px var(--color-accent-orange-glow), inset 0 0 12px rgba(255, 107, 0, 0.1);
 			}
 
-			/* ── Track preview card ─────────────────────────────────────── */
+			/* ── Track carousel — mini horizontal scroll-snap ──────────── */
+
+			.kk-race-panel__track-carousel-wrap {
+				width: 100%;
+				max-width: 440px;
+			}
+
+			.kk-race-panel__track-carousel {
+				display: flex;
+				gap: var(--space-3, 0.75rem);
+				overflow-x: auto;
+				overflow-y: hidden;
+				scroll-snap-type: x mandatory;
+				-webkit-overflow-scrolling: touch;
+				padding: var(--space-2, 0.5rem) var(--space-4, 1rem);
+				scrollbar-width: none;
+			}
+
+			.kk-race-panel__track-carousel::-webkit-scrollbar {
+				display: none;
+			}
+
+			/* ── Track card — compact angular glass ────────────────────── */
 
 			.kk-race-panel__track-card {
+				flex: 0 0 140px;
+				min-width: 140px;
+				height: 64px;
+				scroll-snap-align: center;
+				position: relative;
+				background: rgba( 20, 20, 30, 0.75 );
+				border: var(--border-base, 2px) solid rgba( 255, 255, 255, 0.1 );
+				backdrop-filter: blur( 8px );
+				clip-path: polygon(
+					0 8px, 8px 0, 100% 0,
+					100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%
+				);
+				padding: var(--space-2, 0.5rem);
+				box-sizing: border-box;
 				display: flex;
-				align-items: center;
-				gap: var(--space-3);
-				padding: var(--space-2) var(--space-4);
-				border-radius: var(--radius-md);
-				background: rgba(0, 0, 0, 0.4);
-				backdrop-filter: blur(4px);
-				border: 1px solid rgba(255, 255, 255, 0.12);
+				flex-direction: column;
+				justify-content: space-between;
 				cursor: pointer;
 				transition:
-					border-color 0.25s ease,
-					box-shadow 0.25s ease;
+					border-color var(--duration-normal, 200ms) var(--ease-standard, ease),
+					box-shadow var(--duration-normal, 200ms) var(--ease-standard, ease),
+					transform var(--duration-normal, 200ms) var(--ease-standard, ease);
+				-webkit-tap-highlight-color: transparent;
+				touch-action: manipulation;
 			}
 
 			.kk-race-panel__track-card:hover {
-				border-color: var(--color-accent-orange);
-				box-shadow: 0 0 10px var(--color-accent-orange-glow);
+				border-color: var(--color-accent-orange, #f97316);
+				box-shadow: 0 0 14px rgba( 249, 115, 22, 0.3 );
+				transform: scale( 1.04 );
+			}
+
+			/* Selected state — cyan glow */
+
+			.kk-race-panel__track-card--selected {
+				border-color: var(--color-accent-cyan, #00d4e8);
+				box-shadow:
+					0 0 16px rgba( 0, 212, 232, 0.4 ),
+					inset 0 0 16px rgba( 0, 212, 232, 0.06 );
+			}
+
+			.kk-race-panel__track-card--selected:hover {
+				border-color: var(--color-accent-cyan, #00d4e8);
+				box-shadow:
+					0 0 20px rgba( 0, 212, 232, 0.5 ),
+					inset 0 0 16px rgba( 0, 212, 232, 0.08 );
 			}
 
 			.kk-race-panel__track-name {
-				font-family: var(--font-ui);
-				font-size: var(--text-sm);
-				font-weight: var(--weight-semibold);
-				color: var(--color-white);
-				letter-spacing: var(--tracking-wide);
+				font-family: var(--font-display, sans-serif);
+				font-size: var(--text-xs, 0.75rem);
+				font-weight: var(--weight-black, 900);
+				text-transform: uppercase;
+				letter-spacing: var(--tracking-wider, 0.1em);
+				color: var(--color-white, #fff);
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
 			}
 
 			.kk-race-panel__track-badge {
-				font-family: var(--font-ui);
-				font-size: 0.625rem;
-				font-weight: var(--weight-bold);
+				display: inline-block;
+				font-family: var(--font-ui, sans-serif);
+				font-size: 0.6rem;
+				font-weight: var(--weight-bold, 700);
 				text-transform: uppercase;
-				letter-spacing: 0.05em;
-				padding: 2px 6px;
-				border-radius: var(--radius-sm);
+				letter-spacing: var(--tracking-wider, 0.1em);
+				padding: 1px var(--space-2, 0.5rem);
+				border-radius: var(--radius-sm, 2px);
+				align-self: flex-start;
 				line-height: 1;
 			}
 
-			.kk-race-panel__track-badge--official {
-				color: var(--color-cta-primary-text);
-				background: rgba(255, 107, 0, 0.25);
-				border: 1px solid rgba(255, 107, 0, 0.4);
+			.kk-race-panel__track-badge--easy {
+				background: rgba( 52, 211, 153, 0.2 );
+				color: #34d399;
+				border: 1px solid rgba( 52, 211, 153, 0.3 );
+			}
+
+			.kk-race-panel__track-badge--medium {
+				background: rgba( 255, 214, 0, 0.2 );
+				color: #ffd600;
+				border: 1px solid rgba( 255, 214, 0, 0.3 );
+			}
+
+			.kk-race-panel__track-badge--hard {
+				background: rgba( 255, 58, 140, 0.2 );
+				color: #ff3a8c;
+				border: 1px solid rgba( 255, 58, 140, 0.3 );
 			}
 
 			.kk-race-panel__track-badge--custom {
 				color: var(--color-accent-blue, #4fc3f7);
-				background: rgba(79, 195, 247, 0.15);
-				border: 1px solid rgba(79, 195, 247, 0.3);
+				background: rgba( 79, 195, 247, 0.15 );
+				border: 1px solid rgba( 79, 195, 247, 0.3 );
+			}
+
+			@media ( max-width: 480px ) {
+
+				.kk-race-panel__track-card {
+					flex: 0 0 120px;
+					min-width: 120px;
+					height: 56px;
+				}
+
+			}
+
+			@media ( prefers-reduced-motion: reduce ) {
+
+				.kk-race-panel__track-card {
+					transition: none;
+				}
+
 			}
 
 			/* ── Race button wrapper ────────────────────────────────────── */
@@ -335,29 +416,17 @@ export class RacePanel {
 
 		root.appendChild( chipStrip );
 
-		// Track preview card
-		const trackCard = document.createElement( 'div' );
-		trackCard.className = 'kk-race-panel__track-card';
-		trackCard.setAttribute( 'role', 'button' );
-		trackCard.setAttribute( 'aria-label', 'Change track' );
+		// Track carousel — mini horizontal strip
+		const trackCarouselWrap = document.createElement( 'div' );
+		trackCarouselWrap.className = 'kk-race-panel__track-carousel-wrap';
 
-		const trackName = document.createElement( 'span' );
-		trackName.className = 'kk-race-panel__track-name';
+		this._trackCarousel = document.createElement( 'div' );
+		this._trackCarousel.className = 'kk-race-panel__track-carousel';
+		trackCarouselWrap.appendChild( this._trackCarousel );
 
-		const trackBadge = document.createElement( 'span' );
-		trackBadge.className = 'kk-race-panel__track-badge';
+		root.appendChild( trackCarouselWrap );
 
-		trackCard.appendChild( trackName );
-		trackCard.appendChild( trackBadge );
-		trackCard.addEventListener( 'click', () => this._services.switchTab( 'tracks' ) );
-
-		root.appendChild( trackCard );
-
-		this._trackCard = trackCard;
-		this._trackNameEl = trackName;
-		this._trackBadgeEl = trackBadge;
-
-		this._refreshTrackCard();
+		this._renderTrackCarousel();
 
 		// RACE button — HudButton with scramble effect
 		const ctaWrap = document.createElement( 'div' );
@@ -485,20 +554,105 @@ export class RacePanel {
 	}
 
 	/**
-	 * Re-read Settings and update the track card's display.
+	 * Build the track carousel with all available tracks.
 	 */
-	_refreshTrackCard() {
+	_renderTrackCarousel() {
 
-		if ( ! this._trackNameEl || ! this._trackBadgeEl ) return;
+		if ( ! this._trackCarousel ) return;
+		this._trackCarousel.innerHTML = '';
 
-		const track = this._resolveSelectedTrack();
+		const settings = new Settings();
+		const selectedId = settings.getSelectedTrackId();
 
-		this._trackNameEl.textContent = track.name;
+		// Official tracks
+		const officialTracks = getTracks();
 
-		const isOfficial = track.source === 'official';
-		this._trackBadgeEl.textContent = isOfficial ? 'OFFICIAL' : 'CUSTOM';
-		this._trackBadgeEl.className = 'kk-race-panel__track-badge '
-			+ ( isOfficial ? 'kk-race-panel__track-badge--official' : 'kk-race-panel__track-badge--custom' );
+		for ( const track of officialTracks ) {
+
+			const isSelected = track.id === selectedId;
+			const card = this._buildTrackCard( track.name, track.difficulty, isSelected, () => {
+
+				settings.setSelectedTrackId( track.id );
+				this._renderTrackCarousel();
+
+				this._services.notification?.show( {
+					message:  'Track selected',
+					variant:  'success',
+					duration: 1500,
+				} );
+
+			} );
+
+			this._trackCarousel.appendChild( card );
+
+		}
+
+		// User tracks
+		const userTracks = getSavedTracks();
+
+		for ( const track of userTracks ) {
+
+			const trackId = 'user:' + track.name;
+			const isSelected = trackId === selectedId;
+			const card = this._buildTrackCard( track.name, 'custom', isSelected, () => {
+
+				settings.setSelectedTrackId( trackId );
+				this._renderTrackCarousel();
+
+				this._services.notification?.show( {
+					message:  'Track selected',
+					variant:  'success',
+					duration: 1500,
+				} );
+
+			} );
+
+			this._trackCarousel.appendChild( card );
+
+		}
+
+		// Scroll selected card into view.
+		requestAnimationFrame( () => {
+
+			const selected = this._trackCarousel.querySelector( '.kk-race-panel__track-card--selected' );
+			if ( selected ) {
+
+				selected.scrollIntoView( { behavior: 'smooth', block: 'nearest', inline: 'center' } );
+
+			}
+
+		} );
+
+	}
+
+	/**
+	 * Build a single track card for the carousel.
+	 *
+	 * @param {string}   name        Track display name.
+	 * @param {string}   difficulty  'easy' | 'medium' | 'hard' | 'custom'.
+	 * @param {boolean}  isSelected  Whether this track is currently selected.
+	 * @param {Function} onClick     Callback when card is tapped.
+	 * @returns {HTMLElement}
+	 */
+	_buildTrackCard( name, difficulty, isSelected, onClick ) {
+
+		const card = document.createElement( 'div' );
+		card.className = 'kk-race-panel__track-card';
+		if ( isSelected ) card.classList.add( 'kk-race-panel__track-card--selected' );
+
+		const nameEl = document.createElement( 'div' );
+		nameEl.className = 'kk-race-panel__track-name';
+		nameEl.textContent = name;
+		card.appendChild( nameEl );
+
+		const badge = document.createElement( 'span' );
+		badge.className = `kk-race-panel__track-badge kk-race-panel__track-badge--${ difficulty }`;
+		badge.textContent = difficulty.toUpperCase();
+		card.appendChild( badge );
+
+		card.addEventListener( 'click', onClick );
+
+		return card;
 
 	}
 
@@ -649,8 +803,8 @@ export class RacePanel {
 
 		}
 
-		// Refresh track card (track may have changed in TRACKS tab)
-		this._refreshTrackCard();
+		// Refresh track carousel (track may have changed in TRACKS tab)
+		this._renderTrackCarousel();
 
 		// Sync chip selection with services bag (may have been changed externally)
 		const currentMode = this._services.selectedMode || 'solo';
@@ -715,9 +869,7 @@ export class RacePanel {
 
 		this._root = null;
 		this._nameEl = null;
-		this._trackCard = null;
-		this._trackNameEl = null;
-		this._trackBadgeEl = null;
+		this._trackCarousel = null;
 		this._chips.clear();
 
 	}

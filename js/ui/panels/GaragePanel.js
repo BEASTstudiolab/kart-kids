@@ -75,6 +75,9 @@ export class GaragePanel {
 		this._raceBtn = null;
 
 		/** @type {HTMLElement|null} */
+		this._carousel = null;
+
+		/** @type {HTMLElement|null} */
 		this._root = null;
 
 		/** @type {Function|null} Bound keyboard handler for cleanup. */
@@ -125,71 +128,126 @@ export class GaragePanel {
 			}
 
 			/* ===================================================
-			   Nav arrows — large chevrons on left / right edges
+			   Kart carousel — horizontal scroll-snap strip
 			   =================================================== */
 
-			.kk-garage__arrow {
+			.kk-garage__carousel-wrap {
 				position: absolute;
-				top: 50%;
-				transform: translateY( -50% );
-				width: 3.5rem;
-				height: 3.5rem;
-				border-radius: 50%;
-				background: rgba( 255, 255, 255, 0.08 );
-				border: var(--border-thin, 1px) solid rgba( 255, 255, 255, 0.12 );
+				bottom: 5.5rem;
+				left: 0;
+				right: 0;
+				z-index: 2;
+			}
+
+			.kk-garage__carousel {
 				display: flex;
-				align-items: center;
-				justify-content: center;
+				gap: var(--space-3, 0.75rem);
+				overflow-x: auto;
+				overflow-y: hidden;
+				scroll-snap-type: x mandatory;
+				-webkit-overflow-scrolling: touch;
+				padding: var(--space-2, 0.5rem) var(--space-6, 1.5rem);
+				scrollbar-width: none;
+			}
+
+			.kk-garage__carousel::-webkit-scrollbar {
+				display: none;
+			}
+
+			/* ===================================================
+			   Kart card — dark glass with angular cuts
+			   =================================================== */
+
+			.kk-garage__card {
+				flex: 0 0 120px;
+				min-width: 120px;
+				height: 72px;
+				scroll-snap-align: center;
+				position: relative;
+				background: rgba( 20, 20, 30, 0.75 );
+				border: var(--border-base, 2px) solid rgba( 255, 255, 255, 0.1 );
+				backdrop-filter: blur( 8px );
+				clip-path: polygon(
+					0 8px, 8px 0, 100% 0,
+					100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%
+				);
+				padding: var(--space-2, 0.5rem);
+				box-sizing: border-box;
+				display: flex;
+				flex-direction: column;
+				justify-content: space-between;
 				cursor: pointer;
 				transition:
-					background var(--duration-fast, 100ms) var(--ease-standard, ease),
-					transform var(--duration-fast, 100ms) var(--ease-spring, ease);
-				z-index: 2;
+					border-color var(--duration-normal, 200ms) var(--ease-standard, ease),
+					box-shadow var(--duration-normal, 200ms) var(--ease-standard, ease),
+					transform var(--duration-normal, 200ms) var(--ease-standard, ease);
 				-webkit-tap-highlight-color: transparent;
 				touch-action: manipulation;
 			}
 
-			.kk-garage__arrow:hover {
-				background: rgba( 255, 255, 255, 0.16 );
-				transform: translateY( -50% ) scale( 1.1 );
+			.kk-garage__card:hover {
+				border-color: var(--color-accent-orange, #f97316);
+				box-shadow: 0 0 14px rgba( 249, 115, 22, 0.3 );
+				transform: scale( 1.04 );
 			}
 
-			.kk-garage__arrow:active {
-				transform: translateY( -50% ) scale( 0.95 );
+			/* Previewing state — orange glow */
+
+			.kk-garage__card--previewing {
+				border-color: var(--color-accent-orange, #f97316);
+				box-shadow:
+					0 0 14px rgba( 249, 115, 22, 0.4 ),
+					inset 0 0 14px rgba( 249, 115, 22, 0.06 );
 			}
 
-			.kk-garage__arrow--left {
-				left: var(--space-4, 1rem);
+			/* Equipped state — cyan glow */
+
+			.kk-garage__card--equipped {
+				border-color: var(--color-accent-cyan, #00d4e8);
+				box-shadow:
+					0 0 16px rgba( 0, 212, 232, 0.4 ),
+					inset 0 0 16px rgba( 0, 212, 232, 0.06 );
 			}
 
-			.kk-garage__arrow--right {
-				right: var(--space-4, 1rem);
-			}
-
-			.kk-garage__arrow-chevron {
-				width: 1.5rem;
-				height: 1.5rem;
-				border-top: 3px solid var(--color-white, #fff);
-				border-right: 3px solid var(--color-white, #fff);
-			}
-
-			.kk-garage__arrow--left .kk-garage__arrow-chevron {
-				transform: rotate( -135deg );
-				margin-left: 4px;
-			}
-
-			.kk-garage__arrow--right .kk-garage__arrow-chevron {
-				transform: rotate( 45deg );
-				margin-right: 4px;
+			.kk-garage__card--equipped:hover {
+				border-color: var(--color-accent-cyan, #00d4e8);
+				box-shadow:
+					0 0 20px rgba( 0, 212, 232, 0.5 ),
+					inset 0 0 16px rgba( 0, 212, 232, 0.08 );
 			}
 
 			/* ===================================================
-			   Kart name — centered below 3D preview area
+			   Kart card content
+			   =================================================== */
+
+			.kk-garage__card-name {
+				font-family: var(--font-display, sans-serif);
+				font-size: var(--text-xs, 0.75rem);
+				font-weight: var(--weight-black, 900);
+				text-transform: uppercase;
+				letter-spacing: var(--tracking-wider, 0.1em);
+				color: var(--color-white, #fff);
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+
+			.kk-garage__card-stat {
+				font-family: var(--font-mono, monospace);
+				font-size: 0.6rem;
+				font-weight: var(--weight-bold, 700);
+				color: var(--color-accent-orange, #f97316);
+				text-transform: uppercase;
+				letter-spacing: var(--tracking-wider, 0.1em);
+			}
+
+			/* ===================================================
+			   Kart name — centered above carousel
 			   =================================================== */
 
 			.kk-garage__kart-name {
 				position: absolute;
-				bottom: 16rem;
+				bottom: 13.5rem;
 				left: 50%;
 				transform: translateX( -50% );
 				font-family: var(--font-display, sans-serif);
@@ -209,15 +267,15 @@ export class GaragePanel {
 			}
 
 			/* ===================================================
-			   EQUIP button — centered below kart name
+			   EQUIP button — centered above carousel
 			   =================================================== */
 
 			.kk-garage__equip-wrap {
 				position: absolute;
-				bottom: 11.5rem;
+				bottom: 10rem;
 				left: 50%;
 				transform: translateX( -50% );
-				z-index: 1;
+				z-index: 3;
 			}
 
 			.kk-garage__equip-wrap .kk-cta-button--primary {
@@ -465,11 +523,25 @@ export class GaragePanel {
 
 				.kk-garage__kart-name {
 					font-size: var(--text-2xl, 1.75rem);
-					bottom: 14rem;
+					bottom: 12.5rem;
 				}
 
 				.kk-garage__equip-wrap {
-					bottom: 10rem;
+					bottom: 9rem;
+				}
+
+				.kk-garage__carousel-wrap {
+					bottom: 5rem;
+				}
+
+				.kk-garage__carousel {
+					padding: var(--space-2, 0.5rem) var(--space-4, 1rem);
+				}
+
+				.kk-garage__card {
+					flex: 0 0 100px;
+					min-width: 100px;
+					height: 64px;
 				}
 
 				.kk-garage__stats {
@@ -483,16 +555,18 @@ export class GaragePanel {
 					bottom: var(--space-4, 1rem);
 					left: var(--space-4, 1rem);
 				}
+			}
 
-				.kk-garage__arrow {
-					width: 2.75rem;
-					height: 2.75rem;
+			/* ===================================================
+			   Reduced motion — disable card transitions
+			   =================================================== */
+
+			@media ( prefers-reduced-motion: reduce ) {
+
+				.kk-garage__card {
+					transition: none;
 				}
 
-				.kk-garage__arrow-chevron {
-					width: 1.1rem;
-					height: 1.1rem;
-				}
 			}
 		`;
 		document.head.appendChild( style );
@@ -509,34 +583,6 @@ export class GaragePanel {
 		root.className = 'kk-garage';
 		root.setAttribute( 'role', 'region' );
 		root.setAttribute( 'aria-label', 'Garage — kart selection' );
-
-		// Left arrow
-		const leftArrow = document.createElement( 'button' );
-		leftArrow.type = 'button';
-		leftArrow.className = 'kk-garage__arrow kk-garage__arrow--left';
-		leftArrow.setAttribute( 'aria-label', 'Previous kart' );
-
-		const leftChevron = document.createElement( 'div' );
-		leftChevron.className = 'kk-garage__arrow-chevron';
-		leftChevron.setAttribute( 'aria-hidden', 'true' );
-		leftArrow.appendChild( leftChevron );
-
-		leftArrow.addEventListener( 'click', () => this._cycleKart( - 1 ) );
-		root.appendChild( leftArrow );
-
-		// Right arrow
-		const rightArrow = document.createElement( 'button' );
-		rightArrow.type = 'button';
-		rightArrow.className = 'kk-garage__arrow kk-garage__arrow--right';
-		rightArrow.setAttribute( 'aria-label', 'Next kart' );
-
-		const rightChevron = document.createElement( 'div' );
-		rightChevron.className = 'kk-garage__arrow-chevron';
-		rightChevron.setAttribute( 'aria-hidden', 'true' );
-		rightArrow.appendChild( rightChevron );
-
-		rightArrow.addEventListener( 'click', () => this._cycleKart( 1 ) );
-		root.appendChild( rightArrow );
 
 		// Kart name
 		this._kartNameEl = document.createElement( 'div' );
@@ -608,6 +654,17 @@ export class GaragePanel {
 
 		root.appendChild( statsPanel );
 
+		// Kart carousel — horizontal card strip
+		const carouselWrap = document.createElement( 'div' );
+		carouselWrap.className = 'kk-garage__carousel-wrap';
+
+		this._carousel = document.createElement( 'div' );
+		this._carousel.className = 'kk-garage__carousel';
+		carouselWrap.appendChild( this._carousel );
+		root.appendChild( carouselWrap );
+
+		this._renderCarousel();
+
 		// Secondary RACE button — bottom-left
 		const raceWrap = document.createElement( 'div' );
 		raceWrap.className = 'kk-garage__race-wrap';
@@ -655,6 +712,9 @@ export class GaragePanel {
 
 		}
 
+		// Re-render carousel to update glow states and scroll into view.
+		this._renderCarousel();
+
 	}
 
 	/**
@@ -678,6 +738,104 @@ export class GaragePanel {
 			this._cycleKart( 1 );
 
 		}
+
+	}
+
+	// ---------------------------------------------------------------------------
+	// Carousel rendering
+	// ---------------------------------------------------------------------------
+
+	/**
+	 * Build all kart cards in the carousel strip.
+	 */
+	_renderCarousel() {
+
+		if ( ! this._carousel ) return;
+		this._carousel.innerHTML = '';
+
+		const equippedId = this._settings.getSelectedKartId();
+
+		for ( let i = 0; i < this._vehicles.length; i ++ ) {
+
+			const vehicle = this._vehicles[ i ];
+			const card = this._buildKartCard( vehicle, i, equippedId );
+			this._carousel.appendChild( card );
+
+		}
+
+		// Scroll the currently viewed card into view.
+		this._scrollToCard( this._currentIndex );
+
+	}
+
+	/**
+	 * Build a single kart card element.
+	 *
+	 * @param {object} vehicle     Vehicle definition from registry.
+	 * @param {number} index       Index in _vehicles array.
+	 * @param {string} equippedId  Currently equipped kart id.
+	 * @returns {HTMLElement}
+	 */
+	_buildKartCard( vehicle, index, equippedId ) {
+
+		const isPreviewing = index === this._currentIndex;
+		const isEquipped = vehicle.id === equippedId;
+
+		const card = document.createElement( 'div' );
+		card.className = 'kk-garage__card';
+		card.dataset.index = index;
+
+		if ( isEquipped ) card.classList.add( 'kk-garage__card--equipped' );
+		if ( isPreviewing && ! isEquipped ) card.classList.add( 'kk-garage__card--previewing' );
+
+		// Card name
+		const nameEl = document.createElement( 'div' );
+		nameEl.className = 'kk-garage__card-name';
+		nameEl.textContent = vehicle.label;
+		card.appendChild( nameEl );
+
+		// Top stat preview (speed)
+		const statEl = document.createElement( 'div' );
+		statEl.className = 'kk-garage__card-stat';
+		statEl.textContent = `SPD ${ vehicle.stats.speed }/10`;
+		card.appendChild( statEl );
+
+		// Tap to preview this kart
+		card.addEventListener( 'click', () => {
+
+			this._currentIndex = index;
+			this._syncToCurrentKart();
+
+			// Update 3D preview
+			if ( this._services.garagePreview ) {
+
+				this._services.garagePreview.setKart( vehicle.id );
+
+			}
+
+			// Re-render carousel to update glow states.
+			this._renderCarousel();
+
+		} );
+
+		return card;
+
+	}
+
+	/**
+	 * Scroll the carousel so the card at the given index is visible.
+	 *
+	 * @param {number} index
+	 */
+	_scrollToCard( index ) {
+
+		if ( ! this._carousel ) return;
+
+		const card = this._carousel.children[ index ];
+		if ( ! card ) return;
+
+		// Use scrollIntoView with inline center for smooth snap.
+		card.scrollIntoView( { behavior: 'smooth', block: 'nearest', inline: 'center' } );
 
 	}
 
@@ -779,6 +937,9 @@ export class GaragePanel {
 		this._equipBtn.setDimmed( true );
 		this._equipWrap.classList.add( 'kk-garage__equip-wrap--equipped' );
 
+		// Re-render carousel to update glow states.
+		this._renderCarousel();
+
 		// Toast confirmation.
 		this._services.notification?.show( {
 			message:  `${ vehicle.label } EQUIPPED`,
@@ -833,6 +994,7 @@ export class GaragePanel {
 		}
 
 		this._syncToCurrentKart();
+		this._renderCarousel();
 
 		// Sync 3D preview to current kart.
 		if ( this._services.garagePreview ) {
@@ -889,6 +1051,7 @@ export class GaragePanel {
 		this._raceBtn = null;
 		this._kartNameEl = null;
 		this._equipWrap = null;
+		this._carousel = null;
 
 		if ( this._root && this._root.parentNode ) {
 
