@@ -499,7 +499,7 @@ export class AppShell {
 		r.register( RouteIds.PLAY, async () => {
 
 			const { Page04PlayModesController } = await import( '../pages/page04-play-modes/Page04PlayModesController.js' );
-			return new Page04PlayModesController( s );
+			return new Page04PlayModesController( {}, s );
 
 		} );
 
