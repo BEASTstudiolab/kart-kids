@@ -16,7 +16,9 @@
 
 import { getTracks }                          from '../../TrackRegistry.js';
 import { getSavedTracks, deleteNamedTrack }   from '../../editor/Persistence.js';
+import { decodeCells }                        from '../../TrackCodec.js';
 import { Settings }                           from '../../Settings.js';
+import { renderMinimap }                      from '../components/TrackMinimap.js';
 
 export class TracksPanel {
 
@@ -74,17 +76,78 @@ export class TracksPanel {
 				height: 100%;
 				overflow-y: auto;
 				overflow-x: hidden;
-				background: rgba( 10, 10, 10, 0.85 );
-				padding: var(--space-6, 1.5rem) 0;
-				padding-bottom: calc( var(--space-6, 1.5rem) + 5rem );
+				background: rgba( 10, 10, 10, 1.0 );
+				padding: var(--space-6, 1.5rem);
 				box-sizing: border-box;
 				-webkit-overflow-scrolling: touch;
 			}
+
+			.kk-tracks__grid {
+				display: grid;
+				grid-template-columns: minmax( 260px, 1fr ) 2fr;
+				gap: var(--space-6, 1.5rem);
+				height: 100%;
+			}
+
+			/* ===================================================
+			   Detail panel — left column
+			   =================================================== */
+
+			.kk-tracks__detail {
+				display: flex;
+				flex-direction: column;
+				gap: var(--space-4, 1rem);
+				padding: var(--space-4, 1rem);
+				background: rgba( 20, 20, 30, 0.6 );
+				border: 1px solid rgba( 255, 255, 255, 0.08 );
+				border-radius: var(--radius-md, 4px);
+				align-self: flex-start;
+			}
+
+			.kk-tracks__detail-name {
+				font-family: var(--font-display, sans-serif);
+				font-size: var(--text-2xl, 1.75rem);
+				font-weight: var(--weight-black, 900);
+				text-transform: uppercase;
+				letter-spacing: var(--tracking-wider, 0.1em);
+				color: var(--color-white, #fff);
+				line-height: 1.1;
+			}
+
+			.kk-tracks__detail-meta {
+				display: flex;
+				flex-wrap: wrap;
+				gap: var(--space-2, 0.5rem);
+				align-items: center;
+			}
+
+			.kk-tracks__detail-desc {
+				font-family: var(--font-ui, sans-serif);
+				font-size: var(--text-sm, 0.875rem);
+				color: var(--color-ink-300, #aaa);
+				line-height: 1.4;
+			}
+
+			.kk-tracks__detail-minimap {
+				border-radius: var(--radius-sm, 2px);
+				overflow: hidden;
+			}
+
+			.kk-tracks__detail-minimap canvas {
+				display: block;
+				width: 100%;
+				height: auto;
+			}
+
+			/* ===================================================
+			   Right column — carousel rows
+			   =================================================== */
 
 			.kk-tracks__inner {
 				display: flex;
 				flex-direction: column;
 				gap: var(--space-6, 1.5rem);
+				overflow-y: auto;
 			}
 
 			/* ===================================================
@@ -423,11 +486,32 @@ export class TracksPanel {
 			   Responsive
 			   =================================================== */
 
+			/* Minimap thumbnail inside track cards */
+
+			.kk-tracks__card-minimap {
+				margin-top: auto;
+				border-radius: var(--radius-sm, 2px);
+				overflow: hidden;
+			}
+
+			.kk-tracks__card-minimap canvas {
+				display: block;
+				width: 100%;
+				height: auto;
+			}
+
+			@media ( max-width: 768px ) {
+
+				.kk-tracks__grid {
+					grid-template-columns: 1fr;
+				}
+
+			}
+
 			@media ( max-width: 480px ) {
 
 				.kk-tracks {
-					padding: var(--space-4, 1rem) 0;
-					padding-bottom: calc( var(--space-4, 1rem) + 5rem );
+					padding: var(--space-4, 1rem);
 				}
 
 				.kk-tracks__heading {
@@ -493,11 +577,38 @@ export class TracksPanel {
 		root.setAttribute( 'role', 'region' );
 		root.setAttribute( 'aria-label', 'Tracks — track selection' );
 
+		const grid = document.createElement( 'div' );
+		grid.className = 'kk-tracks__grid';
+
+		// --- Detail panel (left column) ---
+
+		this._detailPanel = document.createElement( 'div' );
+		this._detailPanel.className = 'kk-tracks__detail';
+
+		this._detailName = document.createElement( 'div' );
+		this._detailName.className = 'kk-tracks__detail-name';
+		this._detailPanel.appendChild( this._detailName );
+
+		this._detailMeta = document.createElement( 'div' );
+		this._detailMeta.className = 'kk-tracks__detail-meta';
+		this._detailPanel.appendChild( this._detailMeta );
+
+		this._detailDesc = document.createElement( 'div' );
+		this._detailDesc.className = 'kk-tracks__detail-desc';
+		this._detailPanel.appendChild( this._detailDesc );
+
+		this._detailMinimap = document.createElement( 'div' );
+		this._detailMinimap.className = 'kk-tracks__detail-minimap';
+		this._detailPanel.appendChild( this._detailMinimap );
+
+		grid.appendChild( this._detailPanel );
+
+		// --- Carousel rows (right column) ---
+
 		const inner = document.createElement( 'div' );
 		inner.className = 'kk-tracks__inner';
 
-		// --- Official tracks section ---
-
+		// Official tracks section
 		const officialSection = document.createElement( 'section' );
 		officialSection.className = 'kk-tracks__section';
 		officialSection.setAttribute( 'aria-label', 'Official tracks' );
@@ -514,14 +625,12 @@ export class TracksPanel {
 		this._officialRow.className = 'kk-tracks__carousel';
 		officialCarouselWrap.appendChild( this._officialRow );
 
-		// Nav arrows for official row.
 		this._buildArrows( officialCarouselWrap, this._officialRow );
 
 		officialSection.appendChild( officialCarouselWrap );
 		inner.appendChild( officialSection );
 
-		// --- My Tracks section ---
-
+		// My Tracks section
 		const myTracksSection = document.createElement( 'section' );
 		myTracksSection.className = 'kk-tracks__section';
 		myTracksSection.setAttribute( 'aria-label', 'My tracks' );
@@ -538,17 +647,18 @@ export class TracksPanel {
 		this._myTracksRow.className = 'kk-tracks__carousel';
 		myTracksCarouselWrap.appendChild( this._myTracksRow );
 
-		// Nav arrows for my tracks row.
 		this._buildArrows( myTracksCarouselWrap, this._myTracksRow );
 
 		myTracksSection.appendChild( myTracksCarouselWrap );
 		inner.appendChild( myTracksSection );
 
-		root.appendChild( inner );
+		grid.appendChild( inner );
+		root.appendChild( grid );
 		this._root = root;
 
 		this._renderOfficialTracks();
 		this._renderMyTracks();
+		this._updateDetailPanel();
 
 		// Keyboard navigation.
 		this._keyHandler = ( e ) => this._onKeyDown( e );
@@ -725,6 +835,16 @@ export class TracksPanel {
 
 		card.appendChild( top );
 
+		// Minimap thumbnail.
+		if ( track.cells && track.cells.length > 0 ) {
+
+			const thumbWrap = document.createElement( 'div' );
+			thumbWrap.className = 'kk-tracks__card-minimap';
+			thumbWrap.appendChild( renderMinimap( track.cells, 160, 60 ) );
+			card.appendChild( thumbWrap );
+
+		}
+
 		// Bottom area: selected badge.
 		const bottom = document.createElement( 'div' );
 		bottom.className = 'kk-tracks__card-actions';
@@ -795,6 +915,25 @@ export class TracksPanel {
 		}
 
 		card.appendChild( top );
+
+		// Minimap thumbnail (user tracks have encoded cells string).
+		if ( track.cells ) {
+
+			try {
+
+				const decoded = decodeCells( track.cells );
+				if ( decoded && decoded.length > 0 ) {
+
+					const thumbWrap = document.createElement( 'div' );
+					thumbWrap.className = 'kk-tracks__card-minimap';
+					thumbWrap.appendChild( renderMinimap( decoded, 160, 60 ) );
+					card.appendChild( thumbWrap );
+
+				}
+
+			} catch ( e ) { /* ignore decode errors */ }
+
+		}
 
 		// Bottom area: action icon buttons.
 		const actions = document.createElement( 'div' );
@@ -879,6 +1018,125 @@ export class TracksPanel {
 	}
 
 	// ---------------------------------------------------------------------------
+	// Detail panel
+	// ---------------------------------------------------------------------------
+
+	/**
+	 * Update the left detail panel with the currently selected (or focused) track.
+	 *
+	 * @param {object} [trackOverride]  Optional track object to display instead of the selected track.
+	 */
+	_updateDetailPanel( trackOverride ) {
+
+		if ( ! this._detailName ) return;
+
+		let track = trackOverride;
+
+		if ( ! track ) {
+
+			// Show the currently selected track.
+			const selectedId = this._settings.getSelectedTrackId();
+			const officialTracks = getTracks();
+
+			if ( selectedId && selectedId.startsWith( 'user:' ) ) {
+
+				const trackName = selectedId.slice( 5 );
+				const saved = getSavedTracks().find( ( t ) => t.name === trackName );
+				if ( saved ) {
+
+					track = { name: saved.name, pieces: saved.pieces, date: saved.date, cells: saved.cells, source: 'user' };
+
+				}
+
+			}
+
+			if ( ! track ) {
+
+				const builtIn = officialTracks.find( ( t ) => t.id === selectedId ) || officialTracks[ 0 ];
+				if ( builtIn ) {
+
+					track = { name: builtIn.name, difficulty: builtIn.difficulty, cells: builtIn.cells, source: 'official' };
+
+				}
+
+			}
+
+		}
+
+		if ( ! track ) return;
+
+		// Name
+		this._detailName.textContent = track.name;
+
+		// Meta: difficulty badge or CUSTOM badge + piece count
+		this._detailMeta.innerHTML = '';
+
+		if ( track.difficulty ) {
+
+			const badge = document.createElement( 'span' );
+			badge.className = `kk-tracks__badge kk-tracks__badge--${ track.difficulty }`;
+			badge.textContent = track.difficulty.toUpperCase();
+			this._detailMeta.appendChild( badge );
+
+		} else {
+
+			const badge = document.createElement( 'span' );
+			badge.className = 'kk-tracks__badge kk-tracks__badge--selected';
+			badge.textContent = 'CUSTOM';
+			this._detailMeta.appendChild( badge );
+
+		}
+
+		if ( track.pieces != null ) {
+
+			const pcs = document.createElement( 'span' );
+			pcs.className = 'kk-tracks__detail-desc';
+			pcs.textContent = `${ track.pieces } pieces`;
+			this._detailMeta.appendChild( pcs );
+
+		}
+
+		// Description
+		if ( track.date ) {
+
+			this._detailDesc.textContent = `Created ${ track.date }`;
+			this._detailDesc.style.display = '';
+
+		} else {
+
+			this._detailDesc.style.display = 'none';
+
+		}
+
+		// Minimap
+		this._detailMinimap.innerHTML = '';
+
+		let cellsArray = track.cells;
+
+		if ( typeof cellsArray === 'string' ) {
+
+			try {
+
+				cellsArray = decodeCells( cellsArray );
+
+			} catch ( e ) {
+
+				cellsArray = [];
+
+			}
+
+		}
+
+		if ( cellsArray && cellsArray.length > 0 ) {
+
+			const minimapCanvas = renderMinimap( cellsArray, 240, 180 );
+			this._detailMinimap.appendChild( minimapCanvas );
+
+		}
+
+	}
+
+	// ---------------------------------------------------------------------------
 	// Actions
 	// ---------------------------------------------------------------------------
 
@@ -894,6 +1152,7 @@ export class TracksPanel {
 		// Re-render both sections to update highlight states.
 		this._renderOfficialTracks();
 		this._renderMyTracks();
+		this._updateDetailPanel();
 
 		this._services.notification?.show( {
 			message: 'Track selected',
@@ -982,6 +1241,7 @@ export class TracksPanel {
 		// Re-render to pick up new user tracks or selection changes.
 		this._renderOfficialTracks();
 		this._renderMyTracks();
+		this._updateDetailPanel();
 
 	}
 
@@ -1015,6 +1275,11 @@ export class TracksPanel {
 		this._root = null;
 		this._officialRow = null;
 		this._myTracksRow = null;
+		this._detailPanel = null;
+		this._detailName = null;
+		this._detailMeta = null;
+		this._detailDesc = null;
+		this._detailMinimap = null;
 
 	}
 

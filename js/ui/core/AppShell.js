@@ -51,6 +51,7 @@ import { AnalyticsService }   from './AnalyticsService.js';
 import { RouteIds }           from '../enums/RouteIds.js';
 import { createGameEngine }   from '../../GameEngine.js';
 import { GaragePreview }      from '../GaragePreview.js';
+import { LobbyScene }         from '../LobbyScene.js';
 import { Settings }           from '../../Settings.js';
 import { showNameEntryModal } from '../components/NameEntryModal.js';
 import { RacePanel }         from '../panels/RacePanel.js';
@@ -61,18 +62,18 @@ import { ResultsOverlay }    from '../overlays/ResultsOverlay.js';
 
 // Tab definitions — order matches the tab bar left-to-right.
 const TAB_DEFS = [
-	{ id: 'race',    label: 'RACE' },
+	{ id: 'race',    label: 'PLAY' },
 	{ id: 'garage',  label: 'GARAGE' },
 	{ id: 'tracks',  label: 'TRACKS' },
 	{ id: 'profile', label: 'PROFILE' },
 ];
 
-// Render mode per tab — RACE and GARAGE show the kart turntable.
+// Render mode per tab — lobby for most tabs, idle for opaque TRACKS page.
 const TAB_RENDER_MODES = {
-	race:    'garage',
-	garage:  'garage',
+	race:    'lobby',
+	garage:  'lobby',
 	tracks:  'idle',
-	profile: 'idle',
+	profile: 'lobby',
 };
 
 export class AppShell {
@@ -145,6 +146,9 @@ export class AppShell {
 
 		/** @type {object | null} garage preview renderer (Unit 5 placeholder) */
 		this._garagePreview = null;
+
+		/** @type {import('../LobbyScene.js').LobbyScene | null} */
+		this._lobbyScene = null;
 
 		// -----------------------------------------------------------------------
 		// DOM elements (populated by _buildShell())
@@ -255,6 +259,10 @@ export class AppShell {
 			const renderer = this._engine.getRenderer();
 			this._garagePreview = new GaragePreview( renderer );
 			this._services.garagePreview = this._garagePreview;
+
+			// Create LobbyScene — 3D environment behind all menu tabs.
+			this._lobbyScene = new LobbyScene( renderer );
+			this._services.lobbyScene = this._lobbyScene;
 
 		}
 
@@ -391,6 +399,15 @@ export class AppShell {
 		nav.className = 'kk-tab-bar';
 		nav.setAttribute( 'role', 'tablist' );
 		nav.setAttribute( 'aria-label', 'Main navigation' );
+
+		// Settings gear button — top-left corner.
+		const gearBtn = document.createElement( 'button' );
+		gearBtn.type = 'button';
+		gearBtn.className = 'kk-tab-bar__gear';
+		gearBtn.setAttribute( 'aria-label', 'Open settings' );
+		gearBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>';
+		gearBtn.addEventListener( 'click', () => this._openSettingsModal() );
+		nav.appendChild( gearBtn );
 
 		for ( const tab of TAB_DEFS ) {
 
@@ -603,14 +620,22 @@ export class AppShell {
 		}
 
 		// Update render mode based on tab.
-		const renderMode = TAB_RENDER_MODES[ name ] || 'idle';
+		const renderMode = TAB_RENDER_MODES[ name ] || 'lobby';
 		this.setRenderMode( renderMode );
 
-		// Sync garage preview kart when switching to RACE tab.
+		// Sync garage preview kart when switching to RACE tab (legacy fallback).
 		if ( name === 'race' && this._garagePreview ) {
 
 			const settings = new Settings();
 			this._garagePreview.setKart( settings.getSelectedKartId() );
+
+		}
+
+		// Sync selected vehicle into the lobby scene.
+		if ( this._lobbyScene ) {
+
+			const settings = new Settings();
+			this._lobbyScene.setKart( settings.getSelectedKartId() );
 
 		}
 
@@ -740,6 +765,57 @@ export class AppShell {
 	}
 
 	// ---------------------------------------------------------------------------
+	// Settings modal
+	// ---------------------------------------------------------------------------
+
+	/**
+	 * Open settings as a modal overlay.
+	 * Uses the same pattern as ProfilePanel._openSettings() — lazy-imports
+	 * the settings controller and renders it inside a ModalService modal.
+	 * This preserves the tab panel DOM (router.navigate would destroy it).
+	 */
+	_openSettingsModal() {
+
+		const modal = this._modal;
+
+		if ( ! modal ) return;
+
+		const bodyEl = document.createElement( 'div' );
+		bodyEl.style.cssText = 'min-height:12rem;';
+
+		import( '../pages/page21-settings/Page21SettingsController.js' ).then( ( { Page21SettingsController } ) => {
+
+			const ctrl = new Page21SettingsController( {}, this._services );
+			ctrl.initialize();
+			ctrl.bindEvents();
+			ctrl.loadData().then( () => {
+
+				ctrl.render( bodyEl );
+
+			} );
+
+			handle._settingsCtrl = ctrl;
+
+		} );
+
+		const handle = modal.open( {
+			title: 'Settings',
+			body: bodyEl,
+			dismissible: true,
+			onClose: () => {
+
+				if ( handle._settingsCtrl ) {
+
+					handle._settingsCtrl.dispose();
+
+				}
+
+			},
+		} );
+
+	}
+
+	// ---------------------------------------------------------------------------
 	// Render loop coordinator
 	// ---------------------------------------------------------------------------
 
@@ -766,6 +842,21 @@ export class AppShell {
 
 				const dt = ( now - this._lastFrameTime ) / 1000;
 				this._garagePreview.update( dt );
+
+			} else if ( this._renderMode === 'lobby' && this._lobbyScene ) {
+
+				const dt = ( now - this._lastFrameTime ) / 1000;
+
+				// Fall back to garage preview while lobby is loading.
+				if ( this._lobbyScene.ready ) {
+
+					this._lobbyScene.update( dt );
+
+				} else if ( this._garagePreview ) {
+
+					this._garagePreview.update( dt );
+
+				}
 
 			}
 
