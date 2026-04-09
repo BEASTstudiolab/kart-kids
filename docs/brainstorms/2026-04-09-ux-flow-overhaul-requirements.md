@@ -9,7 +9,7 @@ topic: ux-flow-overhaul
 
 ## Problem Frame
 
-The current menu has 13 pages with 4-5 clicks to start racing. Navigation feels disconnected — Garage is separate from racing, Play Modes is an unnecessary intermediary, and Quick Play lands in a Lobby instead of just racing. The goal is a kart-forward, 2-click-to-race flow inspired by Fortnite's lobby + Mario Kart's speed.
+The current menu has 12 routed pages with 4-5 clicks to start racing. Navigation feels disconnected — Garage is separate from racing, Play Modes is an unnecessary intermediary, and Quick Play lands in a Lobby instead of just racing. The goal is a kart-forward, 2-click-to-race flow inspired by Fortnite's lobby + Mario Kart's speed.
 
 ## Requirements
 
@@ -23,7 +23,7 @@ The current menu has 13 pages with 4-5 clicks to start racing. Navigation feels 
 
 - R2. Main menu shows the player's selected kart in 3D (turntable preview, already built as GaragePreview). The kart is the hero — large, centered, dominant.
 - R3. A prominent RACE button overlaid on or below the kart preview. This is the single most important action on screen.
-- R4. Mode chips below the RACE button: `ONLINE` | `SOLO` | `PRIVATE`. One is always selected (default: ONLINE). Switching modes is a single tap — no page navigation.
+- R4. Mode chips below the RACE button: `SOLO` | `ONLINE` | `PRIVATE`. One is always selected (default: SOLO per R5a). Switching modes is a single tap — no page navigation.
 - R5. RACE button behavior changes based on selected mode:
   - **ONLINE**: auto-matchmake → countdown → race (no lobby screen). On failure: show error toast, offer retry or fall back to SOLO.
   - **SOLO**: race against AI on a random track (instant start). Default mode until multiplayer is stable.
@@ -36,7 +36,7 @@ The current menu has 13 pages with 4-5 clicks to start racing. Navigation feels 
 - R7. Tab bar replaces the current TopNav. TopNav is removed.
 - R8. Switching tabs swaps the content area above. The 3D canvas persists behind all tabs.
 - R9. RACE tab = the main menu (kart preview + RACE button + mode chips).
-- R10. GARAGE tab = kart selection (grid of kart thumbnails with stats, tap to preview in 3D, equip button). Uses the same 3D preview — swapping kart updates the model. Equipping a kart shows a brief confirmation toast and stays on GARAGE tab (no auto-navigate). A secondary RACE button on GARAGE tab provides a shortcut to racing.
+- R10. GARAGE tab = kart selection (grid of kart thumbnails with stats, tap to preview in 3D, equip button). Uses the same 3D preview — swapping kart updates the model. Equipping a kart shows a brief confirmation toast and stays on GARAGE tab (no auto-navigate). A secondary RACE button on GARAGE tab uses the currently selected mode from the RACE tab (shared state).
 - R11. CREATE tab shows a "Track Editor" card with description and a LAUNCH button that opens editor.html in a new tab. The tab content provides context (not just a bare link) so the user understands they're leaving the app. The 3D canvas shows a dimmed/blurred version of the kart on this tab.
 - R12. PROFILE tab = player name, race stats, settings button. Simplified from full Profile + Settings pages.
 
@@ -61,7 +61,7 @@ The current menu has 13 pages with 4-5 clicks to start racing. Navigation feels 
 - R20. Tap RACE (Solo mode) → loading overlay → racing against AI. **2 interactions.**
 - R21. Tap RACE (Private mode) → room code overlay → friends join → host taps START → racing.
 - R22. GARAGE tab → browse karts → tap to preview in 3D → tap EQUIP → confirmation toast, stay on GARAGE tab. Kart is updated everywhere (RACE tab preview, race loadout). No auto-navigate.
-- R23. Race ends → Results overlay → RACE AGAIN (immediately queues next race per R15) or QUIT (returns to RACE tab).
+- R23. Race ends → Results overlay → RACE AGAIN or QUIT. For SOLO/ONLINE: RACE AGAIN immediately queues a new race (same mode). For PRIVATE: RACE AGAIN returns all players to the lobby overlay for host to re-start. QUIT always returns to RACE tab.
 
 ## Success Criteria
 
