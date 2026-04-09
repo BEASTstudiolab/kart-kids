@@ -45,7 +45,7 @@ export class Settings {
 
 	constructor() {
 
-		this._data = Object.assign( {}, DEFAULTS );
+		this._data = JSON.parse( JSON.stringify( DEFAULTS ) );
 
 		try {
 
