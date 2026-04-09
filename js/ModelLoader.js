@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { getTrackModelConfig } from './TrackModelConfig.js';
 import { applyTrackAsphaltMode } from './TrackAsphaltMode.js';
+import { PLAYER_VEHICLES, PLAYER_CHARACTER_ID } from './VehicleRegistry.js';
 
 THREE.Cache.enabled = true;
 
@@ -14,9 +15,22 @@ const VEHICLE_TINTS = {
 	'vehicle-truck-red': new THREE.Color( 1.0, 0.4, 0.4 ),
 };
 
+const ANIMATION_FILES = [
+	'Kart_Beast_Driving',
+	'Kart_Beast_Turn_Left',
+	'Kart_Beast_Turn_Right',
+	'Kart_Beast_Turn_Left_To_Idle',
+	'Kart_Beast_Turn_Right_To_Idle',
+	'Kart_Beast_Impact_React',
+];
+
+export const ANIMATION_CLIPS = {};
+
 // Always-loaded models (vehicles, characters, decorations)
 const ALWAYS_LOAD = [
 	VEHICLE_BASE,
+	...PLAYER_VEHICLES.map( ( v ) => v.id ),
+	PLAYER_CHARACTER_ID,
 	'character-default',
 	'decoration-empty-night', 'decoration-buildings-1', 'decoration-buildings-2',
 ];
@@ -89,9 +103,33 @@ export async function loadModels( trackTileSet, asphaltMode, cells, onProgress )
 				} );
 
 				// Vehicle models use root_scale=0.5
-				if ( name.startsWith( 'vehicle-' ) ) {
+				if ( name.startsWith( 'vehicle-' ) || name.startsWith( 'kart-' ) ) {
 
 					gltf.scene.scale.setScalar( 0.5 );
+
+				}
+
+				// Ensure kart models have a seat_anchor node
+				if ( name.startsWith( 'kart-' ) && name !== PLAYER_CHARACTER_ID ) {
+
+					let hasSeatAnchor = false;
+					gltf.scene.traverse( ( c ) => {
+
+						if ( c.name.toLowerCase() === 'seat_anchor' ) hasSeatAnchor = true;
+
+					} );
+
+					if ( ! hasSeatAnchor ) {
+
+						const anchor = new THREE.Object3D();
+						anchor.name = 'seat_anchor';
+						anchor.position.set( 0, 0.5, - 0.37 );
+						// Add to the first child (the root kart node)
+						const root = gltf.scene.children[ 0 ] || gltf.scene;
+						root.add( anchor );
+						console.warn( '[model] Created virtual seat_anchor for:', name );
+
+					}
 
 				}
 
@@ -133,6 +171,32 @@ export async function loadModels( trackTileSet, asphaltMode, cells, onProgress )
 	);
 
 	await Promise.all( promises );
+
+	// Load character animation clips
+	const animPromises = ANIMATION_FILES.map( ( clipName ) =>
+		new Promise( ( resolve ) => {
+
+			loader.load( `models/animations/${ clipName }.glb`, ( gltf ) => {
+
+				if ( gltf.animations && gltf.animations.length > 0 ) {
+
+					ANIMATION_CLIPS[ clipName ] = gltf.animations[ 0 ];
+					gltf.animations[ 0 ].name = clipName;
+
+				}
+
+				resolve();
+
+			}, undefined, ( err ) => {
+
+				console.warn( '[model] Animation clip not found:', clipName, err );
+				resolve();
+
+			} );
+
+		} )
+	);
+	await Promise.all( animPromises );
 
 	// Derive vehicle color variants from the base model
 	const baseVehicle = models[ VEHICLE_BASE ];

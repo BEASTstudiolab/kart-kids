@@ -42,6 +42,7 @@ import { Settings } from './Settings.js';
 import { SettingsMenu } from './SettingsMenu.js';
 import { PRESETS, TIER_PIXEL_RATIO, AdaptiveQuality } from './QualityTiers.js';
 import { DraftingSystem } from './DraftingSystem.js';
+import { PLAYER_VEHICLES } from './VehicleRegistry.js';
 import { DraftLines } from './DraftLines.js';
 import { Speedometer } from './Speedometer.js';
 import { RearviewMirror } from './RearviewMirror.js';
@@ -89,6 +90,109 @@ window.addEventListener( 'resize', () => {
 
 const trackTileSet = getTrackTileSet( globalThis.location?.search ?? '' );
 const asphaltMode = getTrackAsphaltMode( globalThis.location?.search ?? '' );
+
+// ── Character accessories ─────────────────────────────────────────────────────
+// Each entry: { key: settings key, label: display name, meshes: mesh name prefixes }
+const ACCESSORY_DEFS = [
+	{ key: 'Balaclava_No_Ears', label: 'Balaclava', meshes: [ 'Balaclava_No_Ears' ] },
+	{ key: 'Baseball_Hat', label: 'Baseball Hat', meshes: [ 'Baseball_Hat_1', 'Baseball_Hat_2' ] },
+	{ key: 'Gold_Chain', label: 'Gold Chain', meshes: [ 'Gold_Chain' ] },
+	{ key: 'Jeans', label: 'Jeans', meshes: [ 'Jeans' ] },
+	{ key: 'Tshirt', label: 'T-Shirt', meshes: [ 'Tshirt' ] },
+	{ key: 'Mask_Basic', label: 'Mask', meshes: [ 'Mask_Basic' ] },
+];
+
+let _charMeshesLogged = false;
+
+function applyCharacterCustomization( vehicle, settings ) {
+
+	if ( ! vehicle || ! vehicle.characterModel ) return;
+
+	const accessories = settings.get( 'charAccessories' ) || {};
+	const skinColor = settings.get( 'charSkinColor' );
+
+	vehicle.characterModel.traverse( ( child ) => {
+
+		if ( ! child.isMesh && ! child.isSkinnedMesh ) return;
+
+		// One-time log of all mesh and material names for debugging
+		if ( ! _charMeshesLogged ) {
+
+			const matNames = Array.isArray( child.material )
+				? child.material.map( ( m ) => m.name )
+				: [ child.material.name ];
+			console.log( `[Character] mesh: "${ child.name }" materials: [${ matNames.join( ', ' ) }]` );
+
+		}
+
+		const meshName = child.name;
+
+		// ── Accessory toggle + color ────────────────────────────────────────
+		// Find which accessory group this mesh belongs to (if any)
+		const accDef = ACCESSORY_DEFS.find( ( d ) => d.meshes.includes( meshName ) );
+		if ( accDef ) {
+
+			const acc = accessories[ accDef.key ] || { visible: true, color: '' };
+			child.visible = acc.visible !== false;
+
+			if ( acc.color ) {
+
+				if ( ! child._originalMaterial ) child._originalMaterial = child.material;
+				if ( child.material !== child._originalMaterial ) child.material.dispose();
+				child.material = child._originalMaterial.clone();
+				child.material.color.set( acc.color );
+
+			} else if ( child._originalMaterial ) {
+
+				if ( child.material !== child._originalMaterial ) child.material.dispose();
+				child.material = child._originalMaterial;
+
+			}
+
+			return;
+
+		}
+
+		// ── Skin color (only "Test Skin" material on any mesh) ──────────────
+		const mats = Array.isArray( child.material ) ? child.material : [ child.material ];
+		for ( let i = 0; i < mats.length; i ++ ) {
+
+			if ( mats[ i ].name !== 'Test Skin' ) continue;
+
+			const key = '_origSkinMat_' + i;
+			if ( ! child[ key ] ) child[ key ] = mats[ i ];
+
+			if ( skinColor ) {
+
+				if ( mats[ i ] !== child[ key ] ) mats[ i ].dispose();
+				mats[ i ] = child[ key ].clone();
+				mats[ i ].name = 'Test Skin';
+				mats[ i ].color.set( skinColor );
+
+			} else {
+
+				if ( mats[ i ] !== child[ key ] ) mats[ i ].dispose();
+				mats[ i ] = child[ key ];
+
+			}
+
+		}
+
+		if ( Array.isArray( child.material ) ) {
+
+			child.material = [ ...mats ];
+
+		} else {
+
+			child.material = mats[ 0 ];
+
+		}
+
+	} );
+
+	_charMeshesLogged = true;
+
+}
 
 function applyPlayerTints( vehicle, settings ) {
 
@@ -572,7 +676,30 @@ async function init() {
 
 		}
 
+		if ( e.detail.key === 'charAccessories' || e.detail.key === 'charSkinColor' ) {
+
+			applyCharacterCustomization( playerManager.localVehicle, settings );
+
+		}
+
 	} );
+
+	// Re-apply character customization when a character is attached/swapped
+	window.addEventListener( 'character-attached', () => {
+
+		applyCharacterCustomization( playerManager.localVehicle, settings );
+
+	} );
+
+	// Apply saved vehicle selection + character customization on initial load
+	const savedVehicle = settings.get( 'vehicleModel' );
+	if ( savedVehicle && savedVehicle !== 'kart-1' ) {
+
+		playerManager.swapLocalVehicle( savedVehicle );
+
+	}
+
+	applyCharacterCustomization( playerManager.localVehicle, settings );
 
 	// ── Debug panel (all debug UI and visualization) ─────────────────────
 	( { debugMenu, debugCollider, wheelDebug } = setupDebugPanel( {
@@ -593,6 +720,132 @@ async function init() {
 		cam.mode = 'topdown';
 		cam.zoom = 3;
 		debugMenu.show();
+
+	}
+
+	// ── Vehicle selector in hamburger menu ───────────────────────────────
+	{
+
+		const vehicleSec = settingsMenu._section( 'Vehicle' );
+		const vehicleOptions = PLAYER_VEHICLES.map( ( v ) => ( { value: v.id, label: v.label } ) );
+		vehicleSec.appendChild( settingsMenu._selectRow( 'Model', 'vehicleModel', vehicleOptions ) );
+		settingsMenu.addSection( vehicleSec );
+
+		// Swap vehicle when setting changes
+		window.addEventListener( 'settings-changed', ( e ) => {
+
+			if ( e.detail.key === 'vehicleModel' ) {
+
+				playerManager.swapLocalVehicle( e.detail.value );
+
+			}
+
+		} );
+
+	}
+
+	// ── Character customization in hamburger menu ────────────────────────
+	{
+
+		const charSec = settingsMenu._section( 'Character' );
+
+		// ── Skin color ──────────────────────────────────────────────────
+		charSec.appendChild( settingsMenu._colorRow( 'Skin Color', 'charSkinColor' ) );
+
+		// ── Accessories header ──────────────────────────────────────────
+		const accHeader = document.createElement( 'h3' );
+		accHeader.textContent = 'Accessories';
+		accHeader.style.cssText = 'margin:12px 0 4px;font-size:14px';
+		charSec.appendChild( accHeader );
+
+		// ── One row per accessory: label + toggle + color picker ────────
+		const accessories = settings.get( 'charAccessories' ) || {};
+
+		for ( const accDef of ACCESSORY_DEFS ) {
+
+			const accKey = accDef.key;
+			const acc = accessories[ accKey ] || { visible: true, color: '' };
+
+			const row = document.createElement( 'div' );
+			row.className = 'settings-row';
+			row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 0';
+
+			// Label
+			const lbl = document.createElement( 'span' );
+			lbl.className = 'settings-label';
+			lbl.textContent = accDef.label;
+			lbl.style.flex = '1';
+
+			// Toggle
+			const toggle = document.createElement( 'div' );
+			toggle.className = 'settings-toggle' + ( acc.visible !== false ? ' on' : '' );
+			toggle.setAttribute( 'role', 'switch' );
+			toggle.setAttribute( 'aria-checked', String( acc.visible !== false ) );
+			toggle.setAttribute( 'tabindex', '0' );
+			toggle.style.flexShrink = '0';
+
+			// Color picker
+			const colorInput = document.createElement( 'input' );
+			colorInput.type = 'color';
+			colorInput.className = 'settings-color-input';
+			colorInput.value = acc.color || '#ffffff';
+			colorInput.style.flexShrink = '0';
+
+			// Reset button
+			const resetBtn = document.createElement( 'button' );
+			resetBtn.className = 'settings-color-clear';
+			resetBtn.textContent = 'Reset';
+			resetBtn.style.flexShrink = '0';
+
+			const updateAccessory = () => {
+
+				const all = settings.get( 'charAccessories' );
+				all[ accKey ] = {
+					visible: toggle.classList.contains( 'on' ),
+					color: colorInput.value === '#ffffff' ? '' : colorInput.value,
+				};
+				settings.set( 'charAccessories', { ...all } );
+
+			};
+
+			toggle.addEventListener( 'pointerup', () => {
+
+				const newVal = ! toggle.classList.contains( 'on' );
+				toggle.classList.toggle( 'on', newVal );
+				toggle.setAttribute( 'aria-checked', String( newVal ) );
+				updateAccessory();
+
+			} );
+
+			toggle.addEventListener( 'keydown', ( e ) => {
+
+				if ( e.key === 'Enter' || e.key === ' ' ) {
+
+					e.preventDefault();
+					toggle.click();
+
+				}
+
+			} );
+
+			colorInput.addEventListener( 'input', updateAccessory );
+
+			resetBtn.addEventListener( 'pointerup', () => {
+
+				colorInput.value = '#ffffff';
+				updateAccessory();
+
+			} );
+
+			row.appendChild( lbl );
+			row.appendChild( toggle );
+			row.appendChild( colorInput );
+			row.appendChild( resetBtn );
+			charSec.appendChild( row );
+
+		}
+
+		settingsMenu.addSection( charSec );
 
 	}
 

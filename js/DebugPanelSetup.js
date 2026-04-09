@@ -693,6 +693,176 @@ export function setupDebugPanel( ctx ) {
 	debugMenu.addSlider( lightingTab, 'Barrier intensity', 0, 5.0, 0.05, getBarrierEmissiveIntensity(), ( v ) => { setBarrierEmissive( v, undefined ); } );
 	debugMenu.addColorPicker( lightingTab, 'Barrier color', getBarrierEmissiveColor(), ( v ) => { setBarrierEmissive( undefined, v ); } );
 
+	// ── Tab: Character ───────────────────────────────────────────────────────
+	const charTab = debugMenu.addTab( 'character', 'Character' );
+
+	debugMenu.addHeader( charTab, 'Position (relative to seat anchor)' );
+
+	// Current vehicle offset label
+	const offsetLabel = document.createElement( 'div' );
+	offsetLabel.style.cssText = 'font-size:11px;color:#0f08;margin:2px 0 6px';
+	charTab.appendChild( offsetLabel );
+
+	const updateOffsetLabel = () => {
+
+		const off = vehicle._characterOffset || { x: 0, y: 0, z: 0 };
+		const id = vehicle._vehicleId || '?';
+		offsetLabel.textContent = `Vehicle: ${ id } | offset: (${ off.x.toFixed( 2 ) }, ${ off.y.toFixed( 2 ) }, ${ off.z.toFixed( 2 ) })`;
+
+	};
+
+	debugMenu.addSlider( charTab, 'X', - 2.0, 2.0, 0.01, 0, ( v ) => {
+
+		if ( vehicle.characterModel ) vehicle.characterModel.position.x = v;
+		if ( vehicle._characterOffset ) vehicle._characterOffset.x = v;
+		updateOffsetLabel();
+
+	} );
+	debugMenu.addSlider( charTab, 'Y', - 2.0, 2.0, 0.01, - 0.55, ( v ) => {
+
+		if ( vehicle.characterModel ) vehicle.characterModel.position.y = v;
+		if ( vehicle._characterOffset ) vehicle._characterOffset.y = v;
+		updateOffsetLabel();
+
+	} );
+	debugMenu.addSlider( charTab, 'Z', - 2.0, 2.0, 0.01, 0.31, ( v ) => {
+
+		if ( vehicle.characterModel ) vehicle.characterModel.position.z = v;
+		if ( vehicle._characterOffset ) vehicle._characterOffset.z = v;
+		updateOffsetLabel();
+
+	} );
+
+	// Update label periodically (catches vehicle swaps)
+	setInterval( () => { if ( debugMenu.visible ) updateOffsetLabel(); }, 500 );
+
+	debugMenu.addHeader( charTab, 'Scale' );
+
+	debugMenu.addSlider( charTab, 'Scale', 0.1, 3.0, 0.01, 1.0, ( v ) => {
+
+		if ( vehicle.characterModel ) vehicle.characterModel.scale.setScalar( v );
+
+	} );
+
+	debugMenu.addHeader( charTab, 'Rotation (degrees)' );
+
+	debugMenu.addSlider( charTab, 'Rot Y', - 180, 180, 1, 0, ( v ) => {
+
+		if ( vehicle.characterModel ) vehicle.characterModel.rotation.y = v * Math.PI / 180;
+
+	} );
+
+	// ── Animation debug ──────────────────────────────────────────────────────
+	debugMenu.addHeader( charTab, 'Animations' );
+
+	// Status display — updated on interval
+	const animStatus = document.createElement( 'div' );
+	animStatus.style.cssText = 'font-size:11px;line-height:1.5;margin:4px 0 8px;white-space:pre';
+	charTab.appendChild( animStatus );
+
+	// Log bone mapping button
+	const boneBtn = document.createElement( 'button' );
+	boneBtn.textContent = 'Log bone mapping to console';
+	boneBtn.style.cssText = 'background:#0f02;color:#0f0;border:1px solid #0f044;padding:4px 10px;cursor:pointer;font:12px monospace;border-radius:3px;margin:4px 0;width:100%';
+	boneBtn.addEventListener( 'click', () => {
+
+		if ( vehicle.characterAnimator ) vehicle.characterAnimator.debugLogBoneMapping();
+
+	} );
+	charTab.appendChild( boneBtn );
+
+	// Solo play buttons for each animation
+	debugMenu.addHeader( charTab, 'Solo play (test each clip)' );
+
+	const animKeys = [ 'driving', 'turnLeft', 'turnRight', 'transLeftIdle', 'transRightIdle', 'impact' ];
+	for ( const key of animKeys ) {
+
+		const btn = document.createElement( 'button' );
+		btn.textContent = key;
+		btn.style.cssText = 'background:#0f02;color:#0f0;border:1px solid #0f044;padding:3px 8px;cursor:pointer;font:11px monospace;border-radius:3px;margin:2px 4px 2px 0;display:inline-block';
+		btn.addEventListener( 'click', () => {
+
+			if ( vehicle.characterAnimator ) vehicle.characterAnimator.debugPlaySolo( key );
+
+		} );
+		charTab.appendChild( btn );
+
+	}
+
+	// Manual steering test slider
+	debugMenu.addHeader( charTab, 'Test steering input' );
+
+	let manualSteerOverride = false;
+	debugMenu.addCheckbox( charTab, 'Override steering', false, ( v ) => { manualSteerOverride = v; } );
+	debugMenu.addSlider( charTab, 'Steer', - 1.0, 1.0, 0.01, 0, ( v ) => {
+
+		if ( manualSteerOverride && vehicle.characterAnimator ) {
+
+			vehicle.characterAnimator.update( 0.016, v );
+
+		}
+
+	} );
+
+	// Update animation status display
+	setInterval( () => {
+
+		if ( ! debugMenu.visible || debugMenu.activeTab !== 'character' ) return;
+		const anim = vehicle.characterAnimator;
+		if ( ! anim ) { animStatus.textContent = 'No animator'; return; }
+
+		const info = anim.getDebugInfo();
+		let text = `STATE: ${ info._state }\n\n`;
+		for ( const [ key, data ] of Object.entries( info ) ) {
+
+			if ( key === '_state' ) continue;
+			const status = ! data.loaded ? '✗ NOT LOADED'
+				: data.playing ? `▶ w=${ data.weight.toFixed( 2 ) }`
+				: `■ w=${ data.weight.toFixed( 2 ) }`;
+			text += `${ key }: ${ status } (${ data.trackCount } tracks)\n`;
+
+		}
+
+		text += `\ninputX: ${ vehicle.inputX.toFixed( 2 ) }`;
+		animStatus.textContent = text;
+
+	}, 200 );
+
+	// Export vehicle + character as GLB
+	debugMenu.addHeader( charTab, 'Export' );
+
+	const exportBtn = document.createElement( 'button' );
+	exportBtn.textContent = 'Export vehicle + character as GLB';
+	exportBtn.style.cssText = 'background:#0f02;color:#0f0;border:1px solid #0f044;padding:6px 10px;cursor:pointer;font:12px monospace;border-radius:3px;margin:4px 0;width:100%';
+	exportBtn.addEventListener( 'click', async () => {
+
+		const { GLTFExporter } = await import( 'three/addons/exporters/GLTFExporter.js' );
+		const exporter = new GLTFExporter();
+
+		exportBtn.textContent = 'Exporting...';
+
+		// Export the vehicle container directly — avoids breaking SkinnedMesh skeleton bindings
+		exporter.parse( vehicle.container, ( glb ) => {
+
+			const blob = new Blob( [ glb ], { type: 'application/octet-stream' } );
+			const url = URL.createObjectURL( blob );
+			const a = document.createElement( 'a' );
+			a.href = url;
+			a.download = ( vehicle._vehicleId || 'vehicle' ) + '-with-character.glb';
+			a.click();
+			URL.revokeObjectURL( url );
+			exportBtn.textContent = 'Export vehicle + character as GLB';
+
+		}, ( err ) => {
+
+			console.error( '[Export] Failed:', err );
+			exportBtn.textContent = 'Export failed — see console';
+
+		}, { binary: true } );
+
+	} );
+	charTab.appendChild( exportBtn );
+
 	// ── M key toggle ─────────────────────────────────────────────────────────
 	window.addEventListener( 'keydown', ( e ) => {
 

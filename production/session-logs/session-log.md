@@ -15401,3 +15401,444 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260408_061404
+### Commits
+78a762d kart-kids-v0.28-physics-map-builder-fixes
+40a7374 kart-kids-v0.27-map-builder-v2-fixes
+ec22d3e kart-kids-v0.27-map-builder-v2
+---
+
+## Session End: 20260408_205146
+### Uncommitted Changes
+js/ContactHandler.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/TrackModelConfig.js
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_205610
+### Uncommitted Changes
+js/ContactHandler.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/TrackModelConfig.js
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_205810
+### Uncommitted Changes
+js/ContactHandler.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/TrackModelConfig.js
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_210058
+### Uncommitted Changes
+js/ContactHandler.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/TrackModelConfig.js
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_210235
+### Uncommitted Changes
+js/ContactHandler.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/TrackModelConfig.js
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_210324
+### Uncommitted Changes
+js/ContactHandler.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/TrackModelConfig.js
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_210513
+### Uncommitted Changes
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/TrackModelConfig.js
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_210704
+### Uncommitted Changes
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/TrackModelConfig.js
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_210922
+### Uncommitted Changes
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/TrackModelConfig.js
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_211213
+### Uncommitted Changes
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/TrackModelConfig.js
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_211457
+### Uncommitted Changes
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/TrackModelConfig.js
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_211823
+### Uncommitted Changes
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/TrackModelConfig.js
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_212108
+### Uncommitted Changes
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/TrackModelConfig.js
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_212846
+### Uncommitted Changes
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/TrackModelConfig.js
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_213600
+### Uncommitted Changes
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/TrackModelConfig.js
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_213857
+### Uncommitted Changes
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/TrackModelConfig.js
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_214018
+### Uncommitted Changes
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/TrackModelConfig.js
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_214100
+### Uncommitted Changes
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/TrackModelConfig.js
+js/Vehicle.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_220246
+### Uncommitted Changes
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/Settings.js
+js/TrackModelConfig.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_220424
+### Uncommitted Changes
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/Settings.js
+js/TrackModelConfig.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_220600
+### Uncommitted Changes
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/Settings.js
+js/TrackModelConfig.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_220921
+### Uncommitted Changes
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/Settings.js
+js/TrackModelConfig.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_221305
+### Uncommitted Changes
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/Settings.js
+js/TrackModelConfig.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_221600
+### Uncommitted Changes
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/Settings.js
+js/TrackModelConfig.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_221722
+### Uncommitted Changes
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/Settings.js
+js/TrackModelConfig.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_222018
+### Uncommitted Changes
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/Settings.js
+js/TrackModelConfig.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_222200
+### Uncommitted Changes
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/Settings.js
+js/TrackModelConfig.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_222348
+### Uncommitted Changes
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/Settings.js
+js/TrackModelConfig.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_222602
+### Uncommitted Changes
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/Settings.js
+js/TrackModelConfig.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260408_225136
+### Uncommitted Changes
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/Settings.js
+js/TrackModelConfig.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_001532
+### Uncommitted Changes
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/Settings.js
+js/TrackModelConfig.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_002023
+### Uncommitted Changes
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/Settings.js
+js/TrackModelConfig.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_002133
+### Uncommitted Changes
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/Settings.js
+js/TrackModelConfig.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_005729
+### Uncommitted Changes
+js/ContactHandler.js
+js/DebugPanelSetup.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/Settings.js
+js/TrackModelConfig.js
+js/Vehicle.js
+js/main.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+

@@ -107,6 +107,9 @@ export function createContactListener( ctx ) {
 		// Route damage through combat system
 		if ( combatManager ) combatManager.processVehicleBump( attacker, defender, pushMag );
 
+		// Trigger character impact animation
+		if ( defender.triggerCharacterImpact ) defender.triggerCharacterImpact();
+
 		vehicleA.lastBumpTime = now;
 		vehicleB.lastBumpTime = now;
 
@@ -228,6 +231,9 @@ export function createContactListener( ctx ) {
 
 			// Route wall damage through combat system
 			if ( combatManager ) combatManager.processWallHit( vehicle, speed, { x: nx, z: nz } );
+
+			// Trigger character impact animation
+			if ( vehicle.triggerCharacterImpact ) vehicle.triggerCharacterImpact();
 
 			// ── Feedback ─────────────────────────────────────────────────────
 			cam.applyShake( nx, nz, speed );

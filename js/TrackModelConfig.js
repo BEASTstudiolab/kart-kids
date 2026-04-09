@@ -68,6 +68,11 @@ export function getTrackModelConfig( name, tileSet = 'standard' ) {
 
 	}
 
+	// ─── Kart + Character ──────────────────────────────────
+	if ( name === 'kart-1' ) return { path: 'vehicles/BaseRaceKart1.gltf', rotationY: 0 };
+	if ( name === 'kart-2' ) return { path: 'vehicles/BaseRaceKart2.gltf', rotationY: 0 };
+	if ( name === 'kart-beast' ) return { path: 'characters/Kart_Beast_Rest-Armature.glb', rotationY: 0 };
+
 	// ─── Decoration / Props (moved to props/ folder) ────────
 	if ( name === 'decoration-buildings-1' ) return { path: 'props/decoration-buildings-1.glb', rotationY: 0 };
 	if ( name === 'decoration-buildings-2' ) return { path: 'props/decoration-buildings-2.glb', rotationY: 0 };

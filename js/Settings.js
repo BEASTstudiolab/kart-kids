@@ -14,8 +14,18 @@ const DEFAULTS = {
 	steeringAssist: false,
 	cameraMode: 'chase',
 	quality: _detectedTier,
+	vehicleModel: 'kart-1',
 	vehicleColor: '',
 	characterColor: '',
+	charSkinColor: '',
+	charAccessories: {
+		'Balaclava_No_Ears': { visible: true, color: '' },
+		'Baseball_Hat': { visible: true, color: '' },
+		'Gold_Chain': { visible: true, color: '' },
+		'Jeans': { visible: true, color: '' },
+		'Tshirt': { visible: true, color: '' },
+		'Mask_Basic': { visible: true, color: '' },
+	},
 	ghostEnabled: true,
 };
 

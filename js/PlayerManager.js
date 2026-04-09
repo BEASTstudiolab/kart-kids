@@ -5,6 +5,7 @@ import { SmokeTrails } from './Particles.js';
 import { DriftSparks } from './DriftSparks.js';
 import { BoostFlame } from './BoostFlame.js';
 import { TireMarks } from './TireMarks.js';
+import { PLAYER_VEHICLES, PLAYER_CHARACTER_ID, getVehicleById } from './VehicleRegistry.js';
 
 const REMOTE_ZERO_INPUT = { x: 0, z: 0, touchActive: false };
 
@@ -38,9 +39,9 @@ export class PlayerManager {
 
 	// ── Single-player fallback ───────────────────────────────────────────────
 
-	initSinglePlayer() {
+	initSinglePlayer( vehicleId ) {
 
-		const vehicle = this._createVehicle( 0, 0, null, this.spawnPosition, this.spawnAngle );
+		const vehicle = this._createVehicle( 0, 0, null, this.spawnPosition, this.spawnAngle, false, vehicleId );
 		this.localVehicle = vehicle;
 		this.localId = '_local';
 		this.players.set( this.localId, {
@@ -51,6 +52,24 @@ export class PlayerManager {
 			tireMarks: new TireMarks( this.scene ),
 			spectating: false,
 		} );
+
+	}
+
+	// ── Runtime vehicle swap ─────────────────────────────────────────────────
+
+	swapLocalVehicle( vehicleId ) {
+
+		if ( ! this.localVehicle ) return;
+
+		const config = getVehicleById( vehicleId );
+		const newModel = this.models[ config.id ];
+		if ( ! newModel ) return;
+
+		const characterModel = this.models[ PLAYER_CHARACTER_ID ] || null;
+
+		// Swap only the visual model — keeps physics, position, camera target intact
+		this.localVehicle.swapModel( newModel, characterModel, config.characterOffset );
+		this.localVehicle._vehicleId = config.id;
 
 	}
 
@@ -293,12 +312,33 @@ export class PlayerManager {
 
 	}
 
-	_createVehicle( vehicleIndex, characterIndex, tint, position, angle, isRemote ) {
+	_createVehicle( vehicleIndex, characterIndex, tint, position, angle, isRemote, vehicleId ) {
 
-		const modelName = VEHICLE_MODEL_NAMES[ vehicleIndex % VEHICLE_MODEL_NAMES.length ];
+		// Local player gets a kart from the registry; AI/remote get trucks
+		let modelName, charName, characterOffset;
+		if ( ! isRemote && vehicleId ) {
+
+			const config = getVehicleById( vehicleId );
+			modelName = config.id;
+			charName = PLAYER_CHARACTER_ID;
+			characterOffset = config.characterOffset;
+
+		} else if ( ! isRemote && vehicleIndex === 0 && this.models[ PLAYER_VEHICLES[ 0 ].id ] ) {
+
+			const config = PLAYER_VEHICLES[ 0 ];
+			modelName = config.id;
+			charName = PLAYER_CHARACTER_ID;
+			characterOffset = config.characterOffset;
+
+		} else {
+
+			modelName = VEHICLE_MODEL_NAMES[ vehicleIndex % VEHICLE_MODEL_NAMES.length ];
+			charName = CHARACTER_MODEL_NAMES[ ( characterIndex || 0 ) % CHARACTER_MODEL_NAMES.length ];
+			characterOffset = null;
+
+		}
+
 		const model = this.models[ modelName ];
-
-		const charName = CHARACTER_MODEL_NAMES[ ( characterIndex || 0 ) % CHARACTER_MODEL_NAMES.length ];
 		const characterModel = this.models[ charName ] || null;
 
 		const vehCollider = createVehicleBody( this.world, position );
@@ -307,6 +347,7 @@ export class PlayerManager {
 		vehicle.rigidBody = vehCollider;
 		vehicle.physicsWorld = this.world;
 		vehicle.forceWheelCorrection = true;
+		vehicle._vehicleId = modelName;
 
 		const [ sx, sy, sz ] = position;
 		vehicle.vehPos.set( sx, sy, sz );
@@ -314,7 +355,7 @@ export class PlayerManager {
 		vehicle.prevModelPos.set( sx, sy, sz );
 		vehicle.container.rotation.y = angle;
 
-		const group = vehicle.init( model, characterModel );
+		const group = vehicle.init( model, characterModel, characterOffset );
 		if ( ! isRemote ) vehicle.initRaycast( this.world );
 
 		// Apply tint to body mesh for players 5+

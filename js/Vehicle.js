@@ -6,6 +6,9 @@ import { VehicleHealth } from './vehicle/VehicleHealth.js';
 import { VehicleStateMachine, PhysicsState } from './vehicle/VehicleStateMachine.js';
 import { VehicleAirborne } from './vehicle/VehicleAirborne.js';
 import { VehicleRespawn } from './vehicle/VehicleRespawn.js';
+import { CharacterAnimator } from './CharacterAnimator.js';
+import { ANIMATION_CLIPS } from './ModelLoader.js';
+import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 
 const _tmpVec = new THREE.Vector3();
 const _forward = new THREE.Vector3();
@@ -60,6 +63,7 @@ export class Vehicle {
 		this.steeringWheel = null;
 		this.seatAnchor = null;
 		this.characterModel = null;
+		this.characterAnimator = null;
 
 		this.inputX = 0;
 		this.inputZ = 0;
@@ -248,7 +252,7 @@ export class Vehicle {
 
 	}
 
-	init( vehicleModel, characterModel ) {
+	init( vehicleModel, characterModel, characterOffset ) {
 
 		const clonedVehicle = vehicleModel.clone();
 
@@ -263,7 +267,7 @@ export class Vehicle {
 
 			allNodeNames.push( child.name );
 
-			if ( name === 'body' ) {
+			if ( name === 'body' || name.startsWith( 'body.' ) ) {
 
 				child.rotation.order = 'YXZ';
 				this.bodyNode = child;
@@ -315,7 +319,7 @@ export class Vehicle {
 		// Attach character model to seat anchor (if both exist)
 		if ( characterModel && this.seatAnchor ) {
 
-			this._attachCharacter( characterModel );
+			this._attachCharacter( characterModel, characterOffset );
 
 		}
 
@@ -367,12 +371,21 @@ export class Vehicle {
 
 	}
 
-	_attachCharacter( characterModel ) {
+	_attachCharacter( characterModel, characterOffset ) {
 
-		this.characterModel = characterModel.clone();
+		// Use SkeletonUtils.clone for proper armature/skeleton handling
+		this.characterModel = SkeletonUtils.clone( characterModel );
+
+		// Per-vehicle character positioning
+		const off = characterOffset || { x: 0, y: 0, z: 0 };
+		this._characterOffset = off;
+		this.characterModel.position.set( off.x, off.y, off.z );
+		this.characterModel.rotation.set( 0, 0, 0 );
+		this.characterModel.scale.setScalar( 1.0 );
+
 		this.characterModel.traverse( ( child ) => {
 
-			if ( child.isMesh ) {
+			if ( child.isMesh || child.isSkinnedMesh ) {
 
 				child.castShadow = true;
 				child.receiveShadow = true;
@@ -382,9 +395,27 @@ export class Vehicle {
 		} );
 		this.seatAnchor.add( this.characterModel );
 
+		// Initialize character animation if clips are loaded
+		if ( Object.keys( ANIMATION_CLIPS ).length > 0 ) {
+
+			this.characterAnimator = new CharacterAnimator( this.characterModel );
+			this.characterAnimator.init();
+
+		}
+
+		// Notify main.js to re-apply character customization
+		window.dispatchEvent( new Event( 'character-attached' ) );
+
 	}
 
-	swapCharacter( newCharacterModel ) {
+	swapCharacter( newCharacterModel, characterOffset ) {
+
+		if ( this.characterAnimator ) {
+
+			this.characterAnimator.dispose();
+			this.characterAnimator = null;
+
+		}
 
 		if ( this.characterModel && this.seatAnchor ) {
 
@@ -395,9 +426,132 @@ export class Vehicle {
 
 		if ( newCharacterModel && this.seatAnchor ) {
 
-			this._attachCharacter( newCharacterModel );
+			this._attachCharacter( newCharacterModel, characterOffset );
 
 		}
+
+	}
+
+	/**
+	 * Swap the visual model without touching physics, position, or camera.
+	 * Strips old model meshes from the container, clones the new model in,
+	 * re-finds named nodes, and re-attaches the character.
+	 */
+	swapModel( newVehicleModel, characterModel, characterOffset ) {
+
+		// Dispose old character + animator
+		if ( this.characterAnimator ) {
+
+			this.characterAnimator.dispose();
+			this.characterAnimator = null;
+
+		}
+
+		// Remove all children from container EXCEPT lights
+		const keep = [];
+		for ( const child of this.container.children ) {
+
+			if ( child.isLight || child.isSpotLight || child.isPointLight ||
+				child === this.underglowLight ||
+				this.headlights.includes( child ) ||
+				this.headlights.some( ( hl ) => hl.target === child ) ) {
+
+				keep.push( child );
+
+			}
+
+		}
+
+		this.container.clear();
+		for ( const child of keep ) this.container.add( child );
+
+		// Reset node references
+		this.bodyNode = null;
+		this.seatAnchor = null;
+		this.characterModel = null;
+		this.steeringWheel = null;
+		this.wheelFL = null;
+		this.wheelFR = null;
+		this.wheelBL = null;
+		this.wheelBR = null;
+
+		// Clone and add new model
+		const clonedVehicle = newVehicleModel.clone();
+		this.container.add( clonedVehicle );
+
+		// Re-find named nodes
+		clonedVehicle.traverse( ( child ) => {
+
+			const name = child.name.toLowerCase();
+
+			if ( name === 'body' || name.startsWith( 'body.' ) ) {
+
+				child.rotation.order = 'YXZ';
+				this.bodyNode = child;
+
+			} else if ( name === 'seat_anchor' ) {
+
+				this.seatAnchor = child;
+
+			} else if ( name.includes( 'steering' ) ) {
+
+				this.steeringWheel = child;
+
+			} else if ( name.includes( 'wheel' ) ) {
+
+				if ( ! this.wheelFL && name.includes( 'front' ) && name.includes( 'left' ) ) {
+
+					child.rotation.order = 'YXZ';
+					this.wheelFL = child;
+
+				} else if ( ! this.wheelFR && name.includes( 'front' ) && name.includes( 'right' ) ) {
+
+					child.rotation.order = 'YXZ';
+					this.wheelFR = child;
+
+				} else if ( ! this.wheelBL && name.includes( 'back' ) && name.includes( 'left' ) ) {
+
+					child.rotation.order = 'YXZ';
+					this.wheelBL = child;
+
+				} else if ( ! this.wheelBR && name.includes( 'back' ) && name.includes( 'right' ) ) {
+
+					child.rotation.order = 'YXZ';
+					this.wheelBR = child;
+
+				}
+
+			}
+
+			if ( child.isMesh ) {
+
+				child.castShadow = true;
+				child.receiveShadow = true;
+
+			}
+
+		} );
+
+		// Re-store wheel Y origins for suspension
+		this._namedWheelOrigY = [
+			this.wheelFL ? this.wheelFL.position.y : 0,
+			this.wheelFR ? this.wheelFR.position.y : 0,
+			this.wheelBL ? this.wheelBL.position.y : 0,
+			this.wheelBR ? this.wheelBR.position.y : 0,
+		];
+
+		// Re-attach character
+		if ( characterModel && this.seatAnchor ) {
+
+			this._attachCharacter( characterModel, characterOffset );
+
+		}
+
+	}
+
+	triggerCharacterImpact() {
+
+		if ( this.characterAnimator ) this.characterAnimator.triggerImpact();
 
 	}
 
@@ -1072,6 +1226,13 @@ export class Vehicle {
 		this.updateBody( dt );
 		this.updateWheels( dt );
 
+		// ── Character animation ─────────────────────────────────────────────
+		if ( this.characterAnimator ) {
+
+			this.characterAnimator.update( dt, this.inputX );
+
+		}
+
 		// ── Arcade drift state machine ──���───────────────────────────────────
 		switch ( this.drivingState ) {
 
@@ -1604,7 +1765,7 @@ export class Vehicle {
 	 * @param {object} [opts.options] - { forceWheelCorrection }
 	 * @returns {Vehicle}
 	 */
-	static spawn( { world, createBody, model, characterModel, position, angle, options = {} } ) {
+	static spawn( { world, createBody, model, characterModel, characterOffset, position, angle, options = {} } ) {
 
 		const vehicle = new Vehicle();
 		if ( options.forceWheelCorrection ) vehicle.forceWheelCorrection = true;
@@ -1619,7 +1780,7 @@ export class Vehicle {
 		vehicle.prevModelPos.set( sx, sy, sz );
 		vehicle.container.rotation.y = angle;
 
-		vehicle.init( model, characterModel );
+		vehicle.init( model, characterModel, characterOffset );
 		vehicle.initRaycast( world );
 
 		return vehicle;
