@@ -292,32 +292,142 @@ export class GaragePanel {
 			}
 
 			/* ===================================================
-			   Stat bar glow effects — per-stat accent colors
+			   Stat bar — animated fill transition
+			   =================================================== */
+
+			.kk-garage__stat-row .kk-progress-bar__fill {
+				transition: width 0.6s cubic-bezier( 0.4, 0, 0.2, 1 );
+				position: relative;
+				overflow: hidden;
+			}
+
+			/* ===================================================
+			   Stat bar — diagonal racing stripes inside fill
+			   =================================================== */
+
+			.kk-garage__stat-row .kk-progress-bar__fill::before {
+				content: '';
+				position: absolute;
+				inset: 0;
+				background-image: repeating-linear-gradient(
+					-45deg,
+					transparent,
+					transparent 4px,
+					rgba( 255, 255, 255, 0.08 ) 4px,
+					rgba( 255, 255, 255, 0.08 ) 8px
+				);
+				border-radius: inherit;
+				pointer-events: none;
+			}
+
+			/* ===================================================
+			   Stat bar — shimmer sweep on render (staggered)
+			   =================================================== */
+
+			.kk-garage__stat-row .kk-progress-bar__fill::after {
+				content: '';
+				position: absolute;
+				inset: 0;
+				background: linear-gradient(
+					90deg,
+					transparent 0%,
+					rgba( 255, 255, 255, 0.25 ) 50%,
+					transparent 100%
+				);
+				border-radius: inherit;
+				pointer-events: none;
+				animation: kk-shimmer-sweep 0.6s ease-out forwards;
+				animation-delay: 0s;
+			}
+
+			.kk-garage__stat-row:nth-child( 2 ) .kk-progress-bar__fill::after { animation-delay: 0s; }
+			.kk-garage__stat-row:nth-child( 3 ) .kk-progress-bar__fill::after { animation-delay: 0.1s; }
+			.kk-garage__stat-row:nth-child( 4 ) .kk-progress-bar__fill::after { animation-delay: 0.2s; }
+			.kk-garage__stat-row:nth-child( 5 ) .kk-progress-bar__fill::after { animation-delay: 0.3s; }
+			.kk-garage__stat-row:nth-child( 6 ) .kk-progress-bar__fill::after { animation-delay: 0.4s; }
+
+			/* ===================================================
+			   Stat bar — per-stat accent colors + edge glow
 			   =================================================== */
 
 			.kk-garage__stat-row--speed .kk-progress-bar__fill {
 				background: linear-gradient( 90deg, var(--color-accent-orange-dim), var(--color-accent-orange) );
-				box-shadow: 0 0 8px var(--color-accent-orange);
+				box-shadow:
+					0 0 8px var(--color-accent-orange),
+					inset -4px 0 8px rgba( 255, 107, 0, 0.4 );
 			}
 
 			.kk-garage__stat-row--handling .kk-progress-bar__fill {
 				background: linear-gradient( 90deg, var(--color-accent-cyan-dim), var(--color-accent-cyan) );
-				box-shadow: 0 0 8px var(--color-accent-cyan);
+				box-shadow:
+					0 0 8px var(--color-accent-cyan),
+					inset -4px 0 8px rgba( 0, 212, 232, 0.4 );
 			}
 
 			.kk-garage__stat-row--acceleration .kk-progress-bar__fill {
 				background: linear-gradient( 90deg, var(--color-accent-yellow-dim), var(--color-accent-yellow) );
-				box-shadow: 0 0 8px var(--color-accent-yellow);
+				box-shadow:
+					0 0 8px var(--color-accent-yellow),
+					inset -4px 0 8px rgba( 255, 214, 0, 0.4 );
 			}
 
 			.kk-garage__stat-row--weight .kk-progress-bar__fill {
 				background: linear-gradient( 90deg, var(--color-accent-pink-dim), var(--color-accent-pink) );
-				box-shadow: 0 0 8px var(--color-accent-pink);
+				box-shadow:
+					0 0 8px var(--color-accent-pink),
+					inset -4px 0 8px rgba( 255, 58, 140, 0.4 );
 			}
 
 			.kk-garage__stat-row--boost .kk-progress-bar__fill {
 				background: linear-gradient( 90deg, var(--color-accent-orange-dim), var(--color-accent-orange) );
-				box-shadow: 0 0 8px var(--color-accent-orange);
+				box-shadow:
+					0 0 8px var(--color-accent-orange),
+					inset -4px 0 8px rgba( 255, 107, 0, 0.4 );
+			}
+
+			/* ===================================================
+			   Stat score — mono font + per-stat glow
+			   =================================================== */
+
+			.kk-garage__stat-row--speed .kk-garage__stat-score {
+				color: var(--color-accent-orange, #f97316);
+				text-shadow: 0 0 6px rgba( 255, 107, 0, 0.5 );
+			}
+
+			.kk-garage__stat-row--handling .kk-garage__stat-score {
+				color: var(--color-accent-cyan, #00d4e8);
+				text-shadow: 0 0 6px rgba( 0, 212, 232, 0.5 );
+			}
+
+			.kk-garage__stat-row--acceleration .kk-garage__stat-score {
+				color: var(--color-accent-yellow, #ffd600);
+				text-shadow: 0 0 6px rgba( 255, 214, 0, 0.5 );
+			}
+
+			.kk-garage__stat-row--weight .kk-garage__stat-score {
+				color: var(--color-accent-pink, #ff3a8c);
+				text-shadow: 0 0 6px rgba( 255, 58, 140, 0.5 );
+			}
+
+			.kk-garage__stat-row--boost .kk-garage__stat-score {
+				color: var(--color-accent-orange, #f97316);
+				text-shadow: 0 0 6px rgba( 255, 107, 0, 0.5 );
+			}
+
+			/* ===================================================
+			   Reduced motion — disable stat bar animations
+			   =================================================== */
+
+			@media ( prefers-reduced-motion: reduce ) {
+
+				.kk-garage__stat-row .kk-progress-bar__fill {
+					transition: none;
+				}
+
+				.kk-garage__stat-row .kk-progress-bar__fill::after {
+					animation: none;
+				}
+
 			}
 
 			/* ===================================================
