@@ -38,23 +38,19 @@ export class Controls {
 		this._touchContainer = null;
 		this._touchCSS = null;
 
-		window.addEventListener( 'keydown', ( e ) => this.keys[ e.code ] = true );
-		window.addEventListener( 'keyup', ( e ) => this.keys[ e.code ] = false );
-		window.addEventListener( 'gamepadconnected', () => { this._gamepadConnected = true; } );
-		window.addEventListener( 'gamepaddisconnected', () => {
+		// Store handler references for dispose()
+		this._onKeyDown = ( e ) => this.keys[ e.code ] = true;
+		this._onKeyUp = ( e ) => this.keys[ e.code ] = false;
+		this._onGamepadConnected = () => { this._gamepadConnected = true; };
+		this._onGamepadDisconnected = () => {
 
 			this._gamepadConnected = navigator.getGamepads().some( ( gp ) => gp !== null );
 
-		} );
-
-		// Pinch-to-zoom tracking (window-level)
-		window.addEventListener( 'pointerdown', ( e ) => this._onPinchPointerDown( e ) );
-		window.addEventListener( 'pointermove', ( e ) => this._onPinchPointerMove( e ) );
-		window.addEventListener( 'pointerup', ( e ) => this._onPinchPointerEnd( e ) );
-		window.addEventListener( 'pointercancel', ( e ) => this._onPinchPointerEnd( e ) );
-
-		// Clear stale pointers when tab loses focus (prevents phantom pinch gestures)
-		document.addEventListener( 'visibilitychange', () => {
+		};
+		this._onPinchDown = ( e ) => this._onPinchPointerDown( e );
+		this._onPinchMoveHandler = ( e ) => this._onPinchPointerMove( e );
+		this._onPinchEndHandler = ( e ) => this._onPinchPointerEnd( e );
+		this._onVisChange = () => {
 
 			if ( document.visibilityState === 'hidden' ) {
 
@@ -63,15 +59,30 @@ export class Controls {
 
 			}
 
-		} );
-
-		// Listen for settings changes
-		window.addEventListener( 'settings-changed', ( e ) => {
+		};
+		this._onSettingsChanged = ( e ) => {
 
 			if ( e.detail.key === 'handedness' ) this._rebuildTouchUI();
 			if ( e.detail.key === 'accelerometer' ) this._toggleAccelerometer( e.detail.value );
 
-		} );
+		};
+
+		window.addEventListener( 'keydown', this._onKeyDown );
+		window.addEventListener( 'keyup', this._onKeyUp );
+		window.addEventListener( 'gamepadconnected', this._onGamepadConnected );
+		window.addEventListener( 'gamepaddisconnected', this._onGamepadDisconnected );
+
+		// Pinch-to-zoom tracking (window-level)
+		window.addEventListener( 'pointerdown', this._onPinchDown );
+		window.addEventListener( 'pointermove', this._onPinchMoveHandler );
+		window.addEventListener( 'pointerup', this._onPinchEndHandler );
+		window.addEventListener( 'pointercancel', this._onPinchEndHandler );
+
+		// Clear stale pointers when tab loses focus (prevents phantom pinch gestures)
+		document.addEventListener( 'visibilitychange', this._onVisChange );
+
+		// Listen for settings changes
+		window.addEventListener( 'settings-changed', this._onSettingsChanged );
 
 		this.setupTouchUI();
 
@@ -595,6 +606,44 @@ export class Controls {
 		}
 
 		return { x, z, touchActive: this.touchActive, boost, drift, gas, brake, useItem };
+
+	}
+
+	dispose() {
+
+		window.removeEventListener( 'keydown', this._onKeyDown );
+		window.removeEventListener( 'keyup', this._onKeyUp );
+		window.removeEventListener( 'gamepadconnected', this._onGamepadConnected );
+		window.removeEventListener( 'gamepaddisconnected', this._onGamepadDisconnected );
+		window.removeEventListener( 'pointerdown', this._onPinchDown );
+		window.removeEventListener( 'pointermove', this._onPinchMoveHandler );
+		window.removeEventListener( 'pointerup', this._onPinchEndHandler );
+		window.removeEventListener( 'pointercancel', this._onPinchEndHandler );
+		document.removeEventListener( 'visibilitychange', this._onVisChange );
+		window.removeEventListener( 'settings-changed', this._onSettingsChanged );
+
+		// Remove accelerometer listener if active
+		if ( this._accelListening && this._accelHandler ) {
+
+			window.removeEventListener( 'deviceorientation', this._accelHandler );
+			this._accelListening = false;
+
+		}
+
+		// Remove touch UI
+		if ( this._touchContainer ) {
+
+			this._touchContainer.remove();
+			this._touchContainer = null;
+
+		}
+
+		if ( this._touchCSS ) {
+
+			this._touchCSS.remove();
+			this._touchCSS = null;
+
+		}
 
 	}
 

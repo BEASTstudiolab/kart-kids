@@ -169,7 +169,7 @@ export function buildTrackColliders( world, models, customCells ) {
 
 	}
 
-	rigidBody.create( world, {
+	const trackBody = rigidBody.create( world, {
 		shape: triangleMesh.create( { positions, indices } ),
 		motionType: MotionType.STATIC,
 		objectLayer: world._OL_STATIC,
@@ -177,8 +177,8 @@ export function buildTrackColliders( world, models, customCells ) {
 		restitution: 0.0,
 	} );
 
-	// Return geometry data for debug visualization
-	return { positions, indices };
+	// Return geometry data for debug visualization + body reference for lifecycle management
+	return { positions, indices, trackBody };
 
 }
 
@@ -240,6 +240,25 @@ export function removeVehicleBody( world, body ) {
 	rigidBody.setPosition( world, body, [ 0, - 1000, 0 ], false );
 	rigidBody.setLinearVelocity( world, body, [ 0, 0, 0 ] );
 	rigidBody.setAngularVelocity( world, body, [ 0, 0, 0 ] );
+
+}
+
+/**
+ * Resets all tracked bodies in the physics world by teleporting them to Y=-10000
+ * and zeroing velocities. Does NOT destroy the world — it persists across races.
+ *
+ * @param {object} world - crashcat physics world
+ * @param {Array} bodies - array of rigid body references to reset
+ */
+export function resetPhysicsWorld( world, bodies ) {
+
+	for ( const body of bodies ) {
+
+		rigidBody.setPosition( world, body, [ 0, - 10000, 0 ], false );
+		rigidBody.setLinearVelocity( world, body, [ 0, 0, 0 ] );
+		rigidBody.setAngularVelocity( world, body, [ 0, 0, 0 ] );
+
+	}
 
 }
 
