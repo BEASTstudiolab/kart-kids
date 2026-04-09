@@ -21,6 +21,7 @@
 
 import { CTAButton }      from '../components/CTAButton.js';
 import { LoadingOverlay }  from '../components/LoadingOverlay.js';
+import { LobbyOverlay }   from '../overlays/LobbyOverlay.js';
 import { Settings }        from '../../Settings.js';
 import { getRandomTrack }  from '../../TrackRegistry.js';
 import { NetworkClient }   from '../../Network.js';
@@ -49,6 +50,9 @@ export class RacePanel {
 
 		/** @type {LoadingOverlay | null} */
 		this._matchmakingOverlay = null;
+
+		/** @type {LobbyOverlay | null} */
+		this._lobbyOverlay = null;
 
 		/** @type {CTAButton | null} */
 		this._raceBtn = null;
@@ -273,7 +277,7 @@ export class RacePanel {
 				break;
 
 			case 'private':
-				this._showPrivatePlaceholder();
+				await this._startPrivateLobby();
 				break;
 
 		}
@@ -382,16 +386,28 @@ export class RacePanel {
 	}
 
 	// ---------------------------------------------------------------------------
-	// PRIVATE placeholder
+	// PRIVATE lobby
 	// ---------------------------------------------------------------------------
 
-	_showPrivatePlaceholder() {
+	async _startPrivateLobby() {
 
-		this._services.notification.show( {
-			message:  'Private lobbies coming soon',
-			variant:  'info',
-			duration: 2500,
-		} );
+		// Create a NetworkClient on demand (same pattern as online matchmaking).
+		if ( ! this._network ) {
+
+			this._network = new NetworkClient();
+
+		}
+
+		// Create LobbyOverlay if needed.
+		if ( ! this._lobbyOverlay ) {
+
+			// Mount into the shell element (parent of our container).
+			const shell = this._container.closest( '#kk-app-shell' ) || document.body;
+			this._lobbyOverlay = new LobbyOverlay( shell, this._services );
+
+		}
+
+		this._lobbyOverlay.show( this._network );
 
 	}
 
@@ -449,6 +465,13 @@ export class RacePanel {
 
 			this._matchmakingOverlay.dispose();
 			this._matchmakingOverlay = null;
+
+		}
+
+		if ( this._lobbyOverlay ) {
+
+			this._lobbyOverlay.dispose();
+			this._lobbyOverlay = null;
 
 		}
 

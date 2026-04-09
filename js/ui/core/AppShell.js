@@ -56,6 +56,7 @@ import { showNameEntryModal } from '../components/NameEntryModal.js';
 import { RacePanel }         from '../panels/RacePanel.js';
 import { ProfilePanel }      from '../panels/ProfilePanel.js';
 import { GaragePanel }       from '../panels/GaragePanel.js';
+import { ResultsOverlay }    from '../overlays/ResultsOverlay.js';
 
 // Tab definitions — order matches the tab bar left-to-right.
 const TAB_DEFS = [
@@ -187,6 +188,9 @@ export class AppShell {
 
 		/** @type {import('../panels/GaragePanel.js').GaragePanel | null} */
 		this._garagePanel = null;
+
+		/** @type {import('../overlays/ResultsOverlay.js').ResultsOverlay | null} */
+		this._resultsOverlay = null;
 
 	}
 
@@ -731,12 +735,8 @@ export class AppShell {
 
 		} );
 
-		r.register( RouteIds.RESULTS, async () => {
-
-			const { Page19ResultsController } = await import( '../pages/page19-results/Page19ResultsController.js' );
-			return new Page19ResultsController( s );
-
-		} );
+		// RESULTS route REMOVED — ResultsOverlay is now shown directly by endRace().
+		// Page19ResultsController remains in repo for reference.
 
 		r.register( RouteIds.PAUSE, async () => {
 
@@ -953,10 +953,10 @@ export class AppShell {
 	}
 
 	/**
-	 * End the current race. Stops the GameEngine, restores the menu UI,
-	 * and navigates to the Results page with race data.
+	 * End the current race. Stops the GameEngine, restores the menu shell,
+	 * and shows the ResultsOverlay. Tab bar stays hidden during results (R17b).
 	 *
-	 * @param {object} [results] - Race results data to pass to the Results page.
+	 * @param {object} [results] - Race results data (position, times, mode).
 	 */
 	endRace( results ) {
 
@@ -968,23 +968,59 @@ export class AppShell {
 
 		this._renderMode = 'idle';
 
-		// Restore the menu shell.
+		// Restore the menu shell (but NOT the tab bar -- R17b keeps it hidden).
 		if ( this._shell ) {
 
 			this._shell.style.display = '';
 
 		}
 
-		// Restore tab bar.
-		if ( this._tabBarEl ) {
+		// Clean up any prior results overlay.
+		if ( this._resultsOverlay ) {
 
-			this._tabBarEl.style.display = '';
+			this._resultsOverlay.dispose();
+			this._resultsOverlay = null;
 
 		}
 
-		// Navigate to Results with race data (stash in a shared location for the controller).
-		this._services._lastRaceResults = results || {};
-		this._navigation.push( RouteIds.RESULTS );
+		// Create and show ResultsOverlay.
+		const overlay = new ResultsOverlay( this._shell, this._services, results || {} );
+
+		overlay.onQuit = () => {
+
+			overlay.dispose();
+			this._resultsOverlay = null;
+
+			// Restore tab bar and switch to RACE tab.
+			if ( this._tabBarEl ) {
+
+				this._tabBarEl.style.display = '';
+
+			}
+
+			this.switchTab( 'race' );
+
+		};
+
+		overlay.onRaceAgainPrivate = () => {
+
+			overlay.dispose();
+			this._resultsOverlay = null;
+
+			// Restore tab bar for lobby overlay (R17c: tab bar clickable under lobby).
+			if ( this._tabBarEl ) {
+
+				this._tabBarEl.style.display = '';
+
+			}
+
+			// Return to RACE tab and trigger private lobby flow via RacePanel.
+			this.switchTab( 'race' );
+
+		};
+
+		this._resultsOverlay = overlay;
+		overlay.show();
 
 	}
 
