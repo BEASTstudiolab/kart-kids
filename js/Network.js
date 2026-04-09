@@ -89,6 +89,11 @@ class WebSocketTransport {
 
 }
 
+// ── Reconnect constants ──────────────────────────────────────────────────────
+
+const RECONNECT_TTL_MS = 30000;
+const RECONNECT_STORAGE_KEY = 'kart-kids-session';
+
 // ── Network client ───────────────────────────────────────────────────────────
 
 export class NetworkClient {
@@ -99,6 +104,14 @@ export class NetworkClient {
 		this._connected = false;
 		this._sendInterval = null;
 		this._pendingState = null;
+		this._localPlayerId = null;
+		this._sessionToken = null;
+		this._serverUrl = null;
+
+		// Pending promise resolvers for room operations
+		this._pendingCreateRoom = null;
+		this._pendingJoinRoom = null;
+		this._pendingFindRoom = null;
 
 		// Event callbacks — set by consumer
 		this.onWelcome = null;
@@ -113,9 +126,19 @@ export class NetworkClient {
 		this.onRaceStart = null;
 		this.onPlayerLap = null;
 
+		// Room callbacks — set by consumer
+		this.onRoomCreated = null;
+		this.onRoomJoined = null;
+		this.onRoomFull = null;
+		this.onRoomError = null;
+		this.onHostChange = null;
+
 	}
 
 	get connected() { return this._connected; }
+
+	/** @returns {string|null} Local player ID assigned by the server. */
+	get localPlayerId() { return this._localPlayerId; }
 
 	async connect( url ) {
 
@@ -130,6 +153,8 @@ export class NetworkClient {
 
 		}
 
+		this._serverUrl = url;
+
 		await this._transport.connect( url );
 		this._connected = true;
 
@@ -137,7 +162,87 @@ export class NetworkClient {
 
 			switch ( msg.type ) {
 
-				case 'welcome': if ( this.onWelcome ) this.onWelcome( msg ); break;
+				case 'welcome':
+					this._localPlayerId = msg.id ?? msg.playerId ?? null;
+					this._storeSession( msg.token ?? null );
+					if ( this.onWelcome ) this.onWelcome( msg );
+					// Resolve pending createRoom if roomCode present
+					if ( msg.roomCode && this._pendingCreateRoom ) {
+
+						this._pendingCreateRoom.resolve( msg.roomCode );
+						this._pendingCreateRoom = null;
+
+					}
+					break;
+
+				case 'roomCreated':
+					if ( this._pendingCreateRoom ) {
+
+						this._pendingCreateRoom.resolve( msg.roomCode );
+						this._pendingCreateRoom = null;
+
+					}
+					if ( this.onRoomCreated ) this.onRoomCreated( msg );
+					break;
+
+				case 'roomJoined':
+					if ( this._pendingJoinRoom ) {
+
+						this._pendingJoinRoom.resolve( msg );
+						this._pendingJoinRoom = null;
+
+					}
+					if ( this._pendingFindRoom ) {
+
+						this._pendingFindRoom.resolve( msg );
+						this._pendingFindRoom = null;
+
+					}
+					if ( this.onRoomJoined ) this.onRoomJoined( msg );
+					break;
+
+				case 'roomFull':
+					if ( this._pendingJoinRoom ) {
+
+						this._pendingJoinRoom.reject( new Error( 'Room is full' ) );
+						this._pendingJoinRoom = null;
+
+					}
+					if ( this._pendingFindRoom ) {
+
+						this._pendingFindRoom.reject( new Error( 'Room is full' ) );
+						this._pendingFindRoom = null;
+
+					}
+					if ( this.onRoomFull ) this.onRoomFull( msg );
+					break;
+
+				case 'roomError':
+					if ( this._pendingJoinRoom ) {
+
+						this._pendingJoinRoom.reject( new Error( msg.message ?? 'Room error' ) );
+						this._pendingJoinRoom = null;
+
+					}
+					if ( this._pendingFindRoom ) {
+
+						this._pendingFindRoom.reject( new Error( msg.message ?? 'Room error' ) );
+						this._pendingFindRoom = null;
+
+					}
+					if ( this._pendingCreateRoom ) {
+
+						this._pendingCreateRoom.reject( new Error( msg.message ?? 'Room error' ) );
+						this._pendingCreateRoom = null;
+
+					}
+					if ( this.onRoomError ) this.onRoomError( msg );
+					break;
+
+				case 'hostChange':
+					if ( this.onHostChange ) this.onHostChange( msg );
+					break;
+
 				case 'playerJoin': if ( this.onPlayerJoin ) this.onPlayerJoin( msg ); break;
 				case 'playerLeave': if ( this.onPlayerLeave ) this.onPlayerLeave( msg ); break;
 				case 'world': if ( this.onWorldUpdate ) this.onWorldUpdate( msg ); break;
@@ -154,6 +259,15 @@ export class NetworkClient {
 
 			this._connected = false;
 			this._stopSendLoop();
+
+			// Attempt reconnect if session is still valid
+			if ( this._shouldReconnect() ) {
+
+				this._attemptReconnect();
+				return;
+
+			}
+
 			if ( this.onDisconnect ) this.onDisconnect();
 
 		} );
@@ -190,11 +304,212 @@ export class NetworkClient {
 
 	}
 
+	// ---------------------------------------------------------------------------
+	// Room operations
+	// ---------------------------------------------------------------------------
+
+	/**
+	 * Create a new room. Resolves with the room code string.
+	 * @returns {Promise<string>}
+	 */
+	createRoom() {
+
+		return new Promise( ( resolve, reject ) => {
+
+			this._pendingCreateRoom = { resolve, reject };
+			this._transport.send( { type: 'createRoom' } );
+
+			// Timeout after 5s
+			setTimeout( () => {
+
+				if ( this._pendingCreateRoom ) {
+
+					this._pendingCreateRoom.reject( new Error( 'Create room timeout' ) );
+					this._pendingCreateRoom = null;
+
+				}
+
+			}, 5000 );
+
+		} );
+
+	}
+
+	/**
+	 * Join an existing room by code.
+	 * @param {string} code
+	 * @param {string} vehicleId
+	 * @returns {Promise<object>}  Resolves with roomJoined message.
+	 */
+	joinRoom( code, vehicleId ) {
+
+		return new Promise( ( resolve, reject ) => {
+
+			this._pendingJoinRoom = { resolve, reject };
+			this._transport.send( { type: 'joinRoom', roomCode: code, vehicleId } );
+
+			setTimeout( () => {
+
+				if ( this._pendingJoinRoom ) {
+
+					this._pendingJoinRoom.reject( new Error( 'Join room timeout' ) );
+					this._pendingJoinRoom = null;
+
+				}
+
+			}, 5000 );
+
+		} );
+
+	}
+
+	/**
+	 * Auto-matchmaking: find an available room or create one.
+	 * @param {string} vehicleId
+	 * @returns {Promise<object>}  Resolves with roomJoined message.
+	 */
+	findRoom( vehicleId ) {
+
+		return new Promise( ( resolve, reject ) => {
+
+			this._pendingFindRoom = { resolve, reject };
+			this._transport.send( { type: 'findRoom', vehicleId } );
+
+			setTimeout( () => {
+
+				if ( this._pendingFindRoom ) {
+
+					this._pendingFindRoom.reject( new Error( 'Find room timeout' ) );
+					this._pendingFindRoom = null;
+
+				}
+
+			}, 10000 );
+
+		} );
+
+	}
+
+	/**
+	 * Host-only: start the race on the given track.
+	 * @param {string} trackId
+	 */
+	startRace( trackId ) {
+
+		this._transport.send( { type: 'startRace', trackId } );
+
+	}
+
+	/**
+	 * Leave the current room.
+	 */
+	leaveRoom() {
+
+		this._transport.send( { type: 'leaveRoom' } );
+
+	}
+
+	// ---------------------------------------------------------------------------
+	// Reconnect
+	// ---------------------------------------------------------------------------
+
+	/**
+	 * Store session token with timestamp for reconnect.
+	 * @param {string|null} token
+	 */
+	_storeSession( token ) {
+
+		this._sessionToken = token;
+
+		if ( token ) {
+
+			try {
+
+				localStorage.setItem( RECONNECT_STORAGE_KEY, JSON.stringify( {
+					token,
+					timestamp: Date.now(),
+				} ) );
+
+			} catch ( e ) { /* quota exceeded — ignore */ }
+
+		}
+
+	}
+
+	/**
+	 * Check whether a reconnect attempt should be made.
+	 * @returns {boolean}
+	 */
+	_shouldReconnect() {
+
+		try {
+
+			const raw = localStorage.getItem( RECONNECT_STORAGE_KEY );
+			if ( ! raw ) return false;
+
+			const data = JSON.parse( raw );
+			return ( Date.now() - data.timestamp ) < RECONNECT_TTL_MS;
+
+		} catch ( e ) {
+
+			return false;
+
+		}
+
+	}
+
+	/**
+	 * Attempt to reconnect to the server with the stored session token.
+	 */
+	async _attemptReconnect() {
+
+		let data;
+
+		try {
+
+			const raw = localStorage.getItem( RECONNECT_STORAGE_KEY );
+			data = raw ? JSON.parse( raw ) : null;
+
+		} catch ( e ) {
+
+			if ( this.onDisconnect ) this.onDisconnect();
+			return;
+
+		}
+
+		if ( ! data || ! data.token || ! this._serverUrl ) {
+
+			if ( this.onDisconnect ) this.onDisconnect();
+			return;
+
+		}
+
+		try {
+
+			this._transport = new WebSocketTransport();
+			await this.connect( this._serverUrl );
+			// Send reconnect token so server can restore session
+			this._transport.send( { type: 'reconnect', token: data.token } );
+
+		} catch ( e ) {
+
+			localStorage.removeItem( RECONNECT_STORAGE_KEY );
+			if ( this.onDisconnect ) this.onDisconnect();
+
+		}
+
+	}
+
+	// ---------------------------------------------------------------------------
+	// Teardown
+	// ---------------------------------------------------------------------------
+
 	disconnect() {
 
 		this._stopSendLoop();
 		this._transport.close();
 		this._connected = false;
+		localStorage.removeItem( RECONNECT_STORAGE_KEY );
 
 	}
 
