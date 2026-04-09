@@ -5,13 +5,13 @@
  *
  * Responsibilities:
  *   - Create and configure Page12ProfileView.
- *   - Populate profile card (avatar, name, title, level, XP bar) from MockData.player.
- *   - Populate lifetime stats panel.
- *   - Populate favorite loadout preview from MockData.loadout.
- *   - Render Achievements, Badges, Match History tabs.
+ *   - Populate profile card from Settings (display name, race stats).
+ *   - Populate lifetime stats panel from Settings.getStats().
+ *   - Populate favorite loadout preview from Settings + VehicleRegistry.
+ *   - Render Achievements, Badges, Match History tabs (placeholder data).
  *   - Bind EDIT PROFILE → modal, FAVORITE LOADOUT → /garage, tab switching.
  *
- * Data: MockData.player, MockData.loadout, MockData.challenges (no async required).
+ * Data: Settings (profile + stats), VehicleRegistry (kart label).
  */
 
 import { PageControllerBase }  from '../../core/PageControllerBase.js';
@@ -20,45 +20,14 @@ import { RouteIds }            from '../../enums/RouteIds.js';
 import { ModalIds }            from '../../enums/ModalIds.js';
 import { PageIds }             from '../../enums/PageIds.js';
 import { EventIds }            from '../../enums/EventIds.js';
-import { MockData }            from '../../repositories/mocks/MockData.js';
+import { Settings }            from '../../../Settings.js';
+import { getVehicleById, PLAYER_CHARACTERS } from '../../../VehicleRegistry.js';
 
-// Mock lifetime stats displayed in the stats panel.
-const MOCK_LIFETIME_STATS = [
-	{ label: 'RACES',       value: '126' },
-	{ label: 'WINS',        value: '88'  },
-	{ label: 'WIN RATE',    value: '70%' },
-	{ label: 'TOTAL DRIFTS', value: '4.2K' },
-	{ label: 'BEST LAP',    value: '1:12.3' },
-	{ label: 'TOP SPEED',   value: '247 KPH' },
-];
-
-// Mock achievements list.
-const MOCK_ACHIEVEMENTS = [
-	{ id: 'ach_drift_master',   title: 'Drift Master',   desc: 'Complete 1,000 perfect drifts.',         progress: 820,  target: 1000, unlocked: false },
-	{ id: 'ach_win_streak',     title: 'Win Streak',     desc: 'Win 10 races in a row.',                  progress: 10,   target: 10,   unlocked: true  },
-	{ id: 'ach_speed_demon',    title: 'Speed Demon',    desc: 'Reach max speed 50 times.',               progress: 50,   target: 50,   unlocked: true  },
-	{ id: 'ach_grand_tour',     title: 'Grand Tour',     desc: 'Complete all Grand Prix cups.',           progress: 3,    target: 6,    unlocked: false },
-	{ id: 'ach_social_racer',   title: 'Social Racer',   desc: 'Play with 20 different friends.',        progress: 14,   target: 20,   unlocked: false },
-];
-
-// Mock badges.
-const MOCK_BADGES = [
-	{ id: 'badge_s1',     label: 'Season 1 Veteran', unlocked: true  },
-	{ id: 'badge_drift',  label: 'Drift King',        unlocked: true  },
-	{ id: 'badge_ace',    label: 'Ace Ranked',        unlocked: true  },
-	{ id: 'badge_tour',   label: 'Tour Champion',     unlocked: false },
-	{ id: 'badge_create', label: 'Track Creator',     unlocked: false },
-	{ id: 'badge_social', label: 'Party Animal',      unlocked: false },
-];
-
-// Mock match history entries.
-const MOCK_MATCH_HISTORY = [
-	{ track: 'Neon Tokyo',        position: 1,  date: 'YESTERDAY',   xp: '+250 XP' },
-	{ track: 'Mega Mall Grand Prix', position: 3, date: '2 DAYS AGO',  xp: '+120 XP' },
-	{ track: 'Beastside Arena',   position: 2,  date: '3 DAYS AGO',  xp: '+180 XP' },
-	{ track: 'Neon Tokyo',        position: 1,  date: '4 DAYS AGO',  xp: '+250 XP' },
-	{ track: 'Beastside Arena',   position: 5,  date: '5 DAYS AGO',  xp: '+60 XP'  },
-];
+// Placeholder tab data — achievements, badges, and match history are not yet
+// tracked in Settings. These empty arrays ensure the view renders cleanly.
+const PLACEHOLDER_ACHIEVEMENTS = [];
+const PLACEHOLDER_BADGES = [];
+const PLACEHOLDER_MATCH_HISTORY = [];
 
 export class Page12ProfileController extends PageControllerBase {
 
@@ -122,27 +91,40 @@ export class Page12ProfileController extends PageControllerBase {
 
 	render( container ) {
 
-		const view = this._view;
-		const player = MockData.player;
+		const view     = this._view;
+		const settings = new Settings();
+		const stats    = settings.getStats();
+		const displayName = settings.getDisplayName() ?? 'Player';
+		const kartId   = settings.getSelectedKartId();
+		const kart     = getVehicleById( kartId );
+		const charName = PLAYER_CHARACTERS[ 0 ]?.label ?? 'Racer';
+		const kartName = kart.label;
+		const winRate  = stats.totalRaces > 0
+			? Math.round( ( stats.wins / stats.totalRaces ) * 100 )
+			: 0;
 
 		// Profile card.
 		view.setProfileCard( {
-			name:       player.name,
-			title:      player.title,
-			level:      player.level,
-			xp:         player.xp,
-			xpToNext:   player.xpToNext,
-			totalWins:  player.totalWins,
-			totalRaces: player.totalRaces,
+			name:       displayName,
+			title:      'Racer',
+			level:      1,
+			xp:         0,
+			xpToNext:   1000,
+			totalWins:  stats.wins,
+			totalRaces: stats.totalRaces,
 		} );
 
-		// Lifetime stats.
-		view.setLifetimeStats( MOCK_LIFETIME_STATS );
+		// Lifetime stats from Settings.
+		view.setLifetimeStats( [
+			{ label: 'RACES',    value: String( stats.totalRaces ) },
+			{ label: 'WINS',     value: String( stats.wins ) },
+			{ label: 'WIN RATE', value: `${winRate}%` },
+		] );
 
 		// Favorite loadout.
 		view.setFavoriteLoadout( {
-			characterName: MockData.loadout.characterName,
-			kartName:      MockData.loadout.kartName,
+			characterName: charName,
+			kartName:      kartName,
 		} );
 
 		// Initial tab.

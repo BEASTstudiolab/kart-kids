@@ -165,7 +165,8 @@ export class Page11KartSelectController extends PageControllerBase {
 	 */
 	_handleKartSelect( kartId ) {
 
-		const kart = MockData.karts.find( k => k.id === kartId );
+		const karts = this._kartsList();
+		const kart = karts.find( k => k.id === kartId );
 		if ( ! kart ) return;
 
 		if ( ! kart.owned ) {
@@ -180,7 +181,7 @@ export class Page11KartSelectController extends PageControllerBase {
 
 		// Always update preview so players can inspect locked karts.
 		this._selectedKart = kart;
-		this._view.setSelectedKart( kart, MockData.loadout.kartId );
+		this._view.setSelectedKart( kart, this._settings.getSelectedKartId() );
 		this._view.setThumbSelected( kartId );
 
 		this._analytics?.track( EventIds.KART_SELECTED, { kartId } );
@@ -235,7 +236,8 @@ export class Page11KartSelectController extends PageControllerBase {
 
 		}
 
-		// In production this dispatches a command to GarageService.
+		// Persist the selection to Settings.
+		this._settings.setSelectedKartId( kart.id );
 		this._analytics?.track( EventIds.KART_EQUIPPED, { kartId: kart.id } );
 
 		this.showToast( {

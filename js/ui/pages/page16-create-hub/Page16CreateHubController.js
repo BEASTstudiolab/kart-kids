@@ -13,10 +13,10 @@
  *   - Wire PLAY buttons on featured track cards → RouteIds.LOBBY.
  *   - Wire STARTER TEMPLATES button → template picker modal (placeholder).
  *   - Wire PageHeader back → RouteIds.HOME.
- *   - Populate track card data from MockData.tracks.
+ *   - Populate track card data from TrackRegistry.
  *   - Emit analytics page view on mount.
  *
- * Data: MockData.tracks (synchronous, no async required).
+ * Data: TrackRegistry (tracks list).
  */
 
 import { PageControllerBase }    from '../../core/PageControllerBase.js';
@@ -25,7 +25,7 @@ import { RouteIds }              from '../../enums/RouteIds.js';
 import { ButtonIds }             from '../../enums/ButtonIds.js';
 import { PageIds }               from '../../enums/PageIds.js';
 import { EventIds }              from '../../enums/EventIds.js';
-import { MockData }              from '../../repositories/mocks/MockData.js';
+import { getTracks }             from '../../../TrackRegistry.js';
 
 export class Page16CreateHubController extends PageControllerBase {
 
@@ -132,7 +132,7 @@ export class Page16CreateHubController extends PageControllerBase {
 
 	loadData() {
 
-		// MockData is synchronous.
+		// TrackRegistry is synchronous.
 		return Promise.resolve();
 
 	}
@@ -140,7 +140,7 @@ export class Page16CreateHubController extends PageControllerBase {
 	render( container ) {
 
 		const view   = this._view;
-		const tracks = MockData.tracks;
+		const tracks = getTracks().map( ( t ) => ( { id: t.id, name: t.name, difficulty: t.difficulty } ) );
 
 		// MY RECENT TRACKS: first 3 tracks
 		view.setRecentTracks( tracks.slice( 0, 3 ) );
