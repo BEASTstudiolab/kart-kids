@@ -1,7 +1,7 @@
 import { detectTier, VALID_TIERS } from './QualityTiers.js';
 
 const STORAGE_KEY = 'kart-kids-settings';
-const SCHEMA_VERSION = 3;
+const SCHEMA_VERSION = 4;
 
 const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
@@ -33,6 +33,7 @@ const DEFAULTS = {
 	},
 	loadout: {
 		selectedKartId: 'kart-1',
+		selectedTrackId: 'starter-circuit',
 	},
 	stats: {
 		totalRaces: 0,
@@ -81,6 +82,14 @@ export class Settings {
 					parsed.profile = Object.assign( {}, DEFAULTS.profile, parsed.profile );
 					parsed.loadout = Object.assign( {}, DEFAULTS.loadout, parsed.loadout );
 					parsed.stats = Object.assign( {}, DEFAULTS.stats, parsed.stats );
+
+				}
+
+				// v3 → v4: Add selectedTrackId to loadout
+				if ( version < 4 ) {
+
+					if ( ! parsed.loadout ) parsed.loadout = {};
+					if ( ! parsed.loadout.selectedTrackId ) parsed.loadout.selectedTrackId = DEFAULTS.loadout.selectedTrackId;
 
 				}
 
@@ -173,6 +182,20 @@ export class Settings {
 		this._data.loadout.selectedKartId = kartId;
 		this._save();
 		window.dispatchEvent( new CustomEvent( 'settings-changed', { detail: { key: 'loadout.selectedKartId', value: kartId } } ) );
+
+	}
+
+	getSelectedTrackId() {
+
+		return this._data.loadout.selectedTrackId;
+
+	}
+
+	setSelectedTrackId( trackId ) {
+
+		this._data.loadout.selectedTrackId = trackId;
+		this._save();
+		window.dispatchEvent( new CustomEvent( 'settings-changed', { detail: { key: 'loadout.selectedTrackId', value: trackId } } ) );
 
 	}
 
