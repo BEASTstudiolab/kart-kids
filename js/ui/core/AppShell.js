@@ -42,6 +42,7 @@ import { ModalService }       from './ModalService.js';
 import { NotificationService } from './NotificationService.js';
 import { AnalyticsService }   from './AnalyticsService.js';
 import { RouteIds }           from '../enums/RouteIds.js';
+import { createGameEngine }   from '../../GameEngine.js';
 
 // Routes where the TopNav is hidden (Title Screen, Pause overlay, and Results).
 // Results is a post-race cinematic screen that occupies the full viewport.
@@ -81,7 +82,38 @@ export class AppShell {
 			modal:        this._modal,
 			notification: this._notification,
 			analytics:    this._analytics,
+			startRace:    ( raceConfig ) => this.startRace( raceConfig ),
+			endRace:      ( results ) => this.endRace( results ),
 		};
+
+		// -----------------------------------------------------------------------
+		// GameEngine (created during bootstrap)
+		// -----------------------------------------------------------------------
+
+		/** @type {object | null} */
+		this._engine = null;
+
+		// -----------------------------------------------------------------------
+		// Render loop state
+		// -----------------------------------------------------------------------
+
+		/**
+		 * Current render mode.
+		 * 'idle'    — no active rendering (menu browsing, no ambient scene yet)
+		 * 'race'    — GameEngine.update() called each frame
+		 * 'garage'  — GaragePreview.update() called each frame (Unit 5)
+		 * @type {'idle' | 'race' | 'garage'}
+		 */
+		this._renderMode = 'idle';
+
+		/** @type {number | null} rAF handle for cancellation */
+		this._rafId = null;
+
+		/** @type {number} previous frame timestamp for dt calculation */
+		this._lastFrameTime = 0;
+
+		/** @type {object | null} garage preview renderer (Unit 5 placeholder) */
+		this._garagePreview = null;
 
 		// -----------------------------------------------------------------------
 		// DOM elements (populated by _buildShell())
@@ -116,6 +148,16 @@ export class AppShell {
 
 		this._buildShell();
 		this._initServices();
+
+		// Create GameEngine — renderer canvas lives inside #canvas-container (z-index 0).
+		const canvasContainer = this._config.canvasContainer || document.getElementById( 'canvas-container' );
+		if ( canvasContainer ) {
+
+			this._engine = createGameEngine( canvasContainer );
+			this._services.engine = this._engine;
+
+		}
+
 		this._registerRoutes();
 		this._router.start();
 
@@ -129,6 +171,9 @@ export class AppShell {
 		// Keep TopNav visibility in sync with route changes.
 		window.addEventListener( 'hashchange', () => this._syncTopNavVisibility() );
 		this._syncTopNavVisibility();
+
+		// Start the persistent render loop coordinator.
+		this._startRenderLoop();
 
 	}
 

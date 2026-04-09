@@ -107,31 +107,21 @@
 
 <script type="module">
 import { AppShell } from './js/ui/core/AppShell.js';
-import { createGameEngine } from './js/GameEngine.js';
 
 const mount = document.getElementById( 'app-mount' );
-const app = new AppShell( mount );
+const canvasContainer = document.getElementById( 'canvas-container' );
+const overlay = document.getElementById( 'loading-overlay' );
+
+const app = new AppShell( mount, { canvasContainer } );
 app.bootstrap();
 
-// ── Launch GameEngine (standalone mode until Unit 4 integrates AppShell) ──
-const engine = createGameEngine( document.body );
+// Fade out loading overlay once AppShell is ready.
+if ( overlay ) {
 
-engine.start( { mode: 'solo' } ).then( () => {
+	overlay.classList.add( 'fade-out' );
+	overlay.addEventListener( 'transitionend', () => overlay.remove(), { once: true } );
 
-	// Hide menu UI while game is running (Unit 4 will handle this properly)
-	mount.style.display = 'none';
-
-	function animate() {
-
-		if ( ! engine.isRunning() ) return;
-		requestAnimationFrame( animate );
-		engine.update();
-
-	}
-
-	requestAnimationFrame( animate );
-
-} ).catch( ( e ) => console.error( 'GameEngine init failed:', e ) );
+}
 
 console.log( '%c KART KIDS Menu System Loaded ', 'background: #ff6b00; color: #000; font-weight: bold; padding: 4px 12px; border-radius: 4px;' );
 </script>

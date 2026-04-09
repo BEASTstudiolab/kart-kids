@@ -7,9 +7,9 @@
  *   - Create and configure Page01TitleView.
  *   - Bind [PRESS START] → navigate to HOME.
  *   - Bind utility rail buttons (SIGN-IN modal, SETTINGS route, etc.).
- *   - Populate version badge and featured event label from MockData.
+ *   - Populate version badge from hardcoded app version string.
  *
- * Data: MockData.version, MockData.featuredEvent.name (no async load required).
+ * Data: Static — no external data source required.
  */
 
 import { PageControllerBase }  from '../../core/PageControllerBase.js';
@@ -19,7 +19,8 @@ import { ModalIds }            from '../../enums/ModalIds.js';
 import { ButtonIds }           from '../../enums/ButtonIds.js';
 import { PageIds }             from '../../enums/PageIds.js';
 import { EventIds }            from '../../enums/EventIds.js';
-import { MockData }            from '../../repositories/mocks/MockData.js';
+
+const APP_VERSION = 'KART KIDS ALPHA v0.28';
 
 export class Page01TitleController extends PageControllerBase {
 
@@ -76,7 +77,7 @@ export class Page01TitleController extends PageControllerBase {
 
 	loadData() {
 
-		// No async work required. MockData is synchronous.
+		// Static content — no async work required.
 		return Promise.resolve();
 
 	}
@@ -84,8 +85,8 @@ export class Page01TitleController extends PageControllerBase {
 	render( container ) {
 
 		// Populate static data before mounting so it is visible immediately.
-		this._view.setVersion( MockData.version );
-		this._view.setFeaturedEventLabel( MockData.featuredEvent.name );
+		this._view.setVersion( APP_VERSION );
+		this._view.setFeaturedEventLabel( 'Kart Kids Racing' );
 
 		this._view.mount( container );
 
