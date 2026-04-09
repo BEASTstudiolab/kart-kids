@@ -1,7 +1,7 @@
 import { detectTier, VALID_TIERS } from './QualityTiers.js';
 
 const STORAGE_KEY = 'kart-kids-settings';
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 
 const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
@@ -27,6 +27,18 @@ const DEFAULTS = {
 		'Mask_Basic': { visible: true, color: '' },
 	},
 	ghostEnabled: true,
+	profile: {
+		displayName: null,
+		avatarChoice: null,
+	},
+	loadout: {
+		selectedKartId: 'kart-1',
+	},
+	stats: {
+		totalRaces: 0,
+		wins: 0,
+		bestTimes: {},
+	},
 };
 
 export class Settings {
@@ -60,6 +72,15 @@ export class Settings {
 				if ( version < 2 ) {
 
 					delete parsed.shadowQuality;
+
+				}
+
+				// v2 → v3: Add profile, loadout, and stats namespaces
+				if ( version < 3 ) {
+
+					parsed.profile = Object.assign( {}, DEFAULTS.profile, parsed.profile );
+					parsed.loadout = Object.assign( {}, DEFAULTS.loadout, parsed.loadout );
+					parsed.stats = Object.assign( {}, DEFAULTS.stats, parsed.stats );
 
 				}
 
@@ -100,6 +121,102 @@ export class Settings {
 			localStorage.setItem( STORAGE_KEY, JSON.stringify( this._data ) );
 
 		} catch ( e ) { console.warn( '[Settings] Failed to save:', e.message ); }
+
+	}
+
+	// --- Profile ---
+
+	isFirstRun() {
+
+		return this._data.profile.displayName === null;
+
+	}
+
+	getDisplayName() {
+
+		return this._data.profile.displayName;
+
+	}
+
+	setDisplayName( name ) {
+
+		this._data.profile.displayName = name;
+		this._save();
+		window.dispatchEvent( new CustomEvent( 'settings-changed', { detail: { key: 'profile.displayName', value: name } } ) );
+
+	}
+
+	getAvatarChoice() {
+
+		return this._data.profile.avatarChoice;
+
+	}
+
+	setAvatarChoice( avatar ) {
+
+		this._data.profile.avatarChoice = avatar;
+		this._save();
+		window.dispatchEvent( new CustomEvent( 'settings-changed', { detail: { key: 'profile.avatarChoice', value: avatar } } ) );
+
+	}
+
+	// --- Loadout ---
+
+	getSelectedKartId() {
+
+		return this._data.loadout.selectedKartId;
+
+	}
+
+	setSelectedKartId( kartId ) {
+
+		this._data.loadout.selectedKartId = kartId;
+		this._save();
+		window.dispatchEvent( new CustomEvent( 'settings-changed', { detail: { key: 'loadout.selectedKartId', value: kartId } } ) );
+
+	}
+
+	// --- Stats ---
+
+	getStats() {
+
+		return this._data.stats;
+
+	}
+
+	incrementTotalRaces() {
+
+		this._data.stats.totalRaces ++;
+		this._save();
+		window.dispatchEvent( new CustomEvent( 'settings-changed', { detail: { key: 'stats.totalRaces', value: this._data.stats.totalRaces } } ) );
+
+	}
+
+	incrementWins() {
+
+		this._data.stats.wins ++;
+		this._save();
+		window.dispatchEvent( new CustomEvent( 'settings-changed', { detail: { key: 'stats.wins', value: this._data.stats.wins } } ) );
+
+	}
+
+	setBestTime( trackId, time ) {
+
+		const current = this._data.stats.bestTimes[ trackId ];
+
+		if ( current === undefined || time < current ) {
+
+			this._data.stats.bestTimes[ trackId ] = time;
+			this._save();
+			window.dispatchEvent( new CustomEvent( 'settings-changed', { detail: { key: 'stats.bestTimes', value: this._data.stats.bestTimes } } ) );
+
+		}
+
+	}
+
+	getBestTime( trackId ) {
+
+		return this._data.stats.bestTimes[ trackId ] || null;
 
 	}
 
