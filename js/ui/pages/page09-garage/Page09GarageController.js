@@ -5,13 +5,13 @@
  *
  * Responsibilities:
  *   - Create and configure Page09GarageView.
- *   - Populate kart stats, loadout preset slots from MockData.
+ *   - Populate kart stats from VehicleRegistry, loadout from Settings.
  *   - Handle tab navigation: CHARACTERS and KARTS tabs navigate out;
  *     PAINT, WHEELS, ACCESSORIES, EMOTES, LOADOUT show stubs.
  *   - Handle bottom ButtonBar: ROTATE, INSPECT, LOADOUT (toast), SAVE (toast).
  *   - Handle SAVE PRESET action.
  *
- * Data: MockData.karts, MockData.loadout — no async required.
+ * Data: VehicleRegistry (kart stats), Settings (selected kart id).
  */
 
 import { PageControllerBase } from '../../core/PageControllerBase.js';
@@ -20,7 +20,8 @@ import { RouteIds }           from '../../enums/RouteIds.js';
 import { ButtonIds }          from '../../enums/ButtonIds.js';
 import { PageIds }            from '../../enums/PageIds.js';
 import { EventIds }           from '../../enums/EventIds.js';
-import { MockData }           from '../../repositories/mocks/MockData.js';
+import { Settings }           from '../../../Settings.js';
+import { getVehicleById, PLAYER_CHARACTERS } from '../../../VehicleRegistry.js';
 
 /** Tabs that navigate to a dedicated route. */
 const NAVIGATING_TABS = new Set( [
@@ -138,24 +139,26 @@ export class Page09GarageController extends PageControllerBase {
 
 	loadData() {
 
-		// All data is synchronous MockData — nothing to fetch.
+		// All data comes from synchronous sources (Settings, VehicleRegistry).
 		return Promise.resolve();
 
 	}
 
 	render( container ) {
 
-		const view = this._view;
-
-		// Kart stats from current loadout kart.
-		const kart = MockData.karts.find( k => k.id === MockData.loadout.kartId )
-			?? MockData.karts[ 0 ];
+		const view     = this._view;
+		const settings = new Settings();
+		const kartId   = settings.getSelectedKartId();
+		const kart     = getVehicleById( kartId );
+		const charName = PLAYER_CHARACTERS[ 0 ]?.label ?? 'Racer';
+		const kartName = kart.label;
+		const stats    = kart.stats;
 
 		view.setKartStats( {
-			speed:      kart.speed,
-			accel:      kart.accel,
-			handling:   kart.handling,
-			boost:      kart.boost,
+			speed:      stats.speed,
+			accel:      stats.acceleration,
+			handling:   stats.handling,
+			boost:      stats.boost,
 		} );
 
 		// Preset slots
@@ -165,7 +168,7 @@ export class Page09GarageController extends PageControllerBase {
 		] );
 
 		// Current loadout caption
-		view.setPreviewCaption( `${MockData.loadout.characterName}  /  ${MockData.loadout.kartName}` );
+		view.setPreviewCaption( `${charName}  /  ${kartName}` );
 
 		// Set initial active tab
 		view.setActiveTab( this._activeTab );
@@ -173,11 +176,32 @@ export class Page09GarageController extends PageControllerBase {
 		// Mount
 		view.mount( container );
 
+		// Activate the garage 3D preview turntable.
+		const garagePreview = this._services.garagePreview;
+		if ( garagePreview ) {
+
+			garagePreview.setKart( kartId );
+
+		}
+
+		if ( this._services.setRenderMode ) {
+
+			this._services.setRenderMode( 'garage' );
+
+		}
+
 		this._analytics?.trackPageView( PageIds.GARAGE );
 
 	}
 
 	dispose() {
+
+		// Switch render mode back to idle when leaving Garage.
+		if ( this._services.setRenderMode ) {
+
+			this._services.setRenderMode( 'idle' );
+
+		}
 
 		super.dispose();
 

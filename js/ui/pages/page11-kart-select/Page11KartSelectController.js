@@ -5,13 +5,13 @@
  *
  * Responsibilities:
  *   - Create and configure Page11KartSelectView.
- *   - Populate the kart thumbnail strip and hero preview from MockData.karts.
+ *   - Populate the kart thumbnail strip and hero preview from VehicleRegistry.
  *   - Track the selected kart (starts with the currently equipped one).
  *   - Update the stats panel on thumbnail click.
  *   - TEST DRIVE button: show toast placeholder (gameplay integration pending).
- *   - SELECT button: equip selected kart (owned only) and navigate back.
+ *   - SELECT button: equip selected kart via Settings and navigate back.
  *
- * Data: MockData.karts, MockData.loadout — no async required.
+ * Data: VehicleRegistry (all vehicles), Settings (selected kart id).
  *
  * Caller-return context:
  *   NavigationService back-stack handles the return destination automatically.
@@ -22,7 +22,8 @@ import { PageControllerBase }    from '../../core/PageControllerBase.js';
 import { Page11KartSelectView }  from './Page11KartSelectView.js';
 import { PageIds }               from '../../enums/PageIds.js';
 import { EventIds }              from '../../enums/EventIds.js';
-import { MockData }              from '../../repositories/mocks/MockData.js';
+import { Settings }              from '../../../Settings.js';
+import { getAllVehicles, getVehicleById } from '../../../VehicleRegistry.js';
 
 export class Page11KartSelectController extends PageControllerBase {
 
@@ -53,10 +54,31 @@ export class Page11KartSelectController extends PageControllerBase {
 
 		this._view = new Page11KartSelectView();
 
-		// Default: currently equipped kart from loadout.
-		this._selectedKart = MockData.karts.find(
-			k => k.id === MockData.loadout.kartId
-		) ?? MockData.karts[ 0 ] ?? null;
+		// Default: currently equipped kart from Settings.
+		this._settings = new Settings();
+		const equippedId = this._settings.getSelectedKartId();
+		const allKarts = this._kartsList();
+		this._selectedKart = allKarts.find( k => k.id === equippedId ) ?? allKarts[ 0 ] ?? null;
+
+	}
+
+	/**
+	 * Map VehicleRegistry entries to the shape the view expects.
+	 * All karts are considered owned (no shop/unlock system yet).
+	 * @returns {Array<object>}
+	 */
+	_kartsList() {
+
+		return getAllVehicles().map( ( v ) => ( {
+			id:       v.id,
+			name:     v.label,
+			owned:    true,
+			speed:    v.stats.speed,
+			accel:    v.stats.acceleration,
+			handling: v.stats.handling,
+			traction: v.stats.weight,
+			boost:    v.stats.boost,
+		} ) );
 
 	}
 
@@ -98,22 +120,24 @@ export class Page11KartSelectController extends PageControllerBase {
 
 	loadData() {
 
-		// All data is synchronous MockData — nothing to fetch.
+		// All data comes from synchronous sources (VehicleRegistry, Settings).
 		return Promise.resolve();
 
 	}
 
 	render( container ) {
 
-		const view = this._view;
+		const view       = this._view;
+		const karts      = this._kartsList();
+		const equippedId = this._settings.getSelectedKartId();
 
 		// Populate thumbnail strip.
-		view.setKarts( MockData.karts, MockData.loadout.kartId );
+		view.setKarts( karts, equippedId );
 
 		// Show initial selection.
 		if ( this._selectedKart ) {
 
-			view.setSelectedKart( this._selectedKart, MockData.loadout.kartId );
+			view.setSelectedKart( this._selectedKart, equippedId );
 
 		}
 
