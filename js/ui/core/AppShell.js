@@ -700,16 +700,8 @@ export class AppShell {
 		// Helper: builds a placeholder controller until the real one is delivered.
 		const placeholder = ( label ) => () => _makePlaceholderController( label, s );
 
-		// ── M2: Race Flow (real controllers, lazy-imported) ──────────────
-
-		r.register( RouteIds.TITLE, async () => {
-
-			const { Page01TitleController } = await import( '../pages/page01-title/Page01TitleController.js' );
-			return new Page01TitleController( s );
-
-		} );
-
 		// ── ABSORBED into tabs/overlays (tab bar overhaul) ───────────────
+		// TITLE → Tab bar handles initial load (switchTab('race') in bootstrap).
 		// HOME → RacePanel, QUICK_PLAY → RacePanel, PLAY → RacePanel
 		// LOBBY → LobbyOverlay, RESULTS → ResultsOverlay
 		// PROFILE → ProfilePanel, GARAGE → GaragePanel, KARTS → GaragePanel
