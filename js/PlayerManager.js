@@ -68,7 +68,7 @@ export class PlayerManager {
 		const characterModel = this.models[ PLAYER_CHARACTER_ID ] || null;
 
 		// Swap only the visual model — keeps physics, position, camera target intact
-		this.localVehicle.swapModel( newModel, characterModel, config.characterOffset );
+		this.localVehicle.swapModel( newModel, characterModel, config.characterOffset, config.bodyHeight );
 		this.localVehicle._vehicleId = config.id;
 
 	}
@@ -315,13 +315,14 @@ export class PlayerManager {
 	_createVehicle( vehicleIndex, characterIndex, tint, position, angle, isRemote, vehicleId ) {
 
 		// Local player gets a kart from the registry; AI/remote get trucks
-		let modelName, charName, characterOffset;
+		let modelName, charName, characterOffset, bodyHeight;
 		if ( ! isRemote && vehicleId ) {
 
 			const config = getVehicleById( vehicleId );
 			modelName = config.id;
 			charName = PLAYER_CHARACTER_ID;
 			characterOffset = config.characterOffset;
+			bodyHeight = config.bodyHeight;
 
 		} else if ( ! isRemote && vehicleIndex === 0 && this.models[ PLAYER_VEHICLES[ 0 ].id ] ) {
 
@@ -329,12 +330,14 @@ export class PlayerManager {
 			modelName = config.id;
 			charName = PLAYER_CHARACTER_ID;
 			characterOffset = config.characterOffset;
+			bodyHeight = config.bodyHeight;
 
 		} else {
 
 			modelName = VEHICLE_MODEL_NAMES[ vehicleIndex % VEHICLE_MODEL_NAMES.length ];
 			charName = CHARACTER_MODEL_NAMES[ ( characterIndex || 0 ) % CHARACTER_MODEL_NAMES.length ];
 			characterOffset = null;
+			bodyHeight = undefined;
 
 		}
 
@@ -355,7 +358,7 @@ export class PlayerManager {
 		vehicle.prevModelPos.set( sx, sy, sz );
 		vehicle.container.rotation.y = angle;
 
-		const group = vehicle.init( model, characterModel, characterOffset );
+		const group = vehicle.init( model, characterModel, characterOffset, bodyHeight );
 		if ( ! isRemote ) vehicle.initRaycast( this.world );
 
 		// Apply tint to body mesh for players 5+

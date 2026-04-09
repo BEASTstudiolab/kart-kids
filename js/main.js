@@ -704,7 +704,7 @@ async function init() {
 	// ── Debug panel (all debug UI and visualization) ─────────────────────
 	( { debugMenu, debugCollider, wheelDebug } = setupDebugPanel( {
 		scene, renderer, bloomPass, postFX,
-		vehicle, cam, aiManager,
+		vehicle, cam, aiManager, controls,
 		dirLight, dirLightOffset, hemiLight,
 		meshDebugGroup, colliderDebugGroup,
 		tileLabelsGroup, heightLabelsGroup,
@@ -1050,6 +1050,10 @@ async function init() {
 	const boostBurst = new BoostBurst( scene );
 	const itemPickupVFX = new ItemPickupVFX( scene );
 	const haptics = new Haptics();
+	// Sync haptics gamepad selection with controls
+	Object.defineProperty( haptics, 'gamepadIndex', {
+		get() { return controls.gamepadIndex; },
+	} );
 
 	// Wire item pickup feedback
 	if ( itemBoxManager ) itemBoxManager.onPickup = ( x, z, powerupType ) => {
@@ -1276,20 +1280,12 @@ async function init() {
 
 			wasBoostActive = vehicle.boostActive;
 
-			// Drift stage transition haptic pulse
-			if ( vehicle.driftStage !== prevDriftStage && vehicle.driftStage > prevDriftStage ) {
-
-				haptics.pulse();
-
-			}
-
 			prevDriftStage = vehicle.driftStage;
 
 		}
 
 		// ─── Juice updates ───────────────────────────────────────────────────
 		haptics.update( dt );
-		if ( ! spectating && vehicle ) haptics.setRumble( Math.abs( vehicle.linearSpeed ) );
 		wallSparks.update( dt );
 		boostBurst.update( dt );
 		itemPickupVFX.update( dt );
@@ -1383,6 +1379,23 @@ async function init() {
 				lastShadowZ = vehPos.z;
 
 			}
+
+			// Gamepad right stick → orbit, D-pad up/down → zoom
+			if ( input.orbitX ) {
+
+				cam.orbitAngle -= input.orbitX * 2.5 * dt;
+				cam.dragging = true; // suppress auto-return while stick is active
+				cam._gamepadOrbit = true;
+
+			} else if ( cam._gamepadOrbit ) {
+
+				cam.dragging = false;
+				cam._gamepadOrbit = false;
+
+			}
+
+			if ( input.zoomIn ) cam.zoom = Math.max( 0.35, cam.zoom - 1.5 * dt );
+			if ( input.zoomOut ) cam.zoom = Math.min( 3.0, cam.zoom + 1.5 * dt );
 
 			cam.update( dt, followVehicle.vehPos, followVehicle.container.quaternion, {
 				inputX: followVehicle.inputX,

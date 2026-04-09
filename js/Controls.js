@@ -33,6 +33,7 @@ export class Controls {
 
 		// Gamepad
 		this._gamepadConnected = false;
+		this.gamepadIndex = - 1; // -1 = auto (first found), or specific index
 
 		// Touch UI elements (for teardown/rebuild)
 		this._touchContainer = null;
@@ -494,6 +495,22 @@ export class Controls {
 
 	}
 
+	_getGamepad() {
+
+		const gamepads = navigator.getGamepads();
+
+		if ( this.gamepadIndex >= 0 ) return gamepads[ this.gamepadIndex ] || null;
+
+		for ( const gp of gamepads ) {
+
+			if ( gp ) return gp;
+
+		}
+
+		return null;
+
+	}
+
 	// ─── Main update ─────────────────────────────────────────────────────────
 
 	update() {
@@ -509,25 +526,17 @@ export class Controls {
 
 		// Gamepad
 
-		if ( this._gamepadConnected ) {
+		const gp = this._getGamepad();
 
-			const gamepads = navigator.getGamepads();
+		if ( gp ) {
 
-			for ( const gp of gamepads ) {
+			const stickX = gp.axes[ 0 ];
+			if ( Math.abs( stickX ) > 0.15 ) x = stickX;
 
-				if ( ! gp ) continue;
+			const rt = gp.buttons[ 7 ] ? gp.buttons[ 7 ].value : 0;
+			const lt = gp.buttons[ 6 ] ? gp.buttons[ 6 ].value : 0;
 
-				const stickX = gp.axes[ 0 ];
-				if ( Math.abs( stickX ) > 0.15 ) x = stickX;
-
-				const rt = gp.buttons[ 7 ] ? gp.buttons[ 7 ].value : 0;
-				const lt = gp.buttons[ 6 ] ? gp.buttons[ 6 ].value : 0;
-
-				if ( rt > 0.1 || lt > 0.1 ) z = rt - lt;
-
-				break;
-
-			}
+			if ( rt > 0.1 || lt > 0.1 ) z = rt - lt;
 
 		}
 
@@ -558,43 +567,43 @@ export class Controls {
 		this.x = x;
 		this.z = z;
 
-		const boost = this._boostPressed || !! this.keys[ 'ShiftLeft' ] || !! this.keys[ 'ShiftRight' ];
+		let boost = this._boostPressed || !! this.keys[ 'ShiftLeft' ] || !! this.keys[ 'ShiftRight' ];
 
 		let drift = this._driftPressed || !! this.keys[ 'Space' ];
 
-		// Gamepad L1/LB for drift
-		if ( this._gamepadConnected ) {
+		// Gamepad L1/LB for drift, R1/RB for boost
+		if ( gp ) {
 
-			const gamepads = navigator.getGamepads();
-
-			for ( const gp of gamepads ) {
-
-				if ( ! gp ) continue;
-				if ( gp.buttons[ 4 ] && gp.buttons[ 4 ].pressed ) drift = true;
-				break;
-
-			}
+			if ( gp.buttons[ 4 ] && gp.buttons[ 4 ].pressed ) drift = true;
+			if ( gp.buttons[ 5 ] && gp.buttons[ 5 ].pressed ) boost = true;
 
 		}
 
 		// Item use: E key, touch button, or gamepad Y/Triangle (button 3)
 		let useItem = !! this.keys[ 'KeyE' ] || this._itemPressed;
 
-		if ( this._gamepadConnected && ! useItem ) {
+		if ( gp && ! useItem ) {
 
-			const gamepads = navigator.getGamepads();
-
-			for ( const gp of gamepads ) {
-
-				if ( ! gp ) continue;
-				if ( gp.buttons[ 3 ] && gp.buttons[ 3 ].pressed ) useItem = true;
-				break;
-
-			}
+			if ( gp.buttons[ 3 ] && gp.buttons[ 3 ].pressed ) useItem = true;
 
 		}
 
-		return { x, z, touchActive: this.touchActive, boost, drift, gas, brake, useItem };
+		// Gamepad right stick (orbit) and D-pad (zoom)
+		let orbitX = 0;
+		let zoomIn = false, zoomOut = false;
+
+		if ( gp ) {
+
+			const rStickX = gp.axes[ 2 ] || 0;
+			if ( Math.abs( rStickX ) > 0.15 ) orbitX = rStickX;
+
+			// D-pad up (button 12) = zoom in, D-pad down (button 13) = zoom out
+			if ( gp.buttons[ 12 ] && gp.buttons[ 12 ].pressed ) zoomIn = true;
+			if ( gp.buttons[ 13 ] && gp.buttons[ 13 ].pressed ) zoomOut = true;
+
+		}
+
+		return { x, z, touchActive: this.touchActive, boost, drift, gas, brake, useItem, orbitX, zoomIn, zoomOut };
 
 	}
 

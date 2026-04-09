@@ -60,7 +60,7 @@ export function setupDebugPanel( ctx ) {
 
 	const {
 		scene, renderer, bloomPass, postFX,
-		vehicle, cam, aiManager,
+		vehicle, cam, aiManager, controls,
 		dirLight, dirLightOffset, hemiLight,
 		meshDebugGroup, colliderDebugGroup,
 		tileLabelsGroup, heightLabelsGroup,
@@ -862,6 +862,285 @@ export function setupDebugPanel( ctx ) {
 
 	} );
 	charTab.appendChild( exportBtn );
+
+	// ── Controller tab ───────────────────────────────────────────────────────
+
+	const ctrlTab = debugMenu.addTab( 'controller', 'Controller' );
+
+	// Gamepad selector dropdown
+	debugMenu.addHeader( ctrlTab, 'Gamepad' );
+
+	const selectRow = document.createElement( 'div' );
+	selectRow.style.cssText = 'margin:4px 0';
+
+	const gpSelect = document.createElement( 'select' );
+	gpSelect.style.cssText = [
+		'width:100%', 'background:#111', 'color:#0f0',
+		'border:1px solid #0f044', 'padding:4px 6px',
+		'font:12px monospace', 'border-radius:3px',
+	].join( ';' );
+
+	const refreshSelect = () => {
+
+		const prev = gpSelect.value;
+		gpSelect.innerHTML = '';
+
+		const none = document.createElement( 'option' );
+		none.value = '-1';
+		none.textContent = '(auto — first found)';
+		gpSelect.appendChild( none );
+
+		const gamepads = navigator.getGamepads();
+
+		for ( let i = 0; i < gamepads.length; i ++ ) {
+
+			const gp = gamepads[ i ];
+			if ( ! gp ) continue;
+
+			const opt = document.createElement( 'option' );
+			opt.value = String( i );
+			opt.textContent = `[${i}] ${gp.id}`;
+			gpSelect.appendChild( opt );
+
+		}
+
+		gpSelect.value = prev;
+		if ( ! gpSelect.value ) gpSelect.value = '-1';
+
+	};
+
+	gpSelect.addEventListener( 'change', () => {
+
+		controls.gamepadIndex = parseInt( gpSelect.value, 10 );
+
+	} );
+
+	// Refresh on connection changes
+	window.addEventListener( 'gamepadconnected', refreshSelect );
+	window.addEventListener( 'gamepaddisconnected', refreshSelect );
+
+	selectRow.appendChild( gpSelect );
+	ctrlTab.appendChild( selectRow );
+
+	// Event log — shows gamepadconnected/disconnected as they fire
+	const eventLog = document.createElement( 'div' );
+	eventLog.style.cssText = 'margin:4px 0; padding:4px; background:#0f011; border:1px solid #0f022; border-radius:3px; max-height:80px; overflow-y:auto; font:10px monospace; color:#0f0; white-space:pre-wrap';
+	eventLog.textContent = 'Waiting for gamepad events...\n';
+	ctrlTab.appendChild( eventLog );
+
+	const logEvent = ( prefix, gp ) => {
+
+		const ts = new Date().toLocaleTimeString();
+		const line = `${ts} ${prefix}: [${gp.index}] "${gp.id}" (${gp.buttons.length}btn, ${gp.axes.length}ax, mapping="${gp.mapping}")\n`;
+		eventLog.textContent += line;
+		eventLog.scrollTop = eventLog.scrollHeight;
+
+	};
+
+	window.addEventListener( 'gamepadconnected', ( e ) => logEvent( 'CONNECTED', e.gamepad ) );
+	window.addEventListener( 'gamepaddisconnected', ( e ) => logEvent( 'DISCONNECTED', e.gamepad ) );
+
+	const gpCount = document.createElement( 'div' );
+	gpCount.style.cssText = 'margin:2px 0; font:11px monospace; color:#0f0';
+	ctrlTab.appendChild( gpCount );
+
+	const gpHint = document.createElement( 'div' );
+	gpHint.style.cssText = 'margin:2px 0 4px; color:#0f066; font:10px monospace';
+	ctrlTab.appendChild( gpHint );
+
+	const ctrlStatus = document.createElement( 'div' );
+	ctrlStatus.style.cssText = 'margin:2px 0 4px; color:#ff0; font:11px monospace; word-break:break-all';
+	ctrlStatus.textContent = 'No controller selected';
+	ctrlTab.appendChild( ctrlStatus );
+
+	// Xbox standard button labels
+	const XBOX_BUTTONS = [
+		'A', 'B', 'X', 'Y',
+		'LB', 'RB', 'LT', 'RT',
+		'Back', 'Start',
+		'L-Stick', 'R-Stick',
+		'D-Up', 'D-Down', 'D-Left', 'D-Right',
+	];
+
+	const XBOX_AXES = [ 'L-Stick X', 'L-Stick Y', 'R-Stick X', 'R-Stick Y' ];
+
+	// Build button rows
+	debugMenu.addHeader( ctrlTab, 'Buttons' );
+	const buttonRows = [];
+
+	for ( let i = 0; i < XBOX_BUTTONS.length; i ++ ) {
+
+		const row = document.createElement( 'div' );
+		row.style.cssText = 'display:flex; justify-content:space-between; margin:1px 0; font:12px monospace';
+
+		const label = document.createElement( 'span' );
+		label.textContent = `[${i}] ${XBOX_BUTTONS[ i ]}`;
+		label.style.minWidth = '120px';
+
+		const val = document.createElement( 'span' );
+		val.style.cssText = 'min-width:60px; text-align:right';
+		val.textContent = '—';
+
+		row.appendChild( label );
+		row.appendChild( val );
+		ctrlTab.appendChild( row );
+		buttonRows.push( { row, val } );
+
+	}
+
+	// Build axis rows
+	debugMenu.addHeader( ctrlTab, 'Axes' );
+	const axisRows = [];
+
+	for ( let i = 0; i < XBOX_AXES.length; i ++ ) {
+
+		const row = document.createElement( 'div' );
+		row.style.cssText = 'display:flex; justify-content:space-between; margin:1px 0; font:12px monospace';
+
+		const label = document.createElement( 'span' );
+		label.textContent = `[${i}] ${XBOX_AXES[ i ]}`;
+		label.style.minWidth = '120px';
+
+		const bar = document.createElement( 'div' );
+		bar.style.cssText = 'flex:1; margin:0 8px; position:relative; height:14px; background:#0f011; border:1px solid #0f044; border-radius:2px';
+
+		const fill = document.createElement( 'div' );
+		fill.style.cssText = 'position:absolute; top:0; height:100%; background:#0f0; border-radius:1px; transition:left 0.05s, width 0.05s';
+		bar.appendChild( fill );
+
+		const val = document.createElement( 'span' );
+		val.style.cssText = 'min-width:55px; text-align:right';
+		val.textContent = '0.000';
+
+		row.appendChild( label );
+		row.appendChild( bar );
+		row.appendChild( val );
+		ctrlTab.appendChild( row );
+		axisRows.push( { val, fill } );
+
+	}
+
+	// Live-update loop
+	setInterval( () => {
+
+		if ( debugMenu.activeTab !== 'controller' || ! debugMenu.visible ) return;
+
+		// Refresh dropdown options periodically
+		refreshSelect();
+
+		// Show raw gamepad slots
+		const allGp = navigator.getGamepads();
+		let detected = 0;
+		const slotInfo = [];
+
+		for ( let i = 0; i < allGp.length; i ++ ) {
+
+			const g = allGp[ i ];
+
+			if ( g ) {
+
+				detected ++;
+				slotInfo.push( `[${i}] "${g.id}" (${g.buttons.length}btn, ${g.axes.length}ax, ${g.mapping || 'no-mapping'}, ${g.connected ? 'connected' : 'disconnected'})` );
+
+			} else {
+
+				slotInfo.push( `[${i}] null` );
+
+			}
+
+		}
+
+		gpCount.textContent = `Slots: ${allGp.length} | Detected: ${detected} | Idx: ${controls.gamepadIndex}`;
+		gpHint.textContent = slotInfo.join( '\n' );
+		gpHint.style.whiteSpace = 'pre-wrap';
+		gpHint.style.color = '#0f066';
+
+		const gp = controls._getGamepad();
+
+		if ( ! gp ) {
+
+			ctrlStatus.textContent = 'No controller selected — pick one from dropdown or press a button';
+			ctrlStatus.style.color = '#ff0';
+			return;
+
+		}
+
+		ctrlStatus.textContent = gp.id;
+		ctrlStatus.style.color = '#0f0';
+
+		// Update buttons
+		for ( let i = 0; i < buttonRows.length; i ++ ) {
+
+			const btn = gp.buttons[ i ];
+
+			if ( ! btn ) {
+
+				buttonRows[ i ].val.textContent = '—';
+				buttonRows[ i ].val.style.color = '#0f044';
+				continue;
+
+			}
+
+			const v = btn.value;
+			const pressed = btn.pressed;
+			buttonRows[ i ].val.textContent = pressed ? v.toFixed( 2 ) + ' ON' : v.toFixed( 2 );
+			buttonRows[ i ].val.style.color = pressed ? '#ff0' : '#0f0';
+
+		}
+
+		// Update axes
+		for ( let i = 0; i < axisRows.length; i ++ ) {
+
+			const v = gp.axes[ i ] || 0;
+			axisRows[ i ].val.textContent = v.toFixed( 3 );
+
+			// Visual bar: center = 50%, left at -1, right at +1
+			const pct = ( v + 1 ) / 2 * 100;
+			const center = 50;
+			const left = Math.min( pct, center );
+			const width = Math.abs( pct - center );
+			axisRows[ i ].fill.style.left = left + '%';
+			axisRows[ i ].fill.style.width = width + '%';
+			axisRows[ i ].fill.style.background = Math.abs( v ) > 0.15 ? '#0f0' : '#0f044';
+
+		}
+
+	}, 50 );
+
+	// ── Tab: Cameras ─────────────────────────────────────────────────────────
+
+	const cameraTab = debugMenu.addTab( 'cameras', 'Cameras' );
+
+	// — Chase camera —
+	debugMenu.addHeader( cameraTab, 'Chase Camera' );
+	debugMenu.addSlider( cameraTab, 'Chase distance', 1, 20, 0.1, cam.chaseDistance, ( v ) => { cam.chaseDistance = v; cam.baseChaseDistance = v; } );
+	debugMenu.addSlider( cameraTab, 'Chase height', 0, 10, 0.1, cam.chaseHeight, ( v ) => { cam.chaseHeight = v; } );
+	debugMenu.addSlider( cameraTab, 'Chase look-ahead', 0, 10, 0.1, cam.chaseLookAhead, ( v ) => { cam.chaseLookAhead = v; } );
+	debugMenu.addSlider( cameraTab, 'Chase FOV', 20, 120, 1, cam.baseFOV, ( v ) => { cam.baseFOV = v; cam._currentFOV = v; } );
+	debugMenu.addSlider( cameraTab, 'Chase near clip', 0, 3, 0.01, cam.chaseNear, ( v ) => { cam.chaseNear = v; } );
+
+	// — Cockpit camera —
+	debugMenu.addHeader( cameraTab, 'Cockpit Camera' );
+	debugMenu.addSlider( cameraTab, 'Cockpit X', - 2, 2, 0.01, cam.cockpitOffset.x, ( v ) => { cam.cockpitOffset.x = v; } );
+	debugMenu.addSlider( cameraTab, 'Cockpit Y', - 2, 3, 0.01, cam.cockpitOffset.y, ( v ) => { cam.cockpitOffset.y = v; } );
+	debugMenu.addSlider( cameraTab, 'Cockpit Z', - 2, 2, 0.01, cam.cockpitOffset.z, ( v ) => { cam.cockpitOffset.z = v; } );
+	debugMenu.addSlider( cameraTab, 'Cockpit FOV', 30, 120, 1, cam.cockpitFOV, ( v ) => { cam.cockpitFOV = v; } );
+	debugMenu.addSlider( cameraTab, 'Cockpit near clip', 0, 1, 0.005, cam.cockpitNear, ( v ) => { cam.cockpitNear = v; } );
+
+	// — Dashboard camera —
+	debugMenu.addHeader( cameraTab, 'Dashboard Camera' );
+	debugMenu.addSlider( cameraTab, 'Dashboard X', - 2, 2, 0.01, cam.dashboardOffset.x, ( v ) => { cam.dashboardOffset.x = v; } );
+	debugMenu.addSlider( cameraTab, 'Dashboard Y', - 2, 3, 0.01, cam.dashboardOffset.y, ( v ) => { cam.dashboardOffset.y = v; } );
+	debugMenu.addSlider( cameraTab, 'Dashboard Z', - 2, 2, 0.01, cam.dashboardOffset.z, ( v ) => { cam.dashboardOffset.z = v; } );
+	debugMenu.addSlider( cameraTab, 'Dashboard FOV', 30, 120, 1, cam.dashboardFOV, ( v ) => { cam.dashboardFOV = v; } );
+	debugMenu.addSlider( cameraTab, 'Dashboard near clip', 0, 1, 0.005, cam.dashboardNear, ( v ) => { cam.dashboardNear = v; } );
+
+	// — G-force effects —
+	debugMenu.addHeader( cameraTab, 'G-Force Effects' );
+	debugMenu.addSlider( cameraTab, 'Roll intensity', 0, 1.0, 0.01, cam.rollIntensity, ( v ) => { cam.rollIntensity = v; } );
+	debugMenu.addSlider( cameraTab, 'FOV narrow max', 0, 16, 0.5, cam.fovNarrowMax, ( v ) => { cam.fovNarrowMax = v; } );
+	debugMenu.addSlider( cameraTab, 'Boost punch', 0, 20, 0.5, cam.boostPunchAmount, ( v ) => { cam.boostPunchAmount = v; } );
+	debugMenu.addSlider( cameraTab, 'Speed FOV max', 0, 20, 0.5, cam.speedFOVMax, ( v ) => { cam.speedFOVMax = v; } );
 
 	// ── M key toggle ─────────────────────────────────────────────────────────
 	window.addEventListener( 'keydown', ( e ) => {
