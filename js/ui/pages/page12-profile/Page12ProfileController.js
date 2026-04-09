@@ -168,15 +168,15 @@ export class Page12ProfileController extends PageControllerBase {
 		if ( tab === 'achievements' ) {
 
 			this._analytics?.track( EventIds.ACHIEVEMENT_VIEWED );
-			this._view.setTabContent( 'achievements', MOCK_ACHIEVEMENTS );
+			this._view.setTabContent( 'achievements', PLACEHOLDER_ACHIEVEMENTS );
 
 		} else if ( tab === 'badges' ) {
 
-			this._view.setTabContent( 'badges', MOCK_BADGES );
+			this._view.setTabContent( 'badges', PLACEHOLDER_BADGES );
 
 		} else {
 
-			this._view.setTabContent( 'history', MOCK_MATCH_HISTORY );
+			this._view.setTabContent( 'history', PLACEHOLDER_MATCH_HISTORY );
 
 		}
 
