@@ -14,6 +14,7 @@
  * Public API consumed by Page05LobbyController:
  *   setCountdown(text)
  *   setCountdownLabel(text)
+ *   setRoomCode(code)
  *   setMembers(members[])
  *   setTrackVotes(tracks[])
  *   setRaceRules(rules[])
@@ -24,6 +25,8 @@
  *   get readyBtn()
  *   get startMatchBtn()
  *   get trackVoteBtns()
+ *   get roomCodeJoinBtn()
+ *   get roomCodeInputEl()
  */
 
 import { PageViewBase }         from '../../core/PageViewBase.js';
@@ -48,6 +51,12 @@ export class Page05LobbyView extends PageViewBase {
 
 		/** @type {CTAButton[]} */
 		this._trackVoteBtns = [];
+
+		/** @type {CTAButton|null} */
+		this._roomCodeJoinBtn = null;
+
+		/** @type {HTMLInputElement|null} */
+		this._roomCodeInput = null;
 
 		this._injectCSS();
 		this._build();
@@ -506,6 +515,88 @@ export class Page05LobbyView extends PageViewBase {
 			}
 
 			/* -------------------------------------------------------
+			   Room Code display + join
+			   ------------------------------------------------------- */
+
+			.page-lobby__room-code-block {
+				position: absolute;
+				left: 0;
+				top: 50%;
+				transform: translateY(-50%);
+				text-align: center;
+				background: var(--color-panel-bg, rgba(255,255,255,0.06));
+				border: var(--border-base) solid var(--color-panel-border);
+				border-radius: var(--radius-md);
+				padding: var(--space-2) var(--space-4);
+				min-width: 140px;
+				display: none;
+			}
+
+			.page-lobby__room-code-block--visible {
+				display: block;
+			}
+
+			.page-lobby__room-code-label {
+				font-family: var(--font-ui);
+				font-size: var(--text-xs);
+				font-weight: var(--weight-bold);
+				text-transform: uppercase;
+				letter-spacing: var(--tracking-wider);
+				color: var(--color-ink-400);
+				margin-bottom: var(--space-1);
+			}
+
+			.page-lobby__room-code-value {
+				font-family: var(--font-display);
+				font-size: var(--text-2xl, 1.5rem);
+				font-weight: var(--weight-black, 900);
+				color: var(--color-white);
+				line-height: 1;
+				letter-spacing: var(--tracking-widest);
+				user-select: all;
+				cursor: pointer;
+			}
+
+			.page-lobby__room-code-copy {
+				font-family: var(--font-ui);
+				font-size: var(--text-xs);
+				color: var(--color-ink-400);
+				margin-top: var(--space-1);
+				text-transform: uppercase;
+				letter-spacing: var(--tracking-wide);
+			}
+
+			.page-lobby__join-room {
+				display: flex;
+				gap: var(--space-2);
+				margin-top: var(--space-2);
+			}
+
+			.page-lobby__join-room-input {
+				flex: 1;
+				font-family: var(--font-display);
+				font-size: var(--text-sm);
+				font-weight: var(--weight-bold);
+				text-transform: uppercase;
+				letter-spacing: var(--tracking-wider);
+				color: var(--color-white);
+				background: var(--color-ink-800, #1a1a1a);
+				border: var(--border-base) solid var(--color-panel-border);
+				border-radius: var(--radius-sm);
+				padding: var(--space-2) var(--space-3);
+				outline: none;
+			}
+
+			.page-lobby__join-room-input:focus {
+				border-color: var(--color-cta-primary);
+			}
+
+			.page-lobby__join-room-input::placeholder {
+				color: var(--color-ink-400);
+				opacity: 0.6;
+			}
+
+			/* -------------------------------------------------------
 			   Responsive — stack on narrow viewports
 			   ------------------------------------------------------- */
 
@@ -569,6 +660,31 @@ export class Page05LobbyView extends PageViewBase {
 		countdownTime.textContent = '—:——';
 		countdownBlock.appendChild( countdownTime );
 		header.appendChild( countdownBlock );
+
+		// Room code block (hidden until setRoomCode is called)
+		const roomCodeBlock = document.createElement( 'div' );
+		roomCodeBlock.className = 'page-lobby__room-code-block';
+
+		const roomCodeLabel = document.createElement( 'div' );
+		roomCodeLabel.className = 'page-lobby__room-code-label';
+		roomCodeLabel.textContent = 'ROOM CODE';
+		roomCodeBlock.appendChild( roomCodeLabel );
+
+		const roomCodeValue = document.createElement( 'div' );
+		roomCodeValue.className = 'page-lobby__room-code-value';
+		roomCodeValue.textContent = '----';
+		roomCodeValue.setAttribute( 'title', 'Click to copy' );
+		roomCodeBlock.appendChild( roomCodeValue );
+
+		const roomCodeCopy = document.createElement( 'div' );
+		roomCodeCopy.className = 'page-lobby__room-code-copy';
+		roomCodeCopy.textContent = 'CLICK TO COPY';
+		roomCodeBlock.appendChild( roomCodeCopy );
+
+		header.appendChild( roomCodeBlock );
+		this._registerSection( 'roomCodeBlock', roomCodeBlock );
+		this._registerSection( 'roomCodeValue', roomCodeValue );
+
 		root.appendChild( header );
 		this._registerSection( 'header', header );
 		this._registerSection( 'countdownLabel', countdownLabel );
@@ -599,6 +715,26 @@ export class Page05LobbyView extends PageViewBase {
 		} );
 		inviteWrap.appendChild( this._inviteFriendsBtn.el );
 		party.appendChild( inviteWrap );
+
+		// Join room by code
+		const joinRoom = document.createElement( 'div' );
+		joinRoom.className = 'page-lobby__join-room';
+
+		this._roomCodeInput = document.createElement( 'input' );
+		this._roomCodeInput.className = 'page-lobby__join-room-input';
+		this._roomCodeInput.type = 'text';
+		this._roomCodeInput.placeholder = 'ROOM CODE';
+		this._roomCodeInput.maxLength = 6;
+		this._roomCodeInput.setAttribute( 'aria-label', 'Enter room code to join' );
+		joinRoom.appendChild( this._roomCodeInput );
+
+		this._roomCodeJoinBtn = new CTAButton( {
+			label:    'JOIN',
+			variant:  'secondary',
+			actionId: 'lobby_join_room',
+		} );
+		joinRoom.appendChild( this._roomCodeJoinBtn.el );
+		party.appendChild( joinRoom );
 		root.appendChild( party );
 
 		// --- Main (Track Vote + Race Rules) ---
@@ -734,6 +870,21 @@ export class Page05LobbyView extends PageViewBase {
 	// ---------------------------------------------------------------------------
 	// Public API — called by controller
 	// ---------------------------------------------------------------------------
+
+	/**
+	 * Display the room code in the header.
+	 *
+	 * @param {string} code  e.g. "ABCD12"
+	 */
+	setRoomCode( code ) {
+
+		const block = this.getSection( 'roomCodeBlock' );
+		const value = this.getSection( 'roomCodeValue' );
+
+		if ( block ) block.classList.add( 'page-lobby__room-code-block--visible' );
+		if ( value ) value.textContent = code;
+
+	}
 
 	/**
 	 * @param {string} text  e.g. "3:00"
@@ -968,16 +1119,24 @@ export class Page05LobbyView extends PageViewBase {
 	/** @returns {CTAButton[]} */
 	get trackVoteBtns() { return this._trackVoteBtns; }
 
+	/** @returns {CTAButton|null} */
+	get roomCodeJoinBtn() { return this._roomCodeJoinBtn; }
+
+	/** @returns {HTMLInputElement|null} */
+	get roomCodeInputEl() { return this._roomCodeInput; }
+
 	// ---------------------------------------------------------------------------
 	// Dispose
 	// ---------------------------------------------------------------------------
 
 	dispose() {
 
-		this._inviteFriendsBtn = null;
-		this._readyBtn         = null;
-		this._startMatchBtn    = null;
-		this._trackVoteBtns    = [];
+		this._inviteFriendsBtn  = null;
+		this._readyBtn          = null;
+		this._startMatchBtn     = null;
+		this._trackVoteBtns     = [];
+		this._roomCodeJoinBtn   = null;
+		this._roomCodeInput     = null;
 
 		super.dispose();
 

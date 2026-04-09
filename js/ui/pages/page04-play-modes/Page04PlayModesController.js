@@ -5,20 +5,19 @@
  *
  * Responsibilities:
  *   - Create and configure Page04PlayModesView.
- *   - Populate mode card grid from hardcoded PLAY_MODES list.
+ *   - Show two primary options: Solo Race and Multiplayer.
+ *   - Solo Race: show inline track picker, then start race via services.startRace().
+ *   - Multiplayer: show sub-options — Quick Play and Private Lobby.
  *   - Wire back button → RouteIds.HOME.
- *   - Wire CardGrid selection → enable SELECT button with correct label.
- *   - Wire CardGrid activate (double-click / Enter) → navigate immediately.
- *   - Wire ActionBar BACK → navigateBack().
- *   - Wire ActionBar SELECT → navigate to mode-specific route.
  *   - Emit analytics page view on mount.
  *
  * Navigation map:
- *   solo_race    → RouteIds.LOBBY   (mode='solo_race')
- *   quick_play   → RouteIds.QUICK_PLAY
- *   private_lobby → RouteIds.LOBBY  (mode='private_lobby')
+ *   solo_race    → inline track selection → services.startRace({ mode: 'solo', trackData, vehicleId })
+ *   multiplayer  → sub-view with:
+ *     quick_play    → RouteIds.QUICK_PLAY
+ *     private_lobby → RouteIds.LOBBY
  *
- * Data: Static — hardcoded mode list.
+ * Data: TrackRegistry for track list, Settings for vehicleId.
  */
 
 import { PageControllerBase }      from '../../core/PageControllerBase.js';
@@ -26,18 +25,8 @@ import { Page04PlayModesView }     from './Page04PlayModesView.js';
 import { RouteIds }                from '../../enums/RouteIds.js';
 import { PageIds }                 from '../../enums/PageIds.js';
 import { EventIds }                from '../../enums/EventIds.js';
-
-// Hardcoded play modes — replaces MockData.modes
-const PLAY_MODES = Object.freeze( [
-	{ id: 'solo_race',     name: 'Solo Race',     desc: 'Race against AI opponents', icon: 'flag',   playerCount: '1', online: false },
-	{ id: 'quick_play',    name: 'Quick Play',    desc: 'Find an online match fast', icon: 'clock',  playerCount: '2-8', online: true },
-	{ id: 'private_lobby', name: 'Private Lobby', desc: 'Create or join a room',     icon: 'users',  playerCount: '2-8', online: true },
-] );
-
-// Maps mode IDs that navigate to something other than LOBBY
-const MODE_ROUTE_OVERRIDES = {
-	quick_play: RouteIds.QUICK_PLAY,
-};
+import { Settings }                from '../../../Settings.js';
+import { getTracks }               from '../../../TrackRegistry.js';
 
 export class Page04PlayModesController extends PageControllerBase {
 
@@ -52,8 +41,14 @@ export class Page04PlayModesController extends PageControllerBase {
 		/** @type {Page04PlayModesView} */
 		this._view = null;
 
-		/** @type {string | null} Currently selected mode ID */
-		this._selectedModeId = null;
+		/** @type {Settings} */
+		this._settings = new Settings();
+
+		/** @type {ReadonlyArray<import('../../../TrackRegistry.js').Track>} */
+		this._tracks = [];
+
+		/** @type {string | null} Selected track ID for solo race */
+		this._selectedTrackId = null;
 
 	}
 
@@ -71,17 +66,6 @@ export class Page04PlayModesController extends PageControllerBase {
 
 		const view = this._view;
 
-		// TopNav navigation
-		this._addListener( view.root, 'kk:topnav:navigate', ( e ) => {
-
-			const { route } = e.detail;
-			if ( route ) {
-				this._analytics?.track( EventIds.NAV_ITEM_CLICKED, { route } );
-				this.navigate( route );
-			}
-
-		} );
-
 		// PageHeader back button
 		this._addListener( view.root, 'kk:pageheader:back', () => {
 
@@ -90,35 +74,51 @@ export class Page04PlayModesController extends PageControllerBase {
 
 		} );
 
-		// CardGrid selection (single click — select only)
-		this._addListener( view.root, 'kk:cardgrid:select', ( e ) => {
+		// Delegated click handler on root for all action buttons.
+		// Handles both statically and dynamically created buttons.
+		this._addListener( view.root, 'click', ( e ) => {
 
-			this._handleModeSelected( e.detail.id );
+			const actionEl = e.target.closest( '[data-action]' );
+			if ( ! actionEl ) return;
 
-		} );
+			const action = actionEl.dataset.action;
 
-		// CardGrid activate (double-click or Enter/Space — select + navigate)
-		this._addListener( view.root, 'kk:cardgrid:activate', ( e ) => {
+			switch ( action ) {
 
-			this._handleModeSelected( e.detail.id );
-			this._navigateToMode( e.detail.id );
+				case 'mode-solo':
+					this._handleSoloSelected();
+					break;
 
-		} );
+				case 'mode-multiplayer':
+					this._handleMultiplayerSelected();
+					break;
 
-		// ActionBar BACK
-		this._addListener( view.actionBar.secondaryButtons[ 0 ].el, 'click', () => {
+				case 'mp-quick-play':
+					this._analytics?.track( EventIds.MODE_SELECTED, { modeId: 'quick_play' } );
+					this.navigate( RouteIds.QUICK_PLAY );
+					break;
 
-			this._analytics?.track( EventIds.BACK_CLICKED, { from: PageIds.PLAY_MODES } );
-			this.navigateBack();
+				case 'mp-private-lobby':
+					this._analytics?.track( EventIds.MODE_SELECTED, { modeId: 'private_lobby' } );
+					this.navigate( RouteIds.LOBBY );
+					break;
 
-		} );
+				case 'back-to-modes':
+					view.showModeSelection();
+					break;
 
-		// ActionBar SELECT
-		this._addListener( view.actionBar.primaryButton.el, 'click', () => {
+				case 'start-solo-race':
+					this._handleStartSoloRace();
+					break;
 
-			if ( this._selectedModeId ) {
-				this._navigateToMode( this._selectedModeId );
 			}
+
+		} );
+
+		// Track selection in solo view (custom event from view)
+		this._addListener( view.root, 'kk:track-selected', ( e ) => {
+
+			this._selectedTrackId = e.detail.trackId;
 
 		} );
 
@@ -126,19 +126,14 @@ export class Page04PlayModesController extends PageControllerBase {
 
 	loadData() {
 
+		this._tracks = getTracks();
 		return Promise.resolve();
 
 	}
 
 	render( container ) {
 
-		const view = this._view;
-
-		view.setModes( PLAY_MODES );
-		view.setCharacterPreview( null );
-
-		view.mount( container );
-
+		this._view.mount( container );
 		this._analytics?.trackPageView( PageIds.PLAY_MODES );
 
 	}
@@ -153,47 +148,59 @@ export class Page04PlayModesController extends PageControllerBase {
 	// Internal handlers
 	// ---------------------------------------------------------------------------
 
-	/**
-	 * Update UI state when a mode card is selected.
-	 *
-	 * @param {string} modeId
-	 */
-	_handleModeSelected( modeId ) {
+	_handleSoloSelected() {
 
-		this._selectedModeId = modeId;
+		this._analytics?.track( EventIds.MODE_SELECTED, { modeId: 'solo_race' } );
+		this._view.showSoloTrackPicker( this._tracks );
 
-		this._analytics?.track( EventIds.MODE_SELECTED, { modeId } );
+		// Auto-select first track if available
+		if ( this._tracks.length > 0 && ! this._selectedTrackId ) {
 
-		const mode = PLAY_MODES.find( ( m ) => m.id === modeId );
-		const selectLabel = 'SELECT';
-		const sublabel    = mode?.name ?? '';
+			this._selectedTrackId = this._tracks[ 0 ].id;
 
-		this._view.setSelectState( {
-			enabled:   true,
-			label:     selectLabel,
-			sublabel,
-		} );
+		}
 
 	}
 
-	/**
-	 * Navigate to the destination for a given mode ID.
-	 *
-	 * @param {string} modeId
-	 */
-	_navigateToMode( modeId ) {
+	_handleMultiplayerSelected() {
 
-		const override = MODE_ROUTE_OVERRIDES[ modeId ];
+		this._analytics?.track( EventIds.MODE_SELECTED, { modeId: 'multiplayer' } );
+		this._view.showMultiplayerOptions();
 
-		if ( override ) {
+	}
 
-			this.navigate( override );
+	_handleStartSoloRace() {
 
-		} else {
+		if ( ! this._selectedTrackId ) {
 
-			this.navigate( RouteIds.LOBBY, { mode: modeId } );
+			this._notification?.show( { message: 'Please select a track.', variant: 'warning' } );
+			return;
 
 		}
+
+		const track = this._tracks.find( ( t ) => t.id === this._selectedTrackId );
+
+		if ( ! track ) {
+
+			this._notification?.show( { message: 'Track not found.', variant: 'error' } );
+			return;
+
+		}
+
+		const vehicleId = this._settings.getSelectedKartId();
+
+		this._analytics?.track( EventIds.QUICK_PLAY_STARTED, {
+			matchType: 'solo',
+			trackId:   track.id,
+			vehicleId,
+		} );
+
+		this._services.startRace( {
+			mode:      'solo',
+			trackData: track.cells,
+			decoCells: track.decoCells,
+			vehicleId,
+		} );
 
 	}
 

@@ -3,43 +3,22 @@
  *
  * Route: RouteIds.PLAY ("/play")
  *
- * Layout: fixed-height viewport, no scroll (1080p+).
+ * Layout: full-height page with mode selection cards.
  *
- * Grid rows: TopNav | PageHeader | body (1fr) | ActionBar
- * Body cols: 1fr mode-grid | 200px character-preview
- *
- * Zones:
- *   topNav      — TopNav with brand, nav items
- *   pageHeader  — "PLAY MODES" + back chevron
- *   body        — two-column area
- *     modeGrid  — CardGrid of 9 mode cards (5 cols, two rows)
- *     charCol   — HeroPreviewPanel (non-interactive)
- *   actionBar   — BACK (ghost) + SELECT (primary, initially disabled)
- *
- * Mode card inner structure:
- *   .kk-mode-card
- *     .kk-mode-card__image   — 16/9 placeholder
- *     .kk-mode-card__body
- *       .kk-mode-card__name
- *       .kk-mode-card__desc
- *       .kk-mode-card__meta
- *         .kk-mode-card__players
+ * Three states:
+ *   1. Mode selection — two primary cards: Solo Race and Multiplayer
+ *   2. Solo track picker — list of available tracks with Start Race button
+ *   3. Multiplayer options — Quick Play and Private Lobby sub-cards
  *
  * Public API consumed by Page04PlayModesController:
- *   setModes(modes[])
- *   setCharacterPreview(character)
- *   setSelectState({ enabled, label, sublabel })
- *   get actionBar()
+ *   showModeSelection()
+ *   showSoloTrackPicker(tracks[])
+ *   showMultiplayerOptions()
+ *   getBtnByAction(actionId)
  */
 
 import { PageViewBase }     from '../../core/PageViewBase.js';
-import { TopNav }           from '../../components/TopNav.js';
 import { PageHeader }       from '../../components/PageHeader.js';
-import { HeroPreviewPanel } from '../../components/HeroPreviewPanel.js';
-import { CardGrid }         from '../../components/CardGrid.js';
-import { ActionBar }        from '../../components/ActionBar.js';
-import { ButtonIds }        from '../../enums/ButtonIds.js';
-import { RouteIds }         from '../../enums/RouteIds.js';
 
 export class Page04PlayModesView extends PageViewBase {
 
@@ -47,20 +26,20 @@ export class Page04PlayModesView extends PageViewBase {
 
 		super( 'page-play-modes' );
 
-		/** @type {TopNav} */
-		this._topNav = null;
-
 		/** @type {PageHeader} */
 		this._pageHeader = null;
 
-		/** @type {HeroPreviewPanel} */
-		this._hero = null;
+		/** @type {HTMLElement} */
+		this._bodyEl = null;
 
-		/** @type {CardGrid} */
-		this._cardGrid = null;
+		/** @type {HTMLElement} mode selection panel */
+		this._modeSelectionEl = null;
 
-		/** @type {ActionBar} */
-		this._actionBar = null;
+		/** @type {HTMLElement} solo track picker panel */
+		this._soloPickerEl = null;
+
+		/** @type {HTMLElement} multiplayer options panel */
+		this._multiplayerEl = null;
 
 		this._injectCSS();
 		this._build();
@@ -83,11 +62,9 @@ export class Page04PlayModesView extends PageViewBase {
 			/* ------------------------------------------------------------------ */
 
 			.page-play-modes {
-				display: grid;
-				grid-template-rows: var(--topnav-height) auto 1fr auto;
-				grid-template-columns: 1fr;
-				height: 100vh;
-				overflow: hidden;
+				display: flex;
+				flex-direction: column;
+				min-height: 100vh;
 			}
 
 			/* ------------------------------------------------------------------ */
@@ -95,139 +72,267 @@ export class Page04PlayModesView extends PageViewBase {
 			/* ------------------------------------------------------------------ */
 
 			.page-play-modes .kk-page-header {
-				padding-left: var(--page-padding-x);
-				padding-right: var(--page-padding-x);
+				padding-left: var(--page-padding-x, 1.5rem);
+				padding-right: var(--page-padding-x, 1.5rem);
 			}
 
 			/* ------------------------------------------------------------------ */
-			/* Body — two-column                                                   */
+			/* Body — centered content area                                        */
 			/* ------------------------------------------------------------------ */
 
 			.page-play-modes__body {
-				display: grid;
-				grid-template-columns: 1fr 200px;
-				gap: var(--space-6);
-				padding: 0 var(--page-padding-x);
-				overflow: hidden;
-				align-items: start;
-			}
-
-			/* ------------------------------------------------------------------ */
-			/* Mode grid column                                                    */
-			/* ------------------------------------------------------------------ */
-
-			.page-play-modes__grid-col {
-				overflow: auto;
-				padding: var(--space-3) 0;
-			}
-
-			/* Override CardGrid to 5 columns */
-			.page-play-modes__grid-col .kk-card-grid {
-				--kk-card-grid-cols: 5;
-			}
-
-			/* ------------------------------------------------------------------ */
-			/* Character preview column                                            */
-			/* ------------------------------------------------------------------ */
-
-			.page-play-modes__char-col {
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				gap: var(--space-3);
-				padding: var(--space-3) 0;
-			}
-
-			.page-play-modes__char-col .kk-hero-preview-panel {
-				width: 100%;
-			}
-
-			/* ------------------------------------------------------------------ */
-			/* Mode card inner structure                                           */
-			/* ------------------------------------------------------------------ */
-
-			.kk-mode-card {
-				display: flex;
-				flex-direction: column;
-				height: 100%;
-			}
-
-			.kk-mode-card__image {
-				width: 100%;
-				aspect-ratio: 16 / 9;
-				background: var(--color-ink-800, #1a1a1a);
+				flex: 1;
 				display: flex;
 				align-items: center;
 				justify-content: center;
-				font-size: var(--text-2xl);
-				color: var(--color-ink-500);
-				flex-shrink: 0;
-				overflow: hidden;
+				padding: var(--space-6, 1.5rem) var(--page-padding-x, 1.5rem);
 			}
 
-			.kk-mode-card__body {
+			/* ------------------------------------------------------------------ */
+			/* Mode cards container                                                */
+			/* ------------------------------------------------------------------ */
+
+			.page-play-modes__cards {
+				display: grid;
+				grid-template-columns: repeat(2, 1fr);
+				gap: var(--space-6, 1.5rem);
+				max-width: 640px;
+				width: 100%;
+			}
+
+			.page-play-modes__cards--single {
+				grid-template-columns: 1fr;
+				max-width: 400px;
+			}
+
+			/* ------------------------------------------------------------------ */
+			/* Mode card                                                           */
+			/* ------------------------------------------------------------------ */
+
+			.kk-play-mode-card {
 				display: flex;
 				flex-direction: column;
-				gap: var(--space-1);
-				padding: var(--space-2) var(--space-3);
+				align-items: center;
+				gap: var(--space-3, 0.75rem);
+				padding: var(--space-8, 2rem) var(--space-6, 1.5rem);
+				background: var(--color-ink-800, #1a1a1a);
+				border: 2px solid var(--color-ink-600, #404040);
+				border-radius: var(--radius-lg, 0.75rem);
+				cursor: pointer;
+				transition: border-color 0.15s ease, transform 0.1s ease, background 0.15s ease;
+				text-align: center;
+			}
+
+			.kk-play-mode-card:hover {
+				border-color: var(--color-ink-400, #666);
+				background: var(--color-ink-700, #252525);
+			}
+
+			.kk-play-mode-card:focus-visible {
+				outline: 2px solid var(--color-accent-blue, #3498db);
+				outline-offset: 2px;
+			}
+
+			.kk-play-mode-card:active {
+				transform: scale(0.98);
+			}
+
+			.kk-play-mode-card__icon {
+				font-size: 2.5rem;
+				line-height: 1;
+			}
+
+			.kk-play-mode-card__title {
+				font-family: var(--font-display, sans-serif);
+				font-size: var(--text-lg, 1.125rem);
+				font-weight: var(--weight-black, 900);
+				color: var(--color-white, #fff);
+				text-transform: uppercase;
+				letter-spacing: var(--tracking-wide, 0.05em);
+			}
+
+			.kk-play-mode-card__desc {
+				font-family: var(--font-ui, sans-serif);
+				font-size: var(--text-sm, 0.875rem);
+				color: var(--color-ink-400, #999);
+				line-height: 1.4;
+			}
+
+			/* ------------------------------------------------------------------ */
+			/* Sub-option cards (smaller, for multiplayer options)                  */
+			/* ------------------------------------------------------------------ */
+
+			.kk-play-mode-subcard {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: var(--space-2, 0.5rem);
+				padding: var(--space-6, 1.5rem) var(--space-4, 1rem);
+				background: var(--color-ink-800, #1a1a1a);
+				border: 2px solid var(--color-ink-600, #404040);
+				border-radius: var(--radius-md, 0.5rem);
+				cursor: pointer;
+				transition: border-color 0.15s ease, transform 0.1s ease;
+				text-align: center;
+			}
+
+			.kk-play-mode-subcard:hover {
+				border-color: var(--color-accent-blue, #3498db);
+			}
+
+			.kk-play-mode-subcard:focus-visible {
+				outline: 2px solid var(--color-accent-blue, #3498db);
+				outline-offset: 2px;
+			}
+
+			.kk-play-mode-subcard:active {
+				transform: scale(0.98);
+			}
+
+			.kk-play-mode-subcard__icon {
+				font-size: 1.5rem;
+				line-height: 1;
+			}
+
+			.kk-play-mode-subcard__title {
+				font-family: var(--font-display, sans-serif);
+				font-size: var(--text-base, 1rem);
+				font-weight: var(--weight-bold, 700);
+				color: var(--color-white, #fff);
+				text-transform: uppercase;
+				letter-spacing: var(--tracking-wide, 0.05em);
+			}
+
+			.kk-play-mode-subcard__desc {
+				font-family: var(--font-ui, sans-serif);
+				font-size: var(--text-xs, 0.75rem);
+				color: var(--color-ink-400, #999);
+			}
+
+			/* ------------------------------------------------------------------ */
+			/* Sub-view header with back button                                    */
+			/* ------------------------------------------------------------------ */
+
+			.page-play-modes__sub-header {
+				display: flex;
+				align-items: center;
+				gap: var(--space-3, 0.75rem);
+				margin-bottom: var(--space-4, 1rem);
+				width: 100%;
+			}
+
+			.page-play-modes__sub-back {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 36px;
+				height: 36px;
+				border: none;
+				background: var(--color-ink-700, #252525);
+				border-radius: var(--radius-md, 0.5rem);
+				color: var(--color-white, #fff);
+				cursor: pointer;
+				flex-shrink: 0;
+				transition: background 0.15s ease;
+			}
+
+			.page-play-modes__sub-back:hover {
+				background: var(--color-ink-600, #404040);
+			}
+
+			.page-play-modes__sub-back:focus-visible {
+				outline: 2px solid var(--color-accent-blue, #3498db);
+				outline-offset: 2px;
+			}
+
+			.page-play-modes__sub-title {
+				font-family: var(--font-display, sans-serif);
+				font-size: var(--text-lg, 1.125rem);
+				font-weight: var(--weight-black, 900);
+				color: var(--color-white, #fff);
+				text-transform: uppercase;
+				letter-spacing: var(--tracking-wide, 0.05em);
+			}
+
+			/* ------------------------------------------------------------------ */
+			/* Track list (solo mode)                                              */
+			/* ------------------------------------------------------------------ */
+
+			.page-play-modes__track-list {
+				display: flex;
+				flex-direction: column;
+				gap: var(--space-2, 0.5rem);
+				width: 100%;
+				max-width: 480px;
+				margin-bottom: var(--space-4, 1rem);
+			}
+
+			.kk-track-item {
+				display: flex;
+				align-items: center;
+				gap: var(--space-3, 0.75rem);
+				padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+				background: var(--color-ink-800, #1a1a1a);
+				border: 2px solid var(--color-ink-600, #404040);
+				border-radius: var(--radius-md, 0.5rem);
+				cursor: pointer;
+				transition: border-color 0.15s ease;
+			}
+
+			.kk-track-item:hover {
+				border-color: var(--color-ink-400, #666);
+			}
+
+			.kk-track-item:focus-visible {
+				outline: 2px solid var(--color-accent-blue, #3498db);
+				outline-offset: 2px;
+			}
+
+			.kk-track-item--selected {
+				border-color: var(--color-accent-blue, #3498db);
+				background: rgba(52, 152, 219, 0.1);
+			}
+
+			.kk-track-item__name {
+				font-family: var(--font-ui, sans-serif);
+				font-size: var(--text-base, 1rem);
+				font-weight: var(--weight-bold, 700);
+				color: var(--color-white, #fff);
 				flex: 1;
 			}
 
-			.kk-mode-card__name {
-				font-family: var(--font-display);
-				font-size: var(--text-sm);
-				font-weight: var(--weight-black);
-				color: var(--color-white);
+			.kk-track-item__difficulty {
+				font-family: var(--font-ui, sans-serif);
+				font-size: var(--text-xs, 0.75rem);
+				color: var(--color-accent-orange, #e67e22);
 				text-transform: uppercase;
-				letter-spacing: var(--tracking-wide);
-				line-height: 1.2;
+				letter-spacing: var(--tracking-wide, 0.05em);
 			}
 
-			.kk-mode-card__desc {
-				font-family: var(--font-ui);
-				font-size: var(--text-xs);
-				color: var(--color-ink-400);
-				line-height: 1.3;
+			/* ------------------------------------------------------------------ */
+			/* Start race button (solo)                                            */
+			/* ------------------------------------------------------------------ */
+
+			.page-play-modes__start-race {
+				width: 100%;
+				max-width: 480px;
 			}
 
-			.kk-mode-card__meta {
-				display: flex;
-				align-items: center;
-				gap: var(--space-1);
-				margin-top: auto;
-				padding-top: var(--space-1);
-			}
-
-			.kk-mode-card__players {
-				font-family: var(--font-ui);
-				font-size: var(--text-xs);
-				color: var(--color-accent-orange);
-				font-weight: var(--weight-bold);
-			}
-
-			/* Online badge */
-			.kk-mode-card__online-badge {
-				display: inline-flex;
-				align-items: center;
+			.page-play-modes__start-race .kk-cta-button {
+				width: 100%;
 				justify-content: center;
-				width: 8px;
-				height: 8px;
-				background: var(--color-success, #22c55e);
-				border-radius: 50%;
-				flex-shrink: 0;
 			}
 
 			/* ------------------------------------------------------------------ */
-			/* Character preview label strip                                       */
+			/* Responsive                                                          */
 			/* ------------------------------------------------------------------ */
 
-			.page-play-modes__char-label {
-				font-family: var(--font-ui);
-				font-size: var(--text-xs);
-				color: var(--color-ink-400);
-				text-transform: uppercase;
-				letter-spacing: var(--tracking-wider);
-				text-align: center;
+			@media (max-width: 600px) {
+
+				.page-play-modes__cards {
+					grid-template-columns: 1fr;
+				}
+
 			}
 		`;
 		document.head.appendChild( style );
@@ -244,23 +349,6 @@ export class Page04PlayModesView extends PageViewBase {
 		root.setAttribute( 'role', 'main' );
 		root.setAttribute( 'aria-label', 'Play Modes selection' );
 
-		// ----- TopNav -----
-		this._topNav = new TopNav( {
-			items: [
-				{ label: 'QUICK PLAY', route: RouteIds.QUICK_PLAY },
-				{ label: 'PLAY',       route: RouteIds.PLAY },
-				{ label: 'PARTY',      route: RouteIds.PARTY },
-				{ label: 'GARAGE',     route: RouteIds.GARAGE },
-				{ label: 'CREATE',     route: RouteIds.CREATE },
-				{ label: 'PROFILE',    route: RouteIds.PROFILE },
-				{ label: 'SHOP',       route: RouteIds.SHOP },
-			],
-			activeRoute: RouteIds.PLAY,
-			showBrand:   true,
-			showUtility: false,
-		} );
-		root.appendChild( this._topNav.el );
-
 		// ----- PageHeader -----
 		this._pageHeader = new PageHeader( {
 			title:    'PLAY MODES',
@@ -269,61 +357,172 @@ export class Page04PlayModesView extends PageViewBase {
 		root.appendChild( this._pageHeader.el );
 
 		// ----- Body -----
-		const body = document.createElement( 'div' );
-		body.className = 'page-play-modes__body';
-		this._registerSection( 'body', body );
+		this._bodyEl = document.createElement( 'div' );
+		this._bodyEl.className = 'page-play-modes__body';
+		this._registerSection( 'body', this._bodyEl );
+		root.appendChild( this._bodyEl );
 
-		// Mode grid column
-		const gridCol = document.createElement( 'div' );
-		gridCol.className = 'page-play-modes__grid-col';
+		// Build all three panels (only one visible at a time)
+		this._modeSelectionEl = this._buildModeSelection();
+		this._soloPickerEl = document.createElement( 'div' );
+		this._soloPickerEl.hidden = true;
+		this._multiplayerEl = this._buildMultiplayerOptions();
+		this._multiplayerEl.hidden = true;
 
-		// CardGrid placeholder — will be rebuilt in setModes()
-		this._cardGridContainer = gridCol;
-		body.appendChild( gridCol );
-		this._registerSection( 'gridCol', gridCol );
+		this._bodyEl.appendChild( this._modeSelectionEl );
+		this._bodyEl.appendChild( this._soloPickerEl );
+		this._bodyEl.appendChild( this._multiplayerEl );
 
-		// Character preview column
-		const charCol = document.createElement( 'div' );
-		charCol.className = 'page-play-modes__char-col';
+	}
 
-		this._hero = new HeroPreviewPanel( {
-			sceneId:     'play-modes-char',
-			ariaLabel:   'Selected character preview',
-			caption:     null,
-			aspectRatio: '3/4',
-			loading:     true,
+	/**
+	 * Build the primary mode selection panel with two cards.
+	 *
+	 * @returns {HTMLElement}
+	 */
+	_buildModeSelection() {
+
+		const container = document.createElement( 'div' );
+		container.className = 'page-play-modes__cards';
+
+		// Solo Race card
+		const soloCard = this._buildModeCard( {
+			actionId: 'mode-solo',
+			icon:     '\uD83C\uDFC1',  // flag
+			title:    'Solo Race',
+			desc:     'Race against AI opponents on your favorite track.',
 		} );
-		charCol.appendChild( this._hero.el );
+		container.appendChild( soloCard );
 
-		this._charLabelEl = document.createElement( 'span' );
-		this._charLabelEl.className = 'page-play-modes__char-label';
-		this._charLabelEl.textContent = '—';
-		charCol.appendChild( this._charLabelEl );
-
-		body.appendChild( charCol );
-		this._registerSection( 'charCol', charCol );
-
-		root.appendChild( body );
-
-		// ----- ActionBar -----
-		this._actionBar = new ActionBar( {
-			primary: {
-				label:    'SELECT',
-				variant:  'primary',
-				actionId: ButtonIds.PLAY_MODES_GRAND_PRIX, // overridden per selection
-				disabled: true,
-				sublabel: 'Choose a mode',
-			},
-			secondary: [
-				{
-					label:    'BACK',
-					variant:  'ghost',
-					actionId: ButtonIds.GLOBAL_BACK,
-				},
-			],
+		// Multiplayer card
+		const multiCard = this._buildModeCard( {
+			actionId: 'mode-multiplayer',
+			icon:     '\uD83D\uDC65',  // busts in silhouette
+			title:    'Multiplayer',
+			desc:     'Race online with friends or find a match.',
 		} );
-		root.appendChild( this._actionBar.el );
-		this._registerSection( 'actionBar', this._actionBar.el );
+		container.appendChild( multiCard );
+
+		return container;
+
+	}
+
+	/**
+	 * Build a primary mode card.
+	 *
+	 * @param {{ actionId: string, icon: string, title: string, desc: string }} config
+	 * @returns {HTMLElement}
+	 */
+	_buildModeCard( { actionId, icon, title, desc } ) {
+
+		const card = document.createElement( 'button' );
+		card.type = 'button';
+		card.className = 'kk-play-mode-card';
+		card.setAttribute( 'data-action', actionId );
+
+		const iconEl = document.createElement( 'span' );
+		iconEl.className = 'kk-play-mode-card__icon';
+		iconEl.setAttribute( 'aria-hidden', 'true' );
+		iconEl.textContent = icon;
+		card.appendChild( iconEl );
+
+		const titleEl = document.createElement( 'span' );
+		titleEl.className = 'kk-play-mode-card__title';
+		titleEl.textContent = title;
+		card.appendChild( titleEl );
+
+		const descEl = document.createElement( 'span' );
+		descEl.className = 'kk-play-mode-card__desc';
+		descEl.textContent = desc;
+		card.appendChild( descEl );
+
+		return card;
+
+	}
+
+	/**
+	 * Build the multiplayer options panel.
+	 *
+	 * @returns {HTMLElement}
+	 */
+	_buildMultiplayerOptions() {
+
+		const wrapper = document.createElement( 'div' );
+		wrapper.style.cssText = 'display:flex;flex-direction:column;align-items:center;width:100%;max-width:640px;';
+
+		// Sub-header with back
+		const header = document.createElement( 'div' );
+		header.className = 'page-play-modes__sub-header';
+
+		const backBtn = document.createElement( 'button' );
+		backBtn.type = 'button';
+		backBtn.className = 'page-play-modes__sub-back';
+		backBtn.setAttribute( 'data-action', 'back-to-modes' );
+		backBtn.setAttribute( 'aria-label', 'Back to mode selection' );
+		backBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>';
+		header.appendChild( backBtn );
+
+		const title = document.createElement( 'span' );
+		title.className = 'page-play-modes__sub-title';
+		title.textContent = 'Multiplayer';
+		header.appendChild( title );
+
+		wrapper.appendChild( header );
+
+		// Options grid
+		const cards = document.createElement( 'div' );
+		cards.className = 'page-play-modes__cards';
+
+		// Quick Play
+		const quickCard = document.createElement( 'button' );
+		quickCard.type = 'button';
+		quickCard.className = 'kk-play-mode-subcard';
+		quickCard.setAttribute( 'data-action', 'mp-quick-play' );
+
+		const qIcon = document.createElement( 'span' );
+		qIcon.className = 'kk-play-mode-subcard__icon';
+		qIcon.setAttribute( 'aria-hidden', 'true' );
+		qIcon.textContent = '\u23F1';  // stopwatch
+		quickCard.appendChild( qIcon );
+
+		const qTitle = document.createElement( 'span' );
+		qTitle.className = 'kk-play-mode-subcard__title';
+		qTitle.textContent = 'Quick Play';
+		quickCard.appendChild( qTitle );
+
+		const qDesc = document.createElement( 'span' );
+		qDesc.className = 'kk-play-mode-subcard__desc';
+		qDesc.textContent = 'Find an online match fast';
+		quickCard.appendChild( qDesc );
+
+		cards.appendChild( quickCard );
+
+		// Private Lobby
+		const lobbyCard = document.createElement( 'button' );
+		lobbyCard.type = 'button';
+		lobbyCard.className = 'kk-play-mode-subcard';
+		lobbyCard.setAttribute( 'data-action', 'mp-private-lobby' );
+
+		const lIcon = document.createElement( 'span' );
+		lIcon.className = 'kk-play-mode-subcard__icon';
+		lIcon.setAttribute( 'aria-hidden', 'true' );
+		lIcon.textContent = '\uD83D\uDD12';  // lock
+		lobbyCard.appendChild( lIcon );
+
+		const lTitle = document.createElement( 'span' );
+		lTitle.className = 'kk-play-mode-subcard__title';
+		lTitle.textContent = 'Private Lobby';
+		lobbyCard.appendChild( lTitle );
+
+		const lDesc = document.createElement( 'span' );
+		lDesc.className = 'kk-play-mode-subcard__desc';
+		lDesc.textContent = 'Create or join a private room';
+		lobbyCard.appendChild( lDesc );
+
+		cards.appendChild( lobbyCard );
+		wrapper.appendChild( cards );
+
+		return wrapper;
 
 	}
 
@@ -333,194 +532,174 @@ export class Page04PlayModesView extends PageViewBase {
 
 	_onMounted() {
 
-		// Focus the first card in the grid per spec keyboard flow §6 step 3
-		const firstCell = this._root.querySelector( '.kk-card-grid__cell' );
-		if ( firstCell ) {
+		// Focus the first mode card
+		const firstCard = this._root.querySelector( '.kk-play-mode-card' );
+		if ( firstCard ) {
 
-			firstCell.focus( { preventScroll: true } );
+			firstCard.focus( { preventScroll: true } );
 
 		}
 
 	}
 
 	// ---------------------------------------------------------------------------
-	// Public API
+	// Public API — view state switching
 	// ---------------------------------------------------------------------------
 
-	/** @returns {ActionBar} */
-	get actionBar() { return this._actionBar; }
-
 	/**
-	 * Build and render the CardGrid from modes data.
-	 *
-	 * @param {Array<{ id:string, name:string, desc:string, icon:string, playerCount:string, online:boolean }>} modes
+	 * Show the primary mode selection (Solo Race / Multiplayer).
 	 */
-	setModes( modes ) {
+	showModeSelection() {
 
-		// Dispose previous grid if re-called
-		if ( this._cardGrid ) {
+		this._modeSelectionEl.hidden = false;
+		this._soloPickerEl.hidden = true;
+		this._multiplayerEl.hidden = true;
 
-			if ( this._cardGrid.el.parentNode ) {
-				this._cardGrid.el.parentNode.removeChild( this._cardGrid.el );
-			}
-			this._cardGrid = null;
-
-		}
-
-		this._cardGrid = new CardGrid( {
-			items:         modes.map( ( m ) => ( { id: m.id, data: m } ) ),
-			columns:       5,
-			selectedId:    null,
-			selectionMode: 'single',
-			ariaLabel:     'Play modes',
-			renderCard:    ( item ) => this._buildModeCard( item.data ),
-		} );
-
-		this._cardGridContainer.appendChild( this._cardGrid.el );
+		// Focus the first mode card
+		const firstCard = this._modeSelectionEl.querySelector( '.kk-play-mode-card' );
+		if ( firstCard ) firstCard.focus( { preventScroll: true } );
 
 	}
 
 	/**
-	 * Update the character preview column.
+	 * Show the solo race track picker.
 	 *
-	 * @param {{ name:string } | null} character
+	 * @param {ReadonlyArray<{ id: string, name: string, difficulty: string }>} tracks
 	 */
-	setCharacterPreview( character ) {
+	showSoloTrackPicker( tracks ) {
 
-		if ( this._charLabelEl ) {
-			this._charLabelEl.textContent = character?.name ?? '—';
-		}
+		this._modeSelectionEl.hidden = true;
+		this._multiplayerEl.hidden = true;
 
-		if ( this._hero ) {
-			this._hero.setAriaLabel( character ? `${character.name} character preview` : 'Character preview' );
-		}
+		// Rebuild the solo picker content
+		this._soloPickerEl.innerHTML = '';
+		this._soloPickerEl.hidden = false;
+		this._soloPickerEl.style.cssText = 'display:flex;flex-direction:column;align-items:center;width:100%;max-width:640px;';
 
-	}
+		// Sub-header with back
+		const header = document.createElement( 'div' );
+		header.className = 'page-play-modes__sub-header';
 
-	/**
-	 * Update the SELECT button state.
-	 *
-	 * @param {{ enabled:boolean, label:string, sublabel?:string }} state
-	 */
-	setSelectState( { enabled, label, sublabel } ) {
+		const backBtn = document.createElement( 'button' );
+		backBtn.type = 'button';
+		backBtn.className = 'page-play-modes__sub-back';
+		backBtn.setAttribute( 'data-action', 'back-to-modes' );
+		backBtn.setAttribute( 'aria-label', 'Back to mode selection' );
+		backBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>';
+		header.appendChild( backBtn );
 
-		const btn = this._actionBar?.primaryButton;
-		if ( ! btn ) return;
+		const title = document.createElement( 'span' );
+		title.className = 'page-play-modes__sub-title';
+		title.textContent = 'Solo Race';
+		header.appendChild( title );
 
-		btn.setDisabled( ! enabled );
-		btn.setLabel( label );
+		this._soloPickerEl.appendChild( header );
 
-		// Update sublabel span if present, or inject one
-		let subEl = btn.el.querySelector( '.kk-cta-button__sublabel' );
+		// Track list
+		const trackList = document.createElement( 'div' );
+		trackList.className = 'page-play-modes__track-list';
+		trackList.setAttribute( 'role', 'listbox' );
+		trackList.setAttribute( 'aria-label', 'Available tracks' );
 
-		if ( sublabel ) {
+		let selectedId = tracks.length > 0 ? tracks[ 0 ].id : null;
 
-			if ( ! subEl ) {
+		for ( const track of tracks ) {
 
-				subEl = document.createElement( 'span' );
-				subEl.className = 'kk-cta-button__sublabel';
-				subEl.setAttribute( 'aria-hidden', 'true' );
-				// Insert before spinner
-				const spinner = btn.el.querySelector( '.kk-cta-button__spinner' );
-				if ( spinner ) {
-					btn.el.insertBefore( subEl, spinner );
-				} else {
-					btn.el.appendChild( subEl );
-				}
+			const item = document.createElement( 'button' );
+			item.type = 'button';
+			item.className = 'kk-track-item';
+			item.setAttribute( 'role', 'option' );
+			item.setAttribute( 'aria-selected', track.id === selectedId ? 'true' : 'false' );
+			item.dataset.trackId = track.id;
+
+			if ( track.id === selectedId ) {
+
+				item.classList.add( 'kk-track-item--selected' );
 
 			}
 
-			subEl.textContent = sublabel;
+			const nameEl = document.createElement( 'span' );
+			nameEl.className = 'kk-track-item__name';
+			nameEl.textContent = track.name;
+			item.appendChild( nameEl );
 
-		} else if ( subEl ) {
+			const diffEl = document.createElement( 'span' );
+			diffEl.className = 'kk-track-item__difficulty';
+			diffEl.textContent = track.difficulty;
+			item.appendChild( diffEl );
 
-			subEl.remove();
+			item.addEventListener( 'click', () => {
 
-		}
+				selectedId = track.id;
 
-	}
+				// Update selection visuals
+				trackList.querySelectorAll( '.kk-track-item' ).forEach( ( el ) => {
 
-	// ---------------------------------------------------------------------------
-	// Private helpers
-	// ---------------------------------------------------------------------------
+					const isSelected = el.dataset.trackId === selectedId;
+					el.classList.toggle( 'kk-track-item--selected', isSelected );
+					el.setAttribute( 'aria-selected', String( isSelected ) );
 
-	/**
-	 * Build the inner DOM for a mode card.
-	 *
-	 * @param {{ id:string, name:string, desc:string, icon:string, playerCount:string, online:boolean }} mode
-	 * @returns {HTMLElement}
-	 */
-	_buildModeCard( mode ) {
+				} );
 
-		const card = document.createElement( 'div' );
-		card.className = 'kk-mode-card';
+				// Dispatch event for the controller
+				this._root.dispatchEvent( new CustomEvent( 'kk:track-selected', {
+					bubbles: true,
+					detail: { trackId: selectedId },
+				} ) );
 
-		const imgEl = document.createElement( 'div' );
-		imgEl.className = 'kk-mode-card__image';
-		imgEl.setAttribute( 'aria-hidden', 'true' );
-		// Icon placeholder — will be replaced by actual artwork in later milestone
-		imgEl.textContent = this._iconFor( mode.icon );
-		card.appendChild( imgEl );
+			} );
 
-		const bodyEl = document.createElement( 'div' );
-		bodyEl.className = 'kk-mode-card__body';
-
-		const nameEl = document.createElement( 'span' );
-		nameEl.className = 'kk-mode-card__name';
-		nameEl.textContent = mode.name;
-		bodyEl.appendChild( nameEl );
-
-		const descEl = document.createElement( 'span' );
-		descEl.className = 'kk-mode-card__desc';
-		descEl.textContent = mode.desc;
-		bodyEl.appendChild( descEl );
-
-		const metaEl = document.createElement( 'div' );
-		metaEl.className = 'kk-mode-card__meta';
-
-		if ( mode.online ) {
-
-			const onlineDot = document.createElement( 'span' );
-			onlineDot.className = 'kk-mode-card__online-badge';
-			onlineDot.setAttribute( 'aria-label', 'Online mode' );
-			metaEl.appendChild( onlineDot );
+			trackList.appendChild( item );
 
 		}
 
-		const playersEl = document.createElement( 'span' );
-		playersEl.className = 'kk-mode-card__players';
-		playersEl.textContent = mode.playerCount;
-		playersEl.setAttribute( 'aria-label', `${mode.playerCount} players` );
-		metaEl.appendChild( playersEl );
+		this._soloPickerEl.appendChild( trackList );
 
-		bodyEl.appendChild( metaEl );
-		card.appendChild( bodyEl );
+		// Dispatch initial selection
+		if ( selectedId ) {
 
-		return card;
+			this._root.dispatchEvent( new CustomEvent( 'kk:track-selected', {
+				bubbles: true,
+				detail: { trackId: selectedId },
+			} ) );
+
+		}
+
+		// Start Race button
+		const startWrapper = document.createElement( 'div' );
+		startWrapper.className = 'page-play-modes__start-race';
+
+		const startBtn = document.createElement( 'button' );
+		startBtn.type = 'button';
+		startBtn.className = 'kk-cta-button kk-cta-button--primary';
+		startBtn.setAttribute( 'data-action', 'start-solo-race' );
+
+		const startLabel = document.createElement( 'span' );
+		startLabel.className = 'kk-cta-button__label';
+		startLabel.textContent = 'START RACE';
+		startBtn.appendChild( startLabel );
+
+		startWrapper.appendChild( startBtn );
+		this._soloPickerEl.appendChild( startWrapper );
+
+		// Focus the first track item
+		const firstItem = trackList.querySelector( '.kk-track-item' );
+		if ( firstItem ) firstItem.focus( { preventScroll: true } );
 
 	}
 
 	/**
-	 * Map mode icon ID to a display character.
-	 * Will be replaced by actual SVG icons in a later milestone.
-	 *
-	 * @param {string} iconId
-	 * @returns {string}
+	 * Show the multiplayer sub-options (Quick Play / Private Lobby).
 	 */
-	_iconFor( iconId ) {
+	showMultiplayerOptions() {
 
-		const map = {
-			trophy: '🏆',
-			clock:  '⏱',
-			flag:   '🏁',
-			swords: '⚔',
-			users:  '👥',
-			skull:  '💀',
-			medal:  '🥇',
-			ladder: '📊',
-			wrench: '🔧',
-		};
-		return map[ iconId ] ?? '?';
+		this._modeSelectionEl.hidden = true;
+		this._soloPickerEl.hidden = true;
+		this._multiplayerEl.hidden = false;
+
+		// Focus the first sub-card
+		const firstCard = this._multiplayerEl.querySelector( '.kk-play-mode-subcard' );
+		if ( firstCard ) firstCard.focus( { preventScroll: true } );
 
 	}
 
@@ -530,29 +709,13 @@ export class Page04PlayModesView extends PageViewBase {
 
 	dispose() {
 
-		this._topNav?.dispose();
-		this._topNav = null;
-
 		this._pageHeader?.dispose();
 		this._pageHeader = null;
 
-		this._hero?.dispose();
-		this._hero = null;
-
-		if ( this._cardGrid ) {
-
-			if ( this._cardGrid.el?.parentNode ) {
-				this._cardGrid.el.parentNode.removeChild( this._cardGrid.el );
-			}
-			this._cardGrid = null;
-
-		}
-
-		this._actionBar?.dispose();
-		this._actionBar = null;
-
-		this._charLabelEl        = null;
-		this._cardGridContainer  = null;
+		this._bodyEl = null;
+		this._modeSelectionEl = null;
+		this._soloPickerEl = null;
+		this._multiplayerEl = null;
 
 		super.dispose();
 
