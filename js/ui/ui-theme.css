@@ -578,7 +578,9 @@ html[data-ui-scale="xlarge"] {
   flex-direction: row;
   justify-content: space-around;
   align-items: stretch;
-  background: rgba(10, 10, 10, 0.95);
+  background: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-top: var(--border-thin) solid var(--color-panel-border);
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -603,18 +605,35 @@ html[data-ui-scale="xlarge"] {
   letter-spacing: var(--tracking-wider);
   cursor: pointer;
   transition:
-    color var(--duration-normal) var(--ease-standard);
+    color var(--duration-normal) var(--ease-standard),
+    background var(--duration-normal) var(--ease-standard);
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
 
 .kk-tab-bar__btn:hover {
   color: var(--color-ink-200);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .kk-tab-bar__btn--active,
 .kk-tab-bar__btn[aria-selected="true"] {
   color: var(--color-accent-orange);
+  text-shadow: 0 0 8px var(--color-accent-orange-glow);
+  position: relative;
+}
+
+.kk-tab-bar__btn--active::after,
+.kk-tab-bar__btn[aria-selected="true"]::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 25%;
+  right: 25%;
+  height: 3px;
+  background: var(--color-accent-orange);
+  border-radius: 0 0 var(--radius-pill) var(--radius-pill);
+  box-shadow: 0 0 8px var(--color-accent-orange-glow), 0 0 20px rgba(255, 107, 0, 0.15);
 }
 
 .kk-tab-bar__label {
@@ -633,4 +652,26 @@ html[data-ui-scale="xlarge"] {
 
 .kk-panel--active {
   display: block;
+  background: radial-gradient(ellipse at 50% 0%, rgba(255, 107, 0, 0.03) 0%, transparent 60%);
+}
+
+/* ============================================================
+   18. GLOBAL GAMING ANIMATIONS
+   Shared keyframes for glow, shimmer, and pulse effects.
+   ============================================================ */
+
+@keyframes kk-glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px var(--color-accent-orange-glow), 0 0 60px rgba(255, 107, 0, 0.15); }
+  50% { box-shadow: 0 0 30px var(--color-accent-orange-glow), 0 0 80px rgba(255, 107, 0, 0.25); }
+}
+
+@keyframes kk-shimmer-sweep {
+  0% { transform: translateX(-100%) skewX(-20deg); }
+  100% { transform: translateX(200%) skewX(-20deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kk-glow-pulse-animated {
+    animation: none !important;
+  }
 }

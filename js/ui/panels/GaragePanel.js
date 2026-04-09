@@ -294,6 +294,35 @@ export class GaragePanel {
 			}
 
 			/* ===================================================
+			   Stat bar glow effects — per-stat accent colors
+			   =================================================== */
+
+			.kk-garage__stat-row--speed .kk-progress-bar__fill {
+				background: linear-gradient(90deg, var(--color-accent-orange-dim), var(--color-accent-orange));
+				box-shadow: 0 0 8px var(--color-accent-orange);
+			}
+
+			.kk-garage__stat-row--handling .kk-progress-bar__fill {
+				background: linear-gradient(90deg, var(--color-accent-cyan-dim), var(--color-accent-cyan));
+				box-shadow: 0 0 8px var(--color-accent-cyan);
+			}
+
+			.kk-garage__stat-row--acceleration .kk-progress-bar__fill {
+				background: linear-gradient(90deg, var(--color-accent-yellow-dim), var(--color-accent-yellow));
+				box-shadow: 0 0 8px var(--color-accent-yellow);
+			}
+
+			.kk-garage__stat-row--weight .kk-progress-bar__fill {
+				background: linear-gradient(90deg, var(--color-accent-pink-dim), var(--color-accent-pink));
+				box-shadow: 0 0 8px var(--color-accent-pink);
+			}
+
+			.kk-garage__stat-row--boost .kk-progress-bar__fill {
+				background: linear-gradient(90deg, var(--color-accent-orange-dim), var(--color-accent-orange));
+				box-shadow: 0 0 8px var(--color-accent-orange);
+			}
+
+			/* ===================================================
 			   Responsive: small screens get 2-column thumbs
 			   =================================================== */
 
@@ -351,7 +380,7 @@ export class GaragePanel {
 		for ( const def of STAT_DEFS ) {
 
 			const row = document.createElement( 'div' );
-			row.className = 'kk-garage__stat-row';
+			row.className = `kk-garage__stat-row kk-garage__stat-row--${def.key}`;
 
 			const header = document.createElement( 'div' );
 			header.className = 'kk-garage__stat-header';

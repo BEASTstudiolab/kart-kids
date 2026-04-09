@@ -123,27 +123,32 @@ export class RacePanel {
 				text-transform: uppercase;
 				letter-spacing: var(--tracking-wide);
 				color: var(--color-ink-200);
-				background: transparent;
-				border: var(--border-thin) solid transparent;
+				background: rgba(255, 255, 255, 0.06);
+				backdrop-filter: blur(8px);
+				-webkit-backdrop-filter: blur(8px);
+				border: 1px solid rgba(255, 255, 255, 0.12);
 				border-radius: var(--radius-sm);
 				padding: var(--space-2) var(--space-5);
 				cursor: pointer;
 				min-height: var(--hit-target-min);
 				transition:
-					color var(--duration-fast) var(--ease-standard),
-					background var(--duration-fast) var(--ease-standard),
-					border-color var(--duration-fast) var(--ease-standard);
+					color 0.25s ease,
+					background 0.25s ease,
+					border-color 0.25s ease,
+					box-shadow 0.25s ease;
 			}
 
 			.kk-race-panel__chip:hover:not(.kk-race-panel__chip--active) {
 				color: var(--color-white);
-				background: rgba(255, 255, 255, 0.06);
+				background: rgba(255, 255, 255, 0.10);
+				border-color: rgba(255, 255, 255, 0.18);
 			}
 
 			.kk-race-panel__chip--active {
 				color: var(--color-cta-primary-text);
-				background: var(--color-cta-primary);
-				border-color: var(--color-cta-primary);
+				background: rgba(255, 107, 0, 0.15);
+				border-color: var(--color-accent-orange);
+				box-shadow: 0 0 12px var(--color-accent-orange-glow), inset 0 0 12px rgba(255, 107, 0, 0.1);
 			}
 
 			/* ── Race button wrapper ────────────────────────────────────── */
@@ -156,6 +161,50 @@ export class RacePanel {
 				font-size: var(--text-xl);
 				padding: var(--space-4) var(--space-12);
 				min-width: 12rem;
+				animation: kk-glow-pulse 1.5s ease-in-out infinite;
+				transition:
+					background var(--duration-fast) var(--ease-standard),
+					box-shadow var(--duration-fast) var(--ease-standard),
+					transform var(--duration-fast) var(--ease-standard);
+			}
+
+			.kk-race-panel__cta .kk-cta-button:hover:not([aria-disabled="true"]):not([aria-busy="true"]) {
+				transform: scale(1.05);
+			}
+
+			.kk-race-panel__cta .kk-cta-button:active:not([aria-disabled="true"]):not([aria-busy="true"]) {
+				transform: scale(0.97);
+			}
+
+			/* Shimmer sweep pseudo-element */
+			.kk-race-panel__cta .kk-cta-button::before {
+				content: '';
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 50%;
+				height: 100%;
+				background: linear-gradient(
+					90deg,
+					transparent,
+					rgba(255, 255, 255, 0.15),
+					transparent
+				);
+				transform: translateX(-100%) skewX(-20deg);
+				pointer-events: none;
+			}
+
+			.kk-race-panel__cta .kk-cta-button:hover::before {
+				animation: kk-shimmer-sweep 0.6s ease-out;
+			}
+
+			@media (prefers-reduced-motion: reduce) {
+				.kk-race-panel__cta .kk-cta-button {
+					animation: none;
+				}
+				.kk-race-panel__cta .kk-cta-button:hover::before {
+					animation: none;
+				}
 			}
 
 		`;
