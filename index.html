@@ -6,8 +6,62 @@
 	<title>Kart Kids</title>
 	<link rel="stylesheet" href="js/ui/ui-theme.css">
 	<style>
-		body { margin: 0; overflow: hidden; background: #000; }
-		canvas { display: block; touch-action: none; }
+		* { box-sizing: border-box; }
+		html, body {
+			margin: 0;
+			padding: 0;
+			background: #000;
+			color: #fff;
+			font-family: var(--font-ui, sans-serif);
+			height: 100%;
+			overflow: hidden;
+		}
+		/* ── 3D Canvas layer (z-index 0) ────────────────────────── */
+		#canvas-container {
+			position: fixed;
+			inset: 0;
+			z-index: 0;
+		}
+		#canvas-container canvas {
+			display: block;
+			width: 100%;
+			height: 100%;
+			touch-action: none;
+		}
+		/* ── Menu UI layer (z-index 1+) ─────────────────────────── */
+		#app-mount {
+			position: relative;
+			z-index: 1;
+			width: 100%;
+			height: 100%;
+		}
+		.kk-app-shell {
+			display: flex;
+			flex-direction: column;
+			width: 100%;
+			height: 100%;
+			position: relative;
+		}
+		.kk-page-container {
+			flex: 1;
+			overflow-y: auto;
+			overflow-x: hidden;
+			position: relative;
+		}
+		/* Toast region */
+		.kk-toast-region {
+			position: fixed;
+			bottom: calc(var(--actionbar-height, 80px) + var(--space-4, 16px));
+			left: 50%;
+			transform: translateX(-50%);
+			display: flex;
+			flex-direction: column-reverse;
+			gap: var(--space-2, 8px);
+			z-index: var(--z-toast, 600);
+			pointer-events: none;
+		}
+		.kk-toast-region > * { pointer-events: auto; }
+		/* ── Loading overlay ─────────────────────────────────────── */
 		#loading-overlay {
 			position: fixed; inset: 0; z-index: 9999;
 			background: #1a1a2e;
@@ -28,39 +82,6 @@
 			transition: width 0.15s;
 		}
 		#loading-text { margin-top: 12px; font-size: 13px; color: rgba(255,255,255,0.5); }
-		#editor-link {
-			position: absolute;
-			bottom: 12px;
-			left: 50%;
-			transform: translateX(-50%);
-			color: #fff;
-			font: 14px sans-serif;
-			text-decoration: none;
-			background: rgba(0,0,0,0.5);
-			padding: 8px 14px;
-			border-radius: 6px;
-			z-index: 10;
-		}
-		#editor-link:hover { background: rgba(0,0,0,0.7); }
-		#spectate-btn {
-			position: absolute;
-			bottom: 52px;
-			right: 16px;
-			color: #fff;
-			font: 14px sans-serif;
-			background: rgba(0,0,0,0.5);
-			padding: 8px 14px;
-			border-radius: 6px;
-			border: 1px solid rgba(255,255,255,0.3);
-			cursor: pointer;
-			z-index: 10;
-			display: none;
-		}
-		#spectate-btn:hover { background: rgba(0,0,0,0.7); }
-		@media (pointer: coarse) {
-			#editor-link { bottom: 12px; left: 50%; transform: translateX(-50%); }
-			#spectate-btn { bottom: 12px; }
-		}
 	</style>
 	<script type="importmap">
 	{
@@ -68,27 +89,40 @@
 			"three": "./node_modules/three/build/three.module.js",
 			"three/addons/": "./node_modules/three/examples/jsm/",
 			"three/webgpu": "./node_modules/three/build/three.webgpu.js",
-			"crashcat": "https://esm.sh/crashcat@0.0.2"
+			"crashcat": "./node_modules/crashcat/dist/index.js"
 		}
 	}
 	</script>
 </head>
 <body>
-	<div id="loading-overlay">
-		<div id="loading-title">KART KIDS</div>
-		<div id="loading-bar-bg"><div id="loading-bar"></div></div>
-		<div id="loading-text">Loading...</div>
-	</div>
-	<button id="spectate-btn">Spectate</button>
-	<a id="editor-link" href="editor.html">Create your own track</a>
-	<script>
-		const map = new URLSearchParams( location.search ).get( 'map' );
-		if ( map ) {
-			const link = document.getElementById( 'editor-link' );
-			link.href = 'editor.html?map=' + map;
-			link.textContent = 'Edit this track';
-		}
-	</script>
-	<script type="module" src="js/main.js"></script>
+
+<div id="loading-overlay">
+	<div id="loading-title">KART KIDS</div>
+	<div id="loading-bar-bg"><div id="loading-bar"></div></div>
+	<div id="loading-text">Loading...</div>
+</div>
+
+<div id="canvas-container"></div>
+<div id="app-mount"></div>
+
+<script type="module">
+import { AppShell } from './js/ui/core/AppShell.js';
+
+const mount = document.getElementById( 'app-mount' );
+const app = new AppShell( mount );
+app.bootstrap();
+
+// Fade out loading overlay once menu is ready
+const overlay = document.getElementById( 'loading-overlay' );
+if ( overlay ) {
+
+	overlay.classList.add( 'fade-out' );
+	setTimeout( () => overlay.remove(), 500 );
+
+}
+
+console.log( '%c KART KIDS Menu System Loaded ', 'background: #ff6b00; color: #000; font-weight: bold; padding: 4px 12px; border-radius: 4px;' );
+</script>
+
 </body>
 </html>
