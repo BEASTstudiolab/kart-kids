@@ -43,6 +43,7 @@ import { NotificationService } from './NotificationService.js';
 import { AnalyticsService }   from './AnalyticsService.js';
 import { RouteIds }           from '../enums/RouteIds.js';
 import { createGameEngine }   from '../../GameEngine.js';
+import { GaragePreview }      from '../GaragePreview.js';
 
 // Routes where the TopNav is hidden (Title Screen, Pause overlay, and Results).
 // Results is a post-race cinematic screen that occupies the full viewport.
@@ -77,13 +78,15 @@ export class AppShell {
 
 		/** @type {Services} */
 		this._services = {
-			router:       this._router,
-			navigation:   this._navigation,
-			modal:        this._modal,
-			notification: this._notification,
-			analytics:    this._analytics,
-			startRace:    ( raceConfig ) => this.startRace( raceConfig ),
-			endRace:      ( results ) => this.endRace( results ),
+			router:         this._router,
+			navigation:     this._navigation,
+			modal:          this._modal,
+			notification:   this._notification,
+			analytics:      this._analytics,
+			startRace:      ( raceConfig ) => this.startRace( raceConfig ),
+			endRace:        ( results ) => this.endRace( results ),
+			setRenderMode:  ( mode ) => this.setRenderMode( mode ),
+			garagePreview:  null,  // populated in bootstrap() after engine creation
 		};
 
 		// -----------------------------------------------------------------------
@@ -155,6 +158,11 @@ export class AppShell {
 
 			this._engine = createGameEngine( canvasContainer );
 			this._services.engine = this._engine;
+
+			// Create GaragePreview sharing the renderer from GameEngine.
+			const renderer = this._engine.getRenderer();
+			this._garagePreview = new GaragePreview( renderer );
+			this._services.garagePreview = this._garagePreview;
 
 		}
 
@@ -580,6 +588,141 @@ export class AppShell {
 
 	}
 
+	// ---------------------------------------------------------------------------
+	// Render loop coordinator
+	// ---------------------------------------------------------------------------
+
+	/**
+	 * Start the persistent rAF loop. This loop runs for the lifetime of the app.
+	 * Depending on _renderMode, it delegates to the appropriate subsystem:
+	 *   - 'race'  → engine.update()
+	 *   - 'garage' → garagePreview.update() (Unit 5)
+	 *   - 'idle'  → no rendering (loop still ticks for mode transitions)
+	 */
+	_startRenderLoop() {
+
+		this._lastFrameTime = performance.now();
+
+		const tick = ( now ) => {
+
+			this._rafId = requestAnimationFrame( tick );
+
+			if ( this._renderMode === 'race' && this._engine ) {
+
+				this._engine.update();
+
+			} else if ( this._renderMode === 'garage' && this._garagePreview ) {
+
+				const dt = ( now - this._lastFrameTime ) / 1000;
+				this._garagePreview.update( dt );
+
+			}
+
+			this._lastFrameTime = now;
+
+		};
+
+		this._rafId = requestAnimationFrame( tick );
+
+	}
+
+	// ---------------------------------------------------------------------------
+	// Render mode control
+	// ---------------------------------------------------------------------------
+
+	/**
+	 * Switch the render loop to a different mode.
+	 * Used by page controllers (e.g., Garage) to activate/deactivate 3D previews.
+	 *
+	 * @param {'idle' | 'race' | 'garage'} mode
+	 */
+	setRenderMode( mode ) {
+
+		this._renderMode = mode;
+
+	}
+
+	// ---------------------------------------------------------------------------
+	// Race lifecycle
+	// ---------------------------------------------------------------------------
+
+	/**
+	 * Start a race. Hides the menu UI, starts the GameEngine.
+	 *
+	 * @param {object} config - Race configuration passed to engine.start()
+	 * @returns {Promise<void>}
+	 */
+	async startRace( config ) {
+
+		if ( ! this._engine ) {
+
+			this._notification.show( { message: 'Game engine not available.', variant: 'error' } );
+			return;
+
+		}
+
+		try {
+
+			// Hide the menu shell so the 3D canvas is fullscreen.
+			if ( this._shell ) {
+
+				this._shell.style.display = 'none';
+
+			}
+
+			await this._engine.start( config );
+			this._renderMode = 'race';
+
+		} catch ( err ) {
+
+			console.error( '[AppShell] startRace failed:', err );
+
+			// Restore menu UI on failure.
+			if ( this._shell ) {
+
+				this._shell.style.display = '';
+
+			}
+
+			this._renderMode = 'idle';
+			this._notification.show( {
+				message: 'Failed to start race: ' + ( err.message || 'Unknown error' ),
+				variant: 'error',
+			} );
+
+		}
+
+	}
+
+	/**
+	 * End the current race. Stops the GameEngine, restores the menu UI,
+	 * and navigates to the Results page with race data.
+	 *
+	 * @param {object} [results] - Race results data to pass to the Results page.
+	 */
+	endRace( results ) {
+
+		if ( this._engine ) {
+
+			this._engine.stop();
+
+		}
+
+		this._renderMode = 'idle';
+
+		// Restore the menu shell.
+		if ( this._shell ) {
+
+			this._shell.style.display = '';
+
+		}
+
+		// Navigate to Results with race data (stash in a shared location for the controller).
+		this._services._lastRaceResults = results || {};
+		this._navigation.push( RouteIds.RESULTS );
+
+	}
+
 }
 
 // ---------------------------------------------------------------------------
@@ -653,14 +796,18 @@ function _makePlaceholderController( label, services ) {
 
 /**
  * @typedef {object} AppShellConfig
- * @property {boolean} [analyticsDebug]  Log analytics events to console. Default true.
+ * @property {boolean}     [analyticsDebug]    Log analytics events to console. Default true.
+ * @property {HTMLElement} [canvasContainer]    DOM element for the 3D canvas (defaults to #canvas-container).
  */
 
 /**
  * @typedef {object} Services
- * @property {RouterService}       router
+ * @property {RouterService}            router
  * @property {typeof NavigationService} navigation
- * @property {ModalService}        modal
- * @property {NotificationService} notification
- * @property {AnalyticsService}    analytics
+ * @property {ModalService}             modal
+ * @property {NotificationService}      notification
+ * @property {AnalyticsService}         analytics
+ * @property {object}                   [engine]      GameEngine instance (after bootstrap).
+ * @property {Function}                 startRace     Start a race — hides menu, calls engine.start(config).
+ * @property {Function}                 endRace       End the race — calls engine.stop(), restores menu, navigates to Results.
  */

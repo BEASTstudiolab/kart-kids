@@ -183,9 +183,12 @@
    ============================================================ */
 
 :root {
+  --z-canvas:   0;
+  --z-app-mount: 1;
   --z-base:     0;
   --z-panel:    10;
   --z-topnav:   100;
+  --z-overlay:  400;
   --z-modal:    500;
   --z-toast:    600;
 }
@@ -419,6 +422,7 @@ svg {
   min-height: 100dvh;
   position: relative;
   isolation: isolate;
+  background: transparent;
 }
 
 /* Title screen and pause overlay have no nav chrome */
@@ -456,6 +460,36 @@ svg {
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
+}
+
+/* Page container: transparent so the 3D canvas shows through */
+.kk-page-container {
+  background: transparent;
+}
+
+/* Individual page backgrounds: semi-transparent for readability over 3D canvas */
+.kk-page {
+  background: rgba(10, 10, 10, 0.85);
+}
+
+/* Canvas sits behind the SPA UI so menu composites over 3D */
+.kk-canvas-container {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-canvas);
+  pointer-events: none;
+}
+
+.kk-canvas-container canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* SPA app mount sits above canvas */
+.kk-app-mount {
+  position: relative;
+  z-index: var(--z-app-mount);
 }
 
 /* ============================================================
