@@ -93,6 +93,7 @@ class WebSocketTransport {
 
 const RECONNECT_TTL_MS = 30000;
 const RECONNECT_STORAGE_KEY = 'kart-kids-session';
+const RECONNECT_MAX_RETRIES = 3;
 
 // ── Network client ───────────────────────────────────────────────────────────
 
@@ -107,6 +108,8 @@ export class NetworkClient {
 		this._localPlayerId = null;
 		this._sessionToken = null;
 		this._serverUrl = null;
+
+		this._reconnectAttempts = 0;
 
 		// Pending promise resolvers for room operations
 		this._pendingCreateRoom = null;
@@ -157,6 +160,7 @@ export class NetworkClient {
 
 		await this._transport.connect( url );
 		this._connected = true;
+		this._reconnectAttempts = 0;
 
 		this._transport.onMessage( ( msg ) => {
 
@@ -164,7 +168,7 @@ export class NetworkClient {
 
 				case 'welcome':
 					this._localPlayerId = msg.id ?? msg.playerId ?? null;
-					this._storeSession( msg.token ?? null );
+					this._storeSession( msg.sessionToken ?? null );
 					if ( this.onWelcome ) this.onWelcome( msg );
 					// Resolve pending createRoom if roomCode present
 					if ( msg.roomCode && this._pendingCreateRoom ) {
@@ -201,43 +205,53 @@ export class NetworkClient {
 					if ( this.onRoomJoined ) this.onRoomJoined( msg );
 					break;
 
-				case 'roomFull':
-					if ( this._pendingJoinRoom ) {
+				case 'error': {
 
-						this._pendingJoinRoom.reject( new Error( 'Room is full' ) );
-						this._pendingJoinRoom = null;
+					const errorMsg = msg.message ?? 'Server error';
+
+					if ( msg.code === 'roomFull' ) {
+
+						if ( this._pendingJoinRoom ) {
+
+							this._pendingJoinRoom.reject( new Error( 'Room is full' ) );
+							this._pendingJoinRoom = null;
+
+						}
+						if ( this._pendingFindRoom ) {
+
+							this._pendingFindRoom.reject( new Error( 'Room is full' ) );
+							this._pendingFindRoom = null;
+
+						}
+						if ( this.onRoomFull ) this.onRoomFull( msg );
+
+					} else {
+
+						if ( this._pendingJoinRoom ) {
+
+							this._pendingJoinRoom.reject( new Error( errorMsg ) );
+							this._pendingJoinRoom = null;
+
+						}
+						if ( this._pendingFindRoom ) {
+
+							this._pendingFindRoom.reject( new Error( errorMsg ) );
+							this._pendingFindRoom = null;
+
+						}
+						if ( this._pendingCreateRoom ) {
+
+							this._pendingCreateRoom.reject( new Error( errorMsg ) );
+							this._pendingCreateRoom = null;
+
+						}
+						if ( this.onRoomError ) this.onRoomError( msg );
 
 					}
-					if ( this._pendingFindRoom ) {
 
-						this._pendingFindRoom.reject( new Error( 'Room is full' ) );
-						this._pendingFindRoom = null;
-
-					}
-					if ( this.onRoomFull ) this.onRoomFull( msg );
 					break;
 
-				case 'roomError':
-					if ( this._pendingJoinRoom ) {
-
-						this._pendingJoinRoom.reject( new Error( msg.message ?? 'Room error' ) );
-						this._pendingJoinRoom = null;
-
-					}
-					if ( this._pendingFindRoom ) {
-
-						this._pendingFindRoom.reject( new Error( msg.message ?? 'Room error' ) );
-						this._pendingFindRoom = null;
-
-					}
-					if ( this._pendingCreateRoom ) {
-
-						this._pendingCreateRoom.reject( new Error( msg.message ?? 'Room error' ) );
-						this._pendingCreateRoom = null;
-
-					}
-					if ( this.onRoomError ) this.onRoomError( msg );
-					break;
+				}
 
 				case 'hostChange':
 					if ( this.onHostChange ) this.onHostChange( msg );
@@ -463,6 +477,17 @@ export class NetworkClient {
 	 */
 	async _attemptReconnect() {
 
+		this._reconnectAttempts ++;
+
+		if ( this._reconnectAttempts > RECONNECT_MAX_RETRIES ) {
+
+			localStorage.removeItem( RECONNECT_STORAGE_KEY );
+			this._reconnectAttempts = 0;
+			if ( this.onDisconnect ) this.onDisconnect();
+			return;
+
+		}
+
 		let data;
 
 		try {
@@ -472,6 +497,7 @@ export class NetworkClient {
 
 		} catch ( e ) {
 
+			localStorage.removeItem( RECONNECT_STORAGE_KEY );
 			if ( this.onDisconnect ) this.onDisconnect();
 			return;
 
@@ -479,10 +505,16 @@ export class NetworkClient {
 
 		if ( ! data || ! data.token || ! this._serverUrl ) {
 
+			localStorage.removeItem( RECONNECT_STORAGE_KEY );
 			if ( this.onDisconnect ) this.onDisconnect();
 			return;
 
 		}
+
+		// Exponential backoff: 1s, 2s, 4s
+		const delay = Math.pow( 2, this._reconnectAttempts - 1 ) * 1000;
+
+		await new Promise( ( resolve ) => setTimeout( resolve, delay ) );
 
 		try {
 
@@ -493,8 +525,8 @@ export class NetworkClient {
 
 		} catch ( e ) {
 
-			localStorage.removeItem( RECONNECT_STORAGE_KEY );
-			if ( this.onDisconnect ) this.onDisconnect();
+			// connect() failed — onClose will fire and call _attemptReconnect again
+			// (guarded by the retry counter above)
 
 		}
 

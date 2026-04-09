@@ -320,6 +320,7 @@ export function createGameEngine( canvasContainer ) {
 	let _hudContainer = null;     // Single DOM container for all game HUD elements
 	let _trackedBodies = [];      // Physics bodies to reset on stop()
 	let _trackBody = null;        // Track collider body reference
+	let _trackGroup = null;       // Track mesh group added to scene
 
 	// Game subsystem references (nulled during stop)
 	let _vehicle = null;
@@ -513,7 +514,7 @@ export function createGameEngine( canvasContainer ) {
 
 		}
 
-		buildTrack( scene, models, renderCells );
+		_trackGroup = buildTrack( scene, models, renderCells );
 
 		// ── Track colliders ──────────────────────────────────────────────────
 		// Teleport old track body if switching tracks
@@ -1321,6 +1322,37 @@ export function createGameEngine( canvasContainer ) {
 		if ( _groundIndicator ) { scene.remove( _groundIndicator ); _groundIndicator = null; }
 		if ( _dirLightTarget ) { scene.remove( _dirLightTarget ); _dirLightTarget = null; }
 
+		// Remove track meshes from scene, dispose geometries/materials
+		if ( _trackGroup ) {
+
+			_trackGroup.traverse( ( child ) => {
+
+				if ( child.isMesh || child.isInstancedMesh ) {
+
+					if ( child.geometry ) child.geometry.dispose();
+					if ( child.material ) {
+
+						if ( Array.isArray( child.material ) ) {
+
+							child.material.forEach( ( m ) => m.dispose() );
+
+						} else {
+
+							child.material.dispose();
+
+						}
+
+					}
+
+				}
+
+			} );
+
+			scene.remove( _trackGroup );
+			_trackGroup = null;
+
+		}
+
 		// Reset physics bodies (teleport to depth, keep world alive)
 		if ( _trackedBodies.length > 0 ) {
 
@@ -1338,6 +1370,7 @@ export function createGameEngine( canvasContainer ) {
 		_hud = null;
 		_trackIntel = null;
 		_minimap = null;
+		if ( _network ) _network.disconnect();
 		_network = null;
 		_combatManager = null;
 		_damageSFX = null;

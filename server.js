@@ -3,7 +3,7 @@ import { readFile, stat } from 'fs/promises';
 import { join, extname } from 'path';
 import { gzipSync } from 'zlib';
 import { WebSocketServer } from 'ws';
-import { randomUUID } from 'crypto';
+import { randomUUID, randomInt } from 'crypto';
 
 const PORT = process.env.PORT || 3000;
 const TICK_RATE = 20;
@@ -109,21 +109,25 @@ const disconnectedSessions = new Map();
 // Map<ws, { playerId, roomCode, sessionToken }>
 const connectedClients = new Map();
 
-let joinCounter = 0;
+
 
 function generateRoomCode() {
 
 	const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-	let code = '';
-	for ( let i = 0; i < 4; i ++ ) {
+	for ( let attempt = 0; attempt < 100; attempt ++ ) {
 
-		code += chars[ Math.floor( Math.random() * chars.length ) ];
+		let code = '';
+		for ( let i = 0; i < 6; i ++ ) {
+
+			code += chars[ randomInt( chars.length ) ];
+
+		}
+
+		if ( ! rooms.has( code ) ) return code;
 
 	}
 
-	// Avoid collisions
-	if ( rooms.has( code ) ) return generateRoomCode();
-	return code;
+	throw new Error( 'Failed to generate unique room code after 100 attempts' );
 
 }
 
@@ -329,7 +333,7 @@ function addPlayerToRoom( room, playerId, ws, vehicleId ) {
 	const index = room.joinCounter ++;
 	const vehicleIndex = vehicleId != null ? vehicleId : ( index % 4 );
 	const characterIndex = 0;
-	const tint = computeTint( joinCounter ++ );
+	const tint = computeTint( index );
 
 	const player = {
 		ws,
@@ -720,8 +724,8 @@ wss.on( 'connection', ( ws ) => {
 				const room = rooms.get( clientInfo.roomCode );
 				if ( ! room ) break;
 
-				// Only host can start race (except in default room for backward compat)
-				if ( room.code !== DEFAULT_ROOM_CODE && room.host !== clientInfo.playerId ) {
+				// Only host can start race
+				if ( room.host !== clientInfo.playerId ) {
 
 					ws.send( JSON.stringify( { type: 'error', code: 'notHost', message: 'Only the host can start the race' } ) );
 					break;

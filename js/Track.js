@@ -406,6 +406,7 @@ export function buildTrack( scene, models, customCells ) {
 
 	} );
 
+	return trackGroup;
 
 }
 
