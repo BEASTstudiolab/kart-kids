@@ -44,6 +44,8 @@ import { AnalyticsService }   from './AnalyticsService.js';
 import { RouteIds }           from '../enums/RouteIds.js';
 import { createGameEngine }   from '../../GameEngine.js';
 import { GaragePreview }      from '../GaragePreview.js';
+import { Settings }           from '../../Settings.js';
+import { showNameEntryModal } from '../components/NameEntryModal.js';
 
 // Routes where the TopNav is hidden (Title Screen, Pause overlay, and Results).
 // Results is a post-race cinematic screen that occupies the full viewport.
@@ -182,6 +184,28 @@ export class AppShell {
 
 		// Start the persistent render loop coordinator.
 		this._startRenderLoop();
+
+		// First-run name entry modal — show before user navigates.
+		this._checkFirstRun();
+
+	}
+
+	// ---------------------------------------------------------------------------
+	// First-run check
+	// ---------------------------------------------------------------------------
+
+	/**
+	 * If this is the user's first visit (no display name saved), show the
+	 * NameEntryModal via ModalService. The modal is non-dismissible and
+	 * saves the name + avatar choice to Settings on confirmation.
+	 */
+	async _checkFirstRun() {
+
+		const settings = new Settings();
+
+		if ( ! settings.isFirstRun() ) return;
+
+		await showNameEntryModal( this._modal, settings );
 
 	}
 

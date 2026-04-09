@@ -322,6 +322,17 @@ export class Page09GarageView extends PageViewBase {
 				max-width: 520px;
 			}
 
+			/* 3D turntable preview: make hero panel transparent so the
+			   WebGL canvas behind the page DOM shows through. */
+			.page-garage__hero-wrap .kk-hero-preview-panel {
+				background: transparent;
+				border-color: rgba(255, 255, 255, 0.08);
+			}
+
+			.page-garage__hero-wrap .kk-hero-preview-panel__inner {
+				background: transparent;
+			}
+
 			/* Rotating modifier — visual feedback via CSS animation on inner */
 			.page-garage__hero-wrap--rotating .kk-hero-preview-panel__inner {
 				/* Subtle glow to indicate turntable is active */
