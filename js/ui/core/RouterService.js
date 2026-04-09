@@ -60,13 +60,15 @@ export class RouterService {
 	}
 
 	/**
-	 * Set the route to navigate to when no registered route matches.
+	 * Set the fallback when no registered route matches.
+	 * Accepts either a route string (navigates via replace) or a callback
+	 * function (invoked directly, e.g., to switch to a tab).
 	 *
-	 * @param {string} route  e.g. '/'
+	 * @param {string | Function} routeOrCallback  e.g. '/' or () => appShell.switchTab('race')
 	 */
-	setFallback( route ) {
+	setFallback( routeOrCallback ) {
 
-		this._fallbackRoute = route;
+		this._fallbackRoute = routeOrCallback;
 
 	}
 
@@ -184,9 +186,19 @@ export class RouterService {
 
 		if ( ! matched ) {
 
-			// Unknown route — redirect to fallback without a back-stack entry.
-			console.warn( `[RouterService] No route matched "${path}" — redirecting to fallback "${this._fallbackRoute}"` );
-			NavigationService.replace( this._fallbackRoute );
+			// Unknown route — invoke fallback.
+			if ( typeof this._fallbackRoute === 'function' ) {
+
+				console.warn( `[RouterService] No route matched "${path}" — invoking fallback callback` );
+				this._fallbackRoute();
+
+			} else {
+
+				console.warn( `[RouterService] No route matched "${path}" — redirecting to fallback "${this._fallbackRoute}"` );
+				NavigationService.replace( this._fallbackRoute );
+
+			}
+
 			return;
 
 		}

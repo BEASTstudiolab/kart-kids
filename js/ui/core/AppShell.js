@@ -2,8 +2,8 @@
  * AppShell — top-level UI orchestrator.
  *
  * Responsibilities:
- *   - Create the shell DOM: top-nav placeholder, route-announcement region,
- *     page container, toast region.
+ *   - Create the shell DOM: bottom tab bar, route-announcement region,
+ *     page container with 4 tab panels, toast region.
  *   - Instantiate and wire all core services:
  *       RouterService, NavigationService, ModalService,
  *       NotificationService, AnalyticsService.
@@ -15,20 +15,27 @@
  * Architecture decisions:
  *   - AppShell is a class (not a singleton module) so it can be unit-tested
  *     by constructing a fresh instance with a test container.
- *   - TopNav is wired as a placeholder `<nav>` element. When the TopNav
- *     component is delivered by another agent, replace _createTopNav() with
- *     the real component constructor.
- *   - Pages that do NOT show the TopNav (Title Screen `/` and Pause `/pause`)
- *     are listed in TOPNAV_HIDDEN_ROUTES.
+ *   - Bottom tab bar (RACE, GARAGE, CREATE, PROFILE) replaces the old TopNav.
+ *     Tab panels are persistent — show/hide via CSS, never destroyed on switch.
+ *   - RouterService still handles overlay routes (Pause, Results) but tab
+ *     navigation bypasses it entirely via switchTab().
  *   - Z-index layers match COMPONENT_SPEC.md global conventions:
- *       base=0, panel=10, topnav=100, modal=500, toast=600.
+ *       base=0, panel=10, tabbar=50, topnav=100, modal=500, toast=600.
  *
  * Shell DOM structure:
  *
  *   <div id="kk-app-shell">
  *     <div aria-live="polite" aria-atomic="true" class="kk-sr-announcer"></div>
- *     <nav class="kk-top-nav kk-top-nav--placeholder">  <!-- placeholder --></nav>
- *     <main class="kk-page-container" id="kk-page-container"></main>
+ *     <main class="kk-page-container" id="kk-page-container">
+ *       <div class="kk-panel kk-panel--active" data-panel="race"></div>
+ *       <div class="kk-panel" data-panel="garage"></div>
+ *       <div class="kk-panel" data-panel="create"></div>
+ *       <div class="kk-panel" data-panel="profile"></div>
+ *     </main>
+ *     <nav class="kk-tab-bar" role="tablist" aria-label="Main navigation">
+ *       <button role="tab" ...>RACE</button>
+ *       ...
+ *     </nav>
  *     <div class="kk-toast-region" role="region"
  *          aria-label="Notifications" aria-live="polite"
  *          aria-atomic="false" aria-relevant="additions"></div>
@@ -47,9 +54,21 @@ import { GaragePreview }      from '../GaragePreview.js';
 import { Settings }           from '../../Settings.js';
 import { showNameEntryModal } from '../components/NameEntryModal.js';
 
-// Routes where the TopNav is hidden (Title Screen, Pause overlay, and Results).
-// Results is a post-race cinematic screen that occupies the full viewport.
-const TOPNAV_HIDDEN_ROUTES = new Set( [ RouteIds.TITLE, RouteIds.PAUSE, RouteIds.RESULTS ] );
+// Tab definitions — order matches the tab bar left-to-right.
+const TAB_DEFS = [
+	{ id: 'race',    label: 'RACE' },
+	{ id: 'garage',  label: 'GARAGE' },
+	{ id: 'create',  label: 'CREATE' },
+	{ id: 'profile', label: 'PROFILE' },
+];
+
+// Render mode per tab — RACE and GARAGE show the kart turntable.
+const TAB_RENDER_MODES = {
+	race:    'garage',
+	garage:  'garage',
+	create:  'idle',
+	profile: 'idle',
+};
 
 export class AppShell {
 
@@ -89,6 +108,7 @@ export class AppShell {
 			endRace:        ( results ) => this.endRace( results ),
 			setRenderMode:  ( mode ) => this.setRenderMode( mode ),
 			garagePreview:  null,  // populated in bootstrap() after engine creation
+			selectedMode:   'solo',
 		};
 
 		// -----------------------------------------------------------------------
@@ -131,13 +151,26 @@ export class AppShell {
 		this._announcer = null;
 
 		/** @type {HTMLElement | null} */
-		this._topNavEl = null;
+		this._tabBarEl = null;
 
 		/** @type {HTMLElement | null} */
 		this._pageContainer = null;
 
 		/** @type {HTMLElement | null} */
 		this._toastRegion = null;
+
+		// -----------------------------------------------------------------------
+		// Tab panel state
+		// -----------------------------------------------------------------------
+
+		/** @type {Map<string, HTMLElement>} tab id → panel div */
+		this._panels = new Map();
+
+		/** @type {Map<string, HTMLElement>} tab id → tab button */
+		this._tabButtons = new Map();
+
+		/** @type {string} currently active tab id */
+		this._activeTab = 'race';
 
 	}
 
@@ -169,43 +202,48 @@ export class AppShell {
 		}
 
 		this._registerRoutes();
-		this._router.start();
 
-		// Announce the initial route load for screen readers.
+		// RouterService render target — used for overlay routes (Pause, Results).
 		this._router.setContainer( this._pageContainer );
-
-		// Track initial page view.
-		const initialRoute = window.location.hash.slice( 1 ) || RouteIds.TITLE;
-		this._analytics.trackPageView( initialRoute );
-
-		// Keep TopNav visibility in sync with route changes.
-		window.addEventListener( 'hashchange', () => this._syncTopNavVisibility() );
-		this._syncTopNavVisibility();
 
 		// Start the persistent render loop coordinator.
 		this._startRenderLoop();
 
-		// First-run name entry modal — show before user navigates.
-		this._checkFirstRun();
+		// Title skip for returning players: skip router dispatch, go straight
+		// to RACE tab. First-run players see NameEntryModal then RACE tab.
+		const settings = new Settings();
+
+		if ( settings.isFirstRun() ) {
+
+			// First run: show name modal, then land on RACE tab.
+			this._router.start();
+			this._handleFirstRun( settings );
+
+		} else {
+
+			// Returning player: skip title, go straight to RACE tab.
+			// Start the router but suppress initial dispatch by starting
+			// after we've already switched to the RACE tab.
+			this.switchTab( 'race' );
+			this._router.start();
+
+		}
 
 	}
 
 	// ---------------------------------------------------------------------------
-	// First-run check
+	// First-run handling
 	// ---------------------------------------------------------------------------
 
 	/**
-	 * If this is the user's first visit (no display name saved), show the
-	 * NameEntryModal via ModalService. The modal is non-dismissible and
-	 * saves the name + avatar choice to Settings on confirmation.
+	 * First visit flow: show NameEntryModal, then land on RACE tab.
+	 *
+	 * @param {Settings} settings
 	 */
-	async _checkFirstRun() {
-
-		const settings = new Settings();
-
-		if ( ! settings.isFirstRun() ) return;
+	async _handleFirstRun( settings ) {
 
 		await showNameEntryModal( this._modal, settings );
+		this.switchTab( 'race' );
 
 	}
 
@@ -248,21 +286,22 @@ export class AppShell {
 		shell.appendChild( announcer );
 		this._announcer = announcer;
 
-		// Top navigation placeholder.
-		// TODO: Replace _createTopNav() with real TopNav component when available.
-		const topNavEl = this._createTopNav();
-		shell.appendChild( topNavEl );
-		this._topNavEl = topNavEl;
-
-		// Primary page render target.
+		// Primary page render target — holds tab panels.
 		const pageContainer = document.createElement( 'main' );
 		pageContainer.className = 'kk-page-container';
 		pageContainer.id = 'kk-page-container';
-		// Accessible: main landmark so screen readers can skip to content.
 		shell.appendChild( pageContainer );
 		this._pageContainer = pageContainer;
 
-		// Toast notification region — singleton, lives above ActionBar, below modal.
+		// Create the 4 tab panels inside the page container.
+		this._createTabPanels( pageContainer );
+
+		// Bottom tab bar.
+		const tabBarEl = this._createTabBar();
+		shell.appendChild( tabBarEl );
+		this._tabBarEl = tabBarEl;
+
+		// Toast notification region — singleton, lives above tab bar, below modal.
 		const toastRegion = document.createElement( 'div' );
 		toastRegion.className = 'kk-toast-region';
 		toastRegion.setAttribute( 'role', 'region' );
@@ -279,149 +318,246 @@ export class AppShell {
 	}
 
 	// ---------------------------------------------------------------------------
-	// Top-nav placeholder
+	// Tab bar
 	// ---------------------------------------------------------------------------
 
 	/**
-	 * Create a minimal placeholder <nav> element.
-	 * This is replaced when the TopNav component is delivered by another agent.
-	 *
-	 * The placeholder uses the same class names and aria attributes so CSS
-	 * and acceptance tests can target it without modification when the real
-	 * TopNav is wired in.
+	 * Create the bottom tab bar with RACE, GARAGE, CREATE, PROFILE buttons.
 	 *
 	 * @returns {HTMLElement}
 	 */
-	_createTopNav() {
+	_createTabBar() {
 
 		const nav = document.createElement( 'nav' );
-		nav.className = 'kk-top-nav kk-top-nav--placeholder';
-		nav.setAttribute( 'role', 'navigation' );
+		nav.className = 'kk-tab-bar';
+		nav.setAttribute( 'role', 'tablist' );
 		nav.setAttribute( 'aria-label', 'Main navigation' );
 
-		const brand = document.createElement( 'div' );
-		brand.className = 'kk-top-nav__brand';
-
-		const wordmark = document.createElement( 'span' );
-		wordmark.className = 'kk-top-nav__wordmark';
-		wordmark.setAttribute( 'aria-hidden', 'true' );
-		wordmark.textContent = 'KART KIDS';
-		brand.appendChild( wordmark );
-		nav.appendChild( brand );
-
-		// Primary nav links — wired to routes.
-		const navItems = [
-			{ label: 'PLAY MODES', route: RouteIds.PLAY },
-			{ label: 'GARAGE',     route: RouteIds.GARAGE },
-			{ label: 'CREATE',     route: RouteIds.CREATE },
-			{ label: 'PROFILE',    route: RouteIds.PROFILE },
-		];
-
-		const list = document.createElement( 'ul' );
-		list.className = 'kk-top-nav__list';
-		list.setAttribute( 'role', 'list' );
-
-		for ( const item of navItems ) {
-
-			const li = document.createElement( 'li' );
-			li.className = 'kk-top-nav__item';
-			li.setAttribute( 'role', 'listitem' );
+		for ( const tab of TAB_DEFS ) {
 
 			const btn = document.createElement( 'button' );
-			btn.className = 'kk-top-nav__link';
+			btn.className = 'kk-tab-bar__btn';
 			btn.type = 'button';
-			btn.setAttribute( 'data-route', item.route );
-			btn.setAttribute( 'aria-current', 'false' );
+			btn.setAttribute( 'role', 'tab' );
+			btn.setAttribute( 'aria-selected', tab.id === this._activeTab ? 'true' : 'false' );
+			btn.setAttribute( 'aria-controls', `kk-panel-${tab.id}` );
+			btn.setAttribute( 'tabindex', tab.id === this._activeTab ? '0' : '-1' );
+			btn.id = `kk-tab-${tab.id}`;
+			btn.dataset.tab = tab.id;
+
+			if ( tab.id === this._activeTab ) {
+
+				btn.classList.add( 'kk-tab-bar__btn--active' );
+
+			}
 
 			const label = document.createElement( 'span' );
-			label.className = 'kk-top-nav__link-label';
-			label.textContent = item.label;
+			label.className = 'kk-tab-bar__label';
+			label.textContent = tab.label;
 			btn.appendChild( label );
 
 			btn.addEventListener( 'click', () => {
 
-				this._navigation.push( item.route );
+				this.switchTab( tab.id );
 
 			} );
 
-			li.appendChild( btn );
-			list.appendChild( li );
+			nav.appendChild( btn );
+			this._tabButtons.set( tab.id, btn );
 
 		}
 
-		// Arrow key navigation within the nav list (per COMPONENT_SPEC.md §1).
-		list.addEventListener( 'keydown', ( e ) => {
+		// Arrow key navigation within the tab bar.
+		nav.addEventListener( 'keydown', ( e ) => {
 
-			const btns = Array.from( list.querySelectorAll( '.kk-top-nav__link:not([aria-disabled="true"])' ) );
+			const btns = Array.from( nav.querySelectorAll( '.kk-tab-bar__btn' ) );
 			const idx  = btns.indexOf( document.activeElement );
 			if ( idx === - 1 ) return;
+
+			let nextIdx = - 1;
 
 			if ( e.key === 'ArrowRight' ) {
 
 				e.preventDefault();
-				btns[ ( idx + 1 ) % btns.length ].focus();
+				nextIdx = ( idx + 1 ) % btns.length;
 
 			} else if ( e.key === 'ArrowLeft' ) {
 
 				e.preventDefault();
-				btns[ ( idx - 1 + btns.length ) % btns.length ].focus();
+				nextIdx = ( idx - 1 + btns.length ) % btns.length;
+
+			} else if ( e.key === 'Home' ) {
+
+				e.preventDefault();
+				nextIdx = 0;
+
+			} else if ( e.key === 'End' ) {
+
+				e.preventDefault();
+				nextIdx = btns.length - 1;
+
+			}
+
+			if ( nextIdx !== - 1 ) {
+
+				btns[ nextIdx ].focus();
+				this.switchTab( btns[ nextIdx ].dataset.tab );
 
 			}
 
 		} );
 
-		nav.appendChild( list );
-
-		// Utility zone placeholder.
-		const utility = document.createElement( 'div' );
-		utility.className = 'kk-top-nav__utility';
-		nav.appendChild( utility );
-
-		// Update active route indicator on hash change.
-		window.addEventListener( 'hashchange', () => this._updateTopNavActiveRoute( list ) );
-
 		return nav;
 
 	}
 
+	// ---------------------------------------------------------------------------
+	// Tab panels
+	// ---------------------------------------------------------------------------
+
 	/**
-	 * Update aria-current on nav links to reflect the current route.
+	 * Create 4 panel container divs inside the page container.
+	 * CreatePanel content is built inline — a static card with an editor link.
 	 *
-	 * @param {HTMLElement} list
+	 * @param {HTMLElement} container
 	 */
-	_updateTopNavActiveRoute( list ) {
+	_createTabPanels( container ) {
 
-		const current = window.location.hash.slice( 1 ) || RouteIds.TITLE;
+		for ( const tab of TAB_DEFS ) {
 
-		list.querySelectorAll( '.kk-top-nav__link' ).forEach( btn => {
+			const panel = document.createElement( 'div' );
+			panel.className = 'kk-panel';
+			panel.id = `kk-panel-${tab.id}`;
+			panel.setAttribute( 'role', 'tabpanel' );
+			panel.setAttribute( 'aria-labelledby', `kk-tab-${tab.id}` );
+			panel.setAttribute( 'tabindex', '0' );
+			panel.dataset.panel = tab.id;
 
-			const isActive = btn.dataset.route === current;
-			btn.setAttribute( 'aria-current', isActive ? 'page' : 'false' );
-			btn.classList.toggle( 'kk-top-nav__link--selected', isActive );
+			if ( tab.id === this._activeTab ) {
 
-		} );
+				panel.classList.add( 'kk-panel--active' );
+
+			}
+
+			container.appendChild( panel );
+			this._panels.set( tab.id, panel );
+
+		}
+
+		// Build CreatePanel content inline — editor launch card.
+		this._buildCreatePanelContent();
 
 	}
 
 	/**
-	 * Show or hide the top nav depending on the current route.
-	 * Title Screen and Pause have no top nav.
+	 * Build the CREATE panel content inline: a card with description and
+	 * LAUNCH EDITOR button that opens editor.html in a new tab.
 	 */
-	_syncTopNavVisibility() {
+	_buildCreatePanelContent() {
 
-		if ( ! this._topNavEl ) return;
+		const panel = this._panels.get( 'create' );
+		if ( ! panel ) return;
 
-		const current = window.location.hash.slice( 1 ) || RouteIds.TITLE;
-		const hidden  = TOPNAV_HIDDEN_ROUTES.has( current );
+		const card = document.createElement( 'div' );
+		card.className = 'kk-page';
+		card.style.cssText = 'max-width:32rem;margin:2rem auto;padding:2rem;text-align:center;border-radius:var(--radius-md);';
 
-		this._topNavEl.hidden = hidden;
-		this._topNavEl.setAttribute( 'aria-hidden', String( hidden ) );
+		const title = document.createElement( 'h2' );
+		title.className = 'kk-text-display';
+		title.style.cssText = 'font-size:var(--text-2xl);margin-bottom:var(--space-4);';
+		title.textContent = 'TRACK EDITOR';
+		card.appendChild( title );
 
-		// Announce route changes to screen readers.
-		this._announce( `Navigated to ${current}` );
+		const desc = document.createElement( 'p' );
+		desc.style.cssText = 'color:var(--color-ink-300);margin-bottom:var(--space-6);line-height:var(--leading-relaxed);';
+		desc.textContent = 'Design custom tracks with the drag-and-drop editor. Place straights, corners, ramps, and more to build your dream circuit.';
+		card.appendChild( desc );
 
-		// Track page view.
-		this._analytics.trackPageView( current );
+		const btn = document.createElement( 'a' );
+		btn.href = 'editor.html';
+		btn.target = '_blank';
+		btn.rel = 'noopener';
+		btn.className = 'kk-tab-bar__editor-btn';
+		btn.style.cssText = [
+			'display:inline-block',
+			'padding:var(--space-3) var(--space-8)',
+			'background:var(--color-cta-primary)',
+			'color:var(--color-cta-primary-text)',
+			'font-family:var(--font-ui)',
+			'font-weight:var(--weight-bold)',
+			'font-size:var(--text-md)',
+			'text-transform:uppercase',
+			'letter-spacing:var(--tracking-wider)',
+			'text-decoration:none',
+			'border-radius:var(--radius-md)',
+			'cursor:pointer',
+			'transition:background var(--duration-normal) var(--ease-standard)',
+		].join( ';' );
+		btn.textContent = 'LAUNCH EDITOR';
+		card.appendChild( btn );
+
+		panel.appendChild( card );
+
+	}
+
+	// ---------------------------------------------------------------------------
+	// Tab switching
+	// ---------------------------------------------------------------------------
+
+	/**
+	 * Switch to a tab by id. Hides all panels, shows the target, updates
+	 * tab bar active state, render mode, and analytics.
+	 *
+	 * @param {string} name  Tab id: 'race' | 'garage' | 'create' | 'profile'
+	 */
+	switchTab( name ) {
+
+		if ( ! this._panels.has( name ) ) return;
+
+		this._activeTab = name;
+
+		// Update panels: hide all, show target.
+		for ( const [ id, panel ] of this._panels ) {
+
+			if ( id === name ) {
+
+				panel.classList.add( 'kk-panel--active' );
+
+			} else {
+
+				panel.classList.remove( 'kk-panel--active' );
+
+			}
+
+		}
+
+		// Update tab bar buttons.
+		for ( const [ id, btn ] of this._tabButtons ) {
+
+			const isActive = id === name;
+			btn.setAttribute( 'aria-selected', isActive ? 'true' : 'false' );
+			btn.setAttribute( 'tabindex', isActive ? '0' : '-1' );
+			btn.classList.toggle( 'kk-tab-bar__btn--active', isActive );
+
+		}
+
+		// Update render mode based on tab.
+		const renderMode = TAB_RENDER_MODES[ name ] || 'idle';
+		this.setRenderMode( renderMode );
+
+		// Sync garage preview kart when switching to RACE tab.
+		if ( name === 'race' && this._garagePreview ) {
+
+			const settings = new Settings();
+			this._garagePreview.setKart( settings.getSelectedKartId() );
+
+		}
+
+		// Analytics.
+		this._analytics.trackPageView( name );
+
+		// Screen reader announcement.
+		this._announce( `Switched to ${name} tab` );
 
 	}
 
@@ -440,12 +576,14 @@ export class AppShell {
 			debug: this._config.analyticsDebug ?? true,
 		} );
 
-		// NavigationService root fallback.
-		NavigationService.setRoot( RouteIds.HOME );
+		// NavigationService root fallback — Title is the entry route.
+		NavigationService.setRoot( RouteIds.TITLE );
 
 		// RouterService render target.
 		this._router.setContainer( this._pageContainer );
-		this._router.setFallback( RouteIds.TITLE );
+
+		// Catch-all fallback: unknown hashes land on RACE tab.
+		this._router.setFallback( () => this.switchTab( 'race' ) );
 
 	}
 
@@ -694,6 +832,13 @@ export class AppShell {
 
 			}
 
+			// Hide tab bar independently (restored in endRace).
+			if ( this._tabBarEl ) {
+
+				this._tabBarEl.style.display = 'none';
+
+			}
+
 			await this._engine.start( config );
 			this._renderMode = 'race';
 
@@ -705,6 +850,12 @@ export class AppShell {
 			if ( this._shell ) {
 
 				this._shell.style.display = '';
+
+			}
+
+			if ( this._tabBarEl ) {
+
+				this._tabBarEl.style.display = '';
 
 			}
 
@@ -738,6 +889,13 @@ export class AppShell {
 		if ( this._shell ) {
 
 			this._shell.style.display = '';
+
+		}
+
+		// Restore tab bar.
+		if ( this._tabBarEl ) {
+
+			this._tabBarEl.style.display = '';
 
 		}
 

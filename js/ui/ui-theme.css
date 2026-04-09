@@ -187,6 +187,7 @@
   --z-app-mount: 1;
   --z-base:     0;
   --z-panel:    10;
+  --z-tabbar:   50;
   --z-topnav:   100;
   --z-overlay:  400;
   --z-modal:    500;
@@ -465,6 +466,7 @@ svg {
 /* Page container: transparent so the 3D canvas shows through */
 .kk-page-container {
   background: transparent;
+  padding-bottom: 4rem; /* space for bottom tab bar */
 }
 
 /* Individual page backgrounds: semi-transparent for readability over 3D canvas */
@@ -558,4 +560,77 @@ html[data-ui-scale="large"] {
 
 html[data-ui-scale="xlarge"] {
   font-size: 22px;
+}
+
+/* ============================================================
+   16. BOTTOM TAB BAR
+   Fixed bottom navigation for RACE / GARAGE / CREATE / PROFILE.
+   z-index 50 sits between content (0-10) and modals (500).
+   ============================================================ */
+
+.kk-tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-tabbar);
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: stretch;
+  background: rgba(10, 10, 10, 0.95);
+  border-top: var(--border-thin) solid var(--color-panel-border);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.kk-tab-bar__btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  flex: 1;
+  min-height: 56px;
+  min-width: 64px;
+  padding: var(--space-2) var(--space-1);
+  background: none;
+  border: none;
+  color: var(--color-ink-400);
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  cursor: pointer;
+  transition:
+    color var(--duration-normal) var(--ease-standard);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.kk-tab-bar__btn:hover {
+  color: var(--color-ink-200);
+}
+
+.kk-tab-bar__btn--active,
+.kk-tab-bar__btn[aria-selected="true"] {
+  color: var(--color-accent-orange);
+}
+
+.kk-tab-bar__label {
+  line-height: 1;
+}
+
+/* ============================================================
+   17. TAB PANELS
+   Panel containers inside .kk-page-container — hidden by default,
+   active panel is visible.
+   ============================================================ */
+
+.kk-panel {
+  display: none;
+}
+
+.kk-panel--active {
+  display: block;
 }
