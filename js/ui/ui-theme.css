@@ -467,6 +467,8 @@ svg {
 .kk-page-container {
   background: transparent;
   padding-bottom: 4rem; /* space for bottom tab bar */
+  height: calc(100vh - 4rem); /* fill viewport minus tab bar */
+  position: relative;
 }
 
 /* Individual page backgrounds: semi-transparent for readability over 3D canvas */
@@ -652,6 +654,8 @@ html[data-ui-scale="xlarge"] {
 
 .kk-panel--active {
   display: block;
+  height: 100%;
+  position: relative;
   background: radial-gradient(ellipse at 50% 0%, rgba(255, 107, 0, 0.03) 0%, transparent 60%);
 }
 
