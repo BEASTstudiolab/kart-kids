@@ -521,7 +521,7 @@ export class NetworkClient {
 			this._transport = new WebSocketTransport();
 			await this.connect( this._serverUrl );
 			// Send reconnect token so server can restore session
-			this._transport.send( { type: 'reconnect', token: data.token } );
+			this._transport.send( { type: 'reconnect', sessionToken: data.token } );
 
 		} catch ( e ) {
 
