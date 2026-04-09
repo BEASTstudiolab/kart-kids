@@ -61,25 +61,15 @@ export class Page12ProfileController extends PageControllerBase {
 
 		const view = this._view;
 
-		// EDIT PROFILE
-		this._addListener( view.editProfileBtn.el, 'click', () => {
-
-			this._analytics?.track( EventIds.PROFILE_EDITED );
-			this.openModal( { id: ModalIds.EDIT_PROFILE } );
-
-		} );
-
-		// FAVORITE LOADOUT → garage
-		this._addListener( view.favoriteLoadoutBtn.el, 'click', () => {
-
-			this.navigate( RouteIds.GARAGE );
-
-		} );
-
-		// Tabs
+		// Tabs — these buttons are created in _build() and are available now.
 		this._addListener( view.tabAchievements.el, 'click', () => this._switchTab( 'achievements' ) );
 		this._addListener( view.tabBadges.el,        'click', () => this._switchTab( 'badges' ) );
 		this._addListener( view.tabHistory.el,       'click', () => this._switchTab( 'history' ) );
+
+		// NOTE: editProfileBtn and favoriteLoadoutBtn are created inside
+		// setFavoriteLoadout(), which runs during render(). Their event
+		// bindings are deferred to _bindDeferredEvents() called at the end
+		// of render().
 
 	}
 
@@ -134,6 +124,10 @@ export class Page12ProfileController extends PageControllerBase {
 		// Mount.
 		view.mount( container );
 
+		// Bind events for buttons that are created during render (after
+		// setFavoriteLoadout populates editProfileBtn and favoriteLoadoutBtn).
+		this._bindDeferredEvents();
+
 		this._analytics?.trackPageView( PageIds.PROFILE );
 
 	}
@@ -141,6 +135,41 @@ export class Page12ProfileController extends PageControllerBase {
 	dispose() {
 
 		super.dispose();
+
+	}
+
+	// ---------------------------------------------------------------------------
+	// Deferred event bindings
+	// ---------------------------------------------------------------------------
+
+	/**
+	 * Bind click handlers for buttons that are created during render()
+	 * by setFavoriteLoadout(), rather than during _build().
+	 */
+	_bindDeferredEvents() {
+
+		const view = this._view;
+
+		if ( view.editProfileBtn ) {
+
+			this._addListener( view.editProfileBtn.el, 'click', () => {
+
+				this._analytics?.track( EventIds.PROFILE_EDITED );
+				this.openModal( { id: ModalIds.EDIT_PROFILE } );
+
+			} );
+
+		}
+
+		if ( view.favoriteLoadoutBtn ) {
+
+			this._addListener( view.favoriteLoadoutBtn.el, 'click', () => {
+
+				this.navigate( RouteIds.GARAGE );
+
+			} );
+
+		}
 
 	}
 
