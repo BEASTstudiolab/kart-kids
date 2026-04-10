@@ -552,8 +552,10 @@ export class RacePanel {
 			const vehicleId = settings.getSelectedKartId();
 			const result = await this._network.findRoom( vehicleId );
 
-			// Hide overlay and start the race
+			// Hide and dispose overlay, then start the race
 			this._matchmakingOverlay.hide();
+			this._matchmakingOverlay.dispose();
+			this._matchmakingOverlay = null;
 
 			this._services.startRace( {
 				mode:      'online',
@@ -672,7 +674,11 @@ export class RacePanel {
 
 		cancelBtn.addEventListener( 'click', () => handle.close() );
 
+		let joining = false;
+
 		const doJoin = async () => {
+
+			if ( joining ) return;
 
 			const code = input.value.trim();
 
@@ -683,6 +689,7 @@ export class RacePanel {
 
 			}
 
+			joining = true;
 			handle.close();
 
 			try {

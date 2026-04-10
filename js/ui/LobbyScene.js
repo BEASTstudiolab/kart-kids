@@ -108,6 +108,9 @@ export class LobbyScene {
 		/** @type {string | null} */
 		this._currentKartId = null;
 
+		/** @type {number} generation counter to detect stale async loads */
+		this._loadGen = 0;
+
 		/** @type {THREE.AnimationMixer | null} */
 		this._mixer = null;
 
@@ -130,6 +133,7 @@ export class LobbyScene {
 
 		if ( kartId === this._currentKartId ) return;
 		this._currentKartId = kartId;
+		const gen = ++ this._loadGen;
 
 		// Clear previous kart + character
 		while ( this._kartGroup.children.length > 0 ) {
@@ -144,6 +148,8 @@ export class LobbyScene {
 		// Load kart model, then attach character to the seat_anchor node
 		// (same approach as Vehicle.js _attachCharacter).
 		this._loader.load( `models/${ entry.path }`, ( kartGltf ) => {
+
+			if ( gen !== this._loadGen ) return;
 
 			const kartModel = kartGltf.scene;
 			kartModel.scale.setScalar( KART_SCALE );
@@ -165,6 +171,8 @@ export class LobbyScene {
 			// Load character mesh and attach to seat anchor
 			this._loader.load( `models/${ CHARACTER_MESH_PATH }`, ( meshGltf ) => {
 
+				if ( gen !== this._loadGen ) return;
+
 				const character = meshGltf.scene;
 				character.scale.setScalar( 1.0 );
 
@@ -185,6 +193,8 @@ export class LobbyScene {
 
 				// Apply driving pose animation
 				this._loader.load( `models/${ CHARACTER_ANIM_PATH }`, ( animGltf ) => {
+
+					if ( gen !== this._loadGen ) return;
 
 					if ( animGltf.animations && animGltf.animations.length > 0 ) {
 
@@ -224,10 +234,13 @@ export class LobbyScene {
 	}
 
 	/**
-	 * Per-frame update — static camera, just render.
+	 * Per-frame update — rotate kart on turntable, render.
 	 * @param {number} dt  Delta time in seconds.
 	 */
 	update( dt ) {
+
+		// Slow turntable rotation on the kart group
+		this._kartGroup.rotation.y += 0.15 * dt;
 
 		this._renderer.render( this._scene, this._camera );
 

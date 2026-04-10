@@ -223,7 +223,11 @@ function startRoomRaceCountdown( room ) {
 			clearInterval( room.countdownTimer );
 			room.countdownTimer = null;
 			room.raceState = 'racing';
-			roomBroadcast( room, { type: 'raceStart' } );
+			roomBroadcast( room, {
+				type: 'raceStart',
+				trackData: room.trackData || null,
+				trackId: room.trackId || null,
+			} );
 
 		}
 
@@ -734,7 +738,11 @@ wss.on( 'connection', ( ws ) => {
 
 				if ( room.raceState !== 'idle' ) break;
 
-				if ( msg.trackId != null ) {
+				if ( msg.trackData != null ) {
+
+					room.trackData = msg.trackData;
+
+				} else if ( msg.trackId != null ) {
 
 					room.trackId = msg.trackId;
 

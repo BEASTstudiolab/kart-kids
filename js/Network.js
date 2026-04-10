@@ -398,19 +398,19 @@ export class NetworkClient {
 
 				}
 
-			}, 10000 );
+			}, 30000 );
 
 		} );
 
 	}
 
 	/**
-	 * Host-only: start the race on the given track.
-	 * @param {string} trackId
+	 * Host-only: start the race with the given track data.
+	 * @param {object|null} trackData  Track cell data (cells array + metadata). Sent as trackData field so guests can load the same track.
 	 */
-	startRace( trackId ) {
+	startRace( trackData ) {
 
-		this._transport.send( { type: 'startRace', trackId } );
+		this._transport.send( { type: 'startRace', trackData } );
 
 	}
 

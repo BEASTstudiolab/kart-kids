@@ -175,11 +175,31 @@ export class TracksPanel {
 	 *
 	 * @param {string} _trackId
 	 */
-	_onTrackSelected( _trackId ) {
+	_onTrackSelected( trackId ) {
 
-		// No-op — TrackBrowser internally re-renders the detail panel
-		// and highlight state.  We intentionally do NOT persist to
-		// Settings or show a toast here.
+		// Workshop mode: persist selection to Settings so TrackBrowser's
+		// highlight and detail panel update correctly on re-render.
+		// This does NOT affect the PLAY screen — RacePanel has its own
+		// TrackBrowser instance with its own onTrackSelected callback.
+		this._settings.setSelectedTrackId( trackId );
+
+		// Re-append CREATE TRACK card (TrackBrowser.re-render clears the row).
+		this._reappendCreateCard();
+
+	}
+
+	/**
+	 * Re-append the CREATE TRACK card to the my tracks carousel row.
+	 * Called after any TrackBrowser re-render that clears the row.
+	 */
+	_reappendCreateCard() {
+
+		const myTracksRow = this._browser.getMyTracksRow();
+		if ( myTracksRow ) {
+
+			myTracksRow.appendChild( this._buildCreateCard() );
+
+		}
 
 	}
 
@@ -285,14 +305,7 @@ export class TracksPanel {
 
 		// Refresh the browser to reflect deletion.
 		this._browser.refresh();
-
-		// Re-append CREATE TRACK card (refresh clears the row).
-		const myTracksRow = this._browser.getMyTracksRow();
-		if ( myTracksRow ) {
-
-			myTracksRow.appendChild( this._buildCreateCard() );
-
-		}
+		this._reappendCreateCard();
 
 		this._services.notification?.show( {
 			message: `"${ track.name }" deleted`,
@@ -316,12 +329,7 @@ export class TracksPanel {
 		this._settings = new Settings();
 
 		this._browser.show();
-
-		// Re-append CREATE TRACK card (show refreshes the row).
-		const myTracksRow = this._browser.getMyTracksRow();
-		if ( myTracksRow ) {
-
-			myTracksRow.appendChild( this._buildCreateCard() );
+		this._reappendCreateCard();
 
 		}
 
