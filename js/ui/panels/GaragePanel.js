@@ -712,6 +712,12 @@ export class GaragePanel {
 
 		}
 
+		if ( this._services.lobbyScene ) {
+
+			this._services.lobbyScene.setKart( this._currentVehicle().id );
+
+		}
+
 		// Re-render carousel to update glow states and scroll into view.
 		this._renderCarousel();
 
@@ -810,6 +816,12 @@ export class GaragePanel {
 			if ( this._services.garagePreview ) {
 
 				this._services.garagePreview.setKart( vehicle.id );
+
+			}
+
+			if ( this._services.lobbyScene ) {
+
+				this._services.lobbyScene.setKart( vehicle.id );
 
 			}
 
@@ -1000,6 +1012,12 @@ export class GaragePanel {
 		if ( this._services.garagePreview ) {
 
 			this._services.garagePreview.setKart( this._currentVehicle().id );
+
+		}
+
+		if ( this._services.lobbyScene ) {
+
+			this._services.lobbyScene.setKart( this._currentVehicle().id );
 
 		}
 

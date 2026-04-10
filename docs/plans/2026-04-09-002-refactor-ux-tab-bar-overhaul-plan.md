@@ -1,7 +1,7 @@
 ---
 title: "refactor: UX Tab Bar Overhaul — 2-Click-to-Race"
 type: refactor
-status: active
+status: completed
 date: 2026-04-09
 origin: docs/brainstorms/2026-04-09-ux-flow-overhaul-requirements.md
 ---

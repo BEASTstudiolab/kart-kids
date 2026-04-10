@@ -62,17 +62,13 @@ export class LobbyScene {
 		this._camera.position.set( CAM_DISTANCE, CAM_HEIGHT, CAM_DISTANCE );
 		this._camera.lookAt( 0, LOOK_HEIGHT, 0 );
 
-		// ── Ground plane ─────────────────────────────────────────────────
-		const groundGeo = new THREE.PlaneGeometry( 40, 40 );
-		const groundMat = new THREE.MeshStandardMaterial( {
-			color: 0x222244,
-			roughness: 0.9,
-			metalness: 0.1,
+		// ── Lobby environment ────────────────────────────────────────────
+		this._loader = new GLTFLoader();
+		this._loader.load( 'models/environments/lobby.glb', ( gltf ) => {
+
+			this._scene.add( gltf.scene );
+
 		} );
-		const ground = new THREE.Mesh( groundGeo, groundMat );
-		ground.rotation.x = - Math.PI / 2;
-		ground.receiveShadow = true;
-		this._scene.add( ground );
 
 		// ── Kart container ───────────────────────────────────────────────
 		this._kartGroup = new THREE.Group();
@@ -80,9 +76,6 @@ export class LobbyScene {
 
 		/** @type {string | null} */
 		this._currentKartId = null;
-
-		/** @type {GLTFLoader} */
-		this._loader = new GLTFLoader();
 
 		/** @type {number} elapsed time for gentle sway */
 		this._elapsed = 0;
@@ -117,7 +110,7 @@ export class LobbyScene {
 		const entry = getVehicleById( kartId );
 		if ( ! entry ) return;
 
-		this._loader.load( entry.model, ( gltf ) => {
+		this._loader.load( `models/${ entry.path }`, ( gltf ) => {
 
 			const model = gltf.scene;
 			model.scale.setScalar( 0.5 );

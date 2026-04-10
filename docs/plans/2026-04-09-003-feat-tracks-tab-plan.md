@@ -1,7 +1,7 @@
 ---
 title: "feat: TRACKS Tab — Browse, Select, Share Tracks"
 type: feat
-status: active
+status: completed
 date: 2026-04-09
 origin: docs/brainstorms/2026-04-09-tracks-tab-requirements.md
 ---

@@ -16279,271 +16279,3483 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
-## Session End: 20260409_221130
+## Session End: 20260409_162123
+### Commits
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+---
+
+## Session End: 20260409_162222
+### Commits
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_162303
+### Commits
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_162411
+### Commits
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_162945
+### Commits
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_163128
+### Commits
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_163834
+### Commits
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_164139
+### Commits
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_165614
+### Commits
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_170347
+### Commits
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_170552
+### Commits
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+js/ui/core/AppShell.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_170730
+### Commits
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+js/ui/core/AppShell.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_170843
+### Commits
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_171537
+### Commits
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_171741
+### Commits
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_172142
+### Commits
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_172331
+### Commits
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_175229
+### Commits
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_175759
+### Commits
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_180122
+### Commits
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_180313
+### Commits
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_180524
+### Commits
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_180740
+### Commits
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+js/ui/panels/GaragePanel.js
+js/ui/panels/RacePanel.js
+js/ui/ui-theme.css
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_180800
+### Commits
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_181053
+### Commits
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_181258
+### Commits
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_181451
+### Commits
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_182038
+### Commits
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_182422
+### Commits
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_182428
+### Commits
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_182854
+### Commits
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_190024
+### Commits
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_195033
+### Commits
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_195626
+### Commits
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_195907
+### Commits
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+js/ui/core/AppShell.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_200210
+### Commits
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_200828
+### Commits
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_201119
+### Commits
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_201453
+### Commits
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_201644
+### Commits
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/panels/GaragePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_202051
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_204111
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_204452
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/core/AppShell.js
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_204744
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/core/AppShell.js
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_205056
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_205257
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/core/AppShell.js
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_205719
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/core/AppShell.js
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_205950
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/core/AppShell.js
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_210506
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/core/AppShell.js
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_210651
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/core/AppShell.js
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_210946
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/core/AppShell.js
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_211028
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+e132d7f feat(foundation): unify importmaps, delete PageRegistry.js, merge menu shell into index.html
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/core/AppShell.js
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_211106
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+01c618c feat(scope): remove 10 cut page routes, fix TopNav links, fix Garage constructor signature
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/core/AppShell.js
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_211331
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+36c38c2 feat(multiplayer): rewrite server.js with room-scoped multiplayer
+b462535 feat(data): extend VehicleRegistry with stats, create TrackRegistry
+eded6c9 feat(persistence): extend Settings.js schema v2→v3 with profile, loadout, stats
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/core/AppShell.js
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_211638
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/core/AppShell.js
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_211700
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/core/AppShell.js
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_211739
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+a45ab46 kart-kids-v0.30-xbox-controller-support-added
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/core/AppShell.js
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_212345
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/core/AppShell.js
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_212433
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+ddc57d8 feat(engine): extract GameEngine factory from main.js — startable/stoppable lifecycle
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/core/AppShell.js
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_212720
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/core/AppShell.js
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_212729
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/core/AppShell.js
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_212729
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/core/AppShell.js
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_212735
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/core/AppShell.js
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_212759
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/core/AppShell.js
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_212844
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+2c2c8fb feat(spa): integrate AppShell with GameEngine — single render loop coordinator
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/core/AppShell.js
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_213020
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+86775e5 fix(routes): fix PlayModes controller constructor signature ({}, s)
+8d89902 fix(profile): final Profile controller cleanup
+2757060 feat(pages): build real controllers for KartSelect, Profile, CreateHub, Results
+667bc1f feat(lobby): full room system wiring — member list, track picker, host-only start, room code join
+28c66f5 feat(garage): wire GaragePreview into AppShell render loop + transparent hero panel
+c3489d1 docs: add requirements doc and implementation plan for menu production-ready initiative
+8420155 feat(ui): QuickPlay matchmaking flow, Lobby room UI, name modal, disconnect overlay
+1b30fad feat(garage): wire Garage and KartSelect controllers to VehicleRegistry + GaragePreview
+f33c286 feat(polish): loading overlay, disconnect overlay, CSS transparency, XSS sanitization
+748d567 feat(garage): create GaragePreview with turntable 3D kart preview
+acf1f48 feat(multiplayer): extend NetworkClient with room system methods + reconnect
+5e2f0cb feat(data): migrate Home, QuickPlay, PlayModes, Lobby controllers from MockData to real sources
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/core/AppShell.js
+js/ui/panels/GaragePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_213628
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/core/AppShell.js
+js/ui/panels/GaragePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_213743
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/core/AppShell.js
+js/ui/panels/GaragePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_213855
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/core/AppShell.js
+js/ui/panels/GaragePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_214119
+### Commits
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+638216d fix(reconnect): send sessionToken field name matching server expectation
+d32f43d fix(review): resolve 4 P0 + 4 P1 bugs from code review
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/core/AppShell.js
+js/ui/panels/GaragePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
+production/session-logs/session-log.md
+---
+
+## Session End: 20260409_215859
 ### Commits
 b0516af refactor(ui): Fortnite-style layout — top tab bar, right-side PLAY panel, discover TRACKS page
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
+### Uncommitted Changes
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/panels/GaragePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
+production/session-logs/session-log.md
 ---
 
-## Session End: 20260409_221423
+## Session End: 20260409_215905
 ### Commits
 b0516af refactor(ui): Fortnite-style layout — top tab bar, right-side PLAY panel, discover TRACKS page
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
+2b49235 fix(settings): deep-copy DEFAULTS to prevent mutation across instances
+2a2f0df test: comprehensive test suite — 150 tests (unit + server + E2E)
+7b4e969 fix(importmap): add mathcat to importmap — crashcat dependency unresolved locally
 ### Uncommitted Changes
-js/GameEngine.js
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/panels/GaragePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
 production/session-logs/session-log.md
 ---
 
-## Session End: 20260409_222526
+## Session End: 20260409_235702
 ### Commits
 b0516af refactor(ui): Fortnite-style layout — top tab bar, right-side PLAY panel, discover TRACKS page
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
 ### Uncommitted Changes
-js/GameEngine.js
-js/TrackData.js
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/panels/GaragePanel.js
 production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
 production/session-logs/session-log.md
 ---
 
-## Session End: 20260409_223455
+## Session End: 20260409_235843
 ### Commits
 b0516af refactor(ui): Fortnite-style layout — top tab bar, right-side PLAY panel, discover TRACKS page
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
 ### Uncommitted Changes
-js/GameEngine.js
-js/TrackData.js
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/panels/GaragePanel.js
 production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
 production/session-logs/session-log.md
 ---
 
-## Session End: 20260409_224104
+## Session End: 20260409_235935
 ### Commits
 b0516af refactor(ui): Fortnite-style layout — top tab bar, right-side PLAY panel, discover TRACKS page
+7b7dcb0 feat(ui): angular glass card style across RACE and GARAGE panels
+4c87da3 feat(tracks): carousel layout — horizontal snap-scroll cards with angular cuts
+1c0c78b feat(tracks): TRACKS tab — browse, select, share tracks + track preview on RACE tab
+6a39f98 feat(settings): add selectedTrackId to loadout — schema v3→v4
+d6fea33 docs: TRACKS tab requirements + implementation plan
+2effac5 feat(ui): HUD buttons with diagonal-cut SVG + HyperText scramble effect
+5780b93 style(garage): animated stat bars — racing stripes, shimmer sweep, edge glow, staggered fill
+8724c5a fix(layout): panel and page-container need explicit height for absolute-positioned children
+1ed6a51 feat(garage): dealership-style layout — arrow browsing, stats corner, equip under kart
+c146b36 style(gaming): neon glow RACE button, frosted glass tab bar, glassmorphism chips, glowing stat bars
+bbe10f4 fix(routing): remove TITLE route registration — tab bar handles initial load
+1051d4b fix(ux-review): stale Settings kart, formatTime overflow, dispose chain, chip init, bootstrap order
+eb12ca0 refactor(routes): deregister absorbed page routes — keep only TITLE, PAUSE, SETTINGS
+5a1a0af feat(overlays): LobbyOverlay + ResultsOverlay + endRace rewrite
+d9dbd77 feat(panels): RacePanel + GaragePanel + ProfilePanel — tab content for RACE, GARAGE, PROFILE
+53f8b25 refactor(nav): replace TopNav with bottom tab bar + 4 panel shell
+b0a15f3 fix(plan): address final review — fallback mechanism, NavigationService.setRoot, Tabs reuse
+647d180 docs: UX tab bar overhaul plan — 6 units, review fixes applied
+2d8a476 fix(docs): resolve R4/R5a mode default contradiction, clarify RACE AGAIN per-mode behavior
+c0c6afe merge: resolve conflicts with origin/master — add 6 new karts with stats, keep GameEngine wrapper
+c7b3476 docs: UX flow overhaul requirements — 2-click-to-race with tab bar architecture
 ### Uncommitted Changes
-js/GameEngine.js
-js/TrackData.js
-js/track-editor/core/EditorApp.js
-js/track-editor/modes/GameplayMode.js
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/panels/GaragePanel.js
 production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
 production/session-logs/session-log.md
 ---
 
-## Session End: 20260409_225503
-### Commits
-b0516af refactor(ui): Fortnite-style layout — top tab bar, right-side PLAY panel, discover TRACKS page
+## Session End: 20260410_104604
 ### Uncommitted Changes
-js/GameEngine.js
-js/Track.js
-js/TrackData.js
-js/editor/Curves.js
-js/editor/Persistence.js
-js/track-editor/core/EditorApp.js
-js/track-editor/modes/GameplayMode.js
-js/track-editor/services/CurveService.js
+docs/plans/2026-04-09-002-refactor-ux-tab-bar-overhaul-plan.md
+docs/plans/2026-04-09-003-feat-tracks-tab-plan.md
+js/ui/panels/GaragePanel.js
 production/session-logs/agent-audit.log
-production/session-logs/session-log.md
----
-
-## Session End: 20260409_230224
-### Uncommitted Changes
-js/GameEngine.js
-js/Track.js
-js/TrackData.js
-js/editor/Curves.js
-js/editor/Persistence.js
-js/track-editor/core/EditorApp.js
-js/track-editor/modes/GameplayMode.js
-js/track-editor/services/CurveService.js
-js/ui/panels/TracksPanel.js
-production/session-logs/agent-audit.log
-production/session-logs/session-log.md
----
-
-## Session End: 20260409_230717
-### Uncommitted Changes
-js/GameEngine.js
-js/Physics.js
-js/Track.js
-js/TrackData.js
-js/editor/Curves.js
-js/editor/Persistence.js
-js/track-editor/core/EditorApp.js
-js/track-editor/modes/GameplayMode.js
-js/track-editor/services/CurveService.js
-js/ui/panels/TracksPanel.js
-production/session-logs/agent-audit.log
-production/session-logs/session-log.md
----
-
-## Session End: 20260409_231559
-### Uncommitted Changes
-js/GameEngine.js
-js/Physics.js
-js/Track.js
-js/TrackData.js
-js/editor/Curves.js
-js/editor/Persistence.js
-js/track-editor/core/EditorApp.js
-js/track-editor/models/TrackTile.js
-js/track-editor/modes/GameplayMode.js
-js/track-editor/services/CurveService.js
-js/ui/panels/TracksPanel.js
-production/session-logs/agent-audit.log
-production/session-logs/session-log.md
----
-
-## Session End: 20260409_232031
-### Uncommitted Changes
-js/GameEngine.js
-js/Physics.js
-js/Track.js
-js/TrackData.js
-js/editor/Curves.js
-js/editor/Persistence.js
-js/track-editor/core/EditorApp.js
-js/track-editor/models/TrackTile.js
-js/track-editor/modes/GameplayMode.js
-js/track-editor/services/CurveService.js
-js/ui/panels/TracksPanel.js
-production/session-logs/agent-audit.log
-production/session-logs/session-log.md
----
-
-## Session End: 20260409_232212
-### Uncommitted Changes
-css/track-editor.css
-js/GameEngine.js
-js/Physics.js
-js/Track.js
-js/TrackCodec.js
-js/TrackData.js
-js/editor/Curves.js
-js/editor/Persistence.js
-js/track-editor/core/EditorApp.js
-js/track-editor/models/TrackTile.js
-js/track-editor/modes/GameplayMode.js
-js/track-editor/services/CurveService.js
-js/track-editor/services/ProjectStorageService.js
-js/ui/panels/TracksPanel.js
-production/session-logs/agent-audit.log
-production/session-logs/session-log.md
----
-
-## Session End: 20260409_232308
-### Uncommitted Changes
-css/track-editor.css
-js/Controls.js
-js/GameEngine.js
-js/Haptics.js
-js/Physics.js
-js/Track.js
-js/TrackCodec.js
-js/TrackData.js
-js/editor/Curves.js
-js/editor/Persistence.js
-js/track-editor/core/EditorApp.js
-js/track-editor/models/TrackProject.js
-js/track-editor/models/TrackTile.js
-js/track-editor/modes/GameplayMode.js
-js/track-editor/services/CurveService.js
-js/track-editor/services/ProjectStorageService.js
-js/ui/panels/TracksPanel.js
-production/session-logs/agent-audit.log
-production/session-logs/session-log.md
----
-
-## Session End: 20260409_232627
-### Uncommitted Changes
-css/track-editor.css
-js/Controls.js
-js/GameEngine.js
-js/Haptics.js
-js/Physics.js
-js/Track.js
-js/TrackCodec.js
-js/TrackData.js
-js/TrackIntel.js
-js/editor/Curves.js
-js/editor/Persistence.js
-js/track-editor/core/EditorApp.js
-js/track-editor/models/TrackProject.js
-js/track-editor/models/TrackTile.js
-js/track-editor/modes/GameplayMode.js
-js/track-editor/services/CurveService.js
-js/track-editor/services/ProjectStorageService.js
-js/ui/panels/TracksPanel.js
-production/session-logs/agent-audit.log
-production/session-logs/session-log.md
----
-
-## Session End: 20260409_233021
-### Uncommitted Changes
-css/track-editor.css
-js/Controls.js
-js/GameEngine.js
-js/Haptics.js
-js/Physics.js
-js/Track.js
-js/TrackCodec.js
-js/TrackData.js
-js/TrackIntel.js
-js/editor/Curves.js
-js/editor/Persistence.js
-js/track-editor/core/EditorApp.js
-js/track-editor/models/TrackProject.js
-js/track-editor/models/TrackTile.js
-js/track-editor/modes/GameplayMode.js
-js/track-editor/services/CurveService.js
-js/track-editor/services/ProjectStorageService.js
-js/ui/panels/TracksPanel.js
-production/session-logs/agent-audit.log
-production/session-logs/session-log.md
----
-
-## Session End: 20260409_233331
-### Uncommitted Changes
-css/track-editor.css
-js/Controls.js
-js/GameEngine.js
-js/Haptics.js
-js/Physics.js
-js/Track.js
-js/TrackCodec.js
-js/TrackData.js
-js/TrackIntel.js
-js/editor/Curves.js
-js/editor/Persistence.js
-js/track-editor/core/EditorApp.js
-js/track-editor/models/TrackProject.js
-js/track-editor/models/TrackTile.js
-js/track-editor/modes/GameplayMode.js
-js/track-editor/services/CurveService.js
-js/track-editor/services/ProjectStorageService.js
-js/track-editor/services/ValidationService.js
-js/ui/panels/TracksPanel.js
-production/session-logs/agent-audit.log
-production/session-logs/session-log.md
----
-
-## Session End: 20260409_233742
-### Uncommitted Changes
-css/track-editor.css
-js/Camera.js
-js/Controls.js
-js/GameEngine.js
-js/Haptics.js
-js/Physics.js
-js/Track.js
-js/TrackCodec.js
-js/TrackData.js
-js/TrackIntel.js
-js/editor/Curves.js
-js/editor/Persistence.js
-js/track-editor/core/EditorApp.js
-js/track-editor/models/TrackProject.js
-js/track-editor/models/TrackTile.js
-js/track-editor/modes/GameplayMode.js
-js/track-editor/services/CurveService.js
-js/track-editor/services/ProjectStorageService.js
-js/track-editor/services/ValidationService.js
-js/ui/panels/TracksPanel.js
-production/session-logs/agent-audit.log
+production/session-logs/compaction-log.txt
 production/session-logs/session-log.md
 ---
 
