@@ -384,6 +384,11 @@ class EditorApp {
 		this._eventBus.on( 'tile:erased', onTileChange );
 		this._eventBus.on( 'tile:changed', onTileChange );
 		this._eventBus.on( 'elevation:changed', onTileChange );
+		this._eventBus.on( 'prop:placed', onTileChange );
+		this._eventBus.on( 'prop:erased', onTileChange );
+		this._eventBus.on( 'prop:rotated', onTileChange );
+		this._eventBus.on( 'marker:placed', onTileChange );
+		this._eventBus.on( 'marker:removed', onTileChange );
 		this._eventBus.on( 'project:loaded', () => this._occupancy.rebuildFromProject( this._project ) );
 		this._eventBus.on( 'project:cleared', () => this._occupancy.rebuildFromProject( this._project ) );
 
@@ -481,6 +486,7 @@ class EditorApp {
 			<div class="kk-editor-topbar__separator"></div>
 			<div class="kk-editor-topbar__section">
 				<button class="kk-editor-btn kk-editor-btn--ghost kk-editor-btn--small" id="topbar-save">Save</button>
+				<button class="kk-editor-btn kk-editor-btn--ghost kk-editor-btn--small" id="topbar-load">Load</button>
 				<button class="kk-editor-btn kk-editor-btn--ghost kk-editor-btn--small" id="topbar-undo" disabled>
 					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
 				</button>
@@ -523,6 +529,8 @@ class EditorApp {
 			topbar.querySelector( '#topbar-save-status' ).textContent = 'SAVED';
 
 		} );
+
+		topbar.querySelector( '#topbar-load' ).addEventListener( 'click', () => this._showLoadDialog() );
 
 		topbar.querySelector( '#topbar-undo' ).addEventListener( 'click', () => this._commandHistory.undo() );
 		topbar.querySelector( '#topbar-redo' ).addEventListener( 'click', () => this._commandHistory.redo() );
@@ -651,6 +659,148 @@ class EditorApp {
 			this._eventBus.emit( 'project:cleared' );
 
 		} );
+
+	}
+
+	/** @private Show load-track dialog overlay. */
+	_showLoadDialog() {
+
+		const saved = this._storage.getSavedTracks();
+
+		if ( saved.length === 0 ) {
+
+			alert( 'No saved tracks found. Use Save to store a track first.' );
+			return;
+
+		}
+
+		// Build dialog overlay
+		const overlay = document.createElement( 'div' );
+		overlay.className = 'kk-load-dialog__overlay';
+		overlay.innerHTML = `
+			<div class="kk-load-dialog">
+				<div class="kk-load-dialog__header">
+					<span>Load Track</span>
+					<button class="kk-load-dialog__close">&times;</button>
+				</div>
+				<div class="kk-load-dialog__list">
+					${ saved.map( t => `
+						<div class="kk-load-dialog__item" data-track-id="${ t.id }">
+							<div class="kk-load-dialog__item-info">
+								<span class="kk-load-dialog__item-name">${ t.name }</span>
+								<span class="kk-load-dialog__item-meta">${ t.pieces } pieces &middot; ${ new Date( t.date ).toLocaleDateString() }</span>
+							</div>
+							<div class="kk-load-dialog__item-actions">
+								<button class="kk-editor-btn kk-editor-btn--primary kk-editor-btn--small kk-load-dialog__load-btn">Load</button>
+								<button class="kk-editor-btn kk-editor-btn--ghost kk-editor-btn--small kk-load-dialog__delete-btn">Delete</button>
+							</div>
+						</div>
+					` ).join( '' ) }
+				</div>
+			</div>
+		`;
+
+		document.body.appendChild( overlay );
+
+		const close = () => overlay.remove();
+
+		overlay.querySelector( '.kk-load-dialog__close' ).addEventListener( 'click', close );
+		overlay.addEventListener( 'click', ( e ) => {
+
+			if ( e.target === overlay ) close();
+
+		} );
+
+		// Load button clicks
+		overlay.addEventListener( 'click', ( e ) => {
+
+			const loadBtn = e.target.closest( '.kk-load-dialog__load-btn' );
+			if ( loadBtn ) {
+
+				const item = loadBtn.closest( '[data-track-id]' );
+				const id = item.dataset.trackId;
+				this._loadProject( id );
+				close();
+				return;
+
+			}
+
+			const deleteBtn = e.target.closest( '.kk-load-dialog__delete-btn' );
+			if ( deleteBtn ) {
+
+				const item = deleteBtn.closest( '[data-track-id]' );
+				const name = item.querySelector( '.kk-load-dialog__item-name' ).textContent;
+				if ( ! confirm( `Delete "${ name }"?` ) ) return;
+
+				this._storage.deleteNamedTrack( item.dataset.trackId );
+				item.remove();
+
+				// Close if no items left
+				if ( ! overlay.querySelector( '.kk-load-dialog__item' ) ) close();
+
+			}
+
+		} );
+
+	}
+
+	/** @private Load a saved project by id, restoring tiles, props, and markers. */
+	_loadProject( id ) {
+
+		// Prompt to save current work
+		if ( this._project.tileCount > 0 ) {
+
+			const name = document.getElementById( 'topbar-name' ).value || 'Untitled';
+			const save = confirm( `Save current track "${ name }" before loading?` );
+			if ( save ) this._storage.saveNamed( name );
+
+		}
+
+		// Clear current state
+		this._project.clear();
+		this._commandHistory.clear();
+
+		// Clear props and markers visuals
+		const pm = this._input._modes.get( 'props' );
+		if ( pm && pm.loadFromJSON ) pm.loadFromJSON( [] );
+
+		const gm = this._input._modes.get( 'gameplay' );
+		if ( gm && gm.loadFromJSON ) gm.loadFromJSON( [] );
+
+		// Load the project
+		const ok = this._storage.loadNamedTrack( id );
+		if ( ! ok ) {
+
+			alert( 'Failed to load track. The save data may be missing.' );
+			return;
+
+		}
+
+		// Derive elevation, curves
+		this._elevController.deriveRampsFromElevation();
+		this._curveService.deriveAllCurves();
+		this._occupancy.rebuildFromProject( this._project );
+
+		// Restore markers
+		if ( this._project._pendingMarkers ) {
+
+			if ( gm && gm.loadFromJSON ) gm.loadFromJSON( this._project._pendingMarkers );
+			this._project._pendingMarkers = null;
+
+		}
+
+		// Restore props
+		if ( this._project._pendingProps ) {
+
+			if ( pm && pm.loadFromJSON ) pm.loadFromJSON( this._project._pendingProps );
+			this._project._pendingProps = null;
+
+		}
+
+		// Update UI
+		document.getElementById( 'topbar-name' ).value = this._project.meta.name || 'Untitled Track';
+		document.getElementById( 'topbar-save-status' ).textContent = 'LOADED';
+		this._eventBus.emit( 'project:loaded', { project: this._project } );
 
 	}
 
@@ -933,6 +1083,85 @@ class EditorApp {
 		if ( ! this._thumbCache ) return; // Not ready yet
 
 		const mode = this._state.mode;
+
+		// ── Gameplay mode: show marker type cards instead of tiles ──
+		if ( mode === 'gameplay' ) {
+
+			const gm = this._input._modes.get( 'gameplay' );
+			const tools = gm ? gm.getTools() : [];
+			const activeTool = this._state.tool;
+
+			let cardsHtml = '';
+			for ( const t of tools ) {
+
+				const selected = activeTool === t.id ? ' kk-carousel__card--selected' : '';
+				cardsHtml += `
+					<div class="kk-carousel__card${ selected }" data-gameplay-tool="${ t.id }" title="${ t.desc }" style="cursor:pointer">
+						<div class="kk-carousel__card-thumb" style="display:flex;align-items:center;justify-content:center;font-size:32px;background:none;border:2px solid ${ t.color };border-radius:6px">${ t.icon }</div>
+						<div class="kk-carousel__card-name" style="color:${ t.color }">${ t.name }</div>
+						<div class="kk-carousel__card-meta">${ t.desc }</div>
+					</div>
+				`;
+
+			}
+
+			carousel.innerHTML = `
+				<div class="kk-carousel__resize-handle" id="carousel-resize-handle"></div>
+				<div class="kk-carousel__header">
+					<span class="kk-carousel__category">GAMEPLAY</span>
+				</div>
+				<div class="kk-carousel__strip">${ cardsHtml }</div>
+			`;
+
+			carousel.addEventListener( 'click', ( e ) => {
+
+				const card = e.target.closest( '[data-gameplay-tool]' );
+				if ( ! card ) return;
+
+				for ( const c of carousel.querySelectorAll( '.kk-carousel__card' ) ) {
+
+					c.classList.remove( 'kk-carousel__card--selected' );
+
+				}
+
+				card.classList.add( 'kk-carousel__card--selected' );
+				this._state.tool = card.dataset.gameplayTool;
+
+			} );
+
+			// Drag-to-resize carousel
+			const handle = carousel.querySelector( '#carousel-resize-handle' );
+			if ( handle ) {
+
+				let startY = 0, startH = 0;
+				handle.addEventListener( 'pointerdown', ( e ) => {
+
+					startY = e.clientY;
+					startH = carousel.offsetHeight;
+					const onMove = ( ev ) => {
+
+						const delta = startY - ev.clientY;
+						carousel.style.height = Math.max( 80, Math.min( window.innerHeight * 0.5, startH + delta ) ) + 'px';
+
+					};
+
+					const onUp = () => {
+
+						document.removeEventListener( 'pointermove', onMove );
+						document.removeEventListener( 'pointerup', onUp );
+
+					};
+
+					document.addEventListener( 'pointermove', onMove );
+					document.addEventListener( 'pointerup', onUp );
+
+				} );
+
+			}
+
+			return;
+
+		}
 
 		// Determine which tiles to show
 		const isPropsMode = mode === 'props';

@@ -174,35 +174,30 @@ export class ValidationService {
 
 		}
 
-		// ── Open end detection ──
-		// An "open end" is when a tile exit points to EMPTY space (no tile at all).
-		// Two adjacent tiles with non-matching exits is normal (e.g. corner next to straight).
+		// ── Isolated tile detection ──
+		// Warn about tiles with no adjacent neighbors at all.
 		for ( const [ key, tile ] of grid ) {
 
 			if ( tile.autoRamp || tile._consumed || tile.finishFlank ) continue;
 
 			const [ gx, gz ] = key.split( ',' ).map( Number );
-			const exits = tile.getExitMask();
+			let hasNeighbor = false;
 
 			for ( const dir of DIR_INFO ) {
 
-				if ( ! ( exits & dir.bit ) ) continue;
+				const nTile = this._project.getTile( gx + dir.dx, gz + dir.dz );
+				if ( nTile ) { hasNeighbor = true; break; }
 
-				const nx = gx + dir.dx;
-				const nz = gz + dir.dz;
-				const nTile = this._project.getTile( nx, nz );
+			}
 
-				// Only warn if our exit points to completely empty space
-				if ( ! nTile ) {
+			if ( ! hasNeighbor ) {
 
-					issues.push( {
-						severity: 'warning', code: 'W_OPEN_END',
-						message: `Open end at ${ gx },${ gz } (no tile to the ${ dir.bit === 8 ? 'N' : dir.bit === 4 ? 'S' : dir.bit === 2 ? 'E' : 'W' })`,
-						category: 'connectivity',
-						locus: { gx, gz, layer: 'track' },
-					} );
-
-				}
+				issues.push( {
+					severity: 'warning', code: 'W_ISOLATED',
+					message: `Tile at ${ gx },${ gz } has no adjacent tiles`,
+					category: 'connectivity',
+					locus: { gx, gz, layer: 'track' },
+				} );
 
 			}
 
@@ -321,12 +316,9 @@ export class ValidationService {
 			const tile = this._project.getTile( gx, gz );
 			if ( ! tile ) continue;
 
-			// Consumed / flank cells are transparent — walk through in all directions
-			const exits = ( tile._consumed || tile.finishFlank ) ? 15 : tile.getExitMask();
-
+			// Simple adjacency flood-fill: any neighboring tile is reachable.
+			// The editor is the source of truth — tile placement defines connectivity.
 			for ( const dir of DIR_INFO ) {
-
-				if ( ! ( exits & dir.bit ) ) continue;
 
 				const nx = gx + dir.dx;
 				const nz = gz + dir.dz;
@@ -335,15 +327,9 @@ export class ValidationService {
 
 				if ( ! nTile ) continue;
 
-				// Consumed / flank neighbors are always reachable (transparent)
-				const nExits = nTile.getExitMask();
-				if ( nTile._consumed || nTile.finishFlank || ( nExits & dir.opposite ) ) {
+				if ( ! visited.has( nKey ) || ( nKey === finishKey && visited.size > 2 ) ) {
 
-					if ( ! visited.has( nKey ) || ( nKey === finishKey && visited.size > 2 ) ) {
-
-						queue.push( nKey );
-
-					}
+					queue.push( nKey );
 
 				}
 

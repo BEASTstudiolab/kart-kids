@@ -376,6 +376,7 @@ export function createGameEngine( canvasContainer ) {
 	let _allActiveVehicles = [];
 	let _fpsCapMs = { value: 0 };
 	let _draftIndicatorEnabled = { value: false };
+	let _prevSwitchView = false;
 
 	// DOM element refs (inside HUD container)
 	let _fpsDisplay = null;
@@ -435,6 +436,7 @@ export function createGameEngine( canvasContainer ) {
 		_fpsFrames = 0;
 		_fpsTime = performance.now();
 		_gamePaused = false;
+		_prevSwitchView = false;
 		_fpsCapMs = { value: 0 };
 		_draftIndicatorEnabled = { value: false };
 
@@ -514,7 +516,25 @@ export function createGameEngine( canvasContainer ) {
 
 		}
 
-		_trackGroup = buildTrack( scene, models, renderCells );
+		// ── Resolve props (editor-placed decorations) ───────────────────────
+		let props = config.props || null;
+		if ( ! props ) {
+
+			try {
+
+				const v4Raw = localStorage.getItem( 'kk-editor-project' );
+				if ( v4Raw ) {
+
+					const v4 = JSON.parse( v4Raw );
+					if ( v4.props && v4.props.length > 0 ) props = v4.props;
+
+				}
+
+			} catch { /* ignore */ }
+
+		}
+
+		_trackGroup = buildTrack( scene, models, renderCells, props );
 
 		// ── Track colliders ──────────────────────────────────────────────────
 		// Teleport old track body if switching tracks
@@ -825,6 +845,7 @@ export function createGameEngine( canvasContainer ) {
 		( { debugMenu, debugCollider, wheelDebug } = setupDebugPanel( {
 			scene, renderer, bloomPass, postFX,
 			vehicle: _vehicle, cam: _cam, aiManager: _aiManager,
+			controls: _controls,
 			dirLight, dirLightOffset: _dirLightOffset, hemiLight,
 			meshDebugGroup: _meshDebugGroup, colliderDebugGroup: _colliderDebugGroup,
 			tileLabelsGroup: _tileLabelsGroup, heightLabelsGroup: _heightLabelsGroup,
@@ -1600,11 +1621,12 @@ export function createGameEngine( canvasContainer ) {
 
 		}
 
-		if ( ! _spectating ) {
-
-			_afkDetector.update( dt, _vehicle );
-
-		}
+		// AFK detector disabled during development — re-enable for release.
+		// if ( ! _spectating ) {
+		//
+		// 	_afkDetector.update( dt, _vehicle );
+		//
+		// }
 
 		_hud.update( dt, _raceMode.getDisplayState(), _raceLobby.getDisplayState() );
 		if ( ! _spectating && _vehicle ) _hudDamage.update( _vehicle.health, _vehicle.itemSlot ? _vehicle.itemSlot.heldItemId : null, dt );
@@ -1653,6 +1675,17 @@ export function createGameEngine( canvasContainer ) {
 				_lastShadowZ = vehPos.z;
 
 			}
+
+			// ── Gamepad camera controls ──────────────────────────────────────
+			// Camera controls use rawInput so they work during countdown too
+			if ( rawInput.orbitX ) _cam.orbitAngle -= rawInput.orbitX * 2.5 * dt;
+			if ( rawInput.zoomIn ) _cam.zoom = Math.max( 0.35, _cam.zoom - 1.5 * dt );
+			if ( rawInput.zoomOut ) _cam.zoom = Math.min( 3.0, _cam.zoom + 1.5 * dt );
+			_cam.lookBehind = !! rawInput.lookBehind;
+
+			// Edge-trigger: cycle camera view on Y press
+			if ( rawInput.switchView && ! _prevSwitchView ) _cam.cycleMode();
+			_prevSwitchView = !! rawInput.switchView;
 
 			_cam.update( dt, followVehicle.vehPos, followVehicle.container.quaternion, {
 				inputX: followVehicle.inputX,

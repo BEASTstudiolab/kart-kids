@@ -42,10 +42,22 @@ export class Controls {
 		// Store handler references for dispose()
 		this._onKeyDown = ( e ) => this.keys[ e.code ] = true;
 		this._onKeyUp = ( e ) => this.keys[ e.code ] = false;
-		this._onGamepadConnected = () => { this._gamepadConnected = true; };
-		this._onGamepadDisconnected = () => {
+		this._onGamepadConnected = ( e ) => {
 
-			this._gamepadConnected = navigator.getGamepads().some( ( gp ) => gp !== null );
+			this._gamepadConnected = true;
+			console.log( '[Controls] Gamepad connected:', e.gamepad.index, e.gamepad.id );
+
+		};
+		this._onGamepadDisconnected = ( e ) => {
+
+			console.log( '[Controls] Gamepad disconnected:', e.gamepad.index, e.gamepad.id );
+			const gps = navigator.getGamepads();
+			this._gamepadConnected = false;
+			for ( let i = 0; i < gps.length; i ++ ) {
+
+				if ( gps[ i ] ) { this._gamepadConnected = true; break; }
+
+			}
 
 		};
 		this._onPinchDown = ( e ) => this._onPinchPointerDown( e );
@@ -512,9 +524,9 @@ export class Controls {
 
 		if ( this.gamepadIndex >= 0 ) return gamepads[ this.gamepadIndex ] || null;
 
-		for ( const gp of gamepads ) {
+		for ( let i = 0; i < gamepads.length; i ++ ) {
 
-			if ( gp ) return gp;
+			if ( gamepads[ i ] ) return gamepads[ i ];
 
 		}
 
@@ -538,6 +550,15 @@ export class Controls {
 		// Gamepad
 
 		const gp = this._getGamepad();
+
+		if ( ! this._gpLogDone ) {
+
+			this._gpLogDone = true;
+			const gps = navigator.getGamepads();
+			console.log( '[Controls] Gamepad poll:', gp ? `found [${gp.index}] "${gp.id}"` : 'NONE',
+				`| slots: ${gps.length}`, `| idx setting: ${this.gamepadIndex}` );
+
+		}
 
 		if ( gp ) {
 
@@ -590,31 +611,43 @@ export class Controls {
 
 		}
 
-		// Item use: E key, touch button, or gamepad Y/Triangle (button 3)
+		// Item use: E key, touch button, or gamepad X (button 2)
 		let useItem = !! this.keys[ 'KeyE' ] || this._itemPressed;
 
 		if ( gp && ! useItem ) {
 
-			if ( gp.buttons[ 3 ] && gp.buttons[ 3 ].pressed ) useItem = true;
+			if ( gp.buttons[ 2 ] && gp.buttons[ 2 ].pressed ) useItem = true;
 
 		}
 
-		// Gamepad right stick (orbit) and D-pad (zoom)
+		// Camera: right stick orbit, R3 look-behind, Y cycle view, D-pad zoom
 		let orbitX = 0;
 		let zoomIn = false, zoomOut = false;
+		let lookBehind = !! this.keys[ 'Backspace' ];
+		let switchView = false;
+		let jump = false;
 
 		if ( gp ) {
 
 			const rStickX = gp.axes[ 2 ] || 0;
 			if ( Math.abs( rStickX ) > 0.15 ) orbitX = rStickX;
 
-			// D-pad up (button 12) = zoom in, D-pad down (button 13) = zoom out
+			// D-pad up (12) = zoom in, D-pad down (13) = zoom out
 			if ( gp.buttons[ 12 ] && gp.buttons[ 12 ].pressed ) zoomIn = true;
 			if ( gp.buttons[ 13 ] && gp.buttons[ 13 ].pressed ) zoomOut = true;
 
+			// R3 (button 11) = look behind
+			if ( gp.buttons[ 11 ] && gp.buttons[ 11 ].pressed ) lookBehind = true;
+
+			// Y/Triangle (button 3) = switch camera view
+			if ( gp.buttons[ 3 ] && gp.buttons[ 3 ].pressed ) switchView = true;
+
+			// A (button 0) = jump (reserved)
+			if ( gp.buttons[ 0 ] && gp.buttons[ 0 ].pressed ) jump = true;
+
 		}
 
-		return { x, z, touchActive: this.touchActive, boost, drift, gas, brake, useItem, orbitX, zoomIn, zoomOut };
+		return { x, z, touchActive: this.touchActive, boost, drift, gas, brake, useItem, orbitX, zoomIn, zoomOut, lookBehind, switchView, jump };
 
 	}
 

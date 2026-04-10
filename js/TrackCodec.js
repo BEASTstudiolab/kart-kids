@@ -29,6 +29,10 @@ const TYPE_NAMES = [
 	'trk-ramp-up-5-smooth',    // 23
 	'trk-ramp-down-2p5-smooth', // 24
 	'trk-ramp-down-5-smooth',  // 25
+	// ── Curve types (saved directly, no corner normalization) ──
+	'trk-curve-2x2-l',         // 26
+	'trk-curve-3x3-l',         // 27
+	'trk-curve-3x3-wide-l',   // 28
 ];
 const TYPE_INDEX = {};
 for ( let i = 0; i < TYPE_NAMES.length; i ++ ) {

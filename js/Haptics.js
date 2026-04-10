@@ -23,11 +23,11 @@ export class Haptics {
 
 		} else {
 
-			for ( const gp of gamepads ) {
+			for ( let i = 0; i < gamepads.length; i ++ ) {
 
-				if ( gp && gp.vibrationActuator ) {
+				if ( gamepads[ i ] && gamepads[ i ].vibrationActuator ) {
 
-					this._gamepad = gp;
+					this._gamepad = gamepads[ i ];
 					break;
 
 				}

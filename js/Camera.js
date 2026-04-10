@@ -146,20 +146,11 @@ export class Camera {
 
 				this.cycleMode();
 
-			} else if ( e.key === 'Backspace' ) {
-
-				this.lookBehind = true;
-				e.preventDefault();
-
 			}
 
 		};
 
-		this._onKeyUp = ( e ) => {
-
-			if ( e.key === 'Backspace' ) this.lookBehind = false;
-
-		};
+		this._onKeyUp = () => {};
 
 		this._onResize = () => {
 

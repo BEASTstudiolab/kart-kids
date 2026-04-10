@@ -118,6 +118,10 @@ export class ProjectStorageService {
 		this._project.meta.name = name;
 		this.save();
 
+		// Store full v4 project data per track
+		const v4 = this._project.toV4JSON();
+		localStorage.setItem( `kk-project-${ this._project.meta.id }`, JSON.stringify( v4 ) );
+
 		// Update named saves index
 		const index = this._getSavedIndex();
 		const entry = {
@@ -151,6 +155,32 @@ export class ProjectStorageService {
 	getSavedTracks() {
 
 		return this._getSavedIndex();
+
+	}
+
+	/**
+	 * Load a named track by id. Returns true if successful.
+	 * @param {string} id
+	 * @returns {boolean}
+	 */
+	loadNamedTrack( id ) {
+
+		try {
+
+			const raw = localStorage.getItem( `kk-project-${ id }` );
+			if ( ! raw ) return false;
+
+			const parsed = JSON.parse( raw );
+			this._project.loadFromV4JSON( parsed );
+			this._rebuildAllMeshes();
+			return true;
+
+		} catch ( err ) {
+
+			console.warn( '[ProjectStorage] loadNamedTrack failed:', err );
+			return false;
+
+		}
 
 	}
 

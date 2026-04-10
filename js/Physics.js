@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { rigidBody, box, triangleMesh, MotionType, MotionQuality } from 'crashcat';
 import { TRACK_CELLS, CELL_RAW, ORIENT_DEG } from './Track.js';
-import { getCurveConfig } from './TileMetadata.js';
 
 const _vec3 = new THREE.Vector3();
 
@@ -84,26 +83,10 @@ export function buildTrackColliders( world, models, customCells ) {
 		let posZ = ( gz + 0.5 ) * CELL_RAW;
 		let rotY;
 
-		if ( key.startsWith( 'track-curve-' ) || key.startsWith( 'trk-curve-' ) ) {
-
-			// Curves use getCurveConfig for position + rotation (must match buildTrack)
-			const curveSize = parseInt( key.match( /(\d+)x\d+/ )?.[ 1 ] ) || 3;
-			const lr = key.includes( '-l' ) ? 'l' : 'r';
-			const curveConfig = getCurveConfig( orient, lr, curveSize );
-			posX += curveConfig.offset.x;
-			posZ += curveConfig.offset.z;
-			rotY = curveConfig.rotation;
-			// Curves in buildTrack use Y = curveElevY (no +0.5), but
-			// GROUP_Y_OFFSET (-0.5) is applied to all vertices, so add +0.5 to compensate
-			dummy.position.set( posX, 0.5 + elevY, posZ );
-
-		} else {
-
-			const deg = ORIENT_DEG[ orient ] ?? 0;
-			rotY = THREE.MathUtils.degToRad( deg );
-			dummy.position.set( posX, 0.5 + elevY, posZ );
-
-		}
+		// All tiles (including curves) use the same rotation formula
+		const deg = ORIENT_DEG[ orient ] ?? 0;
+		rotY = THREE.MathUtils.degToRad( deg );
+		dummy.position.set( posX, 0.5 + elevY, posZ );
 
 		dummy.rotation.set( 0, rotY, 0 );
 		dummy.updateMatrix();

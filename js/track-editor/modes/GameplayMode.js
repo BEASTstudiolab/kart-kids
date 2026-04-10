@@ -49,11 +49,11 @@ export class GameplayMode extends EditorMode {
 	getTools() {
 
 		return [
-			{ id: 'checkpoint', name: 'Checkpoint', icon: 'flag' },
-			{ id: 'spawn', name: 'Spawn Point', icon: 'user' },
-			{ id: 'boost', name: 'Boost Pad', icon: 'zap' },
-			{ id: 'powerup', name: 'Powerup', icon: 'box' },
-			{ id: 'respawn', name: 'Respawn', icon: 'refresh' },
+			{ id: 'checkpoint', name: 'Checkpoint', icon: '🚩', color: '#3b82f6', desc: 'Race checkpoint gate' },
+			{ id: 'spawn', name: 'Spawn Point', icon: '⭐', color: '#22c55e', desc: 'Player start position' },
+			{ id: 'boost', name: 'Boost Pad', icon: '⬆️', color: '#f59e0b', desc: 'Speed boost zone' },
+			{ id: 'powerup', name: 'Powerup', icon: '📦', color: '#a855f7', desc: 'Item pickup box' },
+			{ id: 'respawn', name: 'Respawn', icon: '🔄', color: '#ef4444', desc: 'Respawn marker' },
 		];
 
 	}

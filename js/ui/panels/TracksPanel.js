@@ -962,7 +962,7 @@ export class TracksPanel {
 		editBtn.addEventListener( 'click', ( e ) => {
 
 			e.stopPropagation();
-			window.open( `editor.html?load=${ encodeURIComponent( track.name ) }`, '_blank', 'noopener' );
+			window.open( `track-editor.html#map=${ encodeURIComponent( track.cells ) }`, '_blank', 'noopener' );
 
 		} );
 		actions.appendChild( editBtn );
@@ -1009,7 +1009,7 @@ export class TracksPanel {
 
 		card.addEventListener( 'click', () => {
 
-			window.open( 'editor.html', '_blank', 'noopener' );
+			window.open( 'track-editor.html', '_blank', 'noopener' );
 
 		} );
 

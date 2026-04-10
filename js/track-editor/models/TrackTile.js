@@ -18,6 +18,7 @@ const JUNCTION_4WAY_EXITS = 15;
 // 3x3 tiles with consumed cells
 const TILES_3X3 = new Set( [
 	'trk-junction-y', 'trk-junction-t', 'trk-junction-4way', 'trk-chicane-3x3-l',
+	'trk-curve-3x3-l', 'trk-curve-3x3-wide-l',
 ] );
 
 // Finish tile (3x1)
@@ -86,6 +87,14 @@ export class TrackTile {
 
 		// Consumed cells of multi-tile pieces have no exits of their own
 		if ( this._consumed ) return 0;
+
+		// Multi-tile curves: all exits open so walker can traverse the 3x3 footprint.
+		// Actual road connectivity is handled by consumed cells connecting to neighbors.
+		if ( this.type.startsWith( 'trk-curve-' ) ) {
+
+			return 15;
+
+		}
 
 		if ( this.type === 'trk-corner-1x1' ) {
 

@@ -33,6 +33,7 @@ export function getCellsArray( grid ) {
 		const flags = {
 			elevation: cell.elevation || 0,
 			curveVariant: cell.curveVariant || null,
+			curveOverride: !! cell.curveOverride,
 			rotationOverride: !! cell.rotationOverride,
 			rampStyle: cell.rampStyle || null,
 		};
@@ -90,6 +91,7 @@ export function loadSaved( ctx ) {
 
 				if ( flags.elevation ) cell.elevation = flags.elevation;
 				if ( flags.curveVariant ) cell.curveVariant = flags.curveVariant;
+				if ( flags.curveOverride ) cell.curveOverride = true;
 				if ( flags.rotationOverride ) cell.rotationOverride = true;
 				if ( flags.rampStyle ) cell.rampStyle = flags.rampStyle;
 
@@ -230,6 +232,7 @@ export function loadNamedTrack( ctx, encoded ) {
 
 				if ( flags.elevation ) cell.elevation = flags.elevation;
 				if ( flags.curveVariant ) cell.curveVariant = flags.curveVariant;
+				if ( flags.curveOverride ) cell.curveOverride = true;
 				if ( flags.rotationOverride ) cell.rotationOverride = true;
 				if ( flags.rampStyle ) cell.rampStyle = flags.rampStyle;
 

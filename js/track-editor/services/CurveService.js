@@ -238,6 +238,58 @@ export class CurveService {
 
 		}
 
+		// ── Pre-pass: handle corners with saved curve metadata ──────
+		const VARIANT_SIZE = { '2x2-wide': 2, '2x2-tight': 2, '3x3': 3, '3x3-wide': 3 };
+		const preClaimed = new Set();
+
+		for ( const [ key, cell ] of grid ) {
+
+			if ( cell.type !== 'trk-corner-1x1' ) continue;
+			if ( cell.rotationOverride ) continue;
+
+			// If curveOverride is set but curveVariant is missing, assign default
+			if ( cell.curveOverride && ! cell.curveVariant ) {
+
+				cell.curveVariant = '3x3';
+
+			}
+
+			if ( ! cell.curveVariant ) continue;
+
+			const curveSize = VARIANT_SIZE[ cell.curveVariant ];
+			if ( ! curveSize ) continue;
+
+			const [ cgx, cgz ] = key.split( ',' ).map( Number );
+			const exits = cell.getExitMask();
+			const dirBits = DIR_INFO.filter( d => exits & d.bit );
+			if ( dirBits.length !== 2 ) continue;
+
+			// Compute consumed cells from exit arms
+			const consumed = new Set();
+			for ( const dir of dirBits ) {
+
+				let nx = cgx + dir.dx;
+				let nz = cgz + dir.dz;
+
+				for ( let i = 0; i < curveSize - 1; i ++ ) {
+
+					const nk = this._project.cellKey( nx, nz );
+					if ( grid.has( nk ) ) consumed.add( nk );
+					nx += dir.dx;
+					nz += dir.dz;
+
+				}
+
+			}
+
+			cell.curveSize = curveSize;
+			cell.curveConsumed = consumed;
+
+			preClaimed.add( key );
+			for ( const ck of consumed ) preClaimed.add( ck );
+
+		}
+
 		// Collect candidates
 		const candidates = [];
 
@@ -245,6 +297,7 @@ export class CurveService {
 
 			if ( cell.type !== 'trk-corner-1x1' ) continue;
 			if ( cell.rotationOverride ) continue;
+			if ( preClaimed.has( key ) ) continue;
 
 			const [ cgx, cgz ] = key.split( ',' ).map( Number );
 			const exits = cell.getExitMask();
@@ -290,7 +343,7 @@ export class CurveService {
 		candidates.sort( ( a, b ) => b.curveSize - a.curveSize || ( a.key < b.key ? -1 : 1 ) );
 
 		// Assign curves, preventing overlap
-		const claimed = new Set();
+		const claimed = new Set( preClaimed );
 
 		for ( const cand of candidates ) {
 

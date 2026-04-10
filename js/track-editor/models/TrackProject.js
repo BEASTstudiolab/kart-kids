@@ -38,6 +38,10 @@ const V4_TYPE_NAMES = [
 	'trk-ramp-up-5-smooth',    // 23
 	'trk-ramp-down-2p5-smooth', // 24
 	'trk-ramp-down-5-smooth',  // 25
+	// ── Curve types (saved directly) ──
+	'trk-curve-2x2-l',         // 26
+	'trk-curve-3x3-l',         // 27
+	'trk-curve-3x3-wide-l',   // 28
 ];
 
 const V4_TYPE_INDEX = {};
@@ -213,22 +217,7 @@ export class TrackProject {
 			const [ gx, gz ] = key.split( ',' ).map( Number );
 
 			// Keep the exact tile type — no normalization (editor is source of truth)
-			let typeName = tile.type;
-
-			// Curve tiles → normalize to corner + curveVariant (curves are derived)
-			const CURVE_TO_VARIANT_V4 = {
-				'trk-curve-2x2-l': '2x2-wide',
-				'trk-curve-3x3-l': '3x3',
-				'trk-curve-3x3-wide-l': '3x3-wide',
-			};
-
-			if ( CURVE_TO_VARIANT_V4[ typeName ] ) {
-
-				tile.curveVariant = CURVE_TO_VARIANT_V4[ typeName ];
-				tile.curveOverride = true;
-				typeName = 'trk-corner-1x1';
-
-			}
+			const typeName = tile.type;
 
 			const t = V4_TYPE_INDEX[ typeName ] ?? 0;
 			const o = INTERNAL_TO_V4[ tile.orient ] ?? 0;
@@ -339,22 +328,7 @@ export class TrackProject {
 			const [ gx, gz ] = key.split( ',' ).map( Number );
 
 			// Keep the EXACT tile type — no normalization
-			let typeName = tile.type;
-
-			// Curve tiles → normalize to corner + curveVariant (curves are derived from corners)
-			const CURVE_TO_VARIANT = {
-				'trk-curve-2x2-l': '2x2-wide',
-				'trk-curve-3x3-l': '3x3',
-				'trk-curve-3x3-wide-l': '3x3-wide',
-			};
-
-			if ( CURVE_TO_VARIANT[ typeName ] ) {
-
-				tile.curveVariant = CURVE_TO_VARIANT[ typeName ];
-				tile.curveOverride = true;
-				typeName = 'trk-corner-1x1';
-
-			}
+			const typeName = tile.type;
 
 			const elevStep = tile.elevation ?? ELEV_GROUND;
 			const stepsAboveGround = elevStep - ELEV_GROUND;

@@ -239,6 +239,65 @@ export function deriveAllCurves( grid, models, trackGroup ) {
 
 	}
 
+	// ── Pre-pass: handle corners with saved curve metadata ──────
+	const VARIANT_SIZE = { '2x2-wide': 2, '2x2-tight': 2, '3x3': 3, '3x3-wide': 3 };
+	const preClaimed = new Set();
+
+	for ( const [ key, cell ] of grid ) {
+
+		if ( cell.type !== 'trk-corner-1x1' ) continue;
+		if ( cell.rotationOverride ) continue;
+
+		// If curveOverride is set but curveVariant is missing, assign default
+		if ( cell.curveOverride && ! cell.curveVariant ) {
+
+			cell.curveVariant = '3x3';
+
+		}
+
+		if ( ! cell.curveVariant ) continue;
+
+		const curveSize = VARIANT_SIZE[ cell.curveVariant ];
+		if ( ! curveSize ) continue;
+
+		const [ cgx, cgz ] = key.split( ',' ).map( Number );
+		const exits = getCellExits( cell );
+		const dirBits = [];
+		for ( const bit of [ 8, 4, 2, 1 ] ) {
+
+			if ( exits & bit ) dirBits.push( bit );
+
+		}
+
+		if ( dirBits.length !== 2 ) continue;
+
+		// Compute consumed cells from exit arms
+		const consumed = new Set();
+		for ( const bit of dirBits ) {
+
+			const [ ddx, ddz ] = DIR_DELTA[ bit ];
+			let nx = cgx + ddx;
+			let nz = cgz + ddz;
+
+			for ( let i = 0; i < curveSize - 1; i ++ ) {
+
+				const nk = cellKey( nx, nz );
+				if ( grid.has( nk ) ) consumed.add( nk );
+				nx += ddx;
+				nz += ddz;
+
+			}
+
+		}
+
+		cell.curveSize = curveSize;
+		cell.curveConsumed = consumed;
+
+		preClaimed.add( key );
+		for ( const ck of consumed ) preClaimed.add( ck );
+
+	}
+
 	// Collect all corner candidates in one pass (full grid scope)
 	const candidates = [];
 
@@ -246,6 +305,7 @@ export function deriveAllCurves( grid, models, trackGroup ) {
 
 		if ( cell.type !== 'trk-corner-1x1' ) continue;
 		if ( cell.rotationOverride ) continue;
+		if ( preClaimed.has( key ) ) continue;
 
 		const [ cgx, cgz ] = key.split( ',' ).map( Number );
 		const exits = getCellExits( cell );
@@ -310,7 +370,7 @@ export function deriveAllCurves( grid, models, trackGroup ) {
 	} );
 
 	// Assign curves, preventing overlap
-	const claimed = new Set();
+	const claimed = new Set( preClaimed );
 
 	for ( const cand of candidates ) {
 
@@ -364,6 +424,13 @@ export function deriveAllCurves( grid, models, trackGroup ) {
 
 		cell.curveSize = cand.curveSize;
 		cell.curveConsumed = cand.consumed;
+
+		// Assign default curveVariant for auto-detected curves
+		if ( ! cell.curveVariant ) {
+
+			cell.curveVariant = cell.curveSize === 2 ? '2x2-wide' : '3x3';
+
+		}
 
 		claimed.add( cand.key );
 		for ( const ck of cand.consumed ) {

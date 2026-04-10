@@ -1,7 +1,5 @@
 import * as THREE from 'three';
 import { getTrackModelConfig } from './TrackModelConfig.js';
-import { getCurveConfig, getCurveLR } from './TileMetadata.js';
-import { getElevationModelName, scanElevatedRun } from './ElevationUtils.js';
 
 // Re-export from focused modules for backward compatibility
 export { ORIENT_DEG, CELL_RAW, GRID_SCALE } from './TrackConstants.js';
@@ -38,7 +36,7 @@ function elevToY( flags ) {
 
 
 
-export function buildTrack( scene, models, customCells ) {
+export function buildTrack( scene, models, customCells, props ) {
 
 	const trackGroup = new THREE.Group();
 	trackGroup.name = 'trackGroup';
@@ -138,6 +136,8 @@ export function buildTrack( scene, models, customCells ) {
 	}
 
 	// Place multi-tile curve meshes individually
+	// Uses the same rotation formula as the editor: degToRad(ORIENT_DEG) on the wrapper,
+	// with the model's base rotation (PI) already baked into the inner scene.
 	for ( const entry of curveEntries ) {
 
 		const src = models[ entry.key ];
@@ -145,18 +145,15 @@ export function buildTrack( scene, models, customCells ) {
 
 		const curveMesh = src.clone();
 
-		// Use verified tile metadata for position + rotation
-		const lr = entry.key.includes( '-l' ) ? 'l' : 'r';
-		const curveConfig = getCurveConfig( entry.orient, lr, entry.curveSize || 3 );
-
 		const curveElevY = elevToY( entry.flags );
+		const deg = ORIENT_DEG[ entry.orient ] ?? 0;
 
 		curveMesh.position.set(
-			( entry.gx + 0.5 ) * CELL_RAW + curveConfig.offset.x,
+			( entry.gx + 0.5 ) * CELL_RAW,
 			curveElevY,
-			( entry.gz + 0.5 ) * CELL_RAW + curveConfig.offset.z
+			( entry.gz + 0.5 ) * CELL_RAW
 		);
-		curveMesh.rotation.y = curveConfig.rotation;
+		curveMesh.rotation.y = THREE.MathUtils.degToRad( deg );
 
 		curveMesh.traverse( ( c ) => {
 
@@ -380,6 +377,40 @@ export function buildTrack( scene, models, customCells ) {
 	trackGroup.add( trackPieceGroup );
 	trackGroup.add( decoGroup );
 
+	// ── Editor-placed props/decor ────────────────────────────────────────
+	if ( props && props.length > 0 ) {
+
+		const propsGroup = new THREE.Group();
+		propsGroup.name = 'editor-props';
+
+		for ( const p of props ) {
+
+			const src = models[ p.type ];
+			if ( ! src ) continue;
+
+			const clone = src.clone( true );
+			clone.position.set( p.pos[ 0 ], p.pos[ 1 ], p.pos[ 2 ] );
+
+			clone.traverse( ( c ) => {
+
+				if ( c.isMesh ) {
+
+					c.castShadow = true;
+					c.receiveShadow = true;
+
+				}
+
+			} );
+
+			propsGroup.add( clone );
+
+		}
+
+		trackGroup.add( propsGroup );
+		console.log( `[buildTrack] Placed ${ propsGroup.children.length } editor props` );
+
+	}
+
 	trackGroup.scale.setScalar( 1.0 ); // was 0.75 — temporarily disabled for testing
 	scene.add( trackGroup );
 
@@ -484,24 +515,6 @@ export function computeTrackBounds( cells ) {
 
 // ─── Transform Cells (derive elevation/ramps/curves for rendering) ───
 
-// Orient → exit direction bits (N=8, S=4, E=2, W=1)
-const CORNER_EXITS = {
-	0: 5,    // S+W
-	16: 6,   // S+E
-	10: 10,  // N+E
-	22: 9,   // N+W
-};
-
-const DIR_DELTA = {
-	8: [ 0, - 1 ],  // N
-	4: [ 0, 1 ],    // S
-	2: [ 1, 0 ],    // E
-	1: [ - 1, 0 ],  // W
-};
-
-// L/R selection now via getCurveLR() from TileMetadata.js
-
-// getElevationModelName + scanElevatedRun imported from ElevationUtils.js
 
 /**
  * Returns decoded cells as-is — no ramp derivation needed.
@@ -516,323 +529,55 @@ export function deriveRampCells( decodedCells ) {
 }
 
 /**
- * Transforms decoded cells into a render-ready array:
- * 1. Derives elevation: replaces elevated cells with visual model names, inserts ramp cells
- * 2. Derives curves: detects multi-tile corners, replaces with curve types, removes consumed cells
+ * Transforms decoded cells into a render-ready array.
+ * Direct pass-through — the editor is the source of truth.
+ * Only handles finish-tile flanking consumption (z-fighting prevention).
  *
  * Returns a new array — does not mutate the input.
- * Each entry: [ gx, gz, visualTypeName, orient, flags ]
- * Multi-tile curves add a `_curveSize` property on the flags object.
+ * Each entry: [ gx, gz, typeName, orient, flags ]
  */
 export function transformCells( decodedCells ) {
 
-	// Build a mutable working map: key → { gx, gz, type, orient, flags }
-	const grid = new Map();
-
-	for ( const cell of decodedCells ) {
-
-		const [ gx, gz, type, orient, flags ] = cell;
-		grid.set( gx + ',' + gz, {
-			gx, gz,
-			type,
-			orient,
-			flags: flags ? { ...flags } : { elevation: 0, curveOverride: false, rotationOverride: false },
-		} );
-
-	}
-
-	// Debug: log ALL cell types to verify ramps and elevated tiles come through
-	const typeCounts = {};
-	for ( const c of decodedCells ) {
-
-		const t = c[ 2 ];
-		typeCounts[ t ] = ( typeCounts[ t ] || 0 ) + 1;
-
-	}
-
-	console.log( `[transformCells] Input: ${ decodedCells.length } cells, types:`, typeCounts );
-	const elevCells = decodedCells.filter( c => c[ 4 ]?.fullElevation && c[ 4 ].fullElevation !== ELEV_GROUND );
-	if ( elevCells.length > 0 ) console.log( '[transformCells] Elevated:', elevCells.map( c => `(${ c[ 0 ] },${ c[ 1 ] }) ${ c[ 2 ] } fullElev=${ c[ 4 ]?.fullElevation }` ) );
-
-	// ── Pre-pass: Identify explicit curve-consumed cells ─────────
-	// Must run BEFORE Pass 1 so elevation doesn't corrupt cells that curves need.
-
 	const cellKeyFn = ( gx, gz ) => gx + ',' + gz;
-	const VARIANT_SIZE = { '2x2-wide': 2, '2x2-tight': 2, '3x3': 3, '3x3-wide': 3 };
-	const explicitCurves = new Map(); // key → { curveSize, consumed }
-	const explicitClaimed = new Set();
-
-	for ( const [ key, cell ] of grid ) {
-
-		if ( cell.type !== 'trk-corner-1x1' ) continue;
-		if ( ! cell.flags.curveVariant ) continue;
-
-		const curveSize = VARIANT_SIZE[ cell.flags.curveVariant ];
-		if ( ! curveSize ) continue;
-
-		const exits = CORNER_EXITS[ cell.orient ];
-		if ( exits === undefined ) continue;
-
-		const dirBits = [];
-		for ( const bit of [ 8, 4, 2, 1 ] ) {
-
-			if ( exits & bit ) dirBits.push( bit );
-
-		}
-
-		if ( dirBits.length !== 2 ) continue;
-
-		const consumed = new Set();
-		for ( const bit of dirBits ) {
-
-			const [ ddx, ddz ] = DIR_DELTA[ bit ];
-			let nx = cell.gx + ddx;
-			let nz = cell.gz + ddz;
-
-			for ( let i = 0; i < curveSize - 1; i ++ ) {
-
-				consumed.add( nx + ',' + nz );
-				nx += ddx;
-				nz += ddz;
-
-			}
-
-		}
-
-		explicitCurves.set( key, { curveSize, consumed } );
-
-	}
-
-	// Auto-detect curves for corners without explicit variant
-	// Must run BEFORE elevation pass so we walk original trk-straight types
-	const candidates = [];
-
-	for ( const [ key, cell ] of grid ) {
-
-		if ( cell.type !== 'trk-corner-1x1' ) continue;
-		if ( cell.flags.curveVariant || cell.flags.rotationOverride ) continue;
-		if ( explicitCurves.has( key ) ) continue;
-
-		const exits = CORNER_EXITS[ cell.orient ];
-		if ( exits === undefined ) continue;
-
-		// Extract exit direction bits
-		const dirBits = [];
-		for ( const bit of [ 8, 4, 2, 1 ] ) {
-
-			if ( exits & bit ) dirBits.push( bit );
-
-		}
-
-		if ( dirBits.length !== 2 ) continue;
-
-		// Walk each exit direction counting consecutive straights
-		const walks = [];
-		for ( const bit of dirBits ) {
-
-			const [ ddx, ddz ] = DIR_DELTA[ bit ];
-			const keys = [];
-			let nx = cell.gx + ddx;
-			let nz = cell.gz + ddz;
-
-			while ( true ) {
-
-				const nk = nx + ',' + nz;
-				const nc = grid.get( nk );
-				if ( ! nc ) break;
-				if ( nc.type !== 'trk-straight' ) break;
-				keys.push( nk );
-				nx += ddx;
-				nz += ddz;
-
-			}
-
-			walks.push( { count: keys.length, keys } );
-
-		}
-
-		const curveSize = Math.min( walks[ 0 ].count, walks[ 1 ].count, 4 );
-		if ( curveSize < 2 ) continue;
-
-		// Collect consumed cell keys (curveSize - 1 straights per arm)
-		const consumed = new Set();
-		for ( const walk of walks ) {
-
-			for ( let i = 0; i < curveSize - 1; i ++ ) {
-
-				consumed.add( walk.keys[ i ] );
-
-			}
-
-		}
-
-		// Footprint check: verify NxN area is clear
-		let fpDx, fpDz;
-		if ( cell.orient === 0 ) { fpDx = - 1; fpDz = 1; }
-		else if ( cell.orient === 16 ) { fpDx = 1; fpDz = 1; }
-		else if ( cell.orient === 10 ) { fpDx = 1; fpDz = - 1; }
-		else if ( cell.orient === 22 ) { fpDx = - 1; fpDz = - 1; }
-		else continue;
-
-		let footprintClear = true;
-		for ( let fx = 0; fx < curveSize && footprintClear; fx ++ ) {
-
-			for ( let fz = 0; fz < curveSize && footprintClear; fz ++ ) {
-
-				if ( fx === 0 && fz === 0 ) continue;
-				const fpKey = ( cell.gx + fx * fpDx ) + ',' + ( cell.gz + fz * fpDz );
-				if ( grid.has( fpKey ) && ! consumed.has( fpKey ) ) footprintClear = false;
-
-			}
-
-		}
-
-		if ( ! footprintClear ) continue;
-
-		candidates.push( { gx: cell.gx, gz: cell.gz, key, orient: cell.orient, curveSize, consumed } );
-
-	}
-
-	// Sort: largest first, ties by key string
-	candidates.sort( ( a, b ) => {
-
-		if ( b.curveSize !== a.curveSize ) return b.curveSize - a.curveSize;
-		return a.key < b.key ? - 1 : a.key > b.key ? 1 : 0;
-
-	} );
-
-	// Assign curves, preventing overlap
-	const claimed = new Set();
-	const curveCorners = new Map(); // key → { curveSize, consumed }
-
-	for ( const cand of candidates ) {
-
-		if ( claimed.has( cand.key ) ) continue;
-
-		let blocked = false;
-		for ( const ck of cand.consumed ) {
-
-			if ( claimed.has( ck ) ) { blocked = true; break; }
-
-		}
-
-		if ( blocked ) continue;
-
-		claimed.add( cand.key );
-		for ( const ck of cand.consumed ) claimed.add( ck );
-
-		curveCorners.set( cand.key, { curveSize: cand.curveSize, consumed: cand.consumed } );
-
-	}
-
-	// Merge explicit curves into curveCorners
-	for ( const [ key, info ] of explicitCurves ) {
-
-		curveCorners.set( key, info );
-
-	}
-
-	// Build explicitClaimed from ALL curve corners (both explicit and auto-detected)
-	for ( const [ key, info ] of curveCorners ) {
-
-		explicitClaimed.add( key );
-		for ( const ck of info.consumed ) explicitClaimed.add( ck );
-
-	}
-
-	// ── Pass 1: Direct elevation — no derivation ────────────
-	// All tiles (including ramps and elevated flats) come from the editor as-is.
-	// We just need to ensure the elevation flags are consistent for Y offset computation.
-	// NO neighbor scanning, NO ramp insertion — the editor is the source of truth.
-
-	// Nothing to derive — tiles already have their correct types and elevations.
-
-	// 3x3 junctions/chicanes: no cell consumption needed.
-	// The junction model renders its own 3x3 road geometry.
-	// User-placed straights within the footprint render normally
-	// (they sit underneath the junction model, which is fine).
-
-	const multiTileConsumed = new Set();
 
 	// ── Finish tile 3x1 flanking consumption ─────────────────
 	// The 3x1 finish arch model covers 3 cells of road surface.
 	// Mark the two flanking cells as consumed so they don't render
 	// overlapping straights (which causes z-fighting).
-	for ( const [ , cell ] of grid ) {
+	const finishConsumed = new Set();
 
-		if ( cell.type !== 'trk-finish' ) continue;
+	for ( const cell of decodedCells ) {
 
-		const isNS = cell.orient === 0 || cell.orient === 10;
+		const [ gx, gz, type, orient ] = cell;
+		if ( type !== 'trk-finish' ) continue;
+
+		const isNS = orient === 0 || orient === 10;
 		const dx = isNS ? 0 : 1;
 		const dz = isNS ? 1 : 0;
 
 		for ( const dir of [ - 1, 1 ] ) {
 
-			const fKey = cellKeyFn( cell.gx + dx * dir, cell.gz + dz * dir );
-			multiTileConsumed.add( fKey );
+			finishConsumed.add( cellKeyFn( gx + dx * dir, gz + dz * dir ) );
 
 		}
 
 	}
 
 	// ── Build output array ────────────────────────────────────
-
 	const result = [];
-	const consumedKeys = new Set();
 
-	// Gather all consumed keys (curves + junctions/chicanes)
-	for ( const [ , info ] of curveCorners ) {
+	for ( const cell of decodedCells ) {
 
-		for ( const ck of info.consumed ) consumedKeys.add( ck );
+		const [ gx, gz, type, orient, flags ] = cell;
+		const f = flags ? { ...flags } : {};
 
-	}
+		if ( finishConsumed.has( cellKeyFn( gx, gz ) ) ) {
 
-	for ( const ck of multiTileConsumed ) consumedKeys.add( ck );
-
-	for ( const [ key, cell ] of grid ) {
-
-		// Consumed cells are part of a multi-tile piece (curve, junction, finish arch).
-		// Mark as collision-only: no visible mesh, but physics gets a flat road quad.
-		if ( consumedKeys.has( key ) ) {
-
-			cell.flags._collisionOnly = true;
-			result.push( [ cell.gx, cell.gz, cell.type, cell.orient, cell.flags ] );
-			continue;
+			f._collisionOnly = true;
 
 		}
 
-		const curveInfo = curveCorners.get( key );
-
-		if ( curveInfo ) {
-
-			// Replace corner with curve visual type
-			// If editor saved a curveVariant, use the variant-specific model name
-			const VARIANT_MODEL = {
-				'2x2-wide': 'trk-curve-2x2-l',
-				'3x3': 'trk-curve-3x3-l',
-				'3x3-wide': 'trk-curve-3x3-wide-l',
-			};
-			const variant = cell.flags.curveVariant;
-			let visualType;
-			if ( variant && VARIANT_MODEL[ variant ] ) {
-
-				visualType = VARIANT_MODEL[ variant ];
-
-			} else {
-
-				const curveConf = getCurveConfig( cell.orient, null, curveInfo.curveSize );
-				const lr = curveConf.lr || getCurveLR( cell.orient );
-				visualType = `trk-curve-${ curveInfo.curveSize }x${ curveInfo.curveSize }-${ lr }`;
-
-			}
-			const flags = { ...cell.flags, _curveSize: curveInfo.curveSize };
-			result.push( [ cell.gx, cell.gz, visualType, cell.orient, flags ] );
-
-		} else {
-
-			result.push( [ cell.gx, cell.gz, cell.type, cell.orient, cell.flags ] );
-
-		}
+		result.push( [ gx, gz, type, orient, f ] );
 
 	}
 
