@@ -450,14 +450,21 @@ export class RacePanel {
 			if ( this._matchmakingOverlay ) {
 
 				this._matchmakingOverlay.hide();
+				this._matchmakingOverlay.dispose();
+				this._matchmakingOverlay = null;
 
 			}
 
-			// Show error toast with fallback hint (R19)
-			this._services.notification.show( {
-				message:  'No match found \u2014 try again or play Free Play',
-				variant:  'warning',
-				duration: 4000,
+			// Fallback: start a solo race with AI fill instead of just showing a toast.
+			const settings = new Settings();
+			const vehicleId = settings.getSelectedKartId();
+
+			this._services.startRace( {
+				mode:        'online',
+				trackData:   getRandomTrack().cells,
+				decoCells:   getRandomTrack().decoCells,
+				vehicleId,
+				playerCount: 1,
 			} );
 
 		}
