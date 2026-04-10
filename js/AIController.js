@@ -38,6 +38,18 @@ export class AIController {
 	update( dt, vehicle ) {
 
 		const trackIntel = this._trackIntel;
+
+		// No track intelligence — drive forward with slight random steering.
+		if ( ! trackIntel || ! trackIntel.waypoints || trackIntel.count === 0 ) {
+
+			this._input.x = Math.sin( this._noisePhase + dt * 2 ) * 0.3;
+			this._input.z = 1.0;
+			this._input.boost = false;
+			this._noisePhase += dt;
+			return this._input;
+
+		}
+
 		const pos = vehicle.vehPos;
 		const p = this._profile;
 

@@ -69,13 +69,6 @@ export class AIManager {
 
 		console.log( `[AIManager] setCount(${count}), trackIntel=${!!this.trackIntel}, current racers=${this._racers.length}` );
 
-		if ( ! this.trackIntel ) {
-
-			console.warn( 'AIManager.setCount: trackIntel is null — AI cannot spawn without valid track connectivity' );
-			return;
-
-		}
-
 		count = clamp( Math.round( count ), 0, 8 );
 
 		// Spawn new
