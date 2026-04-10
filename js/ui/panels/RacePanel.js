@@ -455,14 +455,15 @@ export class RacePanel {
 
 			}
 
-			// Fallback: start a solo race with AI fill instead of just showing a toast.
+			// Fallback: start a solo race with AI fill on the default track.
+			// Don't pass trackData — let GameEngine use the built-in TRACK_CELLS
+			// so TrackIntel gets the full unmodified cell data (custom cells path
+			// runs deriveRampCells which can break connectivity).
 			const settings = new Settings();
 			const vehicleId = settings.getSelectedKartId();
 
 			this._services.startRace( {
 				mode:        'online',
-				trackData:   getRandomTrack().cells,
-				decoCells:   getRandomTrack().decoCells,
 				vehicleId,
 				playerCount: 1,
 			} );
