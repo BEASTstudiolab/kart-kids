@@ -52,6 +52,7 @@ import { RouteIds }           from '../enums/RouteIds.js';
 import { createGameEngine }   from '../../GameEngine.js';
 import { GaragePreview }      from '../GaragePreview.js';
 import { LobbyScene }         from '../LobbyScene.js';
+import { PartyLobbyScene }    from '../PartyLobbyScene.js';
 import { Settings }           from '../../Settings.js';
 import { showNameEntryModal } from '../components/NameEntryModal.js';
 import { RacePanel }         from '../panels/RacePanel.js';
@@ -113,6 +114,8 @@ export class AppShell {
 			startRace:      ( raceConfig ) => this.startRace( raceConfig ),
 			endRace:        ( results ) => this.endRace( results ),
 			setRenderMode:  ( mode ) => this.setRenderMode( mode ),
+			showPartyLobby: () => this.showPartyLobby(),
+			hidePartyLobby: () => this.hidePartyLobby(),
 			garagePreview:  null,  // populated in bootstrap() after engine creation
 			selectedMode:   'solo',
 			switchTab:      ( name ) => this.switchTab( name ),
@@ -149,6 +152,9 @@ export class AppShell {
 
 		/** @type {import('../LobbyScene.js').LobbyScene | null} */
 		this._lobbyScene = null;
+
+		/** @type {import('../PartyLobbyScene.js').PartyLobbyScene | null} */
+		this._partyLobbyScene = null;
 
 		// -----------------------------------------------------------------------
 		// DOM elements (populated by _buildShell())
@@ -843,6 +849,11 @@ export class AppShell {
 				const dt = ( now - this._lastFrameTime ) / 1000;
 				this._garagePreview.update( dt );
 
+			} else if ( this._renderMode === 'party-lobby' && this._partyLobbyScene ) {
+
+				const dt = ( now - this._lastFrameTime ) / 1000;
+				this._partyLobbyScene.update( dt );
+
 			} else if ( this._renderMode === 'lobby' && this._lobbyScene ) {
 
 				const dt = ( now - this._lastFrameTime ) / 1000;
@@ -876,11 +887,66 @@ export class AppShell {
 	 * Switch the render loop to a different mode.
 	 * Used by page controllers (e.g., Garage) to activate/deactivate 3D previews.
 	 *
-	 * @param {'idle' | 'race' | 'garage'} mode
+	 * @param {'idle' | 'race' | 'garage' | 'party-lobby'} mode
 	 */
 	setRenderMode( mode ) {
 
 		this._renderMode = mode;
+
+	}
+
+	// ---------------------------------------------------------------------------
+	// Party lobby 3D scene
+	// ---------------------------------------------------------------------------
+
+	/**
+	 * Create and activate the 3D party lobby scene.
+	 * @returns {import('../PartyLobbyScene.js').PartyLobbyScene}
+	 */
+	showPartyLobby() {
+
+		if ( this._partyLobbyScene ) {
+
+			this._partyLobbyScene.dispose();
+
+		}
+
+		const renderer = this._engine?.getRenderer();
+		if ( ! renderer ) return null;
+
+		this._partyLobbyScene = new PartyLobbyScene( renderer );
+		this._renderMode = 'party-lobby';
+
+		// Hide panels and tab bar so the 3D scene is fullscreen.
+		// Keep the shell itself visible — LobbyOverlay mounts into it.
+		if ( this._pageContainer ) this._pageContainer.style.display = 'none';
+		if ( this._tabBarEl ) this._tabBarEl.style.display = 'none';
+
+		return this._partyLobbyScene;
+
+	}
+
+	/**
+	 * Dispose the 3D party lobby scene and restore menu UI.
+	 */
+	hidePartyLobby() {
+
+		if ( this._partyLobbyScene ) {
+
+			this._partyLobbyScene.dispose();
+			this._partyLobbyScene = null;
+
+		}
+
+		if ( this._renderMode === 'party-lobby' ) {
+
+			this._renderMode = 'lobby';
+
+		}
+
+		// Restore panels and tab bar
+		if ( this._pageContainer ) this._pageContainer.style.display = '';
+		if ( this._tabBarEl ) this._tabBarEl.style.display = '';
 
 	}
 

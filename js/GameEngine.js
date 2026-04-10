@@ -722,49 +722,35 @@ export function createGameEngine( canvasContainer ) {
 		_aiManager = new AIManager( scene, world, models, _trackIntel.valid ? _trackIntel : null, spawnPosition, spawnAngle, spawn.finishAngle );
 		_aiManager.totalLaps = 3;
 
-		// ── AI fill + auto-start for non-multiplayer races ──────────────
+		// ── AI fill + auto-start ─────────────────────────────────────────
 		const mode = config.mode || null;
 
-		if ( ! _multiplayer ) {
+		// Determine AI count based on mode (applies to both multiplayer and non-multiplayer).
+		let aiCount = 0;
 
-			// Determine AI count based on mode.
-			let aiCount = 0;
+		if ( mode === 'online' ) {
 
-			if ( mode === 'online' ) {
-
-				const playerCount = config.playerCount || 1;
-				aiCount = Math.max( 0, 8 - playerCount );
-
-			} else if ( mode === 'solo' || mode === 'private' ) {
-
-				aiCount = 0;
-
-			}
-
-			console.log( `[GameEngine] Non-multiplayer race: mode=${ mode }, aiCount=${ aiCount }, trackIntel=${ !! ( _trackIntel && _trackIntel.valid ) }` );
-
-			if ( aiCount > 0 ) {
-
-				_aiManager.setCount( aiCount );
-
-			}
-
-			// Auto-start — skip the RaceLobby dwell/ready system.
-			setTimeout( () => {
-
-				if ( _aiManager.count > 0 ) _aiManager.teleportToGrid( _vehicle );
-				_raceMode.start();
-				_aiManager.startRace();
-
-			}, 500 );
-
-		} else if ( mode === 'online' ) {
-
-			// Multiplayer RACE: fill remaining slots with AI.
 			const playerCount = config.playerCount || 1;
-			_aiManager.setCount( Math.max( 0, 8 - playerCount ) );
+			aiCount = Math.max( 0, 8 - playerCount );
 
 		}
+
+		console.log( `[GameEngine] Race start: mode=${ mode }, multiplayer=${ _multiplayer }, aiCount=${ aiCount }, trackIntel=${ !! ( _trackIntel && _trackIntel.valid ) }` );
+
+		if ( aiCount > 0 ) {
+
+			_aiManager.setCount( aiCount );
+
+		}
+
+		// Auto-start — skip the RaceLobby dwell/ready system.
+		setTimeout( () => {
+
+			if ( _aiManager.count > 0 ) _aiManager.teleportToGrid( _vehicle );
+			_raceMode.start();
+			_aiManager.startRace();
+
+		}, 500 );
 
 		_minimap = new Minimap( activeCells, bounds );
 
