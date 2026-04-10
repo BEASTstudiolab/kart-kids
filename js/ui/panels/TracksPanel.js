@@ -331,8 +331,6 @@ export class TracksPanel {
 		this._browser.show();
 		this._reappendCreateCard();
 
-		}
-
 	}
 
 	/**
