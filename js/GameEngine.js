@@ -739,6 +739,20 @@ export function createGameEngine( canvasContainer ) {
 
 		// If no mode (legacy/debug), fall through to Settings aiCount listener.
 
+		// ── Auto-start for non-multiplayer races ─────────────────────────
+		// Skip the RaceLobby dwell/ready system — go straight to countdown.
+		if ( ! _multiplayer ) {
+
+			setTimeout( () => {
+
+				if ( _aiManager.count > 0 ) _aiManager.teleportToGrid( _vehicle );
+				_raceMode.start();
+				_aiManager.startRace();
+
+			}, 500 );
+
+		}
+
 		_minimap = new Minimap( activeCells, bounds );
 
 		// ── Item boxes ───────────────────────────────────────────────────────
