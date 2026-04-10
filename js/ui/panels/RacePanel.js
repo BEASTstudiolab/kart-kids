@@ -4,7 +4,7 @@
  * Renders:
  *   - Transparent content area (3D kart preview shows through from behind)
  *   - Player name display
- *   - Mode chip strip: SOLO | ONLINE | PRIVATE
+ *   - Mode chip strip: RACE | FREE PLAY | PARTY
  *   - Track preview card (tapping navigates to TRACKS tab)
  *   - Large RACE CTA button
  *
@@ -24,6 +24,7 @@ import { HudButton }      from '../components/HudButton.js';
 import { LoadingOverlay }  from '../components/LoadingOverlay.js';
 import { LobbyOverlay }   from '../overlays/LobbyOverlay.js';
 import { Settings }        from '../../Settings.js';
+import { renderMinimap }   from '../components/TrackMinimap.js';
 import { getRandomTrack, getTrackById, getTracks } from '../../TrackRegistry.js';
 import { decodeCells }     from '../../TrackCodec.js';
 import { getSavedTracks }  from '../../editor/Persistence.js';
@@ -60,8 +61,8 @@ export class RacePanel {
 		/** @type {HTMLElement | null} */
 		this._trackNameEl = null;
 
-		/** @type {HTMLButtonElement | null} */
-		this._modeToggle = null;
+		/** @type {Map<string, HTMLButtonElement>} */
+		this._chips = new Map();
 
 		this._injectCSS();
 		this._build();
@@ -80,26 +81,21 @@ export class RacePanel {
 		const style = document.createElement( 'style' );
 		style.textContent = `
 
-			/* ── Right-side overlay panel (Fortnite-style) ─────────────── */
+			/* ── Right-bottom floating column ──────────────────────────── */
 
 			.kk-race-panel {
 				position: absolute;
+				bottom: 0;
 				right: 0;
-				top: 0;
-				width: 260px;
-				height: 100%;
 				display: flex;
 				flex-direction: column;
 				justify-content: flex-end;
+				gap: var(--space-3);
 				padding: var(--space-6);
 				padding-bottom: var(--space-8);
 				box-sizing: border-box;
 				pointer-events: none;
-				gap: var(--space-4);
-				background: rgba( 0, 0, 0, 0.35 );
-				backdrop-filter: blur( 8px );
-				-webkit-backdrop-filter: blur( 8px );
-				border-left: 1px solid rgba( 255, 255, 255, 0.08 );
+				width: 240px;
 			}
 
 			.kk-race-panel > * {
@@ -111,7 +107,15 @@ export class RacePanel {
 			.kk-race-panel__track-info {
 				display: flex;
 				flex-direction: column;
-				gap: var(--space-1);
+				gap: var(--space-2);
+				background: rgba( 0, 0, 0, 0.5 );
+				backdrop-filter: blur( 8px );
+				-webkit-backdrop-filter: blur( 8px );
+				border: 1px solid rgba( 255, 255, 255, 0.1 );
+				border-radius: var(--radius-md, 4px);
+				padding: var(--space-3);
+				width: 100%;
+				box-sizing: border-box;
 			}
 
 			.kk-race-panel__track-label {
@@ -125,11 +129,22 @@ export class RacePanel {
 
 			.kk-race-panel__track-name {
 				font-family: var(--font-display, sans-serif);
-				font-size: var(--text-lg, 1.125rem);
+				font-size: var(--text-base, 0.875rem);
 				font-weight: var(--weight-black, 900);
 				text-transform: uppercase;
 				letter-spacing: var(--tracking-wider, 0.1em);
 				color: var(--color-white, #fff);
+			}
+
+			.kk-race-panel__track-minimap {
+				border-radius: var(--radius-sm, 2px);
+				overflow: hidden;
+			}
+
+			.kk-race-panel__track-minimap canvas {
+				display: block;
+				width: 100%;
+				height: auto;
 			}
 
 			.kk-race-panel__track-change {
@@ -151,25 +166,37 @@ export class RacePanel {
 				color: var(--color-white, #fff);
 			}
 
-			/* ── Mode cycling toggle ───────────────────────────────────── */
+			/* ── Mode chip strip ───────────────────────────────────────── */
 
-			.kk-race-panel__mode-toggle {
+			.kk-race-panel__chips {
+				display: flex;
+				flex-direction: row;
+				gap: var(--space-1, 4px);
+				background: rgba( 0, 0, 0, 0.45 );
+				backdrop-filter: blur( 8px );
+				-webkit-backdrop-filter: blur( 8px );
+				border-radius: var(--radius-md, 4px);
+				padding: var(--space-1, 4px);
+				width: 100%;
+				box-sizing: border-box;
+			}
+
+			.kk-race-panel__chip {
+				flex: 1;
 				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-sm, 0.875rem);
+				font-size: var(--text-xs, 0.75rem);
 				font-weight: var(--weight-semibold, 600);
 				text-transform: uppercase;
 				letter-spacing: var(--tracking-wide, 0.08em);
-				color: var(--color-ink-200, #ccc);
-				background: rgba( 255, 255, 255, 0.06 );
-				backdrop-filter: blur( 8px );
-				-webkit-backdrop-filter: blur( 8px );
-				border: 1px solid rgba( 255, 255, 255, 0.12 );
+				color: var(--color-ink-300, #999);
+				background: transparent;
+				border: 1px solid rgba( 255, 255, 255, 0.08 );
 				border-radius: var(--radius-sm, 2px);
-				padding: var(--space-3) var(--space-4);
+				padding: var(--space-2) var(--space-1);
 				cursor: pointer;
-				width: 100%;
 				text-align: center;
 				min-height: var(--hit-target-min, 48px);
+				box-sizing: border-box;
 				transition:
 					color 0.2s ease,
 					background 0.2s ease,
@@ -179,20 +206,27 @@ export class RacePanel {
 				touch-action: manipulation;
 			}
 
-			.kk-race-panel__mode-toggle:hover {
-				color: var(--color-white, #fff);
-				background: rgba( 255, 255, 255, 0.10 );
-				border-color: rgba( 255, 255, 255, 0.18 );
+			.kk-race-panel__chip:hover:not( .kk-race-panel__chip--active ) {
+				color: var(--color-ink-100, #ddd);
+				background: rgba( 255, 255, 255, 0.06 );
+				border-color: rgba( 255, 255, 255, 0.15 );
 			}
 
-			.kk-race-panel__mode-toggle:active {
+			.kk-race-panel__chip--active {
+				color: var(--color-white, #fff);
+				background: rgba( 255, 160, 40, 0.15 );
+				border-color: rgba( 255, 160, 40, 0.6 );
+				box-shadow: 0 0 8px rgba( 255, 140, 0, 0.25 );
+			}
+
+			.kk-race-panel__chip:active {
 				transform: scale( 0.97 );
 			}
 
-			/* ── PLAY button wrapper ───────────────────────────────────── */
+			/* ── PLAY button ───────────────────────────────────────────── */
 
 			.kk-race-panel__cta {
-				margin-top: var(--space-2);
+				width: 100%;
 			}
 
 			.kk-race-panel__cta .kk-hud-button {
@@ -201,7 +235,7 @@ export class RacePanel {
 
 			@media ( prefers-reduced-motion: reduce ) {
 
-				.kk-race-panel__mode-toggle {
+				.kk-race-panel__chip {
 					transition: none;
 				}
 
@@ -221,7 +255,7 @@ export class RacePanel {
 		const root = document.createElement( 'div' );
 		root.className = 'kk-race-panel';
 
-		// Track info card
+		// Track info card (left)
 		const trackInfo = document.createElement( 'div' );
 		trackInfo.className = 'kk-race-panel__track-info';
 
@@ -233,6 +267,10 @@ export class RacePanel {
 		this._trackNameEl = document.createElement( 'div' );
 		this._trackNameEl.className = 'kk-race-panel__track-name';
 		trackInfo.appendChild( this._trackNameEl );
+
+		this._trackMinimapEl = document.createElement( 'div' );
+		this._trackMinimapEl.className = 'kk-race-panel__track-minimap';
+		trackInfo.appendChild( this._trackMinimapEl );
 
 		const changeBtn = document.createElement( 'button' );
 		changeBtn.type = 'button';
@@ -247,18 +285,30 @@ export class RacePanel {
 
 		root.appendChild( trackInfo );
 
-		// Mode cycling toggle button
-		this._modeToggle = document.createElement( 'button' );
-		this._modeToggle.type = 'button';
-		this._modeToggle.className = 'kk-race-panel__mode-toggle';
-		this._modeToggle.setAttribute( 'aria-label', 'Cycle game mode' );
-		this._modeToggle.addEventListener( 'click', () => this._cycleMode() );
-		root.appendChild( this._modeToggle );
+		// Mode chip strip
+		const chipStrip = document.createElement( 'div' );
+		chipStrip.className = 'kk-race-panel__chips';
 
-		this._updateModeToggle();
-		this._updateTrackInfo();
+		const modeIds = [ 'online', 'solo', 'private' ];
 
-		// PLAY button — HudButton with scramble effect
+		for ( const id of modeIds ) {
+
+			const chip = document.createElement( 'button' );
+			chip.type = 'button';
+			chip.className = 'kk-race-panel__chip';
+			chip.textContent = RacePanel.MODE_LABELS[ id ];
+			chip.setAttribute( 'aria-pressed', 'false' );
+			chip.addEventListener( 'click', () => this._setMode( id ) );
+
+			chipStrip.appendChild( chip );
+			this._chips.set( id, chip );
+
+		}
+
+		root.appendChild( chipStrip );
+		this._chipStrip = chipStrip;
+
+		// PLAY button
 		const ctaWrap = document.createElement( 'div' );
 		ctaWrap.className = 'kk-race-panel__cta';
 
@@ -271,50 +321,53 @@ export class RacePanel {
 		ctaWrap.appendChild( this._raceBtn.el );
 		root.appendChild( ctaWrap );
 
+		this._updateChipStrip();
+		this._updateTrackInfo();
+
 		this._container.appendChild( root );
 		this._root = root;
 
 	}
 
 	// ---------------------------------------------------------------------------
-	// Mode cycling
+	// Mode selection
 	// ---------------------------------------------------------------------------
 
-	/** @type {string[]} */
-	static MODES = [ 'solo', 'online', 'private' ];
-
 	/** @type {Object<string, string>} */
-	static MODE_LABELS = { solo: 'SOLO', online: 'ONLINE', private: 'PRIVATE' };
+	static MODE_LABELS = { solo: 'FREE PLAY', online: 'RACE', private: 'PARTY' };
 
 	/**
-	 * Cycle through game modes: SOLO → ONLINE → PRIVATE → SOLO.
+	 * Set the active game mode and update chip visuals.
+	 * @param {string} modeId  One of 'solo', 'online', 'private'
 	 */
-	_cycleMode() {
+	_setMode( modeId ) {
 
-		const modes = RacePanel.MODES;
-		const current = this._services.selectedMode || 'solo';
-		const idx = modes.indexOf( current );
-		const next = modes[ ( idx + 1 ) % modes.length ];
-
-		this._services.selectedMode = next;
-		this._updateModeToggle();
+		this._services.selectedMode = modeId;
+		this._updateChipStrip();
 
 	}
 
 	/**
-	 * Update the mode toggle button text to reflect current mode.
+	 * Sync chip active states with the current services.selectedMode.
 	 */
-	_updateModeToggle() {
+	_updateChipStrip() {
 
-		if ( ! this._modeToggle ) return;
+		if ( ! this._chips || this._chips.size === 0 ) return;
 
-		const mode = this._services.selectedMode || 'solo';
-		this._modeToggle.textContent = RacePanel.MODE_LABELS[ mode ] || mode.toUpperCase();
+		const active = this._services.selectedMode || 'solo';
+
+		for ( const [ id, chip ] of this._chips ) {
+
+			const isActive = id === active;
+			chip.classList.toggle( 'kk-race-panel__chip--active', isActive );
+			chip.setAttribute( 'aria-pressed', isActive ? 'true' : 'false' );
+
+		}
 
 	}
 
 	/**
-	 * Update the track info card with the currently selected track name.
+	 * Update the track info card with the currently selected track name and minimap.
 	 */
 	_updateTrackInfo() {
 
@@ -322,6 +375,19 @@ export class RacePanel {
 
 		const track = this._resolveSelectedTrack();
 		this._trackNameEl.textContent = track.name;
+
+		// Render minimap
+		if ( this._trackMinimapEl ) {
+
+			this._trackMinimapEl.innerHTML = '';
+
+			if ( track.cells && track.cells.length > 0 ) {
+
+				this._trackMinimapEl.appendChild( renderMinimap( track.cells, 160, 100 ) );
+
+			}
+
+		}
 
 	}
 
@@ -553,8 +619,8 @@ export class RacePanel {
 		// Refresh track info (track may have changed in TRACKS tab)
 		this._updateTrackInfo();
 
-		// Sync mode toggle with services bag
-		this._updateModeToggle();
+		// Sync chip strip with services bag
+		this._updateChipStrip();
 
 	}
 
@@ -608,7 +674,9 @@ export class RacePanel {
 
 		this._root = null;
 		this._trackNameEl = null;
-		this._modeToggle = null;
+		this._trackMinimapEl = null;
+		this._chips.clear();
+		this._chipStrip = null;
 
 	}
 
