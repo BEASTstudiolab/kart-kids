@@ -293,14 +293,38 @@ export class TrackSelectOverlay {
 	_handleGo() {
 
 		const track = this._resolveSelectedTrack();
+		const callback = this._onConfirm;
 
-		if ( this._onConfirm ) {
+		// Remove overlay immediately — it's position:fixed and would cover
+		// the game canvas if we waited for the fade transition.
+		if ( this._overlay ) {
 
-			this._onConfirm( track );
+			this._overlay.remove();
+			this._overlay = null;
 
 		}
 
-		this.hide();
+		if ( this._browser ) {
+
+			this._browser.dispose();
+			this._browser = null;
+
+		}
+
+		if ( this._goBtn ) {
+
+			this._goBtn.dispose();
+			this._goBtn = null;
+
+		}
+
+		this._onConfirm = null;
+
+		if ( callback ) {
+
+			callback( track );
+
+		}
 
 	}
 
