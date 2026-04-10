@@ -19759,3 +19759,2310 @@ production/session-logs/compaction-log.txt
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260410_104640
+### Commits
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+---
+
+## Session End: 20260410_104711
+### Commits
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_104714
+### Commits
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_104849
+### Commits
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_110054
+### Commits
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_110332
+### Commits
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_110456
+### Commits
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_110805
+### Commits
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_110920
+### Commits
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_111022
+### Commits
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_111427
+### Commits
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_111559
+### Commits
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_111700
+### Commits
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_111823
+### Commits
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_111905
+### Commits
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_111944
+### Commits
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_112117
+### Commits
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_112259
+### Commits
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_112648
+### Commits
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_112845
+### Commits
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_113040
+### Commits
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_115039
+### Commits
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_115359
+### Commits
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_115905
+### Commits
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_120201
+### Commits
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_121339
+### Commits
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_123728
+### Commits
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_124640
+### Commits
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+js/ui/panels/RacePanel.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_125249
+### Commits
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+js/ui/panels/RacePanel.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_125623
+### Commits
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+js/ui/panels/RacePanel.js
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_132652
+### Commits
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_132725
+### Commits
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_132807
+### Commits
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_132816
+### Commits
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_132838
+### Commits
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_133833
+### Commits
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_133909
+### Commits
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_133940
+### Commits
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_134024
+### Commits
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_134028
+### Commits
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_134041
+### Commits
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_134319
+### Commits
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_134538
+### Commits
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_134823
+### Commits
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_134853
+### Commits
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_134915
+### Commits
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_135447
+### Commits
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_135652
+### Commits
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_140232
+### Commits
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_140440
+### Commits
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+js/ui/overlays/LobbyOverlay.js
+js/ui/panels/RacePanel.js
+js/ui/panels/TracksPanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_140623
+### Commits
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_140924
+### Commits
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_141105
+### Commits
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_141134
+### Commits
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_141143
+### Commits
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/LobbyScene.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_142034
+### Commits
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_142124
+### Commits
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_142440
+### Commits
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_142539
+### Commits
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_142605
+### Commits
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_142942
+### Commits
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_143209
+### Commits
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_143231
+### Commits
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_150024
+### Commits
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_150444
+### Commits
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_151933
+### Commits
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_152310
+### Commits
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_153201
+### Commits
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_153554
+### Commits
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_153848
+### Commits
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_154019
+### Commits
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_154058
+### Commits
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_154133
+### Commits
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_154244
+### Commits
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_154328
+### Commits
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_154439
+### Commits
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_154944
+### Commits
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/pages/page04-play-modes/Page04PlayModesController.js
+js/ui/pages/page04-play-modes/Page04PlayModesView.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_155605
+### Commits
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/pages/page04-play-modes/Page04PlayModesController.js
+js/ui/pages/page04-play-modes/Page04PlayModesView.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_162355
+### Commits
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/pages/page04-play-modes/Page04PlayModesController.js
+js/ui/pages/page04-play-modes/Page04PlayModesView.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_162623
+### Commits
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/pages/page04-play-modes/Page04PlayModesController.js
+js/ui/pages/page04-play-modes/Page04PlayModesView.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_162843
+### Commits
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/pages/page04-play-modes/Page04PlayModesController.js
+js/ui/pages/page04-play-modes/Page04PlayModesView.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_163326
+### Commits
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/overlays/LobbyOverlay.js
+js/ui/pages/page04-play-modes/Page04PlayModesController.js
+js/ui/pages/page04-play-modes/Page04PlayModesView.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_163415
+### Commits
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+4cab0ff kart-kids-v0.31-map-fix-controller-fix
+### Uncommitted Changes
+js/ui/overlays/LobbyOverlay.js
+js/ui/pages/page04-play-modes/Page04PlayModesController.js
+js/ui/pages/page04-play-modes/Page04PlayModesView.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_165350
+### Commits
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/ui/overlays/LobbyOverlay.js
+js/ui/pages/page04-play-modes/Page04PlayModesController.js
+js/ui/pages/page04-play-modes/Page04PlayModesView.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_171928
+### Commits
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/ui/core/AppShell.js
+js/ui/overlays/LobbyOverlay.js
+js/ui/pages/page04-play-modes/Page04PlayModesController.js
+js/ui/pages/page04-play-modes/Page04PlayModesView.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_172245
+### Commits
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/ui/core/AppShell.js
+js/ui/overlays/LobbyOverlay.js
+js/ui/pages/page04-play-modes/Page04PlayModesController.js
+js/ui/pages/page04-play-modes/Page04PlayModesView.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_172451
+### Commits
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/ui/core/AppShell.js
+js/ui/overlays/LobbyOverlay.js
+js/ui/pages/page04-play-modes/Page04PlayModesController.js
+js/ui/pages/page04-play-modes/Page04PlayModesView.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_173609
+### Commits
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/ui/core/AppShell.js
+js/ui/overlays/LobbyOverlay.js
+js/ui/pages/page04-play-modes/Page04PlayModesController.js
+js/ui/pages/page04-play-modes/Page04PlayModesView.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_173810
+### Commits
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/ui/core/AppShell.js
+js/ui/overlays/LobbyOverlay.js
+js/ui/pages/page04-play-modes/Page04PlayModesController.js
+js/ui/pages/page04-play-modes/Page04PlayModesView.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_173929
+### Commits
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/ui/core/AppShell.js
+js/ui/overlays/LobbyOverlay.js
+js/ui/pages/page04-play-modes/Page04PlayModesController.js
+js/ui/pages/page04-play-modes/Page04PlayModesView.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_174426
+### Commits
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/ui/core/AppShell.js
+js/ui/overlays/LobbyOverlay.js
+js/ui/pages/page04-play-modes/Page04PlayModesController.js
+js/ui/pages/page04-play-modes/Page04PlayModesView.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_174648
+### Commits
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/ui/core/AppShell.js
+js/ui/overlays/LobbyOverlay.js
+js/ui/pages/page04-play-modes/Page04PlayModesController.js
+js/ui/pages/page04-play-modes/Page04PlayModesView.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_174837
+### Commits
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/ui/core/AppShell.js
+js/ui/overlays/LobbyOverlay.js
+js/ui/pages/page04-play-modes/Page04PlayModesController.js
+js/ui/pages/page04-play-modes/Page04PlayModesView.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_175008
+### Commits
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/ui/core/AppShell.js
+js/ui/overlays/LobbyOverlay.js
+js/ui/pages/page04-play-modes/Page04PlayModesController.js
+js/ui/pages/page04-play-modes/Page04PlayModesView.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_175746
+### Commits
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/ui/core/AppShell.js
+js/ui/overlays/LobbyOverlay.js
+js/ui/pages/page04-play-modes/Page04PlayModesController.js
+js/ui/pages/page04-play-modes/Page04PlayModesView.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_180137
+### Commits
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_180756
+### Commits
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_181052
+### Commits
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/GameEngine.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_181850
+### Commits
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/GameEngine.js
+models/track-corner-night.glb
+models/track-straight-night.glb
+models/vehicle-truck-green.glb
+models/vehicle-truck-purple.glb
+models/vehicle-truck-red.glb
+models/vehicle-truck-yellow.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_182148
+### Commits
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/GameEngine.js
+models/track-corner-night.glb
+models/track-straight-night.glb
+models/vehicle-truck-green.glb
+models/vehicle-truck-purple.glb
+models/vehicle-truck-red.glb
+models/vehicle-truck-yellow.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_182211
+### Commits
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/GameEngine.js
+models/track-corner-night.glb
+models/track-straight-night.glb
+models/vehicle-truck-green.glb
+models/vehicle-truck-purple.glb
+models/vehicle-truck-red.glb
+models/vehicle-truck-yellow.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_182458
+### Commits
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+models/track-corner-night.glb
+models/track-straight-night.glb
+models/vehicle-truck-green.glb
+models/vehicle-truck-purple.glb
+models/vehicle-truck-red.glb
+models/vehicle-truck-yellow.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_182628
+### Commits
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/ui/LobbyScene.js
+models/track-corner-night.glb
+models/track-straight-night.glb
+models/vehicle-truck-green.glb
+models/vehicle-truck-purple.glb
+models/vehicle-truck-red.glb
+models/vehicle-truck-yellow.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_182931
+### Commits
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/ui/LobbyScene.js
+models/track-corner-night.glb
+models/track-straight-night.glb
+models/vehicle-truck-green.glb
+models/vehicle-truck-purple.glb
+models/vehicle-truck-red.glb
+models/vehicle-truck-yellow.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_183238
+### Commits
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/ui/LobbyScene.js
+models/track-corner-night.glb
+models/track-straight-night.glb
+models/vehicle-truck-green.glb
+models/vehicle-truck-purple.glb
+models/vehicle-truck-red.glb
+models/vehicle-truck-yellow.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_183723
+### Commits
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/ui/LobbyScene.js
+models/track-corner-night.glb
+models/track-straight-night.glb
+models/vehicle-truck-green.glb
+models/vehicle-truck-purple.glb
+models/vehicle-truck-red.glb
+models/vehicle-truck-yellow.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_184204
+### Commits
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/ui/LobbyScene.js
+models/track-corner-night.glb
+models/track-straight-night.glb
+models/vehicle-truck-green.glb
+models/vehicle-truck-purple.glb
+models/vehicle-truck-red.glb
+models/vehicle-truck-yellow.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_185836
+### Commits
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/ui/LobbyScene.js
+models/track-corner-night.glb
+models/track-straight-night.glb
+models/vehicle-truck-green.glb
+models/vehicle-truck-purple.glb
+models/vehicle-truck-red.glb
+models/vehicle-truck-yellow.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_185941
+### Commits
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/ui/LobbyScene.js
+models/track-corner-night.glb
+models/track-straight-night.glb
+models/vehicle-truck-green.glb
+models/vehicle-truck-purple.glb
+models/vehicle-truck-red.glb
+models/vehicle-truck-yellow.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_190337
+### Commits
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/ui/LobbyScene.js
+models/track-corner-night.glb
+models/track-straight-night.glb
+models/vehicle-truck-green.glb
+models/vehicle-truck-purple.glb
+models/vehicle-truck-red.glb
+models/vehicle-truck-yellow.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_190439
+### Commits
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/ui/LobbyScene.js
+models/track-corner-night.glb
+models/track-straight-night.glb
+models/vehicle-truck-green.glb
+models/vehicle-truck-purple.glb
+models/vehicle-truck-red.glb
+models/vehicle-truck-yellow.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_190624
+### Commits
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/ui/LobbyScene.js
+models/track-corner-night.glb
+models/track-straight-night.glb
+models/vehicle-truck-green.glb
+models/vehicle-truck-purple.glb
+models/vehicle-truck-red.glb
+models/vehicle-truck-yellow.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_191056
+### Commits
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/ui/LobbyScene.js
+models/track-corner-night.glb
+models/track-straight-night.glb
+models/vehicle-truck-green.glb
+models/vehicle-truck-purple.glb
+models/vehicle-truck-red.glb
+models/vehicle-truck-yellow.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_191158
+### Commits
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/ui/LobbyScene.js
+models/track-corner-night.glb
+models/track-straight-night.glb
+models/vehicle-truck-green.glb
+models/vehicle-truck-purple.glb
+models/vehicle-truck-red.glb
+models/vehicle-truck-yellow.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_191436
+### Commits
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/ui/LobbyScene.js
+models/track-corner-night.glb
+models/track-straight-night.glb
+models/vehicle-truck-green.glb
+models/vehicle-truck-purple.glb
+models/vehicle-truck-red.glb
+models/vehicle-truck-yellow.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_191528
+### Commits
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/ui/LobbyScene.js
+models/track-corner-night.glb
+models/track-straight-night.glb
+models/vehicle-truck-green.glb
+models/vehicle-truck-purple.glb
+models/vehicle-truck-red.glb
+models/vehicle-truck-yellow.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_192046
+### Commits
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/ui/LobbyScene.js
+models/track-corner-night.glb
+models/track-straight-night.glb
+models/vehicle-truck-green.glb
+models/vehicle-truck-purple.glb
+models/vehicle-truck-red.glb
+models/vehicle-truck-yellow.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_192546
+### Commits
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+5f4cfbd fix(lobby): use entry.path for vehicle models + load lobby.glb environment
+### Uncommitted Changes
+js/ui/LobbyScene.js
+models/track-corner-night.glb
+models/track-straight-night.glb
+models/vehicle-truck-green.glb
+models/vehicle-truck-purple.glb
+models/vehicle-truck-red.glb
+models/vehicle-truck-yellow.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_192735
+### Commits
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+### Uncommitted Changes
+models/track-corner-night.glb
+models/track-straight-night.glb
+models/vehicle-truck-green.glb
+models/vehicle-truck-purple.glb
+models/vehicle-truck-red.glb
+models/vehicle-truck-yellow.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_192814
+### Commits
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+### Uncommitted Changes
+models/track-corner-night.glb
+models/track-straight-night.glb
+models/vehicle-truck-green.glb
+models/vehicle-truck-purple.glb
+models/vehicle-truck-red.glb
+models/vehicle-truck-yellow.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_192857
+### Commits
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+### Uncommitted Changes
+models/track-corner-night.glb
+models/track-straight-night.glb
+models/vehicle-truck-green.glb
+models/vehicle-truck-purple.glb
+models/vehicle-truck-red.glb
+models/vehicle-truck-yellow.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_193028
+### Commits
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+### Uncommitted Changes
+models/track-corner-night.glb
+models/track-straight-night.glb
+models/vehicle-truck-green.glb
+models/vehicle-truck-purple.glb
+models/vehicle-truck-red.glb
+models/vehicle-truck-yellow.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_193055
+### Commits
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+### Uncommitted Changes
+models/track-corner-night.glb
+models/track-straight-night.glb
+models/vehicle-truck-green.glb
+models/vehicle-truck-purple.glb
+models/vehicle-truck-red.glb
+models/vehicle-truck-yellow.glb
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
