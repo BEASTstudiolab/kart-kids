@@ -207,9 +207,50 @@ export class RacePanel {
 				width: 100%;
 			}
 
+			/* ── JOIN button (PARTY mode only) ─────────────────────── */
+
+			.kk-race-panel__join-btn {
+				width: 100%;
+				font-family: var(--font-ui, sans-serif);
+				font-size: var(--text-sm, 0.875rem);
+				font-weight: var(--weight-semibold, 600);
+				text-transform: uppercase;
+				letter-spacing: var(--tracking-wide, 0.08em);
+				color: var(--color-ink-100, #ddd);
+				background: rgba( 255, 255, 255, 0.06 );
+				backdrop-filter: blur( 8px );
+				-webkit-backdrop-filter: blur( 8px );
+				border: 1px solid rgba( 255, 255, 255, 0.12 );
+				border-radius: var(--radius-md, 4px);
+				padding: var(--space-3) var(--space-4);
+				cursor: pointer;
+				min-height: var(--hit-target-min, 48px);
+				box-sizing: border-box;
+				transition:
+					color 0.2s ease,
+					background 0.2s ease,
+					border-color 0.2s ease;
+				-webkit-tap-highlight-color: transparent;
+				touch-action: manipulation;
+			}
+
+			.kk-race-panel__join-btn:hover {
+				color: var(--color-white, #fff);
+				background: rgba( 255, 255, 255, 0.10 );
+				border-color: rgba( 255, 255, 255, 0.20 );
+			}
+
+			.kk-race-panel__join-btn:active {
+				transform: scale( 0.97 );
+			}
+
 			@media ( prefers-reduced-motion: reduce ) {
 
 				.kk-race-panel__chip {
+					transition: none;
+				}
+
+				.kk-race-panel__join-btn {
 					transition: none;
 				}
 
@@ -285,6 +326,16 @@ export class RacePanel {
 		ctaWrap.appendChild( this._raceBtn.el );
 		controls.appendChild( ctaWrap );
 
+		// JOIN button (visible only in PARTY mode)
+		const joinBtn = document.createElement( 'button' );
+		joinBtn.type = 'button';
+		joinBtn.className = 'kk-race-panel__join-btn';
+		joinBtn.textContent = 'JOIN ROOM';
+		joinBtn.style.display = 'none';
+		joinBtn.addEventListener( 'click', () => this._handleJoinRoom() );
+		controls.appendChild( joinBtn );
+		this._joinBtn = joinBtn;
+
 		root.appendChild( controls );
 
 		this._updateChipStrip();
@@ -331,6 +382,13 @@ export class RacePanel {
 		if ( showBrowser && this._trackBrowser ) {
 
 			this._trackBrowser.refresh();
+
+		}
+
+		// Show JOIN button only in PARTY mode
+		if ( this._joinBtn ) {
+
+			this._joinBtn.style.display = mode === 'private' ? '' : 'none';
 
 		}
 
@@ -568,7 +626,115 @@ export class RacePanel {
 
 		}
 
-		this._lobbyOverlay.show( this._network );
+		const track = this._resolveSelectedTrack();
+
+		this._lobbyOverlay.show( this._network, { trackData: track, isHost: true } );
+
+	}
+
+	// ---------------------------------------------------------------------------
+	// PRIVATE join (guest)
+	// ---------------------------------------------------------------------------
+
+	_handleJoinRoom() {
+
+		const bodyEl = document.createElement( 'div' );
+
+		const input = document.createElement( 'input' );
+		input.type = 'text';
+		input.placeholder = 'Enter room code';
+		input.autocomplete = 'off';
+		input.style.cssText = 'width:100%;box-sizing:border-box;font-family:var(--font-mono,monospace);font-size:var(--text-lg,1.25rem);letter-spacing:0.15em;text-align:center;padding:var(--space-3,12px);background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:var(--radius-md,8px);color:var(--color-white,#fff);outline:none;';
+		bodyEl.appendChild( input );
+
+		const footer = document.createElement( 'div' );
+		footer.style.cssText = 'display:flex;gap:var(--space-3,12px);';
+
+		const cancelBtn = document.createElement( 'button' );
+		cancelBtn.className = 'kk-cta-button kk-cta-button--ghost';
+		cancelBtn.type = 'button';
+		cancelBtn.innerHTML = '<span class="kk-cta-button__label">CANCEL</span>';
+
+		const joinBtn = document.createElement( 'button' );
+		joinBtn.className = 'kk-cta-button kk-cta-button--primary';
+		joinBtn.type = 'button';
+		joinBtn.innerHTML = '<span class="kk-cta-button__label">JOIN</span>';
+
+		footer.appendChild( cancelBtn );
+		footer.appendChild( joinBtn );
+
+		const handle = this._services.modal.open( {
+			title: 'Join Room',
+			body: bodyEl,
+			footer: footer,
+			dismissible: true,
+		} );
+
+		cancelBtn.addEventListener( 'click', () => handle.close() );
+
+		const doJoin = async () => {
+
+			const code = input.value.trim();
+
+			if ( ! code ) {
+
+				input.focus();
+				return;
+
+			}
+
+			handle.close();
+
+			try {
+
+				// Create NetworkClient on demand
+				if ( ! this._network ) {
+
+					this._network = new NetworkClient();
+
+				}
+
+				if ( ! this._network.connected ) {
+
+					await this._network.connect();
+
+				}
+
+				const settings = new Settings();
+				const vehicleId = settings.getSelectedKartId();
+
+				await this._network.joinRoom( code, vehicleId );
+
+				// Create LobbyOverlay if needed
+				if ( ! this._lobbyOverlay ) {
+
+					const shell = this._container.closest( '#kk-app-shell' ) || document.body;
+					this._lobbyOverlay = new LobbyOverlay( shell, this._services );
+
+				}
+
+				this._lobbyOverlay.show( this._network, { isHost: false } );
+
+			} catch ( err ) {
+
+				console.warn( '[RacePanel] Join room failed:', err.message );
+				this._services.notification.show( {
+					message:  'Failed to join room: ' + ( err.message || 'Invalid code' ),
+					variant:  'error',
+					duration: 3000,
+				} );
+
+			}
+
+		};
+
+		joinBtn.addEventListener( 'click', doJoin );
+
+		input.addEventListener( 'keydown', ( e ) => {
+
+			if ( e.key === 'Enter' ) doJoin();
+
+		} );
 
 	}
 
@@ -648,6 +814,7 @@ export class RacePanel {
 		this._trackBrowserContainer = null;
 		this._chips.clear();
 		this._chipStrip = null;
+		this._joinBtn = null;
 
 	}
 

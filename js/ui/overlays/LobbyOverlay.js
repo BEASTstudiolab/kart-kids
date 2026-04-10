@@ -169,6 +169,24 @@ export class LobbyOverlay {
 				opacity: 0.7;
 			}
 
+			.kk-lobby-overlay__track-info {
+				display: flex;
+				align-items: center;
+				gap: var(--space-3, 12px);
+				margin-bottom: var(--space-4, 16px);
+				padding: var(--space-3, 12px);
+				background: rgba(255, 255, 255, 0.06);
+				border-radius: var(--radius-md, 8px);
+			}
+
+			.kk-lobby-overlay__track-name {
+				font-family: var(--font-ui, sans-serif);
+				font-size: var(--text-md, 1rem);
+				font-weight: var(--weight-semibold, 600);
+				color: var(--color-white, #fff);
+				flex: 1;
+			}
+
 			.kk-lobby-overlay__members {
 				margin-bottom: var(--space-4, 16px);
 			}
@@ -288,6 +306,25 @@ export class LobbyOverlay {
 
 		el.appendChild( roomCodeRow );
 
+		// Track info section (shows track name to all lobby members)
+		const trackInfo = document.createElement( 'div' );
+		trackInfo.className = 'kk-lobby-overlay__track-info';
+		trackInfo.style.display = 'none';
+
+		const trackLabel = document.createElement( 'span' );
+		trackLabel.className = 'kk-lobby-overlay__code-label';
+		trackLabel.textContent = 'Track';
+		trackInfo.appendChild( trackLabel );
+
+		const trackName = document.createElement( 'span' );
+		trackName.className = 'kk-lobby-overlay__track-name';
+		trackName.textContent = '';
+		trackInfo.appendChild( trackName );
+
+		el.appendChild( trackInfo );
+		this._trackInfoEl = trackInfo;
+		this._trackNameEl = trackName;
+
 		// Members section
 		const membersSection = document.createElement( 'div' );
 		membersSection.className = 'kk-lobby-overlay__members';
@@ -336,11 +373,14 @@ export class LobbyOverlay {
 	// ---------------------------------------------------------------------------
 
 	/**
-	 * Show the lobby overlay. Connects network, creates room, displays panel.
+	 * Show the lobby overlay. Connects network, creates room (host) or waits (guest).
 	 *
 	 * @param {import('../../Network.js').NetworkClient} networkClient
+	 * @param {object}  [opts]
+	 * @param {object}  [opts.trackData]  Resolved track data { name, cells, decoCells, source }
+	 * @param {boolean} [opts.isHost]     True for host (default), false for guest
 	 */
-	async show( networkClient ) {
+	async show( networkClient, opts = {} ) {
 
 		this._network = networkClient;
 		this._visible = true;
@@ -348,7 +388,8 @@ export class LobbyOverlay {
 		// Reset state
 		this._members = [];
 		this._roomCode = null;
-		this._isHost = true;
+		this._isHost = opts.isHost !== false;
+		this._trackData = opts.trackData || null;
 
 		// Mount into container if not already there
 		if ( this._el && ! this._el.parentNode ) {
@@ -384,36 +425,53 @@ export class LobbyOverlay {
 
 		} );
 
+		// Update track info display
+		this._updateTrackInfo();
+
 		// Wire network callbacks
 		this._wireNetworkEvents();
 
-		// Create room
-		try {
+		if ( this._isHost ) {
 
-			if ( ! this._network.connected ) {
+			// Host path: create room
+			try {
 
-				await this._network.connect();
+				if ( ! this._network.connected ) {
+
+					await this._network.connect();
+
+				}
+
+				const roomCode = await this._network.createRoom();
+				this._roomCode = roomCode;
+
+				if ( this._roomCodeEl ) {
+
+					this._roomCodeEl.textContent = roomCode;
+
+				}
+
+			} catch ( err ) {
+
+				console.warn( '[LobbyOverlay] Failed to create room:', err.message );
+				this._services.notification.show( {
+					message:  'Failed to create room: ' + ( err.message || 'Unknown error' ),
+					variant:  'error',
+					duration: 3000,
+				} );
+				this.hide();
 
 			}
 
-			const roomCode = await this._network.createRoom();
-			this._roomCode = roomCode;
+		} else {
 
+			// Guest path: joinRoom was already called by RacePanel before show()
+			// Show waiting state — room code will be updated if server provides it
 			if ( this._roomCodeEl ) {
 
-				this._roomCodeEl.textContent = roomCode;
+				this._roomCodeEl.textContent = 'JOINED';
 
 			}
-
-		} catch ( err ) {
-
-			console.warn( '[LobbyOverlay] Failed to create room:', err.message );
-			this._services.notification.show( {
-				message:  'Failed to create room: ' + ( err.message || 'Unknown error' ),
-				variant:  'error',
-				duration: 3000,
-			} );
-			this.hide();
 
 		}
 
@@ -482,6 +540,9 @@ export class LobbyOverlay {
 		this._startBtn = null;
 		this._cancelBtn = null;
 		this._copyBtn = null;
+		this._trackInfoEl = null;
+		this._trackNameEl = null;
+		this._trackData = null;
 
 	}
 
@@ -567,11 +628,21 @@ export class LobbyOverlay {
 
 		const settings = new Settings();
 		const vehicleId = settings.getSelectedKartId();
-		const track = getRandomTrack();
+		const fallbackTrack = getRandomTrack();
+
+		// Prefer server-provided track data, then host's local track data, then random fallback
+		const trackCells = msg.trackData
+			?? ( this._trackData ? this._trackData.cells : null )
+			?? fallbackTrack.cells;
+
+		const decoCells = msg.decoCells
+			?? ( this._trackData ? this._trackData.decoCells : null )
+			?? fallbackTrack.decoCells;
 
 		this._services.startRace( {
 			mode:      'private',
-			trackData: msg.trackData ?? track.cells,
+			trackData: trackCells,
+			decoCells: decoCells,
 			vehicleId,
 			roomCode:  this._roomCode,
 			network:   this._network,
@@ -607,8 +678,9 @@ export class LobbyOverlay {
 
 		}
 
-		// Host starts the race on the server
-		this._network.startRace( null );
+		// Host starts the race on the server — send track cell data
+		const trackCells = this._trackData ? this._trackData.cells : null;
+		this._network.startRace( trackCells );
 
 	}
 
@@ -633,6 +705,23 @@ export class LobbyOverlay {
 			} );
 
 		} );
+
+	}
+
+	_updateTrackInfo() {
+
+		if ( ! this._trackInfoEl || ! this._trackNameEl ) return;
+
+		if ( this._trackData && this._trackData.name ) {
+
+			this._trackNameEl.textContent = this._trackData.name;
+			this._trackInfoEl.style.display = '';
+
+		} else {
+
+			this._trackInfoEl.style.display = 'none';
+
+		}
 
 	}
 

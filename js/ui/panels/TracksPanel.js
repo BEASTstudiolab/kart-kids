@@ -1,8 +1,10 @@
 /**
- * TracksPanel — TRACKS tab content panel.
+ * TracksPanel — TRACKS tab content panel (track management workshop).
  *
- * Composes TrackBrowser for the browse/select/minimap UI and adds
+ * Composes TrackBrowser for the browse/minimap UI and adds
  * workshop-specific features: CREATE TRACK card, delete/share/edit actions.
+ * Clicking a card shows its details and management actions but does NOT
+ * select the track for racing — race track selection lives on the PLAY screen.
  *
  * Lifecycle: constructor(container, services), show(), hide(), dispose().
  */
@@ -131,7 +133,7 @@ export class TracksPanel {
 		const root = document.createElement( 'div' );
 		root.className = 'kk-tracks';
 		root.setAttribute( 'role', 'region' );
-		root.setAttribute( 'aria-label', 'Tracks — track selection' );
+		root.setAttribute( 'aria-label', 'Tracks — track management' );
 
 		// Create the TrackBrowser with manage actions enabled.
 		this._browser = new TrackBrowser( root, {
@@ -165,19 +167,19 @@ export class TracksPanel {
 	// ---------------------------------------------------------------------------
 
 	/**
-	 * Handle track selection — persist to Settings and show toast.
+	 * Handle track card click — update the detail panel only.
 	 *
-	 * @param {string} trackId
+	 * This is a workshop view: clicking a card shows its details and
+	 * management actions, but does NOT select the track for racing.
+	 * Race track selection is handled by the PLAY screen's TrackBrowser.
+	 *
+	 * @param {string} _trackId
 	 */
-	_onTrackSelected( trackId ) {
+	_onTrackSelected( _trackId ) {
 
-		this._settings.setSelectedTrackId( trackId );
-
-		this._services.notification?.show( {
-			message: 'Track selected',
-			variant: 'success',
-			duration: 1500,
-		} );
+		// No-op — TrackBrowser internally re-renders the detail panel
+		// and highlight state.  We intentionally do NOT persist to
+		// Settings or show a toast here.
 
 	}
 
@@ -310,7 +312,7 @@ export class TracksPanel {
 	 */
 	show() {
 
-		// Re-read settings in case track was selected elsewhere.
+		// Re-read settings for delete fallback checks.
 		this._settings = new Settings();
 
 		this._browser.show();
