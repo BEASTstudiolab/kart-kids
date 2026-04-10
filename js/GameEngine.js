@@ -722,6 +722,23 @@ export function createGameEngine( canvasContainer ) {
 		_aiManager = new AIManager( scene, world, models, _trackIntel.valid ? _trackIntel : null, spawnPosition, spawnAngle, spawn.finishAngle );
 		_aiManager.totalLaps = 3;
 
+		// ── AI fill based on race mode ───────────────────────────────────
+		// RACE (online): fill to 8 racers with AI. FREE PLAY / PARTY: no AI.
+		const mode = config.mode || null;
+
+		if ( mode === 'online' ) {
+
+			const playerCount = config.playerCount || 1;
+			_aiManager.setCount( Math.max( 0, 8 - playerCount ) );
+
+		} else if ( mode === 'solo' || mode === 'private' ) {
+
+			_aiManager.setCount( 0 );
+
+		}
+
+		// If no mode (legacy/debug), fall through to Settings aiCount listener.
+
 		_minimap = new Minimap( activeCells, bounds );
 
 		// ── Item boxes ───────────────────────────────────────────────────────

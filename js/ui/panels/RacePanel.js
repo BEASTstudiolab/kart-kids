@@ -435,11 +435,12 @@ export class RacePanel {
 			this._matchmakingOverlay = null;
 
 			this._services.startRace( {
-				mode:      'online',
-				trackData: result.trackData ?? getRandomTrack().cells,
+				mode:        'online',
+				trackData:   result.trackData ?? getRandomTrack().cells,
 				vehicleId,
-				roomCode:  result.roomCode,
-				network:   this._network,
+				playerCount: result.playerCount || 1,
+				roomCode:    result.roomCode,
+				network:     this._network,
 			} );
 
 		} catch ( err ) {
