@@ -21,10 +21,10 @@
  */
 
 import { HudButton }      from '../components/HudButton.js';
+import { TrackBrowser }   from '../components/TrackBrowser.js';
 import { LoadingOverlay }  from '../components/LoadingOverlay.js';
 import { LobbyOverlay }   from '../overlays/LobbyOverlay.js';
 import { Settings }        from '../../Settings.js';
-import { renderMinimap }   from '../components/TrackMinimap.js';
 import { getRandomTrack, getTrackById, getTracks } from '../../TrackRegistry.js';
 import { decodeCells }     from '../../TrackCodec.js';
 import { getSavedTracks }  from '../../editor/Persistence.js';
@@ -58,8 +58,11 @@ export class RacePanel {
 		/** @type {HudButton | null} */
 		this._raceBtn = null;
 
+		/** @type {TrackBrowser | null} */
+		this._trackBrowser = null;
+
 		/** @type {HTMLElement | null} */
-		this._trackNameEl = null;
+		this._trackBrowserContainer = null;
 
 		/** @type {Map<string, HTMLButtonElement>} */
 		this._chips = new Map();
@@ -81,12 +84,24 @@ export class RacePanel {
 		const style = document.createElement( 'style' );
 		style.textContent = `
 
-			/* ── Right-bottom floating column ──────────────────────────── */
+			/* ── PLAY screen root ──────────────────────────────────────── */
 
 			.kk-race-panel {
 				position: absolute;
-				bottom: 0;
-				right: 0;
+				inset: 0;
+				display: flex;
+				align-items: flex-end;
+				justify-content: flex-end;
+				pointer-events: none;
+			}
+
+			.kk-race-panel > * {
+				pointer-events: auto;
+			}
+
+			/* ── Controls column (always visible, right-bottom) ────────── */
+
+			.kk-race-panel__controls {
 				display: flex;
 				flex-direction: column;
 				justify-content: flex-end;
@@ -94,76 +109,35 @@ export class RacePanel {
 				padding: var(--space-6);
 				padding-bottom: var(--space-8);
 				box-sizing: border-box;
-				pointer-events: none;
 				width: 240px;
 			}
 
-			.kk-race-panel > * {
-				pointer-events: auto;
-			}
+			/* ── Track browser container (hidden in RACE mode) ─────────── */
 
-			/* ── Track info card ────────────────────────────────────────── */
-
-			.kk-race-panel__track-info {
-				display: flex;
-				flex-direction: column;
-				gap: var(--space-2);
-				background: rgba( 0, 0, 0, 0.5 );
-				backdrop-filter: blur( 8px );
-				-webkit-backdrop-filter: blur( 8px );
-				border: 1px solid rgba( 255, 255, 255, 0.1 );
-				border-radius: var(--radius-md, 4px);
-				padding: var(--space-3);
-				width: 100%;
+			.kk-race-panel__browser {
+				display: none;
+				flex: 1;
+				overflow-y: auto;
+				overflow-x: hidden;
+				padding: var(--space-4);
 				box-sizing: border-box;
+				max-height: 100%;
 			}
 
-			.kk-race-panel__track-label {
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-xs, 0.75rem);
-				font-weight: var(--weight-semibold, 600);
-				text-transform: uppercase;
-				letter-spacing: var(--tracking-widest, 0.14em);
-				color: var(--color-ink-400, #777);
-			}
-
-			.kk-race-panel__track-name {
-				font-family: var(--font-display, sans-serif);
-				font-size: var(--text-base, 0.875rem);
-				font-weight: var(--weight-black, 900);
-				text-transform: uppercase;
-				letter-spacing: var(--tracking-wider, 0.1em);
-				color: var(--color-white, #fff);
-			}
-
-			.kk-race-panel__track-minimap {
-				border-radius: var(--radius-sm, 2px);
-				overflow: hidden;
-			}
-
-			.kk-race-panel__track-minimap canvas {
+			.kk-race-panel--browse .kk-race-panel__browser {
 				display: block;
-				width: 100%;
-				height: auto;
 			}
 
-			.kk-race-panel__track-change {
-				background: none;
-				border: none;
-				color: var(--color-accent-cyan, #00d4e8);
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-xs, 0.75rem);
-				font-weight: var(--weight-bold, 700);
-				text-transform: uppercase;
-				letter-spacing: var(--tracking-wider, 0.1em);
-				cursor: pointer;
-				padding: 0;
-				align-self: flex-start;
-				transition: color var(--duration-fast, 100ms) var(--ease-standard, ease);
-			}
+			@media ( max-width: 768px ) {
 
-			.kk-race-panel__track-change:hover {
-				color: var(--color-white, #fff);
+				.kk-race-panel--browse {
+					flex-direction: column;
+				}
+
+				.kk-race-panel--browse .kk-race-panel__controls {
+					width: 100%;
+				}
+
 			}
 
 			/* ── Mode chip strip ───────────────────────────────────────── */
@@ -255,35 +229,25 @@ export class RacePanel {
 		const root = document.createElement( 'div' );
 		root.className = 'kk-race-panel';
 
-		// Track info card (left)
-		const trackInfo = document.createElement( 'div' );
-		trackInfo.className = 'kk-race-panel__track-info';
+		// Track browser container (hidden in RACE mode, visible in FREE PLAY / PARTY)
+		this._trackBrowserContainer = document.createElement( 'div' );
+		this._trackBrowserContainer.className = 'kk-race-panel__browser';
 
-		const trackLabel = document.createElement( 'div' );
-		trackLabel.className = 'kk-race-panel__track-label';
-		trackLabel.textContent = 'TRACK';
-		trackInfo.appendChild( trackLabel );
+		this._trackBrowser = new TrackBrowser( this._trackBrowserContainer, {
+			onTrackSelected: ( trackId ) => {
 
-		this._trackNameEl = document.createElement( 'div' );
-		this._trackNameEl.className = 'kk-race-panel__track-name';
-		trackInfo.appendChild( this._trackNameEl );
+				const settings = new Settings();
+				settings.setSelectedTrackId( trackId );
 
-		this._trackMinimapEl = document.createElement( 'div' );
-		this._trackMinimapEl.className = 'kk-race-panel__track-minimap';
-		trackInfo.appendChild( this._trackMinimapEl );
-
-		const changeBtn = document.createElement( 'button' );
-		changeBtn.type = 'button';
-		changeBtn.className = 'kk-race-panel__track-change';
-		changeBtn.textContent = 'CHANGE';
-		changeBtn.addEventListener( 'click', () => {
-
-			this._services.switchTab( 'tracks' );
-
+			},
+			showManageActions: false,
 		} );
-		trackInfo.appendChild( changeBtn );
 
-		root.appendChild( trackInfo );
+		root.appendChild( this._trackBrowserContainer );
+
+		// Controls column (always visible — chip strip + PLAY button)
+		const controls = document.createElement( 'div' );
+		controls.className = 'kk-race-panel__controls';
 
 		// Mode chip strip
 		const chipStrip = document.createElement( 'div' );
@@ -305,7 +269,7 @@ export class RacePanel {
 
 		}
 
-		root.appendChild( chipStrip );
+		controls.appendChild( chipStrip );
 		this._chipStrip = chipStrip;
 
 		// PLAY button
@@ -319,10 +283,12 @@ export class RacePanel {
 		} );
 
 		ctaWrap.appendChild( this._raceBtn.el );
-		root.appendChild( ctaWrap );
+		controls.appendChild( ctaWrap );
+
+		root.appendChild( controls );
 
 		this._updateChipStrip();
-		this._updateTrackInfo();
+		this._updateLayoutForMode();
 
 		this._container.appendChild( root );
 		this._root = root;
@@ -344,6 +310,29 @@ export class RacePanel {
 
 		this._services.selectedMode = modeId;
 		this._updateChipStrip();
+		this._updateLayoutForMode();
+
+	}
+
+	/**
+	 * Toggle the track browser visibility based on selected mode.
+	 * RACE (online): minimal — no track browser.
+	 * FREE PLAY (solo) / PARTY (private): show the track browser.
+	 */
+	_updateLayoutForMode() {
+
+		if ( ! this._root ) return;
+
+		const mode = this._services.selectedMode || 'solo';
+		const showBrowser = mode !== 'online';
+
+		this._root.classList.toggle( 'kk-race-panel--browse', showBrowser );
+
+		if ( showBrowser && this._trackBrowser ) {
+
+			this._trackBrowser.refresh();
+
+		}
 
 	}
 
@@ -366,30 +355,6 @@ export class RacePanel {
 
 	}
 
-	/**
-	 * Update the track info card with the currently selected track name and minimap.
-	 */
-	_updateTrackInfo() {
-
-		if ( ! this._trackNameEl ) return;
-
-		const track = this._resolveSelectedTrack();
-		this._trackNameEl.textContent = track.name;
-
-		// Render minimap
-		if ( this._trackMinimapEl ) {
-
-			this._trackMinimapEl.innerHTML = '';
-
-			if ( track.cells && track.cells.length > 0 ) {
-
-				this._trackMinimapEl.appendChild( renderMinimap( track.cells, 160, 100 ) );
-
-			}
-
-		}
-
-	}
 
 	// ---------------------------------------------------------------------------
 	// RACE button handler
@@ -550,9 +515,9 @@ export class RacePanel {
 
 			}
 
-			// Show error toast with retry hint
+			// Show error toast with fallback hint (R19)
 			this._services.notification.show( {
-				message:  'Could not find a match \u2014 try again or play solo',
+				message:  'No match found \u2014 try again or play Free Play',
 				variant:  'warning',
 				duration: 4000,
 			} );
@@ -616,11 +581,11 @@ export class RacePanel {
 	 */
 	show() {
 
-		// Refresh track info (track may have changed in TRACKS tab)
-		this._updateTrackInfo();
-
 		// Sync chip strip with services bag
 		this._updateChipStrip();
+
+		// Toggle layout and refresh track browser
+		this._updateLayoutForMode();
 
 	}
 
@@ -672,9 +637,15 @@ export class RacePanel {
 
 		}
 
+		if ( this._trackBrowser ) {
+
+			this._trackBrowser.dispose();
+			this._trackBrowser = null;
+
+		}
+
 		this._root = null;
-		this._trackNameEl = null;
-		this._trackMinimapEl = null;
+		this._trackBrowserContainer = null;
 		this._chips.clear();
 		this._chipStrip = null;
 
