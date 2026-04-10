@@ -5,18 +5,21 @@
  * the tab bar remains clickable underneath (R17c). Does NOT use ModalService
  * because focus trap and scroll lock would block tab bar interaction.
  *
+ * Includes an inline "join existing room" option so guests can enter
+ * a room code without leaving the overlay.
+ *
  * Lifecycle:
  *   constructor(container, services)
  *   show(networkClient)   -- connect, create room, display overlay
  *   hide()                -- dismiss overlay, leave room
  *   dispose()             -- full cleanup
- *
- * Extracts room management logic from Page05LobbyController/View.
  */
 
-import { sanitizePlayerName } from '../utils/sanitize.js';
-import { Settings }           from '../../Settings.js';
-import { getRandomTrack }     from '../../TrackRegistry.js';
+import { sanitizePlayerName }  from '../utils/sanitize.js';
+import { Settings }            from '../../Settings.js';
+import { getRandomTrack }      from '../../TrackRegistry.js';
+import { NetworkClient }       from '../../Network.js';
+import { TrackSelectOverlay }  from './TrackSelectOverlay.js';
 
 export class LobbyOverlay {
 
@@ -86,23 +89,28 @@ export class LobbyOverlay {
 
 			.kk-lobby-overlay {
 				position: fixed;
-				bottom: 0;
-				left: 0;
-				right: 0;
+				top: var(--space-6, 24px);
+				right: var(--space-6, 24px);
 				z-index: 40;
 				background: var(--color-bg-surface, #1a1a2e);
-				border-top-left-radius: var(--radius-lg, 16px);
-				border-top-right-radius: var(--radius-lg, 16px);
+				border-radius: var(--radius-lg, 16px);
 				padding: var(--space-6, 24px);
-				transform: translateY(100%);
-				transition: transform var(--duration-normal, 300ms) var(--ease-standard, ease);
-				max-height: 60vh;
+				width: 320px;
+				max-height: calc(100vh - 48px);
 				overflow-y: auto;
-				box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.5);
+				box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+				opacity: 0;
+				transform: translateX(20px);
+				transition:
+					opacity var(--duration-normal, 300ms) var(--ease-standard, ease),
+					transform var(--duration-normal, 300ms) var(--ease-standard, ease);
+				pointer-events: none;
 			}
 
 			.kk-lobby-overlay--visible {
-				transform: translateY(0);
+				opacity: 1;
+				transform: translateX(0);
+				pointer-events: auto;
 			}
 
 			.kk-lobby-overlay__header {
@@ -177,6 +185,19 @@ export class LobbyOverlay {
 				padding: var(--space-3, 12px);
 				background: rgba(255, 255, 255, 0.06);
 				border-radius: var(--radius-md, 8px);
+				transition: background var(--duration-fast, 150ms) var(--ease-standard, ease);
+			}
+
+			.kk-lobby-overlay__track-info--host {
+				cursor: pointer;
+			}
+
+			.kk-lobby-overlay__track-info--host:hover {
+				background: rgba(255, 255, 255, 0.10);
+			}
+
+			.kk-lobby-overlay__track-info--host:active {
+				opacity: 0.7;
 			}
 
 			.kk-lobby-overlay__track-name {
@@ -185,6 +206,15 @@ export class LobbyOverlay {
 				font-weight: var(--weight-semibold, 600);
 				color: var(--color-white, #fff);
 				flex: 1;
+			}
+
+			.kk-lobby-overlay__track-change {
+				font-family: var(--font-ui, sans-serif);
+				font-size: var(--text-xs, 0.75rem);
+				font-weight: var(--weight-semibold, 600);
+				text-transform: uppercase;
+				letter-spacing: var(--tracking-wider, 0.1em);
+				color: var(--color-ink-300, #aaa);
 			}
 
 			.kk-lobby-overlay__members {
@@ -253,6 +283,106 @@ export class LobbyOverlay {
 				background: rgba(255, 255, 255, 0.08);
 			}
 
+			/* ── Join existing room link ───────────────────────────── */
+
+			.kk-lobby-overlay__join-link {
+				display: block;
+				width: 100%;
+				margin-top: var(--space-3, 12px);
+				font-family: var(--font-ui, sans-serif);
+				font-size: var(--text-sm, 0.875rem);
+				font-weight: var(--weight-semibold, 600);
+				color: var(--color-ink-300, #aaa);
+				background: none;
+				border: none;
+				cursor: pointer;
+				text-align: center;
+				text-transform: uppercase;
+				letter-spacing: var(--tracking-wider, 0.1em);
+				padding: var(--space-2, 8px);
+				transition: color var(--duration-fast, 150ms) var(--ease-standard, ease);
+			}
+
+			.kk-lobby-overlay__join-link:hover {
+				color: var(--color-white, #fff);
+			}
+
+			/* ── Join input row (hidden by default) ────────────────── */
+
+			.kk-lobby-overlay__join-row {
+				display: flex;
+				gap: var(--space-2, 8px);
+				margin-top: var(--space-3, 12px);
+			}
+
+			.kk-lobby-overlay__join-input {
+				flex: 1;
+				font-family: var(--font-mono, monospace);
+				font-size: var(--text-lg, 1.25rem);
+				letter-spacing: 0.15em;
+				text-align: center;
+				padding: var(--space-3, 12px);
+				background: rgba(255, 255, 255, 0.06);
+				border: 1px solid rgba(255, 255, 255, 0.15);
+				border-radius: var(--radius-md, 8px);
+				color: var(--color-white, #fff);
+				outline: none;
+				box-sizing: border-box;
+			}
+
+			.kk-lobby-overlay__join-input:focus {
+				border-color: rgba(255, 160, 40, 0.6);
+			}
+
+			.kk-lobby-overlay__join-go {
+				font-family: var(--font-ui, sans-serif);
+				font-size: var(--text-sm, 0.875rem);
+				font-weight: var(--weight-bold, 700);
+				text-transform: uppercase;
+				letter-spacing: var(--tracking-wider, 0.1em);
+				color: var(--color-cta-primary-text, #fff);
+				background: var(--color-cta-primary, #4a6cf7);
+				border: none;
+				border-radius: var(--radius-md, 8px);
+				padding: var(--space-3, 12px) var(--space-4, 16px);
+				cursor: pointer;
+				min-height: var(--hit-target-min, 44px);
+			}
+
+			.kk-lobby-overlay__join-go:active {
+				opacity: 0.7;
+			}
+
+			/* ── 3D scene mode — transparent background ────────────── */
+
+			.kk-lobby-overlay--3d {
+				background: rgba(26, 26, 46, 0.65);
+				backdrop-filter: blur(8px);
+				-webkit-backdrop-filter: blur(8px);
+			}
+
+			.kk-lobby-overlay--3d .kk-lobby-overlay__title,
+			.kk-lobby-overlay--3d .kk-lobby-overlay__code-value,
+			.kk-lobby-overlay--3d .kk-lobby-overlay__member {
+				text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+			}
+
+			/* ── Fade overlay for race transition ──────────────────── */
+
+			.kk-lobby-fade {
+				position: fixed;
+				inset: 0;
+				z-index: 50;
+				background: #000;
+				opacity: 0;
+				transition: opacity 300ms ease;
+				pointer-events: none;
+			}
+
+			.kk-lobby-fade--active {
+				opacity: 1;
+			}
+
 		`;
 		document.head.appendChild( style );
 
@@ -306,7 +436,7 @@ export class LobbyOverlay {
 
 		el.appendChild( roomCodeRow );
 
-		// Track info section (shows track name to all lobby members)
+		// Track info card (compact, tappable for hosts)
 		const trackInfo = document.createElement( 'div' );
 		trackInfo.className = 'kk-lobby-overlay__track-info';
 		trackInfo.style.display = 'none';
@@ -320,6 +450,14 @@ export class LobbyOverlay {
 		trackName.className = 'kk-lobby-overlay__track-name';
 		trackName.textContent = '';
 		trackInfo.appendChild( trackName );
+
+		const trackChange = document.createElement( 'span' );
+		trackChange.className = 'kk-lobby-overlay__track-change';
+		trackChange.textContent = 'CHANGE';
+		trackInfo.appendChild( trackChange );
+		this._trackChangeEl = trackChange;
+
+		trackInfo.addEventListener( 'click', () => this._handleTrackChange() );
 
 		el.appendChild( trackInfo );
 		this._trackInfoEl = trackInfo;
@@ -364,6 +502,54 @@ export class LobbyOverlay {
 
 		el.appendChild( actions );
 
+		// "Join existing room" link — toggles an inline code input
+		const joinLink = document.createElement( 'button' );
+		joinLink.type = 'button';
+		joinLink.className = 'kk-lobby-overlay__join-link';
+		joinLink.textContent = 'or join an existing room';
+		el.appendChild( joinLink );
+		this._joinLink = joinLink;
+
+		// Join input row (hidden until link is clicked)
+		const joinRow = document.createElement( 'div' );
+		joinRow.className = 'kk-lobby-overlay__join-row';
+		joinRow.style.display = 'none';
+
+		const joinInput = document.createElement( 'input' );
+		joinInput.type = 'text';
+		joinInput.className = 'kk-lobby-overlay__join-input';
+		joinInput.placeholder = 'Room code';
+		joinInput.autocomplete = 'off';
+		joinRow.appendChild( joinInput );
+		this._joinInput = joinInput;
+
+		const joinGoBtn = document.createElement( 'button' );
+		joinGoBtn.type = 'button';
+		joinGoBtn.className = 'kk-lobby-overlay__join-go';
+		joinGoBtn.textContent = 'JOIN';
+		joinRow.appendChild( joinGoBtn );
+
+		el.appendChild( joinRow );
+		this._joinRow = joinRow;
+
+		// Toggle join input visibility
+		joinLink.addEventListener( 'click', () => {
+
+			joinRow.style.display = '';
+			joinLink.style.display = 'none';
+			joinInput.focus();
+
+		} );
+
+		// Join action
+		const doJoin = () => this._handleJoinExisting( joinInput.value.trim() );
+		joinGoBtn.addEventListener( 'click', doJoin );
+		joinInput.addEventListener( 'keydown', ( e ) => {
+
+			if ( e.key === 'Enter' ) doJoin();
+
+		} );
+
 		this._el = el;
 
 	}
@@ -379,11 +565,13 @@ export class LobbyOverlay {
 	 * @param {object}  [opts]
 	 * @param {object}  [opts.trackData]  Resolved track data { name, cells, decoCells, source }
 	 * @param {boolean} [opts.isHost]     True for host (default), false for guest
+	 * @param {import('../PartyLobbyScene.js').PartyLobbyScene} [opts.partyLobbyScene]  3D lobby scene for kart display
 	 */
 	async show( networkClient, opts = {} ) {
 
 		this._network = networkClient;
 		this._visible = true;
+		this._partyLobbyScene = opts.partyLobbyScene || null;
 
 		// Reset state
 		this._members = [];
@@ -398,12 +586,11 @@ export class LobbyOverlay {
 
 		}
 
-		// Show host START button
-		if ( this._startBtn ) {
-
-			this._startBtn.style.display = this._isHost ? '' : 'none';
-
-		}
+		// Show host-only controls
+		if ( this._startBtn ) this._startBtn.style.display = this._isHost ? '' : 'none';
+		if ( this._joinLink ) this._joinLink.style.display = this._isHost ? '' : 'none';
+		if ( this._joinRow ) this._joinRow.style.display = 'none';
+		if ( this._joinInput ) this._joinInput.value = '';
 
 		// Add local player to member list
 		const settings = new Settings();
@@ -413,6 +600,13 @@ export class LobbyOverlay {
 			name: displayName,
 		} );
 		this._renderMembers();
+
+		// Apply 3D mode class if party lobby scene is active
+		if ( this._el ) {
+
+			this._el.classList.toggle( 'kk-lobby-overlay--3d', !! this._partyLobbyScene );
+
+		}
 
 		// Slide up
 		requestAnimationFrame( () => {
@@ -494,6 +688,10 @@ export class LobbyOverlay {
 
 		this._unwireNetworkEvents();
 
+		// Dispose 3D party lobby scene
+		this._services.hidePartyLobby?.();
+		this._partyLobbyScene = null;
+
 		// Slide down
 		if ( this._el ) {
 
@@ -542,7 +740,19 @@ export class LobbyOverlay {
 		this._copyBtn = null;
 		this._trackInfoEl = null;
 		this._trackNameEl = null;
+		this._trackChangeEl = null;
 		this._trackData = null;
+
+		if ( this._trackSelectOverlay ) {
+
+			this._trackSelectOverlay.dispose();
+			this._trackSelectOverlay = null;
+
+		}
+
+		this._joinLink = null;
+		this._joinRow = null;
+		this._joinInput = null;
 
 	}
 
@@ -595,12 +805,18 @@ export class LobbyOverlay {
 
 		this._renderMembers();
 
+		// Add remote kart to the 3D party lobby scene
+		this._partyLobbyScene?.addRemoteKart( msg.playerId );
+
 	}
 
 	_handlePlayerLeave( msg ) {
 
 		this._members = this._members.filter( ( m ) => m.id !== msg.playerId );
 		this._renderMembers();
+
+		// Remove kart from the 3D party lobby scene
+		this._partyLobbyScene?.removeKart( msg.playerId );
 
 	}
 
@@ -610,27 +826,11 @@ export class LobbyOverlay {
 		this._visible = false;
 		this._unwireNetworkEvents();
 
-		if ( this._el ) {
-
-			this._el.classList.remove( 'kk-lobby-overlay--visible' );
-
-		}
-
-		setTimeout( () => {
-
-			if ( this._el && this._el.parentNode ) {
-
-				this._el.parentNode.removeChild( this._el );
-
-			}
-
-		}, 350 );
-
+		// Build race config before fade (capture references while still valid)
 		const settings = new Settings();
 		const vehicleId = settings.getSelectedKartId();
 		const fallbackTrack = getRandomTrack();
 
-		// Prefer server-provided track data, then host's local track data, then random fallback
 		const trackCells = msg.trackData
 			?? ( this._trackData ? this._trackData.cells : null )
 			?? fallbackTrack.cells;
@@ -639,14 +839,60 @@ export class LobbyOverlay {
 			?? ( this._trackData ? this._trackData.decoCells : null )
 			?? fallbackTrack.decoCells;
 
-		this._services.startRace( {
+		const raceConfig = {
 			mode:      'private',
 			trackData: trackCells,
 			decoCells: decoCells,
 			vehicleId,
 			roomCode:  this._roomCode,
 			network:   this._network,
+		};
+
+		// Fade to black, then start race
+		const fade = document.createElement( 'div' );
+		fade.className = 'kk-lobby-fade';
+		document.body.appendChild( fade );
+
+		// Trigger the fade animation
+		requestAnimationFrame( () => {
+
+			fade.classList.add( 'kk-lobby-fade--active' );
+
 		} );
+
+		// After fade completes, clean up and start race
+		setTimeout( () => {
+
+			// Dispose 3D party lobby scene
+			this._services.hidePartyLobby?.();
+			this._partyLobbyScene = null;
+
+			// Hide and remove overlay
+			if ( this._el ) {
+
+				this._el.classList.remove( 'kk-lobby-overlay--visible' );
+				this._el.classList.remove( 'kk-lobby-overlay--3d' );
+
+			}
+
+			if ( this._el && this._el.parentNode ) {
+
+				this._el.parentNode.removeChild( this._el );
+
+			}
+
+			// Start the race
+			this._services.startRace( raceConfig );
+
+			// Fade out the black overlay after a brief hold
+			setTimeout( () => {
+
+				fade.classList.remove( 'kk-lobby-fade--active' );
+				setTimeout( () => fade.remove(), 350 );
+
+			}, 200 );
+
+		}, 350 );
 
 	}
 
@@ -708,6 +954,101 @@ export class LobbyOverlay {
 
 	}
 
+	/**
+	 * Open TrackSelectOverlay to let the host change the track.
+	 */
+	_handleTrackChange() {
+
+		if ( ! this._isHost ) return;
+
+		if ( ! this._trackSelectOverlay ) {
+
+			this._trackSelectOverlay = new TrackSelectOverlay( this._container, this._services );
+
+		}
+
+		this._trackSelectOverlay.show( ( track ) => {
+
+			this._trackData = track;
+			this._updateTrackInfo();
+
+		} );
+
+	}
+
+	/**
+	 * Join an existing room by code (triggered from inline input).
+	 *
+	 * @param {string} code  Room code entered by the user.
+	 */
+	async _handleJoinExisting( code ) {
+
+		if ( ! code ) {
+
+			if ( this._joinInput ) this._joinInput.focus();
+			return;
+
+		}
+
+		try {
+
+			// Create or reuse network client
+			if ( ! this._network ) {
+
+				this._network = new NetworkClient();
+
+			}
+
+			if ( ! this._network.connected ) {
+
+				await this._network.connect();
+
+			}
+
+			// Leave current room if hosting
+			if ( this._roomCode ) {
+
+				this._network.leaveRoom();
+
+			}
+
+			const settings = new Settings();
+			const vehicleId = settings.getSelectedKartId();
+
+			await this._network.joinRoom( code, vehicleId );
+
+			// Switch to guest mode
+			this._isHost = false;
+			this._roomCode = code;
+			this._trackData = null;
+
+			if ( this._roomCodeEl ) this._roomCodeEl.textContent = code;
+			if ( this._startBtn ) this._startBtn.style.display = 'none';
+			if ( this._joinRow ) this._joinRow.style.display = 'none';
+			if ( this._joinLink ) this._joinLink.style.display = 'none';
+
+			// Track card becomes read-only (no CHANGE, not interactive)
+			if ( this._trackInfoEl ) {
+
+				this._trackInfoEl.classList.remove( 'kk-lobby-overlay__track-info--host' );
+
+			}
+
+			if ( this._trackChangeEl ) this._trackChangeEl.style.display = 'none';
+
+		} catch ( err ) {
+
+			console.warn( '[LobbyOverlay] Join room failed:', err.message );
+			this._services.notification.show( {
+				message:  'Failed to join room: ' + ( err.message || 'Invalid code' ),
+				variant:  'error',
+				duration: 3000,
+			} );
+
+		}
+
+	}
+
 	_updateTrackInfo() {
 
 		if ( ! this._trackInfoEl || ! this._trackNameEl ) return;
@@ -716,6 +1057,10 @@ export class LobbyOverlay {
 
 			this._trackNameEl.textContent = this._trackData.name;
 			this._trackInfoEl.style.display = '';
+
+			// Host gets interactive card with CHANGE indicator
+			this._trackInfoEl.classList.toggle( 'kk-lobby-overlay__track-info--host', this._isHost );
+			if ( this._trackChangeEl ) this._trackChangeEl.style.display = this._isHost ? '' : 'none';
 
 		} else {
 
