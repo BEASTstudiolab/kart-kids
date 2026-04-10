@@ -20,15 +20,13 @@
  *   dispose() — cleanup
  */
 
-import { HudButton }      from '../components/HudButton.js';
-import { TrackBrowser }   from '../components/TrackBrowser.js';
-import { LoadingOverlay }  from '../components/LoadingOverlay.js';
-import { LobbyOverlay }   from '../overlays/LobbyOverlay.js';
-import { Settings }        from '../../Settings.js';
-import { getRandomTrack, getTrackById, getTracks } from '../../TrackRegistry.js';
-import { decodeCells }     from '../../TrackCodec.js';
-import { getSavedTracks }  from '../../editor/Persistence.js';
-import { NetworkClient }   from '../../Network.js';
+import { HudButton }            from '../components/HudButton.js';
+import { LoadingOverlay }       from '../components/LoadingOverlay.js';
+import { LobbyOverlay }        from '../overlays/LobbyOverlay.js';
+import { TrackSelectOverlay }   from '../overlays/TrackSelectOverlay.js';
+import { Settings }             from '../../Settings.js';
+import { getRandomTrack }       from '../../TrackRegistry.js';
+import { NetworkClient }        from '../../Network.js';
 
 export class RacePanel {
 
@@ -58,11 +56,8 @@ export class RacePanel {
 		/** @type {HudButton | null} */
 		this._raceBtn = null;
 
-		/** @type {TrackBrowser | null} */
-		this._trackBrowser = null;
-
-		/** @type {HTMLElement | null} */
-		this._trackBrowserContainer = null;
+		/** @type {TrackSelectOverlay | null} */
+		this._trackSelectOverlay = null;
 
 		/** @type {Map<string, HTMLButtonElement>} */
 		this._chips = new Map();
@@ -84,24 +79,12 @@ export class RacePanel {
 		const style = document.createElement( 'style' );
 		style.textContent = `
 
-			/* ── PLAY screen root ──────────────────────────────────────── */
+			/* ── PLAY screen — minimal controls, bottom-right ─────────── */
 
 			.kk-race-panel {
 				position: absolute;
-				inset: 0;
-				display: flex;
-				align-items: flex-end;
-				justify-content: flex-end;
-				pointer-events: none;
-			}
-
-			.kk-race-panel > * {
-				pointer-events: auto;
-			}
-
-			/* ── Controls column (always visible, right-bottom) ────────── */
-
-			.kk-race-panel__controls {
+				bottom: 0;
+				right: 0;
 				display: flex;
 				flex-direction: column;
 				justify-content: flex-end;
@@ -109,35 +92,12 @@ export class RacePanel {
 				padding: var(--space-6);
 				padding-bottom: var(--space-8);
 				box-sizing: border-box;
+				pointer-events: none;
 				width: 240px;
 			}
 
-			/* ── Track browser container (hidden in RACE mode) ─────────── */
-
-			.kk-race-panel__browser {
-				display: none;
-				flex: 1;
-				overflow-y: auto;
-				overflow-x: hidden;
-				padding: var(--space-4);
-				box-sizing: border-box;
-				max-height: 100%;
-			}
-
-			.kk-race-panel--browse .kk-race-panel__browser {
-				display: block;
-			}
-
-			@media ( max-width: 768px ) {
-
-				.kk-race-panel--browse {
-					flex-direction: column;
-				}
-
-				.kk-race-panel--browse .kk-race-panel__controls {
-					width: 100%;
-				}
-
+			.kk-race-panel > * {
+				pointer-events: auto;
 			}
 
 			/* ── Mode chip strip ───────────────────────────────────────── */
@@ -270,26 +230,6 @@ export class RacePanel {
 		const root = document.createElement( 'div' );
 		root.className = 'kk-race-panel';
 
-		// Track browser container (hidden in RACE mode, visible in FREE PLAY / PARTY)
-		this._trackBrowserContainer = document.createElement( 'div' );
-		this._trackBrowserContainer.className = 'kk-race-panel__browser';
-
-		this._trackBrowser = new TrackBrowser( this._trackBrowserContainer, {
-			onTrackSelected: ( trackId ) => {
-
-				const settings = new Settings();
-				settings.setSelectedTrackId( trackId );
-
-			},
-			showManageActions: false,
-		} );
-
-		root.appendChild( this._trackBrowserContainer );
-
-		// Controls column (always visible — chip strip + PLAY button)
-		const controls = document.createElement( 'div' );
-		controls.className = 'kk-race-panel__controls';
-
 		// Mode chip strip
 		const chipStrip = document.createElement( 'div' );
 		chipStrip.className = 'kk-race-panel__chips';
@@ -310,7 +250,7 @@ export class RacePanel {
 
 		}
 
-		controls.appendChild( chipStrip );
+		root.appendChild( chipStrip );
 		this._chipStrip = chipStrip;
 
 		// PLAY button
@@ -324,7 +264,7 @@ export class RacePanel {
 		} );
 
 		ctaWrap.appendChild( this._raceBtn.el );
-		controls.appendChild( ctaWrap );
+		root.appendChild( ctaWrap );
 
 		// JOIN button (visible only in PARTY mode)
 		const joinBtn = document.createElement( 'button' );
@@ -333,13 +273,11 @@ export class RacePanel {
 		joinBtn.textContent = 'JOIN ROOM';
 		joinBtn.style.display = 'none';
 		joinBtn.addEventListener( 'click', () => this._handleJoinRoom() );
-		controls.appendChild( joinBtn );
+		root.appendChild( joinBtn );
 		this._joinBtn = joinBtn;
 
-		root.appendChild( controls );
-
 		this._updateChipStrip();
-		this._updateLayoutForMode();
+		this._updateJoinVisibility();
 
 		this._container.appendChild( root );
 		this._root = root;
@@ -361,33 +299,18 @@ export class RacePanel {
 
 		this._services.selectedMode = modeId;
 		this._updateChipStrip();
-		this._updateLayoutForMode();
+		this._updateJoinVisibility();
 
 	}
 
 	/**
-	 * Toggle the track browser visibility based on selected mode.
-	 * RACE (online): minimal — no track browser.
-	 * FREE PLAY (solo) / PARTY (private): show the track browser.
+	 * Show JOIN button only in PARTY mode.
 	 */
-	_updateLayoutForMode() {
+	_updateJoinVisibility() {
 
-		if ( ! this._root ) return;
-
-		const mode = this._services.selectedMode || 'solo';
-		const showBrowser = mode !== 'online';
-
-		this._root.classList.toggle( 'kk-race-panel--browse', showBrowser );
-
-		if ( showBrowser && this._trackBrowser ) {
-
-			this._trackBrowser.refresh();
-
-		}
-
-		// Show JOIN button only in PARTY mode
 		if ( this._joinBtn ) {
 
+			const mode = this._services.selectedMode || 'solo';
 			this._joinBtn.style.display = mode === 'private' ? '' : 'none';
 
 		}
@@ -425,7 +348,19 @@ export class RacePanel {
 		switch ( mode ) {
 
 			case 'solo':
-				this._startSoloRace();
+				this._openTrackSelect( ( track ) => {
+
+					const settings = new Settings();
+					const vehicleId = settings.getSelectedKartId();
+
+					this._services.startRace( {
+						mode:      'solo',
+						trackData: track.cells,
+						decoCells: track.decoCells,
+						vehicleId,
+					} );
+
+				} );
 				break;
 
 			case 'online':
@@ -433,90 +368,32 @@ export class RacePanel {
 				break;
 
 			case 'private':
-				await this._startPrivateLobby();
+				this._openTrackSelect( async ( track ) => {
+
+					await this._startPrivateLobby( track );
+
+				} );
 				break;
 
 		}
 
 	}
 
-	// ---------------------------------------------------------------------------
-	// Track card helpers
-	// ---------------------------------------------------------------------------
-
 	/**
-	 * Resolve the selected track from Settings. Returns { name, cells, decoCells, source }.
-	 * Falls back to the first built-in track if the selected track is missing.
+	 * Open the track selection overlay. Calls onConfirm(trackData) when the user picks a track.
+	 *
+	 * @param {Function} onConfirm  Callback with resolved track data.
 	 */
-	_resolveSelectedTrack() {
+	_openTrackSelect( onConfirm ) {
 
-		const settings = new Settings();
-		const trackId = settings.getSelectedTrackId();
+		if ( ! this._trackSelectOverlay ) {
 
-		// User-created track
-		if ( trackId && trackId.startsWith( 'user:' ) ) {
-
-			const trackName = trackId.slice( 5 );
-			const saved = getSavedTracks().find( ( t ) => t.name === trackName );
-
-			if ( saved ) {
-
-				return {
-					name:     saved.name,
-					cells:    decodeCells( saved.cells ),
-					decoCells: undefined,
-					source:   'custom',
-				};
-
-			}
-
-			// Deleted track — fall through to default
+			const shell = this._container.closest( '#kk-app-shell' ) || document.body;
+			this._trackSelectOverlay = new TrackSelectOverlay( shell, this._services );
 
 		}
 
-		// Built-in track
-		const builtIn = getTrackById( trackId );
-
-		if ( builtIn ) {
-
-			return {
-				name:     builtIn.name,
-				cells:    builtIn.cells,
-				decoCells: builtIn.decoCells,
-				source:   'official',
-			};
-
-		}
-
-		// Fallback
-		const fallback = getTracks()[ 0 ];
-
-		return {
-			name:     fallback.name,
-			cells:    fallback.cells,
-			decoCells: fallback.decoCells,
-			source:   'official',
-		};
-
-	}
-
-
-	// ---------------------------------------------------------------------------
-	// SOLO race
-	// ---------------------------------------------------------------------------
-
-	_startSoloRace() {
-
-		const settings = new Settings();
-		const vehicleId = settings.getSelectedKartId();
-		const track = this._resolveSelectedTrack();
-
-		this._services.startRace( {
-			mode:      'solo',
-			trackData: track.cells,
-			decoCells: track.decoCells,
-			vehicleId,
-		} );
+		this._trackSelectOverlay.show( onConfirm );
 
 	}
 
@@ -610,9 +487,12 @@ export class RacePanel {
 	// PRIVATE lobby
 	// ---------------------------------------------------------------------------
 
-	async _startPrivateLobby() {
+	/**
+	 * @param {object} track  Resolved track data from TrackSelectOverlay.
+	 */
+	async _startPrivateLobby( track ) {
 
-		// Create a NetworkClient on demand (same pattern as online matchmaking).
+		// Create a NetworkClient on demand.
 		if ( ! this._network ) {
 
 			this._network = new NetworkClient();
@@ -622,13 +502,10 @@ export class RacePanel {
 		// Create LobbyOverlay if needed.
 		if ( ! this._lobbyOverlay ) {
 
-			// Mount into the shell element (parent of our container).
 			const shell = this._container.closest( '#kk-app-shell' ) || document.body;
 			this._lobbyOverlay = new LobbyOverlay( shell, this._services );
 
 		}
-
-		const track = this._resolveSelectedTrack();
 
 		this._lobbyOverlay.show( this._network, { trackData: track, isHost: true } );
 
@@ -754,11 +631,9 @@ export class RacePanel {
 	 */
 	show() {
 
-		// Sync chip strip with services bag
+		// Sync chip strip and JOIN button with services bag
 		this._updateChipStrip();
-
-		// Toggle layout and refresh track browser
-		this._updateLayoutForMode();
+		this._updateJoinVisibility();
 
 	}
 
@@ -810,15 +685,14 @@ export class RacePanel {
 
 		}
 
-		if ( this._trackBrowser ) {
+		if ( this._trackSelectOverlay ) {
 
-			this._trackBrowser.dispose();
-			this._trackBrowser = null;
+			this._trackSelectOverlay.dispose();
+			this._trackSelectOverlay = null;
 
 		}
 
 		this._root = null;
-		this._trackBrowserContainer = null;
 		this._chips.clear();
 		this._chipStrip = null;
 		this._joinBtn = null;
