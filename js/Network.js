@@ -398,7 +398,7 @@ export class NetworkClient {
 
 				}
 
-			}, 30000 );
+			}, 10000 );
 
 		} );
 

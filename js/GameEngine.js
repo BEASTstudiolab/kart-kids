@@ -722,27 +722,34 @@ export function createGameEngine( canvasContainer ) {
 		_aiManager = new AIManager( scene, world, models, _trackIntel.valid ? _trackIntel : null, spawnPosition, spawnAngle, spawn.finishAngle );
 		_aiManager.totalLaps = 3;
 
-		// ── AI fill based on race mode ───────────────────────────────────
-		// RACE (online): fill to 8 racers with AI. FREE PLAY / PARTY: no AI.
+		// ── AI fill + auto-start for non-multiplayer races ──────────────
 		const mode = config.mode || null;
 
-		if ( mode === 'online' ) {
-
-			const playerCount = config.playerCount || 1;
-			_aiManager.setCount( Math.max( 0, 8 - playerCount ) );
-
-		} else if ( mode === 'solo' || mode === 'private' ) {
-
-			_aiManager.setCount( 0 );
-
-		}
-
-		// If no mode (legacy/debug), fall through to Settings aiCount listener.
-
-		// ── Auto-start for non-multiplayer races ─────────────────────────
-		// Skip the RaceLobby dwell/ready system — go straight to countdown.
 		if ( ! _multiplayer ) {
 
+			// Determine AI count based on mode.
+			let aiCount = 0;
+
+			if ( mode === 'online' ) {
+
+				const playerCount = config.playerCount || 1;
+				aiCount = Math.max( 0, 8 - playerCount );
+
+			} else if ( mode === 'solo' || mode === 'private' ) {
+
+				aiCount = 0;
+
+			}
+
+			console.log( `[GameEngine] Non-multiplayer race: mode=${ mode }, aiCount=${ aiCount }, trackIntel=${ !! ( _trackIntel && _trackIntel.valid ) }` );
+
+			if ( aiCount > 0 ) {
+
+				_aiManager.setCount( aiCount );
+
+			}
+
+			// Auto-start — skip the RaceLobby dwell/ready system.
 			setTimeout( () => {
 
 				if ( _aiManager.count > 0 ) _aiManager.teleportToGrid( _vehicle );
@@ -750,6 +757,12 @@ export function createGameEngine( canvasContainer ) {
 				_aiManager.startRace();
 
 			}, 500 );
+
+		} else if ( mode === 'online' ) {
+
+			// Multiplayer RACE: fill remaining slots with AI.
+			const playerCount = config.playerCount || 1;
+			_aiManager.setCount( Math.max( 0, 8 - playerCount ) );
 
 		}
 
