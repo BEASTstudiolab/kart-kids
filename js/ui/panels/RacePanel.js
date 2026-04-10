@@ -3,15 +3,12 @@
  *
  * Renders:
  *   - Transparent content area (3D kart preview shows through from behind)
- *   - Player name display
- *   - Mode chip strip: RACE | FREE PLAY | PARTY
- *   - Track preview card (tapping navigates to TRACKS tab)
- *   - Large RACE CTA button
+ *   - Three stacked mode buttons: RACE, FREE PLAY, PARTY
  *
  * Mode behaviour:
- *   SOLO    — starts race immediately via services.startRace()
- *   ONLINE  — shows matchmaking overlay, connects via NetworkClient.findRoom()
- *   PRIVATE — placeholder toast (LobbyOverlay deferred to Unit 5)
+ *   RACE      — online matchmaking via NetworkClient.findRoom()
+ *   FREE PLAY — opens track select, starts solo race
+ *   PARTY     — opens track select, starts private lobby
  *
  * Lifecycle:
  *   constructor(container, services) — builds DOM into the panel container
@@ -59,9 +56,6 @@ export class RacePanel {
 		/** @type {TrackSelectOverlay | null} */
 		this._trackSelectOverlay = null;
 
-		/** @type {Map<string, HTMLButtonElement>} */
-		this._chips = new Map();
-
 		this._injectCSS();
 		this._build();
 
@@ -100,117 +94,19 @@ export class RacePanel {
 				pointer-events: auto;
 			}
 
-			/* ── Mode chip strip ───────────────────────────────────────── */
+			/* ── Mode buttons (stacked) ────────────────────────────────── */
 
-			.kk-race-panel__chips {
-				display: flex;
-				flex-direction: row;
-				gap: var(--space-1, 4px);
-				background: rgba( 0, 0, 0, 0.45 );
-				backdrop-filter: blur( 8px );
-				-webkit-backdrop-filter: blur( 8px );
-				border-radius: var(--radius-md, 4px);
-				padding: var(--space-1, 4px);
-				width: 100%;
-				box-sizing: border-box;
-			}
-
-			.kk-race-panel__chip {
-				flex: 1;
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-xs, 0.75rem);
-				font-weight: var(--weight-semibold, 600);
-				text-transform: uppercase;
-				letter-spacing: var(--tracking-wide, 0.08em);
-				color: var(--color-ink-300, #999);
-				background: transparent;
-				border: 1px solid rgba( 255, 255, 255, 0.08 );
-				border-radius: var(--radius-sm, 2px);
-				padding: var(--space-2) var(--space-1);
-				cursor: pointer;
-				text-align: center;
-				min-height: var(--hit-target-min, 48px);
-				box-sizing: border-box;
-				transition:
-					color 0.2s ease,
-					background 0.2s ease,
-					border-color 0.2s ease,
-					box-shadow 0.2s ease;
-				-webkit-tap-highlight-color: transparent;
-				touch-action: manipulation;
-			}
-
-			.kk-race-panel__chip:hover:not( .kk-race-panel__chip--active ) {
-				color: var(--color-ink-100, #ddd);
-				background: rgba( 255, 255, 255, 0.06 );
-				border-color: rgba( 255, 255, 255, 0.15 );
-			}
-
-			.kk-race-panel__chip--active {
-				color: var(--color-white, #fff);
-				background: rgba( 255, 160, 40, 0.15 );
-				border-color: rgba( 255, 160, 40, 0.6 );
-				box-shadow: 0 0 8px rgba( 255, 140, 0, 0.25 );
-			}
-
-			.kk-race-panel__chip:active {
-				transform: scale( 0.97 );
-			}
-
-			/* ── PLAY button ───────────────────────────────────────────── */
-
-			.kk-race-panel__cta {
+			.kk-race-panel__mode-btn {
 				width: 100%;
 			}
 
-			.kk-race-panel__cta .kk-hud-button {
+			.kk-race-panel__mode-btn .kk-hud-button {
 				width: 100%;
-			}
-
-			/* ── JOIN button (PARTY mode only) ─────────────────────── */
-
-			.kk-race-panel__join-btn {
-				width: 100%;
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-sm, 0.875rem);
-				font-weight: var(--weight-semibold, 600);
-				text-transform: uppercase;
-				letter-spacing: var(--tracking-wide, 0.08em);
-				color: var(--color-ink-100, #ddd);
-				background: rgba( 255, 255, 255, 0.06 );
-				backdrop-filter: blur( 8px );
-				-webkit-backdrop-filter: blur( 8px );
-				border: 1px solid rgba( 255, 255, 255, 0.12 );
-				border-radius: var(--radius-md, 4px);
-				padding: var(--space-3) var(--space-4);
-				cursor: pointer;
-				min-height: var(--hit-target-min, 48px);
-				box-sizing: border-box;
-				transition:
-					color 0.2s ease,
-					background 0.2s ease,
-					border-color 0.2s ease;
-				-webkit-tap-highlight-color: transparent;
-				touch-action: manipulation;
-			}
-
-			.kk-race-panel__join-btn:hover {
-				color: var(--color-white, #fff);
-				background: rgba( 255, 255, 255, 0.10 );
-				border-color: rgba( 255, 255, 255, 0.20 );
-			}
-
-			.kk-race-panel__join-btn:active {
-				transform: scale( 0.97 );
 			}
 
 			@media ( prefers-reduced-motion: reduce ) {
 
-				.kk-race-panel__chip {
-					transition: none;
-				}
-
-				.kk-race-panel__join-btn {
+				.kk-race-panel__mode-btn .kk-hud-button {
 					transition: none;
 				}
 
@@ -230,54 +126,38 @@ export class RacePanel {
 		const root = document.createElement( 'div' );
 		root.className = 'kk-race-panel';
 
-		// Mode chip strip
-		const chipStrip = document.createElement( 'div' );
-		chipStrip.className = 'kk-race-panel__chips';
-
-		const modeIds = [ 'online', 'solo', 'private' ];
-
-		for ( const id of modeIds ) {
-
-			const chip = document.createElement( 'button' );
-			chip.type = 'button';
-			chip.className = 'kk-race-panel__chip';
-			chip.textContent = RacePanel.MODE_LABELS[ id ];
-			chip.setAttribute( 'aria-pressed', 'false' );
-			chip.addEventListener( 'click', () => this._setMode( id ) );
-
-			chipStrip.appendChild( chip );
-			this._chips.set( id, chip );
-
-		}
-
-		root.appendChild( chipStrip );
-		this._chipStrip = chipStrip;
-
-		// PLAY button
-		const ctaWrap = document.createElement( 'div' );
-		ctaWrap.className = 'kk-race-panel__cta';
-
+		// RACE button (online matchmaking)
+		const raceWrap = document.createElement( 'div' );
+		raceWrap.className = 'kk-race-panel__mode-btn';
 		this._raceBtn = new HudButton( {
-			text:    'PLAY!',
+			text:    'RACE',
 			color:   '--color-accent-orange',
-			onClick: () => this._handleRace(),
+			onClick: () => this._handleOnlineRace(),
 		} );
+		raceWrap.appendChild( this._raceBtn.el );
+		root.appendChild( raceWrap );
 
-		ctaWrap.appendChild( this._raceBtn.el );
-		root.appendChild( ctaWrap );
+		// FREE PLAY button (solo)
+		const freeWrap = document.createElement( 'div' );
+		freeWrap.className = 'kk-race-panel__mode-btn';
+		this._freePlayBtn = new HudButton( {
+			text:    'FREE PLAY',
+			color:   '--color-accent-orange',
+			onClick: () => this._handleFreePlay(),
+		} );
+		freeWrap.appendChild( this._freePlayBtn.el );
+		root.appendChild( freeWrap );
 
-		// JOIN button (visible only in PARTY mode)
-		const joinBtn = document.createElement( 'button' );
-		joinBtn.type = 'button';
-		joinBtn.className = 'kk-race-panel__join-btn';
-		joinBtn.textContent = 'JOIN ROOM';
-		joinBtn.style.display = 'none';
-		joinBtn.addEventListener( 'click', () => this._handleJoinRoom() );
-		root.appendChild( joinBtn );
-		this._joinBtn = joinBtn;
-
-		this._updateChipStrip();
-		this._updateJoinVisibility();
+		// PARTY button (private lobby)
+		const partyWrap = document.createElement( 'div' );
+		partyWrap.className = 'kk-race-panel__mode-btn';
+		this._partyBtn = new HudButton( {
+			text:    'PARTY',
+			color:   '--color-accent-orange',
+			onClick: () => this._handleParty(),
+		} );
+		partyWrap.appendChild( this._partyBtn.el );
+		root.appendChild( partyWrap );
 
 		this._container.appendChild( root );
 		this._root = root;
@@ -285,97 +165,56 @@ export class RacePanel {
 	}
 
 	// ---------------------------------------------------------------------------
-	// Mode selection
+	// Mode button handlers
 	// ---------------------------------------------------------------------------
 
-	/** @type {Object<string, string>} */
-	static MODE_LABELS = { solo: 'FREE PLAY', online: 'RACE', private: 'PARTY' };
-
 	/**
-	 * Set the active game mode and update chip visuals.
-	 * @param {string} modeId  One of 'solo', 'online', 'private'
+	 * RACE — online matchmaking.
 	 */
-	_setMode( modeId ) {
+	async _handleOnlineRace() {
 
-		this._services.selectedMode = modeId;
-		this._updateChipStrip();
-		this._updateJoinVisibility();
+		await this._startOnlineMatchmaking();
 
 	}
 
 	/**
-	 * Show JOIN button only in PARTY mode.
+	 * FREE PLAY — solo race with track selection.
 	 */
-	_updateJoinVisibility() {
+	_handleFreePlay() {
 
-		if ( this._joinBtn ) {
+		this._openTrackSelect( ( track ) => {
 
-			const mode = this._services.selectedMode || 'solo';
-			this._joinBtn.style.display = mode === 'private' ? '' : 'none';
+			const settings = new Settings();
+			const vehicleId = settings.getSelectedKartId();
 
-		}
+			this._services.startRace( {
+				mode:      'solo',
+				trackData: track.cells,
+				decoCells: track.decoCells,
+				vehicleId,
+			} );
+
+		} );
 
 	}
 
 	/**
-	 * Sync chip active states with the current services.selectedMode.
+	 * PARTY — lobby first with 3D starting grid scene.
 	 */
-	_updateChipStrip() {
+	async _handleParty() {
 
-		if ( ! this._chips || this._chips.size === 0 ) return;
+		const track = getRandomTrack();
 
-		const active = this._services.selectedMode || 'solo';
+		// Create the 3D party lobby scene with the local player's kart
+		this._partyScene = this._services.showPartyLobby?.() || null;
+		if ( this._partyScene ) {
 
-		for ( const [ id, chip ] of this._chips ) {
-
-			const isActive = id === active;
-			chip.classList.toggle( 'kk-race-panel__chip--active', isActive );
-			chip.setAttribute( 'aria-pressed', isActive ? 'true' : 'false' );
-
-		}
-
-	}
-
-
-	// ---------------------------------------------------------------------------
-	// RACE button handler
-	// ---------------------------------------------------------------------------
-
-	async _handleRace() {
-
-		const mode = this._services.selectedMode || 'solo';
-
-		switch ( mode ) {
-
-			case 'solo':
-				this._openTrackSelect( ( track ) => {
-
-					const settings = new Settings();
-					const vehicleId = settings.getSelectedKartId();
-
-					this._services.startRace( {
-						mode:      'solo',
-						trackData: track.cells,
-						decoCells: track.decoCells,
-						vehicleId,
-					} );
-
-				} );
-				break;
-
-			case 'online':
-				await this._startOnlineMatchmaking();
-				break;
-
-			case 'private':
-				this._openTrackSelect( async ( track ) => {
-
-					await this._startPrivateLobby( track );
-
-				} );
-				break;
+			const settings = new Settings();
+			this._partyScene.setLocalKart( settings.getSelectedKartId() );
 
 		}
+
+		await this._startPrivateLobby( track );
 
 	}
 
@@ -516,120 +355,14 @@ export class RacePanel {
 
 		}
 
-		this._lobbyOverlay.show( this._network, { trackData: track, isHost: true } );
-
-	}
-
-	// ---------------------------------------------------------------------------
-	// PRIVATE join (guest)
-	// ---------------------------------------------------------------------------
-
-	_handleJoinRoom() {
-
-		const bodyEl = document.createElement( 'div' );
-
-		const input = document.createElement( 'input' );
-		input.type = 'text';
-		input.placeholder = 'Enter room code';
-		input.autocomplete = 'off';
-		input.style.cssText = 'width:100%;box-sizing:border-box;font-family:var(--font-mono,monospace);font-size:var(--text-lg,1.25rem);letter-spacing:0.15em;text-align:center;padding:var(--space-3,12px);background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:var(--radius-md,8px);color:var(--color-white,#fff);outline:none;';
-		bodyEl.appendChild( input );
-
-		const footer = document.createElement( 'div' );
-		footer.style.cssText = 'display:flex;gap:var(--space-3,12px);';
-
-		const cancelBtn = document.createElement( 'button' );
-		cancelBtn.className = 'kk-cta-button kk-cta-button--ghost';
-		cancelBtn.type = 'button';
-		cancelBtn.innerHTML = '<span class="kk-cta-button__label">CANCEL</span>';
-
-		const joinBtn = document.createElement( 'button' );
-		joinBtn.className = 'kk-cta-button kk-cta-button--primary';
-		joinBtn.type = 'button';
-		joinBtn.innerHTML = '<span class="kk-cta-button__label">JOIN</span>';
-
-		footer.appendChild( cancelBtn );
-		footer.appendChild( joinBtn );
-
-		const handle = this._services.modal.open( {
-			title: 'Join Room',
-			body: bodyEl,
-			footer: footer,
-			dismissible: true,
-		} );
-
-		cancelBtn.addEventListener( 'click', () => handle.close() );
-
-		let joining = false;
-
-		const doJoin = async () => {
-
-			if ( joining ) return;
-
-			const code = input.value.trim();
-
-			if ( ! code ) {
-
-				input.focus();
-				return;
-
-			}
-
-			joining = true;
-			handle.close();
-
-			try {
-
-				// Create NetworkClient on demand
-				if ( ! this._network ) {
-
-					this._network = new NetworkClient();
-
-				}
-
-				if ( ! this._network.connected ) {
-
-					await this._network.connect();
-
-				}
-
-				const settings = new Settings();
-				const vehicleId = settings.getSelectedKartId();
-
-				await this._network.joinRoom( code, vehicleId );
-
-				// Create LobbyOverlay if needed
-				if ( ! this._lobbyOverlay ) {
-
-					const shell = this._container.closest( '#kk-app-shell' ) || document.body;
-					this._lobbyOverlay = new LobbyOverlay( shell, this._services );
-
-				}
-
-				this._lobbyOverlay.show( this._network, { isHost: false } );
-
-			} catch ( err ) {
-
-				console.warn( '[RacePanel] Join room failed:', err.message );
-				this._services.notification.show( {
-					message:  'Failed to join room: ' + ( err.message || 'Invalid code' ),
-					variant:  'error',
-					duration: 3000,
-				} );
-
-			}
-
-		};
-
-		joinBtn.addEventListener( 'click', doJoin );
-
-		input.addEventListener( 'keydown', ( e ) => {
-
-			if ( e.key === 'Enter' ) doJoin();
-
+		this._lobbyOverlay.show( this._network, {
+			trackData:        track,
+			isHost:           true,
+			partyLobbyScene:  this._partyScene || null,
 		} );
 
 	}
+
 
 	// ---------------------------------------------------------------------------
 	// Panel lifecycle
@@ -640,9 +373,7 @@ export class RacePanel {
 	 */
 	show() {
 
-		// Sync chip strip and JOIN button with services bag
-		this._updateChipStrip();
-		this._updateJoinVisibility();
+		// Nothing to sync — buttons are always visible.
 
 	}
 
@@ -660,12 +391,9 @@ export class RacePanel {
 	 */
 	dispose() {
 
-		if ( this._raceBtn ) {
-
-			this._raceBtn.dispose();
-			this._raceBtn = null;
-
-		}
+		if ( this._raceBtn ) { this._raceBtn.dispose(); this._raceBtn = null; }
+		if ( this._freePlayBtn ) { this._freePlayBtn.dispose(); this._freePlayBtn = null; }
+		if ( this._partyBtn ) { this._partyBtn.dispose(); this._partyBtn = null; }
 
 		if ( this._matchmakingOverlay ) {
 
@@ -702,9 +430,6 @@ export class RacePanel {
 		}
 
 		this._root = null;
-		this._chips.clear();
-		this._chipStrip = null;
-		this._joinBtn = null;
 
 	}
 

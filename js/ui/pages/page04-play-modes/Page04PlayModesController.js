@@ -5,17 +5,17 @@
  *
  * Responsibilities:
  *   - Create and configure Page04PlayModesView.
- *   - Show two primary options: Solo Race and Multiplayer.
- *   - Solo Race: show inline track picker, then start race via services.startRace().
- *   - Multiplayer: show sub-options — Quick Play and Private Lobby.
+ *   - Show three stacked mode buttons: Race, Free Play, Party.
+ *   - Race: navigate to quick play matchmaking.
+ *   - Free Play: show inline track picker, then start race via services.startRace().
+ *   - Party: navigate to private lobby.
  *   - Wire back button → RouteIds.HOME.
  *   - Emit analytics page view on mount.
  *
  * Navigation map:
- *   solo_race    → inline track selection → services.startRace({ mode: 'solo', trackData, vehicleId })
- *   multiplayer  → sub-view with:
- *     quick_play    → RouteIds.QUICK_PLAY
- *     private_lobby → RouteIds.LOBBY
+ *   race     → RouteIds.QUICK_PLAY
+ *   freeplay → inline track selection → services.startRace({ mode: 'solo', trackData, vehicleId })
+ *   party    → RouteIds.LOBBY
  *
  * Data: TrackRegistry for track list, Settings for vehicleId.
  */
@@ -85,21 +85,17 @@ export class Page04PlayModesController extends PageControllerBase {
 
 			switch ( action ) {
 
-				case 'mode-solo':
-					this._handleSoloSelected();
-					break;
-
-				case 'mode-multiplayer':
-					this._handleMultiplayerSelected();
-					break;
-
-				case 'mp-quick-play':
-					this._analytics?.track( EventIds.MODE_SELECTED, { modeId: 'quick_play' } );
+				case 'mode-race':
+					this._analytics?.track( EventIds.MODE_SELECTED, { modeId: 'race' } );
 					this.navigate( RouteIds.QUICK_PLAY );
 					break;
 
-				case 'mp-private-lobby':
-					this._analytics?.track( EventIds.MODE_SELECTED, { modeId: 'private_lobby' } );
+				case 'mode-freeplay':
+					this._handleFreeplaySelected();
+					break;
+
+				case 'mode-party':
+					this._analytics?.track( EventIds.MODE_SELECTED, { modeId: 'party' } );
 					this.navigate( RouteIds.LOBBY );
 					break;
 
@@ -148,9 +144,9 @@ export class Page04PlayModesController extends PageControllerBase {
 	// Internal handlers
 	// ---------------------------------------------------------------------------
 
-	_handleSoloSelected() {
+	_handleFreeplaySelected() {
 
-		this._analytics?.track( EventIds.MODE_SELECTED, { modeId: 'solo_race' } );
+		this._analytics?.track( EventIds.MODE_SELECTED, { modeId: 'freeplay' } );
 		this._view.showSoloTrackPicker( this._tracks );
 
 		// Auto-select first track if available
@@ -159,13 +155,6 @@ export class Page04PlayModesController extends PageControllerBase {
 			this._selectedTrackId = this._tracks[ 0 ].id;
 
 		}
-
-	}
-
-	_handleMultiplayerSelected() {
-
-		this._analytics?.track( EventIds.MODE_SELECTED, { modeId: 'multiplayer' } );
-		this._view.showMultiplayerOptions();
 
 	}
 
