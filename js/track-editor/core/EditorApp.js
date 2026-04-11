@@ -33,6 +33,7 @@ import { ThemeService } from '../services/ThemeService.js';
 import { OccupancyGrid } from '../services/OccupancyGrid.js';
 import { LightingService } from '../services/LightingService.js';
 import { ProjectStorageService } from '../services/ProjectStorageService.js';
+import { RouteTraceController } from '../services/RouteTraceController.js';
 
 // Modes
 import { BuildMode } from '../modes/BuildMode.js';
@@ -47,6 +48,7 @@ import { MinimapRenderer } from '../ui/MinimapRenderer.js';
 import { StatsPanel } from '../ui/StatsPanel.js';
 import { TileThumbnailRenderer } from '../ui/TileThumbnailRenderer.js';
 import { RadialMenu } from '../ui/RadialMenu.js';
+import { CompassOverlay } from '../ui/CompassOverlay.js';
 import { RouteAnalysisService } from '../services/RouteAnalysisService.js';
 
 // ── Grid helper settings ──
@@ -186,7 +188,24 @@ class EditorApp {
 		this._testDrive = new TestDriveController( this._shareLink, this._validation );
 		this._themeService = new ThemeService( this._project );
 		this._routeAnalysis = new RouteAnalysisService( this._project );
+		this._routeTrace = new RouteTraceController( {
+			state: this._state,
+			debugOverlay: this._debugOverlay,
+			eventBus: this._eventBus,
+			validation: this._validation,
+			routeAnalysis: this._routeAnalysis,
+			camera: this._camera,
+			controls: {
+				root: document.getElementById( 'editor-route-trace-controls' ),
+				play: document.getElementById( 'route-trace-play' ),
+				pause: document.getElementById( 'route-trace-pause' ),
+			},
+		} );
 		this._radialMenu = new RadialMenu( this._eventBus );
+		this._compassOverlay = new CompassOverlay( {
+			eventBus: this._eventBus,
+			roseEl: document.querySelector( '[data-role="compass-rose"]' ),
+		} );
 		this._lighting = new LightingService(
 			this._scene, this._ambientLight, this._dirLight,
 			this._gridHelper, this._eventBus
@@ -1003,7 +1022,7 @@ class EditorApp {
 
 			} else if ( id === 'route' ) {
 
-				isActive = this._routeTraceActive ?? false;
+				isActive = this._routeTrace?.isActive ?? false;
 
 			} else if ( id === 'build' ) {
 
@@ -1845,33 +1864,17 @@ class EditorApp {
 	/** @private Toggle route trace visualization. */
 	_toggleRouteTrace() {
 
-		this._routeTraceActive = ! ( this._routeTraceActive ?? false );
+		const gm = this._input._modes.get( 'gameplay' );
+		if ( ! this._routeTrace?.isActive ) {
 
-		if ( this._routeTraceActive ) {
-
-			const gm = this._input._modes.get( 'gameplay' );
 			const result = this._validation.validate( gm );
 			console.log( '[RouteTrace]', result.valid ? 'Loop valid' : 'Loop broken', result.issues );
-
-			// Enable debug labels
-			this._state.debugEnabled = true;
-
-			// Start chase preview if track is valid
-			if ( result.valid || result.stats.tileCount >= 4 ) {
-
-				const route = this._routeAnalysis.analyzeRoute();
-				if ( route.sequence.length >= 4 ) {
-
-					this._camera.chaseRoute( route.sequence, 400 );
-
-				}
-
-			}
+			const route = this._routeAnalysis.analyzeRoute();
+			this._routeTrace?.toggle( gm, { validationResult: result, route } );
 
 		} else {
 
-			this._state.debugEnabled = false;
-			this._camera.stopChase();
+			this._routeTrace?.toggle( gm );
 
 		}
 
@@ -1915,6 +1918,8 @@ class EditorApp {
 
 		this._running = false;
 		if ( this._animFrameId ) cancelAnimationFrame( this._animFrameId );
+		this._routeTrace?.dispose();
+		this._compassOverlay?.dispose();
 		this._eventBus.dispose();
 		this._renderer.dispose();
 

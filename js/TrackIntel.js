@@ -1,5 +1,5 @@
 import { CELL_RAW, GRID_SCALE, ORIENT_DEG } from './Track.js';
-import { TRACK_INTEL_BASE_CONNECTIVITY } from './TrackOrientation.js';
+import { TRACK_INTEL_BASE_CONNECTIVITY, normalizeLegacyTrackIntelCells } from './TrackOrientation.js';
 import { getTemplateWaypoints, transformToWorld } from './WaypointTemplates.js';
 
 // ─── Connectivity Table ──────────────────────────────────────
@@ -60,10 +60,11 @@ export class TrackIntel {
 
 		this.valid = true;
 		this.error = null;
+		const normalizedCells = normalizeLegacyTrackIntelCells( cells );
 
 		// Build cell lookup by "gx,gz" key
 		const cellMap = new Map();
-		for ( const cell of cells ) {
+		for ( const cell of normalizedCells ) {
 
 			cellMap.set( cell[ 0 ] + ',' + cell[ 1 ], cell );
 
@@ -71,7 +72,7 @@ export class TrackIntel {
 
 		// Find finish cell
 		let finishCell = null;
-		for ( const cell of cells ) {
+		for ( const cell of normalizedCells ) {
 
 			if ( cell[ 2 ] === 'trk-finish' ) {
 
@@ -190,7 +191,7 @@ export class TrackIntel {
 		if ( ordered.length < 4 || ( current !== finishCell ) ) {
 
 			const visited = ordered.length;
-			const total = cells.length;
+			const total = normalizedCells.length;
 			if ( visited < total ) {
 
 				const msg = this._deadEndInfo || `Walk stopped after ${visited}/${total} cells`;

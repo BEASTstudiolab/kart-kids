@@ -120,11 +120,8 @@ test( 'TrackProject restores finish road cells on load using the shared orientat
 
 } );
 
-test.skip( 'TrackIntel validates the default TRACK_CELLS layout', () => {
+test( 'TrackIntel validates the default TRACK_CELLS layout', () => {
 
-	// TRACK_CELLS still uses a separate legacy center-anchored multi-tile curve format.
-	// This orientation fix keeps editor semantics consistent; legacy curve normalization
-	// is a separate compatibility task.
 	const intel = new TrackIntel( TRACK_CELLS );
 	assert.equal( intel.valid, true );
 	assert.equal( intel.error, null );

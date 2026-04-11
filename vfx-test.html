@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Kart Kids - VFX Test Range</title>
+	<link rel="stylesheet" href="js/ui/ui-theme.css">
+	<link rel="stylesheet" href="css/vfx-test.css">
+</head>
+<body>
+	<div id="vfx-app" class="vfx-page-shell">
+		<header class="vfx-hero">
+			<div class="vfx-hero__eyebrow">Kart Kids // Arcade Battle FX</div>
+			<h1 class="vfx-hero__title" data-testid="vfx-page-title">VFX TEST RANGE</h1>
+			<p class="vfx-hero__copy">
+				A large-format battle FX tuner for explosions, sparks, lightning, slime, smoke, and track chaos.
+				Switch effects on the fly and tune the active setup without squinting at tiny previews.
+			</p>
+			<div class="vfx-hero__meta">
+				<span>12 live effects</span>
+				<span>Large stage preview</span>
+				<span>Per-effect JSON export</span>
+			</div>
+		</header>
+
+		<main class="vfx-workbench">
+			<section class="vfx-stage-shell" data-testid="vfx-stage-shell" aria-label="Visual effect stage">
+				<div class="vfx-stage-toolbar">
+					<button type="button" class="vfx-nav-button" data-action="previous-effect">Prev</button>
+					<div class="vfx-stage-toolbar__copy">
+						<div class="vfx-stage-toolbar__eyebrow">Active Effect</div>
+						<div class="vfx-stage-toolbar__title" data-testid="vfx-active-effect-name">Explosion</div>
+						<div class="vfx-stage-toolbar__id" data-testid="vfx-active-effect-id">explosion</div>
+					</div>
+					<button type="button" class="vfx-nav-button" data-action="next-effect">Next</button>
+				</div>
+
+				<div class="vfx-stage" data-testid="vfx-stage">
+					<canvas class="vfx-stage__canvas" data-testid="vfx-stage-canvas"></canvas>
+					<div class="vfx-stage__hud">
+						<div class="vfx-stage__badge-row">
+							<span class="vfx-stage__badge vfx-stage__badge--accent">Live Preview</span>
+							<span class="vfx-stage__badge">Auto Play</span>
+						</div>
+						<div class="vfx-stage__foot-row">
+							<span class="vfx-stage__readout">Arrow Keys Supported</span>
+							<span class="vfx-stage__readout">Canvas FX</span>
+						</div>
+					</div>
+				</div>
+
+				<nav class="vfx-effect-strip" data-testid="vfx-effect-strip" aria-label="Available visual effects"></nav>
+			</section>
+
+			<aside class="vfx-controls-panel" data-testid="vfx-controls-panel">
+				<div class="vfx-controls-panel__header">
+					<div>
+						<div class="vfx-controls-panel__eyebrow">Tune Current Effect</div>
+						<h2 class="vfx-controls-panel__title" data-testid="vfx-controls-title">Explosion</h2>
+					</div>
+					<div class="vfx-controls-panel__actions">
+						<button type="button" class="vfx-panel-button" data-action="replay">Replay</button>
+						<button type="button" class="vfx-panel-button vfx-panel-button--ghost" data-action="copy-json">Copy JSON</button>
+					</div>
+				</div>
+
+				<p class="vfx-controls-panel__description" data-testid="vfx-controls-description">
+					Big arcade bloom with a punchy flash, rolling smoke, and hot debris.
+				</p>
+
+				<div class="vfx-controls-panel__stats">
+					<span>Shared controls + effect-specific controls</span>
+					<span data-testid="vfx-controls-count">7 sliders</span>
+				</div>
+
+				<div class="vfx-controls" data-testid="vfx-controls"></div>
+			</aside>
+		</main>
+	</div>
+	<script src="js/vfx-test-standalone.js"></script>
+</body>
+</html>

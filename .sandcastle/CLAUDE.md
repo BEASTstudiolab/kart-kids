@@ -1,14 +1,9 @@
-# CE Auto-Coder
+# CE Auto-Coder Disabled
 
-You are an autonomous development agent. You discover work and ship it through the full CE pipeline.
+Compound engineering is disabled for this repository.
 
-Read your operating instructions from `.sandcastle/orchestrator/`:
+Do not read `.sandcastle/orchestrator/` as active operating instructions.
+Do not run `/compound-engineering:*` workflows or CE pipeline steps.
+Do not start `.sandcastle/main.ts` unless the user explicitly asks for it.
 
-- `autonomy.md` — state machine and how to handle questions without a human
-- `pipeline.md` — CE skill sequence per task
-- `review-loops.md` — review until clean policy
-- `discovery.md` — how to find work (includes first-run onboarding)
-- `shipping.md` — git branch workflow
-- `limits.md` — when to stop, skip, or escalate
-
-Start by reading all orchestrator files, then begin discovery.
+Follow the root `CLAUDE.md` and the user's direct instructions instead.

@@ -25,11 +25,12 @@ export class CameraController {
 	 * @param {import('three').Scene} scene
 	 * @param {import('../core/EventBus.js').EventBus} eventBus
 	 */
-	constructor( canvas, scene, eventBus ) {
+	constructor( canvas, scene, eventBus, nowFn = () => Date.now() ) {
 
 		this._canvas = canvas;
 		this._scene = scene;
 		this._eventBus = eventBus;
+		this._now = nowFn;
 
 		// Camera target (world point the camera looks at)
 		this._target = new THREE.Vector3( 0, 0, 0 );
@@ -61,6 +62,8 @@ export class CameraController {
 		this._chaseAnimating = false;
 		this._chaseSequence = [];
 		this._chaseStartTime = 0;
+		this._chaseElapsedBeforePause = 0;
+		this._chasePaused = false;
 		this._chaseSpeed = 300;
 
 		this._updateCameraPosition();
@@ -216,8 +219,10 @@ export class CameraController {
 
 		if ( ! sequence || sequence.length < 2 ) return;
 		this._chaseSequence = sequence;
-		this._chaseStartTime = Date.now();
-		this._chaseSpeed = speed;
+		this._chaseStartTime = this._now();
+		this._chaseElapsedBeforePause = 0;
+		this._chasePaused = false;
+		this._chaseSpeed = speed > 0 ? speed : 1;
 		this._chaseAnimating = true;
 
 		// Lower tilt for chase view
@@ -230,27 +235,59 @@ export class CameraController {
 	stopChase() {
 
 		this._chaseAnimating = false;
+		this._chasePaused = false;
+		this._chaseElapsedBeforePause = 0;
 
 	}
 
 	/** @returns {boolean} */
 	get isChasing() { return this._chaseAnimating; }
 
+	/** @returns {boolean} */
+	get isChasePaused() { return this._chasePaused; }
+
+	pauseChase() {
+
+		if ( ! this._chaseAnimating || this._chasePaused ) return;
+
+		this._chaseElapsedBeforePause += this._now() - this._chaseStartTime;
+		this._chasePaused = true;
+
+	}
+
+	resumeChase() {
+
+		if ( ! this._chaseAnimating || ! this._chasePaused ) return;
+
+		this._chaseStartTime = this._now();
+		this._chasePaused = false;
+
+	}
+
 	/**
 	 * Update chase animation. Call this in the render loop.
 	 */
 	updateChase() {
 
-		if ( ! this._chaseAnimating ) return;
+		if ( ! this._chaseAnimating || this._chasePaused ) return;
 
-		const elapsed = Date.now() - this._chaseStartTime;
+		const elapsed = this._chaseElapsedBeforePause + ( this._now() - this._chaseStartTime );
 		const progress = elapsed / this._chaseSpeed;
 		const idx = Math.floor( progress );
 
 		if ( idx >= this._chaseSequence.length ) {
 
 			// Loop back to start
-			this._chaseStartTime = Date.now();
+			const startCell = this._chaseSequence[ 0 ];
+			this._target.set(
+				( startCell.gx + 0.5 ) * CELL_RAW,
+				0,
+				( startCell.gz + 0.5 ) * CELL_RAW
+			);
+			this._chaseStartTime = this._now();
+			this._chaseElapsedBeforePause = 0;
+			this._updateCameraPosition();
+			this._emitMoved();
 			return;
 
 		}
@@ -266,10 +303,8 @@ export class CameraController {
 
 		this._target.set( x, 0, z );
 
-		// Slowly orbit as we move
-		this._orbitAngle += 0.002;
-
 		this._updateCameraPosition();
+		this._emitMoved();
 
 	}
 
