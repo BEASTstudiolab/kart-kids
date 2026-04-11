@@ -2,6 +2,8 @@
 // Shared between editor (Elevation.js) and game (Track.js).
 // Pure functions — no dependencies on state or THREE.
 
+import { isNorthSouthOrient } from './TrackOrientation.js';
+
 /**
  * Get the model name for an elevation piece.
  * @param {number} elevation - 1 (half = 2.5m) or 2 (full = 5m)
@@ -44,9 +46,8 @@ export function scanElevatedRun( grid, gx, gz, cellKeyFn ) {
 	const startCell = grid.get( startKey );
 	if ( ! startCell || ! startCell.elevation || startCell.elevation === 0 ) return [];
 
-	// Determine axis: orient 0 or 10 = N/S (walk along Z), orient 16 or 22 = E/W (walk along X)
 	const orient = startCell.orient;
-	const isNS = orient === 0 || orient === 10;
+	const isNS = isNorthSouthOrient( orient );
 	const dx = isNS ? 0 : 1;
 	const dz = isNS ? 1 : 0;
 
@@ -73,7 +74,7 @@ export function scanElevatedRun( grid, gx, gz, cellKeyFn ) {
 			if ( cell.type === 'trk-corner-1x1' ) break;
 
 			// Stop at different-axis tiles
-			const cellIsNS = cell.orient === 0 || cell.orient === 10;
+			const cellIsNS = isNorthSouthOrient( cell.orient );
 			if ( cellIsNS !== isNS ) break;
 
 			if ( sign === 1 ) {

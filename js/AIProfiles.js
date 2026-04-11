@@ -7,7 +7,9 @@ export const DEFAULT_PROFILE = {
 	noiseAmplitude: 0.03,
 	turnThrottleDot: 0.7,
 	turnThrottleMin: 0.3,
-	lookAheadBlend: 0.7,     // weight toward wp+2 (far-ahead). 0.7 = 30% wp+1 / 70% wp+2
+	lookAheadBlend: 0.7,     // weight toward far wp. 0.7 = 30% near / 70% far
+	lookAheadNear: 3,        // near look-ahead waypoint offset (sub-tile dense waypoints)
+	lookAheadFar: 5,         // far look-ahead waypoint offset
 	lateralOffset: 0.0,      // world units, positive = right of center
 	boostEagerness: true,    // true = fire immediately when full, false = hold for straights
 	stuckTime: 2.0,
@@ -24,6 +26,8 @@ export const AI_PROFILES = [
 		turnThrottleDot: 0.85,
 		turnThrottleMin: 0.5,
 		lookAheadBlend: 0.5,
+		lookAheadNear: 2,       // reacts quickly — closer look-ahead
+		lookAheadFar: 4,
 		lateralOffset: - 0.8,   // cuts inside
 		boostEagerness: true,
 		stuckTime: 1.5,
@@ -38,6 +42,8 @@ export const AI_PROFILES = [
 		turnThrottleDot: 0.5,
 		turnThrottleMin: 0.2,
 		lookAheadBlend: 0.85,
+		lookAheadNear: 4,       // plans ahead — further look-ahead
+		lookAheadFar: 7,
 		lateralOffset: 0.6,     // stays wide
 		boostEagerness: true,
 		stuckTime: 2.5,

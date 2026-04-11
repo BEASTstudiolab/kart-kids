@@ -9,9 +9,8 @@ import { FinishLine } from './FinishLine.js';
 import { AIController } from './AIController.js';
 import { AI_PROFILES } from './AIProfiles.js';
 import { ItemSlotManager } from './ItemSlotManager.js';
+import { PLAYER_VEHICLES, PLAYER_CHARACTER_ID } from './VehicleRegistry.js';
 import { rigidBody } from 'crashcat';
-
-const VEHICLE_BASE_MODEL = 'vehicle-truck-yellow';
 
 // Golden-angle hue distribution — ensures no two adjacent AIs share similar colors
 function generateAIColors( count ) {
@@ -29,9 +28,20 @@ function generateAIColors( count ) {
 
 }
 
-const CHARACTER_MODEL_NAMES = [
-	'character-default',
-];
+// Fisher-Yates shuffle — returns a new shuffled array
+function shuffleArray( arr ) {
+
+	const a = [ ...arr ];
+	for ( let i = a.length - 1; i > 0; i -- ) {
+
+		const j = Math.floor( Math.random() * ( i + 1 ) );
+		[ a[ i ], a[ j ] ] = [ a[ j ], a[ i ] ];
+
+	}
+
+	return a;
+
+}
 
 const ZERO_INPUT = { x: 0, z: 0, touchActive: false, boost: false, drift: false, gas: false, brake: false };
 
@@ -60,6 +70,7 @@ export class AIManager {
 		this._activeVehiclesCache = [];
 		this._raceDataCache = [];
 		this._aiColors = generateAIColors( 8 );
+		this._shuffledKarts = shuffleArray( PLAYER_VEHICLES );
 
 	}
 
@@ -90,16 +101,17 @@ export class AIManager {
 
 	_spawnAI( index ) {
 
-		const model = this.models[ VEHICLE_BASE_MODEL ];
-
-		const charName = CHARACTER_MODEL_NAMES[ index % CHARACTER_MODEL_NAMES.length ];
-		const characterModel = this.models[ charName ] || null;
+		const kartConfig = this._shuffledKarts[ index % this._shuffledKarts.length ];
+		const model = this.models[ kartConfig.id ];
+		const characterModel = this.models[ PLAYER_CHARACTER_ID ] || null;
 
 		const vehicle = Vehicle.spawn( {
 			world: this.world,
 			createBody: createVehicleBody,
 			model,
 			characterModel,
+			characterOffset: kartConfig.characterOffset,
+			bodyHeight: kartConfig.bodyHeight,
 			position: this.spawnPosition,
 			angle: this.spawnAngle,
 			options: { forceWheelCorrection: true },
@@ -148,6 +160,7 @@ export class AIManager {
 			prevPos: null,
 			finished: false,
 			segmentHint: null,
+			passedHalfway: false,
 		} );
 
 	}
@@ -210,6 +223,15 @@ export class AIManager {
 			// Finish line check during racing
 			if ( raceState === 'racing' ) {
 
+				// Track halfway progress for lap validation
+				const vPos = ai.vehicle.vehPos;
+				if ( this.trackIntel ) {
+
+					const progress = this.trackIntel.getProgress( vPos.x, vPos.z, ai.segmentHint );
+					if ( progress >= 0.5 ) ai.passedHalfway = true;
+
+				}
+
 				this._checkFinishLine( ai );
 
 			}
@@ -268,7 +290,10 @@ export class AIManager {
 
 		if ( result.crossed && result.direction === 'forward' ) {
 
+			if ( ! ai.passedHalfway ) return;
+
 			ai.lap ++;
+			ai.passedHalfway = false;
 
 			if ( ai.lap >= this.totalLaps ) {
 
@@ -370,6 +395,7 @@ export class AIManager {
 			ai.lap = 0;
 			ai.finished = false;
 			ai.prevPos = null;
+			ai.passedHalfway = false;
 			ai.finishLine.resetCooldown();
 
 		}
@@ -383,6 +409,7 @@ export class AIManager {
 			ai.lap = 0;
 			ai.finished = false;
 			ai.prevPos = null;
+			ai.passedHalfway = false;
 			ai.segmentHint = null;
 			ai.finishLine.resetCooldown();
 			ai.vehicle.externalTopSpeedMultiplier = 1.0;

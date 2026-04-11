@@ -21,7 +21,7 @@ export class ReplaceTileCommand {
 	execute() {
 
 		const tile = this._project.getTile( this._gx, this._gz );
-		if ( ! tile || tile._consumed || tile.autoRamp || tile.finishFlank ) return;
+		if ( ! tile || tile._consumed || tile.autoRamp ) return;
 
 		this._prevType = tile.type;
 		tile.type = this._newType;

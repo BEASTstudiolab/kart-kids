@@ -1,13 +1,8 @@
 // ─── ProjectStorageService ────────────────────────────────────────────────────
-// Handles save/load for track projects. Supports v4 JSON format with backward
-// compatibility for v3 encoded tracks.
+// Handles save/load for track projects. Uses v4 JSON format exclusively.
 
-import { encodeCells, decodeCells } from '../../TrackCodec.js';
-
-const AUTOSAVE_KEY = 'racing-editor-cells';      // v3 compat
 const V4_PROJECT_KEY = 'kk-editor-project';       // v4 JSON
 const SAVED_TRACKS_KEY = 'kk-editor-saved-tracks'; // named saves index
-const OLD_SAVES_KEY = 'racing-editor-saved-tracks'; // legacy saves
 
 export class ProjectStorageService {
 
@@ -28,22 +23,13 @@ export class ProjectStorageService {
 
 	// ── Autosave ──
 
-	/** Save current project to localStorage (dual-write: v4 + v3 compat). */
+	/** Save current project to localStorage as v4 JSON. */
 	save() {
 
 		try {
 
-			// v4 full JSON
 			const v4 = this._project.toV4JSON();
 			localStorage.setItem( V4_PROJECT_KEY, JSON.stringify( v4 ) );
-
-			// v3 compat (for game loading via ?map= / #map=)
-			const cells = this._project.getCellsArray();
-			if ( cells.length > 0 ) {
-
-				localStorage.setItem( AUTOSAVE_KEY, encodeCells( cells ) );
-
-			}
 
 		} catch ( err ) {
 
@@ -61,14 +47,11 @@ export class ProjectStorageService {
 	 */
 	loadSaved() {
 
-		// 1. Check URL parameter: #track=v4:... or ?map=... or #map=...
+		// 1. Check URL parameter: #track=v4:...
 		const hash = window.location.hash.slice( 1 );
-		const params = new URLSearchParams( window.location.search );
-		const trackParam = this._extractParam( hash, params );
+		if ( hash.startsWith( 'track=' ) ) {
 
-		if ( trackParam ) {
-
-			return this._loadFromEncoded( trackParam );
+			return this._loadV4FromParam( hash.slice( 6 ) );
 
 		}
 
@@ -92,14 +75,6 @@ export class ProjectStorageService {
 				console.warn( '[ProjectStorage] v4 parse failed:', err );
 
 			}
-
-		}
-
-		// 3. Check v3 localStorage autosave
-		const v3Encoded = localStorage.getItem( AUTOSAVE_KEY );
-		if ( v3Encoded ) {
-
-			return this._loadFromEncoded( v3Encoded );
 
 		}
 
@@ -196,76 +171,28 @@ export class ProjectStorageService {
 
 	}
 
-	// ── Share link ──
-
-	/**
-	 * Generate a share URL for the current track.
-	 * Uses v3 encoding for game compatibility.
-	 * @returns {string}
-	 */
-	generateShareUrl() {
-
-		const cells = this._project.getCellsArray();
-		const encoded = encodeCells( cells );
-		const base = window.location.origin + '/index.html';
-		return `${ base }#map=${ encoded }`;
-
-	}
-
 	// ── Private ──
 
-	/** @private */
-	_extractParam( hash, params ) {
-
-		// #track=v4:...
-		if ( hash.startsWith( 'track=' ) ) return hash.slice( 6 );
-
-		// #map=... (legacy)
-		if ( hash.startsWith( 'map=' ) ) return hash.slice( 4 );
-
-		// ?map=...
-		const mapParam = params.get( 'map' );
-		if ( mapParam ) return mapParam;
-
-		return null;
-
-	}
-
-	/** @private */
-	_loadFromEncoded( encoded ) {
+	/** @private Load v4 JSON from a URL param (base64url-encoded). */
+	_loadV4FromParam( raw ) {
 
 		try {
 
-			// Detect format
-			if ( encoded.startsWith( '{' ) ) {
-
-				// Raw JSON (v4)
-				const parsed = JSON.parse( encoded );
-				this._project.loadFromV4JSON( parsed );
-				this._rebuildAllMeshes();
-				return true;
-
-			}
-
-			// v3/v2/v1 binary encoded
-			const cells = decodeCells( encoded );
-			if ( cells && cells.length > 0 ) {
-
-				// Use the project's own class to migrate v3 cells
-				const imported = this._project.constructor.fromV3Cells( cells );
-				this._project.loadFromV4JSON( imported.toV4JSON() );
-				this._rebuildAllMeshes();
-				return true;
-
-			}
+			// v4:<base64url>
+			const b64 = raw.startsWith( 'v4:' ) ? raw.slice( 3 ) : raw;
+			const bytes = atob( b64.replace( /-/g, '+' ).replace( /_/g, '/' ) );
+		const json = new TextDecoder().decode( Uint8Array.from( bytes, c => c.charCodeAt( 0 ) ) );
+			const parsed = JSON.parse( json );
+			this._project.loadFromV4JSON( parsed );
+			this._rebuildAllMeshes();
+			return true;
 
 		} catch ( err ) {
 
-			console.warn( '[ProjectStorage] Load from encoded failed:', err );
+			console.warn( '[ProjectStorage] v4 URL param load failed:', err );
+			return false;
 
 		}
-
-		return false;
 
 	}
 

@@ -86,7 +86,7 @@ export class BuildMode extends EditorMode {
 		} else if ( tool === 'eyedropper' ) {
 
 			const tile = this._placement._project.getTile( gx, gz );
-			if ( tile && ! tile._consumed && ! tile.autoRamp && ! tile.finishFlank ) {
+			if ( tile && ! tile._consumed && ! tile.autoRamp ) {
 
 				this._state.selectedTileType = tile.type;
 				this._state.tool = ( tile.type === 'trk-straight' || tile.type === 'trk-corner-1x1' ) ? 'road' : 'special';

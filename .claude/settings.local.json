@@ -4,7 +4,9 @@
       "Bash(python3:*)",
       "Bash(node -e \"const fs=require\\('fs'\\); let d=''; process.stdin.on\\('data',c=>d+=c\\); process.stdin.on\\('end',\\(\\)=>{fs.writeFileSync\\('C:/Users/rafae/.claude/plans/imperative-hugging-turing-agent-a3e0331fa575d37bf.md',d,'utf-8'\\);console.log\\('ok'\\)}\\);\")",
       "WebSearch",
-      "WebFetch(domain:cdn.jsdelivr.net)"
+      "WebFetch(domain:cdn.jsdelivr.net)",
+      "Bash(node -e ':*)",
+      "Bash(node --input-type=module -e ':*)"
     ]
   }
 }

@@ -10,7 +10,7 @@
  */
 
 import { getTracks }                          from '../../TrackRegistry.js';
-import { deleteNamedTrack }                   from '../../editor/Persistence.js';
+import { deleteNamedTrack }                   from '../../TrackSaves.js';
 import { Settings }                           from '../../Settings.js';
 import { TrackBrowser }                       from '../components/TrackBrowser.js';
 
@@ -241,14 +241,32 @@ export class TracksPanel {
 	// Workshop actions
 	// ---------------------------------------------------------------------------
 
+	/** @private Encode track data as v4 base64url for URLs. */
+	_encodeV4Url( track ) {
+
+		// track.cells may be a v4 JSON object or a raw cells array
+		const v4 = track.trackData || ( Array.isArray( track.cells ) ? { v: 4, trackTiles: [], meta: {}, cells: track.cells } : null );
+		if ( ! v4 ) return null;
+
+		const json = JSON.stringify( v4 );
+		const bytes = new TextEncoder().encode( json );
+		let binary = '';
+		for ( let i = 0; i < bytes.length; i ++ ) binary += String.fromCharCode( bytes[ i ] );
+		return btoa( binary ).replace( /\+/g, '-' ).replace( /\//g, '_' ).replace( /=+$/, '' );
+
+	}
+
 	/**
 	 * Copy the share URL for a user track to the clipboard.
 	 *
-	 * @param {object} track  User track object with cells field.
+	 * @param {object} track  User track object.
 	 */
 	_shareTrack( track ) {
 
-		const url = window.location.origin + '/index.html?map=' + track.cells;
+		const encoded = this._encodeV4Url( track );
+		if ( ! encoded ) return;
+
+		const url = window.location.origin + '/index.html#track=v4:' + encoded;
 
 		navigator.clipboard.writeText( url ).then( () => {
 
@@ -273,11 +291,13 @@ export class TracksPanel {
 	/**
 	 * Open the editor for a user track.
 	 *
-	 * @param {object} track  User track object with cells field.
+	 * @param {object} track  User track object.
 	 */
 	_editTrack( track ) {
 
-		window.open( `track-editor.html#map=${ encodeURIComponent( track.cells ) }`, '_blank', 'noopener' );
+		const encoded = this._encodeV4Url( track );
+		if ( ! encoded ) return;
+		window.open( `track-editor.html#track=v4:${ encoded }`, '_blank', 'noopener' );
 
 	}
 

@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import { getTrackModelConfig } from './TrackModelConfig.js';
+import { getFinishRoadCells } from './TrackOrientation.js';
 
-// Re-export from focused modules for backward compatibility
+// Re-export from focused modules
 export { ORIENT_DEG, CELL_RAW, GRID_SCALE } from './TrackConstants.js';
 export { TRACK_CELLS } from './TrackData.js';
-export { encodeCells, decodeCells } from './TrackCodec.js';
 
 import { ORIENT_DEG, CELL_RAW, GRID_SCALE } from './TrackConstants.js';
 import { TRACK_CELLS } from './TrackData.js';
@@ -245,9 +245,11 @@ export function buildTrack( scene, models, customCells, props ) {
 			// 3x1 finish arch — mark flanking cells
 			if ( type === 'trk-finish' ) {
 
-				const isNS = orient === 0 || orient === 10;
-				occupied.add( ( gx + ( isNS ? 0 : 1 ) ) + ',' + ( gz + ( isNS ? 1 : 0 ) ) );
-				occupied.add( ( gx + ( isNS ? 0 : - 1 ) ) + ',' + ( gz + ( isNS ? - 1 : 0 ) ) );
+				for ( const roadCell of getFinishRoadCells( gx, gz, orient ) ) {
+
+					occupied.add( roadCell.gx + ',' + roadCell.gz );
+
+				}
 
 			}
 
@@ -551,13 +553,9 @@ export function transformCells( decodedCells ) {
 		const [ gx, gz, type, orient ] = cell;
 		if ( type !== 'trk-finish' ) continue;
 
-		const isNS = orient === 0 || orient === 10;
-		const dx = isNS ? 0 : 1;
-		const dz = isNS ? 1 : 0;
+		for ( const roadCell of getFinishRoadCells( gx, gz, orient ) ) {
 
-		for ( const dir of [ - 1, 1 ] ) {
-
-			finishConsumed.add( cellKeyFn( gx + dx * dir, gz + dz * dir ) );
+			finishConsumed.add( cellKeyFn( roadCell.gx, roadCell.gz ) );
 
 		}
 

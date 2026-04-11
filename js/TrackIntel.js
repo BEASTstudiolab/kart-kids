@@ -1,4 +1,6 @@
 import { CELL_RAW, GRID_SCALE, ORIENT_DEG } from './Track.js';
+import { TRACK_INTEL_BASE_CONNECTIVITY } from './TrackOrientation.js';
+import { getTemplateWaypoints, transformToWorld } from './WaypointTemplates.js';
 
 // ─── Connectivity Table ──────────────────────────────────────
 // Each piece type maps to its two open edges at orientation 0 (0°).
@@ -20,54 +22,18 @@ function rotateEdge( edge, degrees ) {
 
 }
 
-// Base connectivity at orientation 0°
-const BASE_CONNECTIVITY = {
-	'trk-straight': [ 'N', 'S' ],
-	'trk-finish':         [ 'N', 'S' ],
-	'trk-corner-1x1':   [ 'S', 'W' ],
+const BASE_CONNECTIVITY = TRACK_INTEL_BASE_CONNECTIVITY;
 
-	// Multi-tile curves — model has PI base rotation, so base exits are S+E (not S+W)
-	'trk-curve-2x2-l':      [ 'S', 'E' ],
-	'trk-curve-3x3-l':      [ 'S', 'E' ],
-	'trk-curve-3x3-wide-l': [ 'S', 'E' ],
+// Map grid delta (dx, dz) to edge direction
+function _deltaToEdge( dx, dz ) {
 
-	// Elevation tiles — same connectivity as straights
-	'trk-elev-2p5':       [ 'N', 'S' ],
-	'trk-elev-5':         [ 'N', 'S' ],
-	'trk-ramp-up-2p5':    [ 'N', 'S' ],
-	'trk-ramp-up-5':      [ 'N', 'S' ],
-	'trk-ramp-down-2p5':  [ 'N', 'S' ],
-	'trk-ramp-down-5':    [ 'N', 'S' ],
+	if ( dz === - 1 ) return 'N';
+	if ( dz === 1 ) return 'S';
+	if ( dx === 1 ) return 'E';
+	if ( dx === - 1 ) return 'W';
+	return 'N'; // fallback
 
-	// Smooth ramp variants — same connectivity
-	'trk-ramp-up-2p5-smooth':    [ 'N', 'S' ],
-	'trk-ramp-up-5-smooth':      [ 'N', 'S' ],
-	'trk-ramp-down-2p5-smooth':  [ 'N', 'S' ],
-	'trk-ramp-down-5-smooth':    [ 'N', 'S' ],
-
-	// Bridge tiles — straight-through
-	'trk-bridge-entry':  [ 'N', 'S' ],
-	'trk-bridge-mid':    [ 'N', 'S' ],
-
-	// Tunnel tiles — straight-through
-	'trk-tunnel-entry':  [ 'N', 'S' ],
-	'trk-tunnel-mid':    [ 'N', 'S' ],
-	'trk-tunnel-exit':   [ 'N', 'S' ],
-	'trk-tunnel-open':   [ 'N', 'S' ],
-
-	// Jump tiles — straight-through
-	'trk-jump-short':    [ 'N', 'S' ],
-	'trk-jump-long':     [ 'N', 'S' ],
-
-	// Chicane — straight-through (S-curve within one cell)
-	'trk-chicane-3x3-l': [ 'N', 'S' ],
-
-	// Junctions — 3+ exits, incompatible with linear walk.
-	// Use null (bump behavior): scan all neighbors, skip previous.
-	'trk-junction-y':    null,
-	'trk-junction-t':    null,
-	'trk-junction-4way': null,
-};
+}
 
 function getOpenEdges( pieceType, cellOrient ) {
 
@@ -123,19 +89,33 @@ export class TrackIntel {
 
 		}
 
-		// Walk connectivity to produce ordered cell sequence
+		// Walk connectivity to produce ordered cell sequence + track entry/exit edges
 		const ordered = [];
+		const exitEdges = [];   // exitEdges[i] = edge we leave cell i through
+		const entryEdges = [];  // entryEdges[i] = edge we enter cell i from
 		let current = finishCell;
 		let prevKey = null;
 
 		do {
 
+			const idx = ordered.length;
 			ordered.push( current );
 			const [ gx, gz, type, orient ] = current;
 			const currentKey = gx + ',' + gz;
 
+			// Determine entry edge (direction toward previous cell)
+			if ( prevKey !== null ) {
+
+				const [ px, pz ] = prevKey.split( ',' ).map( Number );
+				const dx = px - gx;
+				const dz = pz - gz;
+				entryEdges[ idx ] = _deltaToEdge( dx, dz );
+
+			}
+
 			const openEdges = getOpenEdges( type, orient );
 			let nextCell = null;
+			let exitEdge = null;
 
 			if ( openEdges === null ) {
 
@@ -157,6 +137,7 @@ export class TrackIntel {
 					}
 
 					nextCell = neighbor;
+					exitEdge = dir;
 
 				}
 
@@ -173,6 +154,7 @@ export class TrackIntel {
 					if ( neighbor ) {
 
 						nextCell = neighbor;
+						exitEdge = edge;
 						break;
 
 					}
@@ -181,10 +163,21 @@ export class TrackIntel {
 
 			}
 
-			if ( ! nextCell && ordered.length < cells.length ) {
+			exitEdges[ idx ] = exitEdge;
 
-				this._setInvalid( `Connectivity broken at (${gx},${gz}) — no valid neighbor found` );
-				return;
+			if ( ! nextCell ) {
+
+				// Report the exact tile and edges where the walk broke
+				const _edges = openEdges || [ 'N', 'S', 'E', 'W' ];
+				const _edgeDetails = _edges.map( e => {
+
+					const [ _dx, _dz ] = EDGES[ e ];
+					const _nk = ( gx + _dx ) + ',' + ( gz + _dz );
+					return `${e}→${cellMap.has( _nk ) ? 'occupied' : 'empty'}`;
+
+				} ).join( ', ' );
+				this._deadEndInfo = `Dead end at (${gx},${gz}) type=${type} orient=${orient}: edges [${_edgeDetails}]`;
+				break;
 
 			}
 
@@ -193,26 +186,85 @@ export class TrackIntel {
 
 		} while ( current && current !== finishCell );
 
-		// Validate completeness
-		if ( ordered.length !== cells.length ) {
+		// The walk must form a closed loop (returned to finish) with at least 4 tiles
+		if ( ordered.length < 4 || ( current !== finishCell ) ) {
 
-			const reachedKeys = new Set( ordered.map( c => c[ 0 ] + ',' + c[ 1 ] ) );
-			const unreached = cells
-				.filter( c => ! reachedKeys.has( c[ 0 ] + ',' + c[ 1 ] ) )
-				.map( c => `(${c[ 0 ]},${c[ 1 ]})` );
-			this._setInvalid( `Walk covered ${ordered.length}/${cells.length} cells. Unreached: ${unreached.join( ', ' )}` );
+			const visited = ordered.length;
+			const total = cells.length;
+			if ( visited < total ) {
+
+				const msg = this._deadEndInfo || `Walk stopped after ${visited}/${total} cells`;
+				this._setInvalid( msg );
+
+			} else {
+
+				this._setInvalid( 'Track does not form a closed loop' );
+
+			}
+
 			return;
 
 		}
 
+		// Fix circular entry/exit: first cell's entry = last cell's exit direction
+		// (the track loops back)
+		const lastCell = ordered[ ordered.length - 1 ];
+		const firstCell = ordered[ 0 ];
+		const dxLast = lastCell[ 0 ] - firstCell[ 0 ];
+		const dzLast = lastCell[ 1 ] - firstCell[ 1 ];
+		entryEdges[ 0 ] = _deltaToEdge( dxLast, dzLast );
+
 		// Store ordered cells for checkpoint anchor tile-type lookup
 		this._orderedCells = ordered;
 
-		// Convert to world-space waypoints
-		this.waypoints = ordered.map( ( [ gx, gz ] ) => ( {
-			x: ( gx + 0.5 ) * CELL_RAW * GRID_SCALE,
-			z: ( gz + 0.5 ) * CELL_RAW * GRID_SCALE
-		} ) );
+		// ── Generate sub-tile waypoints from templates ────────────
+		this.waypoints = [];
+		this._waypointToCellIndex = [];
+
+		for ( let i = 0; i < ordered.length; i ++ ) {
+
+			const [ gx, gz, type, orient, flags ] = ordered[ i ];
+			const orientDeg = ORIENT_DEG[ orient ] ?? 0;
+			const entry = entryEdges[ i ];
+			const exit = exitEdges[ i ];
+
+			// Compute elevation Y — for ramps, interpolate between neighbor elevations
+			const thisElev = flags?.fullElevation ?? 12;
+			const thisY = ( thisElev - 12 ) * 2.5;
+			const isRamp = type.includes( 'ramp' );
+
+			let entryY = thisY;
+			let exitY = thisY;
+
+			if ( isRamp ) {
+
+				// Ramp tiles sit at ground elevation in data but visually slope.
+				// Look at prev/next cell elevations to determine the slope.
+				const prevIdx = ( i - 1 + ordered.length ) % ordered.length;
+				const nextIdx = ( i + 1 ) % ordered.length;
+				const prevElev = ordered[ prevIdx ][ 4 ]?.fullElevation ?? 12;
+				const nextElev = ordered[ nextIdx ][ 4 ]?.fullElevation ?? 12;
+				entryY = ( prevElev - 12 ) * 2.5;
+				exitY = ( nextElev - 12 ) * 2.5;
+
+			}
+
+			// Get template in local space, then transform to world
+			const localPts = getTemplateWaypoints( type, entry, exit, orientDeg );
+			const worldPts = transformToWorld( localPts, gx, gz, orientDeg, entryY, exitY );
+
+			// Skip the first point of each tile after the first to avoid
+			// duplicate waypoints at tile boundaries
+			const startIdx = ( this.waypoints.length === 0 ) ? 0 : 1;
+
+			for ( let j = startIdx; j < worldPts.length; j ++ ) {
+
+				this.waypoints.push( worldPts[ j ] );
+				this._waypointToCellIndex.push( i );
+
+			}
+
+		}
 
 		this.count = this.waypoints.length;
 
@@ -231,10 +283,10 @@ export class TrackIntel {
 		}
 
 		// Closing segment: last waypoint → first waypoint
-		const last = this.waypoints[ this.count - 1 ];
-		const first = this.waypoints[ 0 ];
-		const closeDx = first.x - last.x;
-		const closeDz = first.z - last.z;
+		const lastWp = this.waypoints[ this.count - 1 ];
+		const firstWp = this.waypoints[ 0 ];
+		const closeDx = firstWp.x - lastWp.x;
+		const closeDz = firstWp.z - lastWp.z;
 		this.totalLength = this._cumDist[ this.count - 1 ] + Math.sqrt( closeDx * closeDx + closeDz * closeDz );
 
 	}
@@ -280,20 +332,35 @@ export class TrackIntel {
 
 		};
 
+		// Scale interval by average waypoints-per-cell so spacing stays
+		// roughly the same as before (when there was 1 wp per cell).
+		const wpPerCell = this._orderedCells.length > 0
+			? this.count / this._orderedCells.length
+			: 1;
+		const scaledInterval = Math.max( 1, Math.round( interval * wpPerCell ) );
+
+		let lastCheckedCellIdx = - 1;
+
 		for ( let i = 0; i < this.count; i ++ ) {
 
-			// Regular interval checkpoints
-			if ( i % interval === 0 ) addAnchor( i );
+			// Regular interval checkpoints (scaled for denser waypoints)
+			if ( i % scaledInterval === 0 ) addAnchor( i );
 
 			// Forced anchors: the cell after a ramp exit / jump landing
-			if ( this._orderedCells ) {
+			if ( this._orderedCells && this._waypointToCellIndex ) {
 
-				const cell = this._orderedCells[ i ];
-				if ( cell && RAMP_EXIT_TYPES.has( cell[ 2 ] ) ) {
+				const cellIdx = this._waypointToCellIndex[ i ];
+				if ( cellIdx !== lastCheckedCellIdx ) {
 
-					// Add the next waypoint as a safe respawn point
-					const nextIdx = ( i + 1 ) % this.count;
-					addAnchor( nextIdx );
+					lastCheckedCellIdx = cellIdx;
+					const cell = this._orderedCells[ cellIdx ];
+					if ( cell && RAMP_EXIT_TYPES.has( cell[ 2 ] ) ) {
+
+						// Add the next waypoint as a safe respawn point
+						const nextIdx = ( i + 1 ) % this.count;
+						addAnchor( nextIdx );
+
+					}
 
 				}
 

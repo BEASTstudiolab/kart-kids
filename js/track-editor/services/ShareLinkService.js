@@ -1,8 +1,5 @@
 // ─── ShareLinkService ────────────────────────────────────────────────────────
-// Generates shareable URLs for tracks using v3 encoding (game-compatible)
-// and v4 encoding (full project data).
-
-import { encodeCells } from '../../TrackCodec.js';
+// Generates shareable URLs for tracks using v4 JSON encoding.
 
 export class ShareLinkService {
 
@@ -15,36 +12,38 @@ export class ShareLinkService {
 
 	}
 
+	/** @private Base64url-encode a v4 JSON payload. */
+	_encodeV4() {
+
+		const v4 = this._project.toV4JSON();
+		const json = JSON.stringify( v4 );
+		const bytes = new TextEncoder().encode( json );
+		let binary = '';
+		for ( let i = 0; i < bytes.length; i ++ ) binary += String.fromCharCode( bytes[ i ] );
+		return btoa( binary )
+			.replace( /\+/g, '-' )
+			.replace( /\//g, '_' )
+			.replace( /=+$/, '' );
+
+	}
+
 	/**
 	 * Generate a play link (opens game with this track).
-	 * Uses v3 encoding for backward compatibility.
 	 * @returns {string}
 	 */
 	generatePlayUrl() {
 
-		const cells = this._project.getCellsArray();
-		const encoded = encodeCells( cells );
-		return `${window.location.origin}/index.html#map=${encoded}`;
+		return `${ window.location.origin }/index.html#track=v4:${ this._encodeV4() }`;
 
 	}
 
 	/**
 	 * Generate an editor link (opens editor with this track).
-	 * Uses v4 JSON encoding.
 	 * @returns {string}
 	 */
 	generateEditorUrl() {
 
-		const v4 = this._project.toV4JSON();
-		const json = JSON.stringify( v4 );
-
-		// Simple approach: base64url encode the JSON
-		const encoded = btoa( unescape( encodeURIComponent( json ) ) )
-			.replace( /\+/g, '-' )
-			.replace( /\//g, '_' )
-			.replace( /=+$/, '' );
-
-		return `${window.location.origin}/track-editor.html#track=v4:${encoded}`;
+		return `${ window.location.origin }/track-editor.html#track=v4:${ this._encodeV4() }`;
 
 	}
 

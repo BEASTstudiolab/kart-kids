@@ -52,6 +52,7 @@ export class RaceMode extends GameMode {
 
 		this._finishLine = null;
 		this._prevPos = null;
+		this._passedHalfway = false;
 
 		this._displayState = {};
 
@@ -78,6 +79,7 @@ export class RaceMode extends GameMode {
 		this._bestLap = Infinity;
 		this._totalTime = 0;
 		this._prevPos = null;
+		this._passedHalfway = false;
 
 		if ( this._finishLine ) this._finishLine.resetCooldown();
 
@@ -124,6 +126,16 @@ export class RaceMode extends GameMode {
 		if ( this._state === STATE_RACING ) {
 
 			this._elapsedTime += dt;
+
+			// Track halfway progress for lap validation
+			if ( this.trackIntel && vehicle ) {
+
+				const pos = vehicle.vehPos;
+				const progress = this.trackIntel.getProgress( pos.x, pos.z, this._lastSegmentHint );
+				if ( progress >= 0.5 ) this._passedHalfway = true;
+
+			}
+
 			this._checkFinishLine( vehicle );
 			this._updatePosition( vehicle, activeVehicles, aiRaceData );
 
@@ -148,6 +160,7 @@ export class RaceMode extends GameMode {
 			this._bestLap = Infinity;
 			this._totalTime = 0;
 			this._prevPos = null;
+			this._passedHalfway = false;
 			if ( this._finishLine ) this._finishLine.resetCooldown();
 
 			this._state = STATE_COUNTDOWN;
@@ -241,6 +254,7 @@ export class RaceMode extends GameMode {
 		this._bestLap = Infinity;
 		this._totalTime = 0;
 		this._prevPos = null;
+		this._passedHalfway = false;
 		this._lastSegmentHint = null;
 		this._position = 1;
 
@@ -259,6 +273,7 @@ export class RaceMode extends GameMode {
 		this._lapStartTime = 0;
 		this._lap = 0;
 		this._prevPos = null;
+		this._passedHalfway = false;
 
 	}
 
@@ -336,7 +351,10 @@ export class RaceMode extends GameMode {
 
 		if ( result.crossed && result.direction === 'forward' ) {
 
+			if ( ! this._passedHalfway ) return;
+
 			this._lap ++;
+			this._passedHalfway = false;
 
 			const lapTime = this._elapsedTime - this._lapStartTime;
 

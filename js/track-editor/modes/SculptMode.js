@@ -117,7 +117,7 @@ export class SculptMode extends EditorMode {
 
 			// Start move: pick up tile at this cell
 			const tile = this._project.getTile( gx, gz );
-			if ( tile && ! tile._consumed && ! tile.autoRamp && ! tile.finishFlank ) {
+			if ( tile && ! tile._consumed && ! tile.autoRamp ) {
 
 				this._moveSource = { gx, gz };
 				this._moveDragging = true;
@@ -315,7 +315,7 @@ export class SculptMode extends EditorMode {
 	_duplicateTile( gx, gz ) {
 
 		const tile = this._project.getTile( gx, gz );
-		if ( ! tile || tile._consumed || tile.autoRamp || tile.finishFlank ) return;
+		if ( ! tile || tile._consumed || tile.autoRamp ) return;
 
 		const offsets = [ [ 1, 0 ], [ 0, 1 ], [ - 1, 0 ], [ 0, - 1 ] ];
 		for ( const [ dx, dz ] of offsets ) {

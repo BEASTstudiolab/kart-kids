@@ -66,6 +66,9 @@ export class VehicleHealth {
 		this._lastHitTime = 0;
 		this._consecutiveResetDelay = 3.0; // seconds without hit to reset
 
+		// External damage multiplier (tunable via debug menu)
+		this.damageMultiplier = 4.0;
+
 	}
 
 	update( dt ) {
@@ -103,8 +106,8 @@ export class VehicleHealth {
 
 		}
 
-		// Apply consecutive hit scaling
-		const amount = rawAmount * this._consecutiveScale;
+		// Apply damage multiplier + consecutive hit scaling
+		const amount = rawAmount * this.damageMultiplier * this._consecutiveScale;
 
 		// Reduce scaling for next rapid hit (minimum 0.4x)
 		this._consecutiveScale = Math.max( 0.4, this._consecutiveScale * 0.7 );

@@ -22066,3 +22066,3794 @@ production/session-logs/agent-audit.log
 production/session-logs/session-log.md
 ---
 
+## Session End: 20260410_124947
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+c8e57d2 fix(lobby): restore kart + character positioning, static camera, remove placeholder cube
+---
+
+## Session End: 20260410_130652
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+### Uncommitted Changes
+js/AIManager.js
+js/ModelLoader.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_132158
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+### Uncommitted Changes
+js/AIManager.js
+js/DebugMenu.js
+js/GameEngine.js
+js/ModelLoader.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_132450
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+### Uncommitted Changes
+js/AIManager.js
+js/DebugMenu.js
+js/GameEngine.js
+js/ModelLoader.js
+js/ui/LobbyScene.js
+js/ui/core/AppShell.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_133901
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+### Uncommitted Changes
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/DebugMenu.js
+js/GameEngine.js
+js/ModelLoader.js
+js/TrackIntel.js
+js/editor/Debug.js
+js/editor/editor-main.js
+js/ui/LobbyScene.js
+js/ui/core/AppShell.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_134053
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+### Uncommitted Changes
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/DebugMenu.js
+js/GameEngine.js
+js/ModelLoader.js
+js/TrackIntel.js
+js/editor/Debug.js
+js/editor/editor-main.js
+js/ui/LobbyScene.js
+js/ui/core/AppShell.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_135640
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+### Uncommitted Changes
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/DebugMenu.js
+js/GameEngine.js
+js/ModelLoader.js
+js/TrackIntel.js
+js/editor/Debug.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/models/TrackTile.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/PlacementController.js
+js/ui/LobbyScene.js
+js/ui/core/AppShell.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_141846
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+### Uncommitted Changes
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/DebugMenu.js
+js/GameEngine.js
+js/ModelLoader.js
+js/RaceMode.js
+js/TrackIntel.js
+js/editor/Debug.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/models/TrackTile.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/PlacementController.js
+js/ui/LobbyScene.js
+js/ui/core/AppShell.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+---
+
+## Session End: 20260410_144320
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+14ea089 feat(modes): PARTY join flow, LobbyOverlay track data, TRACKS workshop repurpose
+660b684 feat(play): dynamic layout — TrackBrowser inline for FREE PLAY/PARTY, minimal for RACE
+bbfd769 refactor(ui): extract TrackBrowser component + chip strip mode labels
+### Uncommitted Changes
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/DebugMenu.js
+js/GameEngine.js
+js/ModelLoader.js
+js/RaceMode.js
+js/TrackIntel.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/models/TrackTile.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/PlacementController.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_151256
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+a8af378 fix(review): 7 bug fixes from code review — network protocol, CREATE card, join guard
+### Uncommitted Changes
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/DebugMenu.js
+js/GameEngine.js
+js/ModelLoader.js
+js/RaceMode.js
+js/TrackIntel.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/models/TrackTile.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/PlacementController.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_151947
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+### Uncommitted Changes
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/GameEngine.js
+js/ModelLoader.js
+js/RaceMode.js
+js/TrackIntel.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/models/TrackTile.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/PlacementController.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_151950
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+### Uncommitted Changes
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/GameEngine.js
+js/ModelLoader.js
+js/RaceMode.js
+js/TrackIntel.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/models/TrackTile.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/PlacementController.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_152040
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+### Uncommitted Changes
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/GameEngine.js
+js/ModelLoader.js
+js/RaceMode.js
+js/TrackIntel.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/models/TrackTile.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/PlacementController.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_152202
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+d535437 fix(tracks): remove extra closing brace in TracksPanel.show()
+3ebedd0 refactor(play): track selection moves to full-screen overlay after PLAY
+### Uncommitted Changes
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/GameEngine.js
+js/ModelLoader.js
+js/RaceMode.js
+js/TrackIntel.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/models/TrackTile.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/PlacementController.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_154202
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+### Uncommitted Changes
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/GameEngine.js
+js/ModelLoader.js
+js/RaceMode.js
+js/TrackIntel.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/models/TrackTile.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ValidationService.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_155500
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+### Uncommitted Changes
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/models/TrackTile.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ValidationService.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_155805
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+### Uncommitted Changes
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/models/TrackTile.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ValidationService.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_155948
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+0e4fde2 feat(race): AI fill — RACE mode fills to 8 racers with AI after matchmaking
+### Uncommitted Changes
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/models/TrackTile.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ValidationService.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_160429
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+4b87cec fix(play): remove track select overlay immediately on GO — was blocking game canvas
+### Uncommitted Changes
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/models/TrackTile.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ValidationService.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_160716
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+### Uncommitted Changes
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/models/TrackTile.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ValidationService.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_160744
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+### Uncommitted Changes
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/models/TrackTile.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ValidationService.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_161527
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+0e72aaa fix(race): AI fill timing + findRoom timeout back to 10s + debug logging
+4e46e4d fix(race): auto-start race for non-multiplayer — skip RaceLobby dwell/ready
+8a4eb28 fix(race): fallback to solo race with AI when matchmaking fails
+### Uncommitted Changes
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ValidationService.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_163524
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+d583e81 fix(ai): allow AI spawn without valid TrackIntel — fallback to random steering
+b806bc3 fix(race): use built-in track for RACE fallback — fixes TrackIntel connectivity
+### Uncommitted Changes
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_164742
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+### Uncommitted Changes
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_170545
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+### Uncommitted Changes
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_170848
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+### Uncommitted Changes
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_172007
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+### Uncommitted Changes
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_175317
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+### Uncommitted Changes
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_183509
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+### Uncommitted Changes
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_183915
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+### Uncommitted Changes
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_184824
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_184836
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_185228
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_185611
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceFinishCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_190102
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+27a9d56 feat(party): 3D lobby with karts on starting grid + play mode overhaul
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceFinishCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_190345
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceFinishCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/commands/ReplaceTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/modes/BuildMode.js
+js/track-editor/modes/DecorMode.js
+js/track-editor/modes/PropsMode.js
+js/track-editor/modes/SculptMode.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/OccupancyGrid.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/RouteAnalysisService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/track-editor/ui/MinimapRenderer.js
+js/track-editor/ui/StatsPanel.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_190419
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceFinishCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/commands/ReplaceTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/modes/BuildMode.js
+js/track-editor/modes/DecorMode.js
+js/track-editor/modes/PropsMode.js
+js/track-editor/modes/SculptMode.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/OccupancyGrid.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/RouteAnalysisService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/track-editor/ui/MinimapRenderer.js
+js/track-editor/ui/StatsPanel.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_190445
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceFinishCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/commands/ReplaceTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/modes/BuildMode.js
+js/track-editor/modes/DecorMode.js
+js/track-editor/modes/PropsMode.js
+js/track-editor/modes/SculptMode.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/OccupancyGrid.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/RouteAnalysisService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/track-editor/ui/MinimapRenderer.js
+js/track-editor/ui/StatsPanel.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_191100
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceFinishCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/commands/ReplaceTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/modes/BuildMode.js
+js/track-editor/modes/DecorMode.js
+js/track-editor/modes/PropsMode.js
+js/track-editor/modes/SculptMode.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/OccupancyGrid.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/RouteAnalysisService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/track-editor/ui/MinimapRenderer.js
+js/track-editor/ui/StatsPanel.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+---
+
+## Session End: 20260410_191526
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceFinishCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/commands/ReplaceTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/modes/BuildMode.js
+js/track-editor/modes/DecorMode.js
+js/track-editor/modes/PropsMode.js
+js/track-editor/modes/SculptMode.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/OccupancyGrid.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/RouteAnalysisService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/track-editor/ui/MinimapRenderer.js
+js/track-editor/ui/StatsPanel.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+track-editor.html
+---
+
+## Session End: 20260410_191817
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceFinishCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/commands/ReplaceTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/modes/BuildMode.js
+js/track-editor/modes/DecorMode.js
+js/track-editor/modes/PropsMode.js
+js/track-editor/modes/SculptMode.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/OccupancyGrid.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/RouteAnalysisService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/track-editor/ui/MinimapRenderer.js
+js/track-editor/ui/StatsPanel.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+track-editor.html
+---
+
+## Session End: 20260410_192136
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceFinishCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/commands/ReplaceTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/modes/BuildMode.js
+js/track-editor/modes/DecorMode.js
+js/track-editor/modes/PropsMode.js
+js/track-editor/modes/SculptMode.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/OccupancyGrid.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/RouteAnalysisService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/track-editor/ui/MinimapRenderer.js
+js/track-editor/ui/StatsPanel.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+track-editor.html
+---
+
+## Session End: 20260410_192440
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+6ba43fa fix(race): auto-start multiplayer races — skip RaceLobby for all modes
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceFinishCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/commands/ReplaceTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/modes/BuildMode.js
+js/track-editor/modes/DecorMode.js
+js/track-editor/modes/PropsMode.js
+js/track-editor/modes/SculptMode.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/OccupancyGrid.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/RouteAnalysisService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/track-editor/ui/MinimapRenderer.js
+js/track-editor/ui/StatsPanel.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+track-editor.html
+---
+
+## Session End: 20260410_192509
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceFinishCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/commands/ReplaceTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/modes/BuildMode.js
+js/track-editor/modes/DecorMode.js
+js/track-editor/modes/PropsMode.js
+js/track-editor/modes/SculptMode.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/OccupancyGrid.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/RouteAnalysisService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/track-editor/ui/MinimapRenderer.js
+js/track-editor/ui/StatsPanel.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+track-editor.html
+---
+
+## Session End: 20260410_192527
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceFinishCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/commands/ReplaceTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/modes/BuildMode.js
+js/track-editor/modes/DecorMode.js
+js/track-editor/modes/PropsMode.js
+js/track-editor/modes/SculptMode.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/OccupancyGrid.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/RouteAnalysisService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/track-editor/ui/MinimapRenderer.js
+js/track-editor/ui/StatsPanel.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+track-editor.html
+---
+
+## Session End: 20260410_193040
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceFinishCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/commands/ReplaceTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/modes/BuildMode.js
+js/track-editor/modes/DecorMode.js
+js/track-editor/modes/PropsMode.js
+js/track-editor/modes/SculptMode.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/OccupancyGrid.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/RouteAnalysisService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/track-editor/ui/MinimapRenderer.js
+js/track-editor/ui/StatsPanel.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+track-editor.html
+---
+
+## Session End: 20260410_193411
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceFinishCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/commands/ReplaceTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/modes/BuildMode.js
+js/track-editor/modes/DecorMode.js
+js/track-editor/modes/PropsMode.js
+js/track-editor/modes/SculptMode.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/OccupancyGrid.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/RouteAnalysisService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/track-editor/ui/MinimapRenderer.js
+js/track-editor/ui/StatsPanel.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+track-editor.html
+---
+
+## Session End: 20260410_193644
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceFinishCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/commands/ReplaceTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/modes/BuildMode.js
+js/track-editor/modes/DecorMode.js
+js/track-editor/modes/PropsMode.js
+js/track-editor/modes/SculptMode.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/OccupancyGrid.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/RouteAnalysisService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/track-editor/ui/MinimapRenderer.js
+js/track-editor/ui/StatsPanel.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+track-editor.html
+---
+
+## Session End: 20260410_194055
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceFinishCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/commands/ReplaceTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/modes/BuildMode.js
+js/track-editor/modes/DecorMode.js
+js/track-editor/modes/PropsMode.js
+js/track-editor/modes/SculptMode.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/OccupancyGrid.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/RouteAnalysisService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/track-editor/ui/MinimapRenderer.js
+js/track-editor/ui/StatsPanel.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+track-editor.html
+---
+
+## Session End: 20260410_194215
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceFinishCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/commands/ReplaceTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/modes/BuildMode.js
+js/track-editor/modes/DecorMode.js
+js/track-editor/modes/PropsMode.js
+js/track-editor/modes/SculptMode.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/OccupancyGrid.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/RouteAnalysisService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/track-editor/ui/MinimapRenderer.js
+js/track-editor/ui/StatsPanel.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+track-editor.html
+---
+
+## Session End: 20260410_194905
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceFinishCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/commands/ReplaceTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/modes/BuildMode.js
+js/track-editor/modes/DecorMode.js
+js/track-editor/modes/PropsMode.js
+js/track-editor/modes/SculptMode.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/OccupancyGrid.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/RouteAnalysisService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/track-editor/ui/MinimapRenderer.js
+js/track-editor/ui/StatsPanel.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+track-editor.html
+---
+
+## Session End: 20260410_195050
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceFinishCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/commands/ReplaceTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/modes/BuildMode.js
+js/track-editor/modes/DecorMode.js
+js/track-editor/modes/PropsMode.js
+js/track-editor/modes/SculptMode.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/OccupancyGrid.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/RouteAnalysisService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/track-editor/ui/MinimapRenderer.js
+js/track-editor/ui/StatsPanel.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+track-editor.html
+---
+
+## Session End: 20260410_195331
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceFinishCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/commands/ReplaceTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/modes/BuildMode.js
+js/track-editor/modes/DecorMode.js
+js/track-editor/modes/PropsMode.js
+js/track-editor/modes/SculptMode.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/OccupancyGrid.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/RouteAnalysisService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/track-editor/ui/MinimapRenderer.js
+js/track-editor/ui/StatsPanel.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+track-editor.html
+---
+
+## Session End: 20260410_195708
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceFinishCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/commands/ReplaceTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/modes/BuildMode.js
+js/track-editor/modes/DecorMode.js
+js/track-editor/modes/PropsMode.js
+js/track-editor/modes/SculptMode.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/OccupancyGrid.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/RouteAnalysisService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/track-editor/ui/MinimapRenderer.js
+js/track-editor/ui/StatsPanel.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+track-editor.html
+---
+
+## Session End: 20260410_195954
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceFinishCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/commands/ReplaceTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/modes/BuildMode.js
+js/track-editor/modes/DecorMode.js
+js/track-editor/modes/PropsMode.js
+js/track-editor/modes/SculptMode.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/OccupancyGrid.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/RouteAnalysisService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/track-editor/ui/MinimapRenderer.js
+js/track-editor/ui/StatsPanel.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+track-editor.html
+---
+
+## Session End: 20260410_200102
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceFinishCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/commands/ReplaceTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/modes/BuildMode.js
+js/track-editor/modes/DecorMode.js
+js/track-editor/modes/PropsMode.js
+js/track-editor/modes/SculptMode.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/OccupancyGrid.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/RouteAnalysisService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/track-editor/ui/MinimapRenderer.js
+js/track-editor/ui/StatsPanel.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+track-editor.html
+---
+
+## Session End: 20260410_200436
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceFinishCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/commands/ReplaceTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/modes/BuildMode.js
+js/track-editor/modes/DecorMode.js
+js/track-editor/modes/PropsMode.js
+js/track-editor/modes/SculptMode.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/OccupancyGrid.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/RouteAnalysisService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/track-editor/ui/MinimapRenderer.js
+js/track-editor/ui/StatsPanel.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+track-editor.html
+---
+
+## Session End: 20260410_200818
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceFinishCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/commands/ReplaceTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/modes/BuildMode.js
+js/track-editor/modes/DecorMode.js
+js/track-editor/modes/PropsMode.js
+js/track-editor/modes/SculptMode.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/OccupancyGrid.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/RouteAnalysisService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/track-editor/ui/MinimapRenderer.js
+js/track-editor/ui/StatsPanel.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+track-editor.html
+---
+
+## Session End: 20260410_201734
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceFinishCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/commands/ReplaceTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/modes/BuildMode.js
+js/track-editor/modes/DecorMode.js
+js/track-editor/modes/PropsMode.js
+js/track-editor/modes/SculptMode.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/OccupancyGrid.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/RouteAnalysisService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/track-editor/ui/MinimapRenderer.js
+js/track-editor/ui/StatsPanel.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+track-editor.html
+---
+
+## Session End: 20260410_202440
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+469b5b3 feat(lobby): swap GLB for optimized GLTF lobby environment with debug tooling
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceFinishCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/commands/ReplaceTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/modes/BuildMode.js
+js/track-editor/modes/DecorMode.js
+js/track-editor/modes/PropsMode.js
+js/track-editor/modes/SculptMode.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/OccupancyGrid.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/RouteAnalysisService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/track-editor/ui/MinimapRenderer.js
+js/track-editor/ui/StatsPanel.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+track-editor.html
+---
+
+## Session End: 20260410_202834
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+291b23c Merge pull request #147 from BEASTstudiolab/feat/3d-party-lobby
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceFinishCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/commands/ReplaceTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/modes/BuildMode.js
+js/track-editor/modes/DecorMode.js
+js/track-editor/modes/PropsMode.js
+js/track-editor/modes/SculptMode.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/OccupancyGrid.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/RouteAnalysisService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/track-editor/ui/MinimapRenderer.js
+js/track-editor/ui/StatsPanel.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+track-editor.html
+---
+
+## Session End: 20260410_203225
+### Commits
+4043b8b Merge branch 'master' of https://github.com/BEASTstudiolab/kart-kids
+f06ab7e kart-kids-v0.32-lobby-3d
+### Uncommitted Changes
+.claude/settings.local.json
+CLAUDE.md
+editor.html
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Audio.js
+js/DebugMenu.js
+js/DebugPanelSetup.js
+js/GameEngine.js
+js/ModelLoader.js
+js/PlayerManager.js
+js/RaceMode.js
+js/Track.js
+js/TrackCodec.js
+js/TrackIntel.js
+js/Vehicle.js
+js/editor/AutoTile.js
+js/editor/Curves.js
+js/editor/Debug.js
+js/editor/EditorState.js
+js/editor/Elevation.js
+js/editor/Grid.js
+js/editor/Persistence.js
+js/editor/editor-main.js
+js/track-editor/commands/EraseTileCommand.js
+js/track-editor/commands/PlaceFinishCommand.js
+js/track-editor/commands/PlaceSpecialTileCommand.js
+js/track-editor/commands/ReplaceTileCommand.js
+js/track-editor/core/EditorApp.js
+js/track-editor/models/TrackProject.js
+js/track-editor/models/TrackTile.js
+js/track-editor/modes/BuildMode.js
+js/track-editor/modes/DecorMode.js
+js/track-editor/modes/PropsMode.js
+js/track-editor/modes/SculptMode.js
+js/track-editor/services/CameraController.js
+js/track-editor/services/CurveService.js
+js/track-editor/services/DebugOverlayService.js
+js/track-editor/services/ElevationController.js
+js/track-editor/services/OccupancyGrid.js
+js/track-editor/services/PlacementController.js
+js/track-editor/services/ProjectStorageService.js
+js/track-editor/services/RouteAnalysisService.js
+js/track-editor/services/ShareLinkService.js
+js/track-editor/services/ValidationService.js
+js/track-editor/ui/MinimapRenderer.js
+js/track-editor/ui/StatsPanel.js
+js/ui/LobbyScene.js
+js/ui/components/TrackBrowser.js
+js/ui/core/AppShell.js
+js/ui/overlays/TrackSelectOverlay.js
+js/ui/panels/TracksPanel.js
+js/vehicle/VehicleHealth.js
+js/vehicle/VehicleRemoteSync.js
+models/vehicles/BaseRaceKart3.bin
+models/vehicles/BaseRaceKart3.gltf
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/test-autodraw.js
+tests/tile-seam-config.test.mjs
+track-editor.html
+---
+

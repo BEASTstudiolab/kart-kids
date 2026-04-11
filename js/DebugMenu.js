@@ -18,11 +18,28 @@ export class DebugMenu {
 		this.panel.addEventListener( 'keydown', ( e ) => e.stopPropagation() );
 		this.panel.addEventListener( 'keyup', ( e ) => e.stopPropagation() );
 
-		// ── Title ─────────────────────────────────────────────────────────────
+		// ── Title bar with close button ───────────────────────────────────────
+		const titleBar = document.createElement( 'div' );
+		titleBar.style.cssText = 'display:flex; justify-content:space-between; align-items:center; margin-bottom:6px';
+
 		const title = document.createElement( 'div' );
 		title.textContent = 'DEBUG CONTROLS';
-		title.style.cssText = 'font-weight:bold; margin-bottom:6px';
-		this.panel.appendChild( title );
+		title.style.cssText = 'font-weight:bold';
+
+		const closeBtn = document.createElement( 'button' );
+		closeBtn.textContent = '\u2715';
+		closeBtn.style.cssText = [
+			'background:transparent', 'color:#0f0', 'border:1px solid #0f044',
+			'font:bold 14px monospace', 'cursor:pointer', 'padding:2px 7px',
+			'border-radius:3px', 'line-height:1',
+		].join( ';' );
+		closeBtn.addEventListener( 'mouseover', () => { closeBtn.style.background = '#f002'; closeBtn.style.color = '#f66'; } );
+		closeBtn.addEventListener( 'mouseout', () => { closeBtn.style.background = 'transparent'; closeBtn.style.color = '#0f0'; } );
+		closeBtn.addEventListener( 'click', () => this.hide() );
+
+		titleBar.appendChild( title );
+		titleBar.appendChild( closeBtn );
+		this.panel.appendChild( titleBar );
 
 		// ── Tab bar ───────────────────────────────────────────────────────────
 		this.tabBar = document.createElement( 'div' );

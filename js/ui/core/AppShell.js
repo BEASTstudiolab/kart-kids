@@ -284,7 +284,14 @@ export class AppShell {
 		// to RACE tab. First-run players see NameEntryModal then RACE tab.
 		const settings = new Settings();
 
-		if ( settings.isFirstRun() ) {
+		// Auto-start race if URL contains track data (#track=v4:...)
+		const trackHash = window.location.hash.slice( 1 );
+		if ( trackHash.startsWith( 'track=v4:' ) ) {
+
+			this._router.start();
+			this.startRace( { mode: 'solo' } );
+
+		} else if ( settings.isFirstRun() ) {
 
 			// First run: show name modal, then land on RACE tab.
 			// Handle first-run BEFORE router.start() to avoid the fallback
@@ -982,6 +989,14 @@ export class AppShell {
 			if ( this._tabBarEl ) {
 
 				this._tabBarEl.style.display = 'none';
+
+			}
+
+			// Hide the lobby scene debug panel + toggle so they don't overlay the race.
+			if ( this._lobbyScene ) {
+
+				if ( this._lobbyScene._debugPanel ) this._lobbyScene._debugPanel.style.display = 'none';
+				if ( this._lobbyScene._debugToggleBtn ) this._lobbyScene._debugToggleBtn.style.display = 'none';
 
 			}
 

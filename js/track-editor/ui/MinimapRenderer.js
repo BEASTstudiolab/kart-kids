@@ -68,7 +68,7 @@ export class MinimapRenderer {
 		// Draw tiles
 		for ( const [ key, tile ] of grid ) {
 
-			if ( tile._consumed || tile.finishFlank ) continue;
+			if ( tile._consumed ) continue;
 
 			const [ gx, gz ] = key.split( ',' ).map( Number );
 			const px = offsetX + ( gx - minGx ) * cellSize;

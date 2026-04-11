@@ -5,13 +5,14 @@
 import * as THREE from 'three';
 import { CELL_RAW } from '../../TrackConstants.js';
 import { ELEV_GROUND } from '../models/TrackProject.js';
+import { TrackIntel } from '../../TrackIntel.js';
 
 const Y_PER_STEP = 2.416;
 
 // Debug toggle options
 const DEBUG_TOGGLES = [
 	{ id: 'tileNames',       label: 'Tile Names',         default: true },
-	{ id: 'tileIds',         label: 'Tile IDs (cell)',     default: false },
+	{ id: 'tileIds',         label: 'Grid Position',       default: true },
 	{ id: 'sequenceNumbers', label: 'Sequence Numbers',    default: true },
 	{ id: 'footprintBounds', label: 'Footprint Bounds',    default: false },
 	{ id: 'elevations',      label: 'Elevations',          default: true },
@@ -92,13 +93,21 @@ export class DebugOverlayService {
 		if ( ! this._enabled ) return;
 
 		const tile = this._project.getTile( gx, gz );
-		if ( ! tile ) { this.hideTooltip(); return; }
+
+		// Show coords even for empty cells
+		if ( ! tile ) {
+
+			this._tooltipEl.textContent = `(${ gx }, ${ gz }) — empty`;
+			this._tooltipEl.style.display = 'block';
+			return;
+
+		}
 
 		const elevStep = tile._derivedElevation || tile.elevation || ELEV_GROUND;
 		const elevM = ( ( elevStep - ELEV_GROUND ) * 2.5 ).toFixed( 1 );
 
 		const parts = [
-			`${ gx },${ gz }`,
+			`(${ gx }, ${ gz })`,
 			tile.type.replace( 'trk-', '' ),
 			`orient:${ tile.orient }`,
 			`${ elevM }m`,
@@ -133,9 +142,13 @@ export class DebugOverlayService {
 		const show = this._toggles;
 		let seqIndex = 0;
 
+		// Origin marker at (0,0)
+		this._addOriginMarker();
+
+		// Grid coordinate labels on each tile
 		for ( const [ key, tile ] of this._project.getGrid() ) {
 
-			if ( tile._consumed || tile.finishFlank ) continue;
+			if ( tile._consumed ) continue;
 
 			const [ gx, gz ] = key.split( ',' ).map( Number );
 			const elevStep = tile._derivedElevation || tile.elevation || ELEV_GROUND;
@@ -178,7 +191,7 @@ export class DebugOverlayService {
 
 			}
 
-			// Occupied cell highlight
+			// Occupied cells highlight
 			if ( show.occupiedCells ) {
 
 				const geo = new THREE.PlaneGeometry( CELL_RAW * 0.9, CELL_RAW * 0.9 );
@@ -194,6 +207,144 @@ export class DebugOverlayService {
 			}
 
 		}
+
+		// ── Route path overlay (AI waypoints) ──
+		if ( show.routePath ) this._buildRoutePath();
+
+	}
+
+	/** @private Build green polyline + dots for AI route waypoints. */
+	_buildRoutePath() {
+
+		const cells = this._project.getCellsArray();
+		if ( ! cells || cells.length === 0 ) return;
+
+		const intel = new TrackIntel( cells );
+		if ( ! intel.valid || intel.count === 0 ) return;
+
+		// Green polyline — follows elevation
+		const points = [];
+		for ( let i = 0; i < intel.count; i ++ ) {
+
+			const w = intel.waypoints[ i ];
+			points.push( new THREE.Vector3( w.x, ( w.y || 0 ) + 1.0, w.z ) );
+
+		}
+
+		points.push( points[ 0 ].clone() ); // close loop
+
+		const lineGeo = new THREE.BufferGeometry().setFromPoints( points );
+		const lineMat = new THREE.LineBasicMaterial( {
+			color: 0x00ff00,
+			depthTest: false,
+			transparent: true,
+			opacity: 0.85,
+		} );
+		const line = new THREE.Line( lineGeo, lineMat );
+		line.renderOrder = 999;
+		this.labelGroup.add( line );
+
+		// Waypoint dots — follow elevation
+		const dotPositions = new Float32Array( intel.count * 3 );
+		for ( let i = 0; i < intel.count; i ++ ) {
+
+			const w = intel.waypoints[ i ];
+			dotPositions[ i * 3 ] = w.x;
+			dotPositions[ i * 3 + 1 ] = ( w.y || 0 ) + 1.2;
+			dotPositions[ i * 3 + 2 ] = w.z;
+
+		}
+
+		const dotGeo = new THREE.BufferGeometry();
+		dotGeo.setAttribute( 'position', new THREE.BufferAttribute( dotPositions, 3 ) );
+		const dotMat = new THREE.PointsMaterial( {
+			color: 0x00ff88,
+			size: 1.5,
+			sizeAttenuation: true,
+			depthTest: false,
+		} );
+		const dots = new THREE.Points( dotGeo, dotMat );
+		dots.renderOrder = 1000;
+		this.labelGroup.add( dots );
+
+	}
+
+	/** @private Add a visible origin marker at (0,0) and axis lines. */
+	_addOriginMarker() {
+
+		const originX = 0.5 * CELL_RAW;
+		const originZ = 0.5 * CELL_RAW;
+
+		// Cross at origin
+		const crossSize = CELL_RAW * 0.4;
+		const crossGeo = new THREE.BufferGeometry().setFromPoints( [
+			new THREE.Vector3( originX - crossSize, 0.15, originZ ),
+			new THREE.Vector3( originX + crossSize, 0.15, originZ ),
+			new THREE.Vector3( originX, 0.15, originZ - crossSize ),
+			new THREE.Vector3( originX, 0.15, originZ + crossSize ),
+		] );
+		crossGeo.setIndex( [ 0, 1, 2, 3 ] );
+		const crossMat = new THREE.LineBasicMaterial( { color: 0xffffff, depthTest: false, transparent: true, opacity: 0.6 } );
+		const cross = new THREE.LineSegments( crossGeo, crossMat );
+		cross.renderOrder = 998;
+		this.labelGroup.add( cross );
+
+		// "0,0" label
+		const originLabel = this._createTextSprite( '(0, 0)', '#ffffff', 128, 32 );
+		originLabel.position.set( originX, 3.5, originZ );
+		this.labelGroup.add( originLabel );
+
+		// Axis indicators
+		const axisLen = CELL_RAW * 3;
+
+		// +X axis (East) — green
+		const xGeo = new THREE.BufferGeometry().setFromPoints( [
+			new THREE.Vector3( originX, 0.12, originZ ),
+			new THREE.Vector3( originX + axisLen, 0.12, originZ ),
+		] );
+		const xLine = new THREE.Line( xGeo, new THREE.LineBasicMaterial( { color: 0x22c55e, depthTest: false } ) );
+		xLine.renderOrder = 997;
+		this.labelGroup.add( xLine );
+		const xLabel = this._createTextSprite( '+X (E)', '#22c55e', 96, 24 );
+		xLabel.position.set( originX + axisLen + CELL_RAW * 0.5, 1, originZ );
+		this.labelGroup.add( xLabel );
+
+		// +Z axis (South) — blue
+		const zGeo = new THREE.BufferGeometry().setFromPoints( [
+			new THREE.Vector3( originX, 0.12, originZ ),
+			new THREE.Vector3( originX, 0.12, originZ + axisLen ),
+		] );
+		const zLine = new THREE.Line( zGeo, new THREE.LineBasicMaterial( { color: 0x3b82f6, depthTest: false } ) );
+		zLine.renderOrder = 997;
+		this.labelGroup.add( zLine );
+		const zLabel = this._createTextSprite( '+Z (S)', '#3b82f6', 96, 24 );
+		zLabel.position.set( originX, 1, originZ + axisLen + CELL_RAW * 0.5 );
+		this.labelGroup.add( zLabel );
+
+	}
+
+	/** @private Create a simple text sprite. */
+	_createTextSprite( text, color, w, h ) {
+
+		const canvas = document.createElement( 'canvas' );
+		canvas.width = w;
+		canvas.height = h;
+		const ctx = canvas.getContext( '2d' );
+		ctx.fillStyle = 'rgba(0,0,0,0.6)';
+		ctx.roundRect( 0, 0, w, h, 3 );
+		ctx.fill();
+		ctx.fillStyle = color;
+		ctx.font = 'bold ' + Math.floor( h * 0.6 ) + 'px monospace';
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle';
+		ctx.fillText( text, w / 2, h / 2 );
+
+		const texture = new THREE.CanvasTexture( canvas );
+		texture.minFilter = THREE.LinearFilter;
+		const mat = new THREE.SpriteMaterial( { map: texture, transparent: true, depthTest: false } );
+		const sprite = new THREE.Sprite( mat );
+		sprite.scale.set( w / 32, h / 32, 1 );
+		return sprite;
 
 	}
 

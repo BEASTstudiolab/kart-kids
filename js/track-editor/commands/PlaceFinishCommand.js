@@ -7,6 +7,7 @@ import * as THREE from 'three';
 import { Command } from '../core/Command.js';
 import { TrackTile } from '../models/TrackTile.js';
 import { CELL_RAW, ORIENT_DEG } from '../../TrackConstants.js';
+import { getFinishRoadCells } from '../../TrackOrientation.js';
 
 export class PlaceFinishCommand {
 
@@ -36,33 +37,37 @@ export class PlaceFinishCommand {
 		// Remove existing finish (if any)
 		this._removeOldFinish();
 
-		// Place the finish tile (single 3x1 mesh)
+		// Place the finish tile at center
 		const finishTile = new TrackTile( 'trk-finish', orient );
 		finishTile.isFinish = true;
 		project.setTile( gx, gz, finishTile );
 		this._meshFactory.createTileMesh( gx, gz, finishTile );
 
-		// Place invisible flanking cells (grid reservations, NO mesh)
-		const isNS = orient === 0 || orient === 10;
-		const flanks = isNS
-			? [ { gx: gx - 1, gz }, { gx: gx + 1, gz } ]
-			: [ { gx, gz: gz - 1 }, { gx, gz: gz + 1 } ];
+		const roadCells = getFinishRoadCells( gx, gz, orient );
 
-		for ( const f of flanks ) {
+		for ( const r of roadCells ) {
 
-			// Remove any existing tile at the flank position
-			const existing = project.getTile( f.gx, f.gz );
-			if ( existing && existing.mesh ) {
+			const existing = project.getTile( r.gx, r.gz );
 
-				project.trackGroup.remove( existing.mesh );
+			// If there's already a road tile here, keep it (just hide its mesh
+			// since the finish model visually covers it)
+			if ( existing ) {
+
+				if ( existing.mesh ) {
+
+					project.trackGroup.remove( existing.mesh );
+					existing.mesh = null;
+
+				}
+
+			} else {
+
+				// No tile here — create an invisible straight so the grid is continuous
+				const road = new TrackTile( 'trk-straight', orient );
+				road.mesh = null;
+				project.setTile( r.gx, r.gz, road );
 
 			}
-
-			// Create invisible reservation tile
-			const flank = new TrackTile( 'trk-straight', orient );
-			flank.finishFlank = true;
-			flank.mesh = null; // No mesh — the finish model covers this area
-			project.setTile( f.gx, f.gz, flank );
 
 		}
 
@@ -126,7 +131,7 @@ export class PlaceFinishCommand {
 
 		for ( const [ key, tile ] of this._project.getGrid() ) {
 
-			if ( tile.isFinish || tile.finishFlank ) {
+			if ( tile.isFinish ) {
 
 				const [ gx, gz ] = key.split( ',' ).map( Number );
 				this._beforeSnapshot.set( key, tile.clone() );
@@ -236,7 +241,7 @@ export class PlaceFinishCommand {
 
 		for ( const [ key, tile ] of this._project.getGrid() ) {
 
-			if ( tile.isFinish || tile.finishFlank ) {
+			if ( tile.isFinish ) {
 
 				toRemove.push( key );
 

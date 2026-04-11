@@ -52,7 +52,7 @@ export class OccupancyGrid {
 
 		for ( const [ key, tile ] of project.getGrid() ) {
 
-			if ( tile.finishFlank || tile._consumed ) {
+			if ( tile._consumed ) {
 
 				// Track multi-cell ownership
 				this.multiCellOwner.set( key, key ); // simplified — anchor tracking

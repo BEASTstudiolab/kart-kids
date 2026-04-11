@@ -2,7 +2,7 @@
 // Places a special tile (junction, bridge, tunnel, jump, chicane).
 
 import { Command } from '../core/Command.js';
-import { TrackTile, TILES_3X3 } from '../models/TrackTile.js';
+import { TrackTile, TILES_3X3, TILES_2X2 } from '../models/TrackTile.js';
 
 export class PlaceSpecialTileCommand {
 
@@ -82,8 +82,8 @@ export class PlaceSpecialTileCommand {
 		project.setTile( gx, gz, tile );
 		this._meshFactory.createTileMesh( gx, gz, tile );
 
-		// For 3x3 tiles, mark consumed cells
-		if ( TILES_3X3.has( tileType ) ) {
+		// For multi-cell tiles (3x3 or 2x2), mark consumed cells
+		if ( TILES_3X3.has( tileType ) || TILES_2X2.has( tileType ) ) {
 
 			for ( const cell of footprint ) {
 

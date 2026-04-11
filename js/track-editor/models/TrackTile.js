@@ -2,10 +2,11 @@
 // Represents a single placed track tile in the editor grid.
 // Stores type, orientation, elevation, curve state, and mesh reference.
 
-// Corner exit masks by orient code: N=8 S=4 E=2 W=1
-const CORNER_EXITS = { 0: 5, 16: 6, 10: 10, 22: 9 };  // S+W, S+E, N+E, N+W
-// Straight exit masks: N+S or E+W
-const STRAIGHT_EXITS = { 0: 12, 10: 12, 16: 3, 22: 3 };
+import { CORNER_EXIT_MASKS, STRAIGHT_EXIT_MASKS } from '../../TrackOrientation.js';
+
+// Corner/straight exits by orient code: N=8 S=4 E=2 W=1.
+const CORNER_EXITS = CORNER_EXIT_MASKS;
+const STRAIGHT_EXITS = STRAIGHT_EXIT_MASKS;
 
 // Junction exit masks by orient code
 // Y-split: 3 exits (one stem + two forks)
@@ -19,6 +20,11 @@ const JUNCTION_4WAY_EXITS = 15;
 const TILES_3X3 = new Set( [
 	'trk-junction-y', 'trk-junction-t', 'trk-junction-4way', 'trk-chicane-3x3-l',
 	'trk-curve-3x3-l', 'trk-curve-3x3-wide-l',
+] );
+
+// 2x2 tiles with consumed cells — anchor at corner, footprint extends +X/+Z
+const TILES_2X2 = new Set( [
+	'trk-curve-2x2-l',
 ] );
 
 // Finish tile (3x1)
@@ -69,8 +75,6 @@ export class TrackTile {
 		// ── Finish ──
 		/** @type {boolean} */
 		this.isFinish = false;
-		/** @type {boolean} flanking cell of finish (not the center) */
-		this.finishFlank = false;
 
 		// ── Multi-tile ──
 		/** @type {boolean} this cell is consumed by a larger tile */
@@ -133,7 +137,7 @@ export class TrackTile {
 	 */
 	getFootprintCells( gx, gz ) {
 
-		// 3x3 junctions / chicane
+		// 3x3 junctions / chicane / curves
 		if ( TILES_3X3.has( this.type ) ) {
 
 			const cells = [];
@@ -151,25 +155,28 @@ export class TrackTile {
 
 		}
 
-		// Finish (3x1) — center + 2 flanking cells along perpendicular axis
-		if ( this.type === TILE_FINISH ) {
+		// 2x2 curves — anchor at corner, footprint extends into the 2x2 quadrant
+		if ( TILES_2X2.has( this.type ) ) {
 
-			const isNS = ( this.orient === 0 || this.orient === 10 );
-			if ( isNS ) {
+			const cells = [];
+			for ( let dx = 0; dx < 2; dx ++ ) {
 
-				return [
-					{ gx, gz },
-					{ gx: gx - 1, gz },
-					{ gx: gx + 1, gz },
-				];
+				for ( let dz = 0; dz < 2; dz ++ ) {
+
+					cells.push( { gx: gx + dx, gz: gz + dz } );
+
+				}
 
 			}
 
-			return [
-				{ gx, gz },
-				{ gx, gz: gz - 1 },
-				{ gx, gz: gz + 1 },
-			];
+			return cells;
+
+		}
+
+		// Finish — single cell (the 3x1 model is visual only)
+		if ( this.type === TILE_FINISH ) {
+
+			return [ { gx, gz } ];
 
 		}
 
@@ -197,7 +204,6 @@ export class TrackTile {
 		t.rampStyle = this.rampStyle;
 		t._derivedElevation = this._derivedElevation;
 		t.isFinish = this.isFinish;
-		t.finishFlank = this.finishFlank;
 		t._consumed = this._consumed;
 
 		return t;
@@ -206,4 +212,4 @@ export class TrackTile {
 
 }
 
-export { CORNER_EXITS, STRAIGHT_EXITS, TILES_3X3, TILE_FINISH };
+export { CORNER_EXITS, STRAIGHT_EXITS, TILES_3X3, TILES_2X2, TILE_FINISH };

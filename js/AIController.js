@@ -100,8 +100,10 @@ export class AIController {
 		this._waypointHint = trackIntel.getNearestWaypoint( pos.x, pos.z );
 
 		const n = trackIntel.count;
-		const idx1 = ( this._waypointHint + 1 ) % n;
-		const idx2 = ( this._waypointHint + 2 ) % n;
+		const nearStep = p.lookAheadNear || 3;
+		const farStep = p.lookAheadFar || 5;
+		const idx1 = ( this._waypointHint + nearStep ) % n;
+		const idx2 = ( this._waypointHint + farStep ) % n;
 
 		const wp1 = trackIntel.waypoints[ idx1 ];
 		const wp2 = trackIntel.waypoints[ idx2 ];

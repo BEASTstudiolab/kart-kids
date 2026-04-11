@@ -298,7 +298,7 @@ export class CameraController {
 		const gx = Math.floor( intersection.x / CELL_RAW );
 		const gz = Math.floor( intersection.z / CELL_RAW );
 
-		return { gx, gz };
+		return { gx, gz, worldX: intersection.x, worldZ: intersection.z };
 
 	}
 

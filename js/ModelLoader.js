@@ -6,14 +6,6 @@ import { PLAYER_VEHICLES, PLAYER_CHARACTER_ID } from './VehicleRegistry.js';
 
 THREE.Cache.enabled = true;
 
-// Vehicle color tints — load only the yellow base, derive others via clone+tint
-const VEHICLE_BASE = 'vehicle-truck-yellow';
-const VEHICLE_TINTS = {
-	'vehicle-truck-yellow': null, // base model, no tint
-	'vehicle-truck-green': new THREE.Color( 0.45, 1.0, 0.45 ),
-	'vehicle-truck-purple': new THREE.Color( 0.75, 0.45, 1.0 ),
-	'vehicle-truck-red': new THREE.Color( 1.0, 0.4, 0.4 ),
-};
 
 const ANIMATION_FILES = [
 	'Kart_Beast_Driving',
@@ -28,10 +20,8 @@ export const ANIMATION_CLIPS = {};
 
 // Always-loaded models (vehicles, characters, decorations)
 const ALWAYS_LOAD = [
-	VEHICLE_BASE,
 	...PLAYER_VEHICLES.map( ( v ) => v.id ),
 	PLAYER_CHARACTER_ID,
-	'character-default',
 	'decoration-empty-night', 'decoration-buildings-1', 'decoration-buildings-2',
 ];
 
@@ -197,41 +187,6 @@ export async function loadModels( trackTileSet, asphaltMode, cells, onProgress )
 		} )
 	);
 	await Promise.all( animPromises );
-
-	// Derive vehicle color variants from the base model
-	const baseVehicle = models[ VEHICLE_BASE ];
-	if ( baseVehicle ) {
-
-		for ( const [ name, tint ] of Object.entries( VEHICLE_TINTS ) ) {
-
-			if ( ! tint ) continue; // skip the base model itself
-			const clone = baseVehicle.clone();
-
-			// Find the 'body' node (may be a Group with child meshes for multi-material)
-			let bodyNode = null;
-			clone.traverse( ( child ) => {
-
-				if ( child.name.toLowerCase() === 'body' ) bodyNode = child;
-
-			} );
-
-			if ( bodyNode ) {
-
-				bodyNode.traverse( ( child ) => {
-
-					if ( ! child.isMesh ) return;
-					child.material = child.material.clone();
-					child.material.color.copy( tint );
-
-				} );
-
-			}
-
-			models[ name ] = clone;
-
-		}
-
-	}
 
 	return models;
 

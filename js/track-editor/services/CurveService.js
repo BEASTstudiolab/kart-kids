@@ -290,7 +290,8 @@ export class CurveService {
 
 		}
 
-		// Collect candidates
+		// Collect candidates — only corners that explicitly opted into curves
+		// (curveOverride=true). Plain corners stay as 1x1.
 		const candidates = [];
 
 		for ( const [ key, cell ] of grid ) {
@@ -298,6 +299,7 @@ export class CurveService {
 			if ( cell.type !== 'trk-corner-1x1' ) continue;
 			if ( cell.rotationOverride ) continue;
 			if ( preClaimed.has( key ) ) continue;
+			if ( ! cell.curveOverride ) continue;
 
 			const [ cgx, cgz ] = key.split( ',' ).map( Number );
 			const exits = cell.getExitMask();

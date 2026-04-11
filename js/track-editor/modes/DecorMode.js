@@ -101,7 +101,7 @@ export class DecorMode extends EditorMode {
 		const cellGx = Math.floor( worldPos.x / CELL_RAW );
 		const cellGz = Math.floor( worldPos.z / CELL_RAW );
 		const trackTile = this._project.getTile( cellGx, cellGz );
-		const isOnTrack = trackTile && ! trackTile._consumed && ! trackTile.finishFlank;
+		const isOnTrack = trackTile && ! trackTile._consumed ;
 
 		if ( this._state.tool === 'place-decor' ) {
 
@@ -172,7 +172,7 @@ export class DecorMode extends EditorMode {
 		const cellGx = Math.floor( worldPos.x / CELL_RAW );
 		const cellGz = Math.floor( worldPos.z / CELL_RAW );
 		const trackTile = this._project.getTile( cellGx, cellGz );
-		if ( trackTile && ! trackTile._consumed && ! trackTile.finishFlank ) return;
+		if ( trackTile && ! trackTile._consumed  ) return;
 
 		const tileId = this._state.selectedTileType;
 		if ( ! tileId ) return;

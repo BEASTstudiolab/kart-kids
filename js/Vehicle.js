@@ -3,6 +3,7 @@ import { rigidBody } from 'crashcat';
 import { VehicleGroundRaycast } from './vehicle/VehicleGroundRaycast.js';
 import { VehicleRemoteSync } from './vehicle/VehicleRemoteSync.js';
 import { VehicleHealth } from './vehicle/VehicleHealth.js';
+import { VehicleDamageDeform } from './vehicle/VehicleDamageDeform.js';
 import { VehicleStateMachine, PhysicsState } from './vehicle/VehicleStateMachine.js';
 import { VehicleAirborne } from './vehicle/VehicleAirborne.js';
 import { VehicleRespawn } from './vehicle/VehicleRespawn.js';
@@ -238,6 +239,9 @@ export class Vehicle {
 		// Combat: health + quadrant damage
 		this.health = new VehicleHealth();
 
+		// Visual damage deformation (morph targets)
+		this.damageDeform = new VehicleDamageDeform();
+
 		// Combat: held item slot (set externally by ItemSlotManager)
 		this.itemSlot = null;
 
@@ -331,6 +335,9 @@ export class Vehicle {
 			);
 
 		}
+
+		// Init damage deformation morph targets
+		this.damageDeform.init( this.container );
 
 		// Store original Y for the 4 named wheel nodes (used for suspension)
 		this._namedWheelOrigY = [
@@ -535,6 +542,9 @@ export class Vehicle {
 
 		} );
 
+		// Re-init damage deformation morph targets on new model
+		this.damageDeform.reinit( this.container );
+
 		// Re-store wheel Y origins for suspension
 		this._namedWheelOrigY = [
 			this.wheelFL ? this.wheelFL.position.y : 0,
@@ -716,9 +726,9 @@ export class Vehicle {
 
 	}
 
-	setTargetState( pos, rot, vel, angVel, speed, drift, boostActive, shield, star ) {
+	setTargetState( pos, rot, vel, angVel, speed, drift, boostActive, shield, star, damage ) {
 
-		this._remoteSync.setTargetState( pos, rot, vel, angVel, speed, drift, boostActive, shield, star );
+		this._remoteSync.setTargetState( pos, rot, vel, angVel, speed, drift, boostActive, shield, star, damage );
 
 	}
 
@@ -748,6 +758,9 @@ export class Vehicle {
 
 		// Tick health timers (invuln, consecutive hit cooldown)
 		if ( this.health ) this.health.update( dt );
+
+		// Update visual damage deformation from health state
+		this.damageDeform.update( dt, this.health, null );
 
 		{
 

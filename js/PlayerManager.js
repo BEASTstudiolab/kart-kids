@@ -192,7 +192,7 @@ export class PlayerManager {
 				entry.vehicle.setTargetState(
 					pState.pos, pState.rot, pState.vel, pState.angVel,
 					pState.speed, pState.drift, pState.boost,
-					pState.shield, pState.star
+					pState.shield, pState.star, pState.damage
 				);
 
 			}

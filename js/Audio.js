@@ -57,6 +57,22 @@ export class GameAudio {
 		this._sfxGain.gain.value = this.sfxVolume;
 		this._sfxGain.connect( ctx.destination );
 
+		// Proactively resume AudioContext — the user already interacted (clicked PLAY).
+		if ( ctx.state === 'suspended' ) {
+
+			ctx.resume().then( () => {
+
+				this.unlocked = true;
+				this.startSounds();
+
+			} );
+
+		} else if ( ctx.state === 'running' ) {
+
+			this.unlocked = true;
+
+		}
+
 		const loader = new THREE.AudioLoader();
 
 		this.engineSound = new THREE.Audio( this.listener );
@@ -110,7 +126,8 @@ export class GameAudio {
 
 		} );
 
-		// Unlock audio context on user interaction
+		// Fallback unlock on user interaction (covers edge cases where
+		// AudioContext was created before any user gesture).
 		const unlock = () => {
 
 			if ( this.unlocked ) return;

@@ -76,7 +76,7 @@ class EditorApp {
 		this._renderer.setPixelRatio( Math.min( window.devicePixelRatio, 2 ) );
 		this._renderer.setClearColor( 0x0a0a0a );
 		this._renderer.shadowMap.enabled = true;
-		this._renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+		this._renderer.shadowMap.type = THREE.PCFShadowMap;
 
 		this._scene = new THREE.Scene();
 
@@ -1675,6 +1675,11 @@ class EditorApp {
 			<h3 class="kk-inspector__heading" style="margin-top:16px">SHARE</h3>
 			<button class="kk-editor-btn kk-editor-btn--primary kk-editor-btn--small" id="inspector-share"
 				style="width:100%">Copy Share Link</button>
+			<input type="text" id="inspector-share-url" readonly
+				style="width:100%;margin-top:6px;padding:6px 8px;font-size:10px;font-family:monospace;
+				background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);
+				border-radius:4px;color:var(--color-ink-300);cursor:text;outline:none;"
+				value="" placeholder="Click 'Copy Share Link' to generate">
 		`;
 
 		// Event handlers
@@ -1705,6 +1710,10 @@ class EditorApp {
 		inspector.querySelector( '#inspector-share' ).addEventListener( 'click', () => {
 
 			const url = this._shareLink.generatePlayUrl();
+			const urlField = inspector.querySelector( '#inspector-share-url' );
+			urlField.value = url;
+			urlField.select();
+
 			navigator.clipboard.writeText( url ).then( () => {
 
 				inspector.querySelector( '#inspector-share' ).textContent = 'Copied!';

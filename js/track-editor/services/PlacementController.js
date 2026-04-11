@@ -3,13 +3,47 @@
 
 import * as THREE from 'three';
 import { CELL_RAW, ORIENT_DEG } from '../../TrackConstants.js';
+import { isNorthSouthOrient } from '../../TrackOrientation.js';
 import { ELEV_GROUND } from '../models/TrackProject.js';
 import { PlaceTileCommand } from '../commands/PlaceTileCommand.js';
 import { EraseTileCommand } from '../commands/EraseTileCommand.js';
 import { PlaceFinishCommand } from '../commands/PlaceFinishCommand.js';
 import { PlaceSpecialTileCommand } from '../commands/PlaceSpecialTileCommand.js';
 import { ReplaceTileCommand } from '../commands/ReplaceTileCommand.js';
-import { TILES_3X3 } from '../models/TrackTile.js';
+import { TILES_3X3, TILES_2X2 } from '../models/TrackTile.js';
+
+/**
+ * Compute the anchor cell for a multi-cell footprint.
+ * For even-sized footprints (2x2), snaps to grid corners so the tile
+ * is centered on the cursor. For odd-sized (3x3, 1x1), uses standard cell snap.
+ */
+function anchorForFootprint( gx, gz, worldX, worldZ, footprintW, footprintH ) {
+
+	if ( footprintW <= 1 && footprintH <= 1 ) return { gx, gz };
+
+	// For even-width: snap X to nearest grid corner, then offset to anchor
+	let ax = gx;
+	let az = gz;
+
+	if ( footprintW % 2 === 0 && worldX !== undefined ) {
+
+		// fraction within cell: 0..1
+		const fx = ( worldX / CELL_RAW ) - gx;
+		// If cursor is in the right half of the cell, anchor here; left half, anchor one cell left
+		ax = fx >= 0.5 ? gx : gx - 1;
+
+	}
+
+	if ( footprintH % 2 === 0 && worldZ !== undefined ) {
+
+		const fz = ( worldZ / CELL_RAW ) - gz;
+		az = fz >= 0.5 ? gz : gz - 1;
+
+	}
+
+	return { gx: ax, gz: az };
+
+}
 
 export class PlacementController {
 
@@ -71,11 +105,13 @@ export class PlacementController {
 	 */
 	updateGhost( gx, gz, tool, selectedTileType ) {
 
-		// Skip if same cell + same tool
+		// Skip if same cell + same tool (except for 2x2 tiles which need sub-cell updates)
+		const tileTypeForCache = selectedTileType || this._state?.selectedTileType || 'trk-straight';
 		if ( this._lastGhostCell &&
 			this._lastGhostCell.gx === gx &&
 			this._lastGhostCell.gz === gz &&
-			this._lastGhostTool === tool ) return;
+			this._lastGhostTool === tool &&
+			! TILES_2X2.has( tileTypeForCache ) ) return;
 
 		this.clearGhost();
 		this._lastGhostCell = { gx, gz };
@@ -88,36 +124,30 @@ export class PlacementController {
 			const orient = this._state?.selectedOrient ?? 0;
 			const activeElev = this._state ? this._state.activeElevation : 12;
 
-			const existing = this._project.getTile( gx, gz );
-			if ( existing && ! existing._consumed ) return;
+			// Adjust anchor for 2x2 footprint tiles
+			let ghostGx = gx;
+			let ghostGz = gz;
+			if ( TILES_2X2.has( tileType ) ) {
 
-			const ghost = this._meshFactory.createGhostMesh( tileType, orient, gx, gz, activeElev );
-			if ( ghost ) this.ghostGroup.add( ghost );
-
-			this._addClearanceIndicator( gx, gz, activeElev );
-
-		} else if ( tool === 'finish' ) {
-
-			// Determine orientation: from existing tile, or auto-detect from neighbors
-			const existing = this._project.getTile( gx, gz );
-			let orient = existing ? existing.orient : 0;
-
-			// If no existing tile, check neighbors to detect road direction
-			if ( ! existing ) {
-
-				const nN = this._project.getTile( gx, gz - 1 );
-				const nS = this._project.getTile( gx, gz + 1 );
-				const nE = this._project.getTile( gx + 1, gz );
-				const nW = this._project.getTile( gx - 1, gz );
-				const hasNS = ( nN && ! nN._consumed ) || ( nS && ! nS._consumed );
-				const hasEW = ( nE && ! nE._consumed ) || ( nW && ! nW._consumed );
-
-				if ( hasEW && ! hasNS ) orient = 16; // E-W road
-				// else default 0 (N-S) is fine
+				const hovered = this._state?.hoveredCell;
+				const anchor = anchorForFootprint( gx, gz, hovered?.worldX, hovered?.worldZ, 2, 2 );
+				ghostGx = anchor.gx;
+				ghostGz = anchor.gz;
 
 			}
 
-			const isNS = orient === 0 || orient === 10;
+			const existing = this._project.getTile( ghostGx, ghostGz );
+			if ( existing && ! existing._consumed  ) return;
+
+			const ghost = this._meshFactory.createGhostMesh( tileType, orient, ghostGx, ghostGz, activeElev );
+			if ( ghost ) this.ghostGroup.add( ghost );
+
+			this._addClearanceIndicator( ghostGx, ghostGz, activeElev );
+
+		} else if ( tool === 'finish' ) {
+
+			// Manual orient from R key — no auto-detection
+			const orient = this._state?.selectedOrient ?? 0;
 
 			// Show finish ghost model with correct orientation
 			const ghost = this._meshFactory.createGhostMesh( 'trk-finish', orient, gx, gz );
@@ -126,11 +156,9 @@ export class PlacementController {
 			// 3x1 wireframe bounding box matching the tile geometry
 			const worldX = ( gx + 0.5 ) * CELL_RAW;
 			const worldZ = ( gz + 0.5 ) * CELL_RAW;
-			// Finish arch spans PERPENDICULAR to road direction
-			// N-S road (orient 0/10): flanks along X → box narrow in X, wide in Z (road direction)
-			// E-W road (orient 16/22): flanks along Z → box wide in X (road direction), narrow in Z
-			const boxW = isNS ? CELL_RAW : CELL_RAW * 3;
-			const boxD = isNS ? CELL_RAW * 3 : CELL_RAW;
+			const northSouth = isNorthSouthOrient( orient );
+			const boxW = northSouth ? CELL_RAW : CELL_RAW * 3;  // X size
+			const boxD = northSouth ? CELL_RAW * 3 : CELL_RAW;  // Z size
 			const boxH = 3.0;
 
 			const boxGeo = new THREE.BoxGeometry( boxW * 0.98, boxH, boxD * 0.98 );
@@ -165,7 +193,7 @@ export class PlacementController {
 			const orientRad = THREE.MathUtils.degToRad( ORIENT_DEG[ orient ] ?? 0 );
 
 			// Arrow at the start (behind finish line)
-			const behindDist = isNS ? CELL_RAW * 0.8 : CELL_RAW * 0.8;
+			const behindDist = CELL_RAW * 0.8;
 			const arrow1 = new THREE.Mesh( arrowGeo, arrowMat );
 			arrow1.rotation.x = - Math.PI / 2;
 			arrow1.rotation.z = - orientRad;
@@ -190,9 +218,9 @@ export class PlacementController {
 
 		} else if ( tool === 'erase' ) {
 
-			// Red highlight on tile that would be erased
+			// Red highlight on tile that would be erased (including consumed cells)
 			const existing = this._project.getTile( gx, gz );
-			if ( existing && ! existing._consumed ) {
+			if ( existing ) {
 
 				const geo = new THREE.PlaneGeometry( CELL_RAW * 0.95, CELL_RAW * 0.95 );
 				const plane = new THREE.Mesh( geo, this._footprintInvalidMat );
@@ -232,7 +260,7 @@ export class PlacementController {
 	placeRoad( gx, gz ) {
 
 		const existing = this._project.getTile( gx, gz );
-		if ( existing && ! existing._consumed && ! existing.autoRamp ) return null;
+		if ( existing && ! existing._consumed && ! existing.autoRamp  ) return null;
 
 		const activeElev = this._state ? this._state.activeElevation : 12;
 
@@ -267,9 +295,9 @@ export class PlacementController {
 	eraseRoad( gx, gz ) {
 
 		const tile = this._project.getTile( gx, gz );
-		if ( ! tile || tile._consumed ) return null;
+		if ( ! tile ) return null;
 
-		// All tiles are manually placed and can be erased
+		// Consumed cells are handled by EraseTileCommand (finds and erases the anchor)
 
 		const cmd = new EraseTileCommand(
 			this._project, gx, gz,
@@ -291,7 +319,7 @@ export class PlacementController {
 	replaceRoad( gx, gz, newType ) {
 
 		const tile = this._project.getTile( gx, gz );
-		if ( ! tile || tile._consumed || tile.autoRamp || tile.finishFlank ) return null;
+		if ( ! tile || tile._consumed || tile.autoRamp ) return null;
 		if ( ! newType || tile.type === newType ) return null;
 
 		const cmd = new ReplaceTileCommand(
@@ -309,8 +337,8 @@ export class PlacementController {
 	 */
 	placeFinishAt( gx, gz ) {
 
-		const existing = this._project.getTile( gx, gz );
-		const orient = existing ? existing.orient : 0;
+		// Use whatever orient the user has selected (R key to rotate)
+		const orient = this._state?.selectedOrient ?? 0;
 
 		const cmd = new PlaceFinishCommand(
 			this._project, gx, gz, orient,
@@ -322,9 +350,20 @@ export class PlacementController {
 	}
 
 	/**
-	 * Place a special tile (junction, bridge, tunnel, jump, chicane).
+	 * Place a special tile (junction, bridge, tunnel, jump, chicane, curve).
+	 * For 2x2 tiles, adjusts anchor based on cursor position within the cell.
 	 */
 	placeSpecialTile( gx, gz, tileType ) {
+
+		// Adjust anchor for 2x2 footprint
+		if ( TILES_2X2.has( tileType ) ) {
+
+			const hovered = this._state?.hoveredCell;
+			const anchor = anchorForFootprint( gx, gz, hovered?.worldX, hovered?.worldZ, 2, 2 );
+			gx = anchor.gx;
+			gz = anchor.gz;
+
+		}
 
 		const cmd = new PlaceSpecialTileCommand(
 			this._project, gx, gz, tileType,

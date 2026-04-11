@@ -43,7 +43,7 @@ export class StatsPanel {
 
 		for ( const [ , tile ] of grid ) {
 
-			if ( tile.autoRamp || tile._consumed || tile.finishFlank ) continue;
+			if ( tile.autoRamp || tile._consumed ) continue;
 			pieces++;
 			if ( tile.type === 'trk-straight' || tile.type.startsWith( 'trk-elev-' ) ) straights++;
 			if ( tile.type === 'trk-corner-1x1' ) corners++;

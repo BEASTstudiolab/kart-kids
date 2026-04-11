@@ -4,6 +4,7 @@
 
 import * as THREE from 'three';
 import { TrackTile } from './TrackTile.js';
+import { getFinishRoadCells } from '../../TrackOrientation.js';
 
 // ── v4 format constants ──
 const ELEV_STEP = 2.5;
@@ -210,9 +211,7 @@ export class TrackProject {
 
 		for ( const [ key, tile ] of this._grid ) {
 
-			// Skip consumed cells and finish flanks (structural, not visual)
 			if ( tile._consumed ) continue;
-			if ( tile.finishFlank ) continue;
 
 			const [ gx, gz ] = key.split( ',' ).map( Number );
 
@@ -306,12 +305,41 @@ export class TrackProject {
 
 		}
 
+		// Restore finish road cells — the 3x1 finish model covers 3 cells
+		// along the road but only the center is saved as trk-finish.
+		// Add invisible straights at the two road-direction neighbors.
+		this._restoreFinishRoadCells();
+
+	}
+
+	/** @private Ensure the finish tile has road cells along its road direction. */
+	_restoreFinishRoadCells() {
+
+		for ( const [ key, tile ] of this._grid ) {
+
+			if ( ! tile.isFinish ) continue;
+
+			const [ gx, gz ] = key.split( ',' ).map( Number );
+			const roadCells = getFinishRoadCells( gx, gz, tile.orient );
+
+			for ( const r of roadCells ) {
+
+				if ( ! this._grid.has( this.cellKey( r.gx, r.gz ) ) ) {
+
+					const road = new TrackTile( 'trk-straight', tile.orient );
+					road.mesh = null;
+					this.setTile( r.gx, r.gz, road );
+
+				}
+
+			}
+
+		}
+
 	}
 
 	/**
-	 * Build the cells array for the v5 encoder.
-	 * ALL tiles are included (ramps, elevated, etc.) — no filtering, no type normalization.
-	 * The game renders exactly what the editor has.
+	 * Build a cells array for TrackIntel and game consumption.
 	 * Format: [gx, gz, typeName, orient, flags]
 	 * @returns {Array}
 	 */
@@ -321,72 +349,21 @@ export class TrackProject {
 
 		for ( const [ key, tile ] of this._grid ) {
 
-			// Only skip consumed multi-tile cells and finish flanks (those are structural)
 			if ( tile._consumed ) continue;
-			if ( tile.finishFlank ) continue;
 
 			const [ gx, gz ] = key.split( ',' ).map( Number );
 
-			// Keep the EXACT tile type — no normalization
-			const typeName = tile.type;
-
-			const elevStep = tile.elevation ?? ELEV_GROUND;
-			const stepsAboveGround = elevStep - ELEV_GROUND;
-			let v3Elev = 0;
-			if ( stepsAboveGround === 1 ) v3Elev = 1;
-			else if ( stepsAboveGround >= 2 ) v3Elev = 2;
-
-			const flags = {};
-			if ( v3Elev !== 0 ) flags.elevation = v3Elev;
-			flags.fullElevation = elevStep;
+			const flags = { fullElevation: tile.elevation ?? ELEV_GROUND };
 			if ( tile.curveOverride ) flags.curveOverride = true;
 			if ( tile.rotationOverride ) flags.rotationOverride = true;
 			if ( tile.rampStyle === 'smooth' ) flags.rampStyle = 'smooth';
 			if ( tile.curveVariant ) flags.curveVariant = tile.curveVariant;
 
-			result.push( [ gx, gz, typeName, tile.orient, flags ] );
+			result.push( [ gx, gz, tile.type, tile.orient, flags ] );
 
 		}
 
 		return result;
-
-	}
-
-	/**
-	 * Create a TrackProject from v3 decoded cells.
-	 * @param {Array} cells  Array of [gx, gz, typeName, orient, flags]
-	 * @returns {TrackProject}
-	 */
-	static fromV3Cells( cells ) {
-
-		const project = new TrackProject();
-
-		for ( const [ gx, gz, typeName, orient, flags ] of cells ) {
-
-			// Map v3 elevation (0,1,2) to v4 step index
-			const v3Elev = flags?.elevation ?? 0;
-			const elevation = v3Elev === 0 ? ELEV_GROUND
-				: v3Elev === 1 ? 13
-					: 14;
-
-			const tile = new TrackTile( typeName, orient, elevation );
-
-			if ( flags ) {
-
-				if ( flags.curveOverride ) tile.curveOverride = true;
-				if ( flags.rotationOverride ) tile.rotationOverride = true;
-				if ( flags.rampStyle ) tile.rampStyle = flags.rampStyle;
-				if ( flags.curveVariant ) tile.curveVariant = flags.curveVariant;
-
-			}
-
-			if ( typeName === 'trk-finish' ) tile.isFinish = true;
-
-			project.setTile( gx, gz, tile );
-
-		}
-
-		return project;
 
 	}
 

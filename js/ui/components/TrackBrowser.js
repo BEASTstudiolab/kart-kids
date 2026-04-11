@@ -16,8 +16,7 @@
  */
 
 import { getTracks }       from '../../TrackRegistry.js';
-import { getSavedTracks }  from '../../editor/Persistence.js';
-import { decodeCells }     from '../../TrackCodec.js';
+import { getSavedTracks }  from '../../TrackSaves.js';
 import { Settings }        from '../../Settings.js';
 import { renderMinimap }   from './TrackMinimap.js';
 
@@ -875,22 +874,14 @@ export class TrackBrowser {
 
 		card.appendChild( top );
 
-		// Minimap thumbnail (user tracks have encoded cells string).
-		if ( track.cells ) {
+		// Minimap thumbnail
+		const cellsData = track.cells;
+		if ( cellsData && Array.isArray( cellsData ) && cellsData.length > 0 ) {
 
-			try {
-
-				const decoded = decodeCells( track.cells );
-				if ( decoded && decoded.length > 0 ) {
-
-					const thumbWrap = document.createElement( 'div' );
-					thumbWrap.className = 'kk-tracks__card-minimap';
-					thumbWrap.appendChild( renderMinimap( decoded, 160, 60 ) );
-					card.appendChild( thumbWrap );
-
-				}
-
-			} catch ( e ) { /* ignore decode errors */ }
+			const thumbWrap = document.createElement( 'div' );
+			thumbWrap.className = 'kk-tracks__card-minimap';
+			thumbWrap.appendChild( renderMinimap( cellsData, 160, 60 ) );
+			card.appendChild( thumbWrap );
 
 		}
 
@@ -1044,23 +1035,9 @@ export class TrackBrowser {
 		// Minimap
 		this._detailMinimap.innerHTML = '';
 
-		let cellsArray = track.cells;
+		const cellsArray = Array.isArray( track.cells ) ? track.cells : [];
 
-		if ( typeof cellsArray === 'string' ) {
-
-			try {
-
-				cellsArray = decodeCells( cellsArray );
-
-			} catch ( e ) {
-
-				cellsArray = [];
-
-			}
-
-		}
-
-		if ( cellsArray && cellsArray.length > 0 ) {
+		if ( cellsArray.length > 0 ) {
 
 			const minimapCanvas = renderMinimap( cellsArray, 240, 180 );
 			this._detailMinimap.appendChild( minimapCanvas );

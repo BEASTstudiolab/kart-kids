@@ -21,30 +21,32 @@ export class EraseTileCommand {
 
 	execute() {
 
-		const { _project: project, _gx: gx, _gz: gz } = this;
+		const { _project: project } = this;
+		let { _gx: gx, _gz: gz } = this;
 
-		const tile = project.getTile( gx, gz );
+		let tile = project.getTile( gx, gz );
 		if ( ! tile ) return;
-		if ( tile._consumed ) return;
 
-		// All tiles are manually placed and can be erased
+		// If consumed cell, find the anchor tile that owns this footprint
+		if ( tile._consumed ) {
+
+			const anchor = this._findAnchor( gx, gz );
+			if ( ! anchor ) return;
+			gx = anchor.gx;
+			gz = anchor.gz;
+			tile = project.getTile( gx, gz );
+			if ( ! tile ) return;
+
+		}
 
 		// Snapshot affected area
 		this._takeWideSnapshot( gx, gz, tile );
 
-		// Handle finish: remove center + flanks
-		if ( tile.isFinish ) {
+		// Delete all footprint cells (handles finish 3x1, junction 3x3, 2x2 curves, etc.)
+		const footprint = tile.getFootprintCells( gx, gz );
+		for ( const cell of footprint ) {
 
-			const footprint = tile.getFootprintCells( gx, gz );
-			for ( const cell of footprint ) {
-
-				project.deleteTile( cell.gx, cell.gz );
-
-			}
-
-		} else {
-
-			project.deleteTile( gx, gz );
+			project.deleteTile( cell.gx, cell.gz );
 
 		}
 
@@ -102,6 +104,40 @@ export class EraseTileCommand {
 	}
 
 	get description() { return `Erase tile at ${ this._gx },${ this._gz }`; }
+
+	/** @private Find the anchor tile that owns a consumed cell at (gx, gz). */
+	_findAnchor( gx, gz ) {
+
+		const project = this._project;
+
+		// Search nearby cells for a non-consumed tile whose footprint includes (gx, gz)
+		for ( let dx = - 2; dx <= 2; dx ++ ) {
+
+			for ( let dz = - 2; dz <= 2; dz ++ ) {
+
+				const ax = gx + dx;
+				const az = gz + dz;
+				const candidate = project.getTile( ax, az );
+				if ( ! candidate || candidate._consumed ) continue;
+
+				const footprint = candidate.getFootprintCells( ax, az );
+				for ( const cell of footprint ) {
+
+					if ( cell.gx === gx && cell.gz === gz ) {
+
+						return { gx: ax, gz: az };
+
+					}
+
+				}
+
+			}
+
+		}
+
+		return null;
+
+	}
 
 	/** @private */
 	_takeWideSnapshot( gx, gz, tile ) {

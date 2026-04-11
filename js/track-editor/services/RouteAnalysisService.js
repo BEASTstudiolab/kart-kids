@@ -131,7 +131,7 @@ export class RouteAnalysisService {
 
 		for ( const [ key, tile ] of this._project.getGrid() ) {
 
-			if ( tile.autoRamp || tile._consumed || tile.finishFlank ) continue;
+			if ( tile.autoRamp || tile._consumed ) continue;
 			if ( ! reached.has( key ) ) {
 
 				const [ gx, gz ] = key.split( ',' ).map( Number );
@@ -157,7 +157,7 @@ export class RouteAnalysisService {
 
 		for ( const [ key, tile ] of grid ) {
 
-			if ( tile.autoRamp || tile._consumed || tile.finishFlank ) continue;
+			if ( tile.autoRamp || tile._consumed ) continue;
 
 			const [ gx, gz ] = key.split( ',' ).map( Number );
 			const exits = tile.getExitMask();

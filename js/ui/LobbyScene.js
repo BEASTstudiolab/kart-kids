@@ -351,10 +351,46 @@ export class LobbyScene {
 	_createDebugPanel( ambient, dir, rim ) {
 
 		const panel = document.createElement( 'div' );
-		panel.style.cssText = 'position:fixed;top:10px;left:10px;background:rgba(0,0,0,0.85);color:#fff;padding:0;border-radius:8px;font:12px monospace;z-index:99999;max-height:90vh;overflow:hidden;min-width:280px;display:flex;flex-direction:column;';
+		panel.style.cssText = 'position:fixed;top:10px;left:10px;background:rgba(0,0,0,0.85);color:#fff;padding:0;border-radius:8px;font:12px monospace;z-index:99999;max-height:90vh;overflow:hidden;min-width:280px;display:none;flex-direction:column;';
 
 		const cam = this._camera;
 		const self = this;
+
+		// ── Toggle button (happy face) ──────────────────────────────────
+		const toggleBtn = document.createElement( 'button' );
+		toggleBtn.textContent = '\u{1F60A}';
+		toggleBtn.title = 'Lobby Debug';
+		toggleBtn.style.cssText = 'position:fixed;top:12px;left:12px;z-index:99998;background:rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.15);border-radius:8px;font-size:22px;cursor:pointer;padding:4px 7px;line-height:1;transition:transform 0.15s ease,background 0.15s ease;';
+		toggleBtn.addEventListener( 'mouseover', () => { toggleBtn.style.background = 'rgba(0,0,0,0.85)'; toggleBtn.style.transform = 'scale(1.1)'; } );
+		toggleBtn.addEventListener( 'mouseout', () => { toggleBtn.style.background = 'rgba(0,0,0,0.6)'; toggleBtn.style.transform = 'scale(1)'; } );
+		toggleBtn.addEventListener( 'click', () => {
+
+			const open = panel.style.display === 'none';
+			panel.style.display = open ? 'flex' : 'none';
+			toggleBtn.style.display = open ? 'none' : '';
+
+		} );
+		document.body.appendChild( toggleBtn );
+		this._debugToggleBtn = toggleBtn;
+
+		// ── Title bar with close button ──────────────────────────────────
+		const titleBar = document.createElement( 'div' );
+		titleBar.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:6px 10px 4px;flex-shrink:0;';
+
+		const titleLabel = document.createElement( 'span' );
+		titleLabel.textContent = 'LOBBY DEBUG';
+		titleLabel.style.cssText = 'font-weight:bold;font-size:11px;color:#888;letter-spacing:0.1em;';
+		titleBar.appendChild( titleLabel );
+
+		const closeBtn = document.createElement( 'button' );
+		closeBtn.textContent = '\u2715';
+		closeBtn.style.cssText = 'background:transparent;color:#888;border:1px solid #555;font:bold 13px monospace;cursor:pointer;padding:2px 7px;border-radius:3px;line-height:1;';
+		closeBtn.addEventListener( 'mouseover', () => { closeBtn.style.color = '#f66'; closeBtn.style.borderColor = '#f66'; } );
+		closeBtn.addEventListener( 'mouseout', () => { closeBtn.style.color = '#888'; closeBtn.style.borderColor = '#555'; } );
+		closeBtn.addEventListener( 'click', () => { panel.style.display = 'none'; toggleBtn.style.display = ''; } );
+		titleBar.appendChild( closeBtn );
+
+		panel.appendChild( titleBar );
 
 		// ── Tab bar ──────────────────────────────────────────────────────
 		const tabBar = document.createElement( 'div' );
@@ -822,6 +858,12 @@ export class LobbyScene {
 
 			this._debugPanel.remove();
 			this._debugPanel = null;
+
+		}
+		if ( this._debugToggleBtn ) {
+
+			this._debugToggleBtn.remove();
+			this._debugToggleBtn = null;
 
 		}
 

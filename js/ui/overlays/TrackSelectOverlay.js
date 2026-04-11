@@ -16,8 +16,7 @@ import { TrackBrowser }   from '../components/TrackBrowser.js';
 import { HudButton }      from '../components/HudButton.js';
 import { Settings }        from '../../Settings.js';
 import { getTrackById, getTracks } from '../../TrackRegistry.js';
-import { decodeCells }     from '../../TrackCodec.js';
-import { getSavedTracks }  from '../../editor/Persistence.js';
+import { getSavedTracks }  from '../../TrackSaves.js';
 
 export class TrackSelectOverlay {
 
@@ -349,7 +348,7 @@ export class TrackSelectOverlay {
 
 				return {
 					name:     saved.name,
-					cells:    decodeCells( saved.cells ),
+					cells:    saved.cells,
 					decoCells: undefined,
 					source:   'custom',
 				};

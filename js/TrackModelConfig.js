@@ -10,8 +10,9 @@ export function getTrackModelConfig( name, tileSet = 'standard' ) {
 	if ( tileSet === 'standard' ) {
 
 		// ─── 1x1 base tiles ─────────────────────────────────────
-		// All 1x1 tiles share the same axis convention: road geometry runs along X,
-		// rotationY: PI/2 rotates it to align with orient 0 (N/S).
+		// Runtime/editor semantics treat orient 0 as north/south.
+		// Standard 1x1 models use that convention directly, so no extra correction
+		// rotation is applied here.
 
 		if ( name === 'trk-straight' ) return { path: 'standard-map/kartkids_base_trk_010_rd_straight_1x1.gltf', rotationY: 0 };
 		if ( name === 'trk-corner-1x1' ) return { path: 'standard-map/kartkids_base_trk_020_trn_90_l_1x1.gltf', rotationY: 0 };

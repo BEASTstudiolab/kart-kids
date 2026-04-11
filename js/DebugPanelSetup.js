@@ -1142,6 +1142,39 @@ export function setupDebugPanel( ctx ) {
 	debugMenu.addSlider( cameraTab, 'Boost punch', 0, 20, 0.5, cam.boostPunchAmount, ( v ) => { cam.boostPunchAmount = v; } );
 	debugMenu.addSlider( cameraTab, 'Speed FOV max', 0, 20, 0.5, cam.speedFOVMax, ( v ) => { cam.speedFOVMax = v; } );
 
+	// ── Tab: Body Damage ────────────────────────────────────────────────────
+
+	const damageTab = debugMenu.addTab( 'bodyDamage', 'Body Damage' );
+
+	debugMenu.addHeader( damageTab, 'Morph Target Override' );
+
+	const quadrantLabels = [ 'Front-Left', 'Front-Right', 'Rear-Left', 'Rear-Right' ];
+
+	for ( let i = 0; i < 4; i ++ ) {
+
+		debugMenu.addSlider( damageTab, quadrantLabels[ i ], 0, 1.0, 0.01, 0, ( ( qi ) => ( v ) => {
+
+			vehicle.damageDeform.setDebugOverride( true );
+			vehicle.damageDeform.setDebugValue( qi, v );
+
+		} )( i ) );
+
+	}
+
+	debugMenu.addButton( damageTab, 'Reset to Health', () => {
+
+		vehicle.damageDeform.setDebugOverride( false );
+
+	} );
+
+	debugMenu.addHeader( damageTab, 'Damage Tuning' );
+
+	debugMenu.addSlider( damageTab, 'Damage multiplier', 0.1, 20, 0.1, vehicle.health.damageMultiplier, ( v ) => {
+
+		vehicle.health.damageMultiplier = v;
+
+	} );
+
 	// ── M key toggle ─────────────────────────────────────────────────────────
 	window.addEventListener( 'keydown', ( e ) => {
 

@@ -1,8 +1,10 @@
 // ─── ValidationService ───────────────────────────────────────────────────────
 // Validates track projects with race-type-aware rules.
+// Uses TrackIntel for connectivity/loop validation (single source of truth).
 
 import { DIR_INFO } from './AutoTileService.js';
 import { CELL_RAW } from '../../TrackConstants.js';
+import { TrackIntel } from '../../TrackIntel.js';
 
 // Race types that require a closed loop
 const LOOP_REQUIRED = new Set( [ 'circuit', 'time-trial', 'elimination', 'drift-trial' ] );
@@ -35,22 +37,16 @@ export class ValidationService {
 
 		// Count tiles
 		let tileCount = 0, straightCount = 0, cornerCount = 0;
-		let finishTile = null, finishCount = 0;
+		let finishCount = 0;
 
-		for ( const [ key, tile ] of grid ) {
+		for ( const [ , tile ] of grid ) {
 
-			if ( tile.autoRamp || tile._consumed || tile.finishFlank ) continue;
+			if ( tile.autoRamp || tile._consumed ) continue;
 			tileCount ++;
 
 			if ( tile.type === 'trk-straight' || tile.type.startsWith( 'trk-elev-' ) ) straightCount ++;
 			if ( tile.type === 'trk-corner-1x1' ) cornerCount ++;
-
-			if ( tile.isFinish ) {
-
-				finishCount ++;
-				finishTile = { key, tile };
-
-			}
+			if ( tile.isFinish ) finishCount ++;
 
 		}
 
@@ -72,35 +68,31 @@ export class ValidationService {
 
 		}
 
-		// ── Connectivity + loop ──
+		// ── Connectivity + loop (via TrackIntel) ──
 
 		let loopValid = false;
 
-		if ( finishTile ) {
+		if ( finishCount === 1 && tileCount >= 4 ) {
 
-			const visited = this._walkFromFinish( finishTile.key );
+			const cells = this._project.getCellsArray();
+			console.log( '[Validate] Cells:', cells.map( c => `(${c[0]},${c[1]}) ${c[2]} o=${c[3]}` ).join( ' | ' ) );
+			const intel = new TrackIntel( cells );
 
-			for ( const [ key, tile ] of grid ) {
+			if ( intel.valid ) {
 
-				if ( tile.autoRamp || tile._consumed || tile.finishFlank ) continue;
-				if ( ! visited.has( key ) ) {
+				loopValid = true;
 
-					const [ gx, gz ] = key.split( ',' ).map( Number );
-					issues.push( {
-						severity: 'error', code: 'E_DISCONNECTED',
-						message: `Tile at ${ gx },${ gz } disconnected`,
-						category: 'connectivity',
-						locus: { gx, gz, layer: 'track' },
-					} );
+			} else {
 
-				}
+				issues.push( {
+					severity: 'error', code: 'E_CONNECTIVITY',
+					message: intel.error || 'Track connectivity broken',
+					category: 'connectivity', locus: null,
+				} );
 
 			}
 
-			loopValid = visited.loopClosed;
-
-			// Loop check depends on race type
-			if ( LOOP_REQUIRED.has( raceType ) && ! loopValid && tileCount >= 4 ) {
+			if ( LOOP_REQUIRED.has( raceType ) && ! loopValid ) {
 
 				issues.push( { severity: 'error', code: 'E_OPEN_LOOP', message: `${ raceType } requires a closed loop`, category: 'connectivity', locus: null } );
 
@@ -115,7 +107,6 @@ export class ValidationService {
 			const markers = gameplayMode.getMarkers();
 			const spawns = markers.filter( m => m.type === 'spawn' );
 			const checkpoints = markers.filter( m => m.type === 'checkpoint' );
-			const boosts = markers.filter( m => m.type === 'boost' );
 			const powerups = markers.filter( m => m.type === 'powerup' );
 
 			// Spawn count vs racer count
@@ -144,7 +135,7 @@ export class ValidationService {
 
 			}
 
-			// Powerups / boosts (warnings only)
+			// Powerups (warning only)
 			if ( powerups.length === 0 ) {
 
 				issues.push( { severity: 'warning', code: 'W_NO_POWERUPS', message: 'No powerup spawns', category: 'marker', locus: null } );
@@ -175,10 +166,10 @@ export class ValidationService {
 		}
 
 		// ── Isolated tile detection ──
-		// Warn about tiles with no adjacent neighbors at all.
+
 		for ( const [ key, tile ] of grid ) {
 
-			if ( tile.autoRamp || tile._consumed || tile.finishFlank ) continue;
+			if ( tile.autoRamp || tile._consumed ) continue;
 
 			const [ gx, gz ] = key.split( ',' ).map( Number );
 			let hasNeighbor = false;
@@ -205,43 +196,17 @@ export class ValidationService {
 
 		// ── Additional warnings ──
 
-		// Short track
 		if ( tileCount >= 4 && tileCount < 12 ) {
 
 			issues.push( { severity: 'warning', code: 'W_SHORT_TRACK', message: `Very short track (${ tileCount } tiles)`, category: 'structure', locus: null } );
 
 		}
 
-		// Too many consecutive corners
-		let consecutiveCorners = 0;
-		let maxConsecutive = 0;
-		for ( const [ , tile ] of grid ) {
-
-			if ( tile.autoRamp || tile._consumed || tile.finishFlank ) continue;
-			if ( tile.type === 'trk-corner-1x1' ) {
-
-				consecutiveCorners ++;
-				if ( consecutiveCorners > maxConsecutive ) maxConsecutive = consecutiveCorners;
-
-			} else {
-
-				consecutiveCorners = 0;
-
-			}
-
-		}
-
-		if ( maxConsecutive >= 4 ) {
-
-			issues.push( { severity: 'warning', code: 'W_SHARP_TURNS', message: `${ maxConsecutive } corners in a row — may be hard to drive`, category: 'structure', locus: null } );
-
-		}
-
 		// Elevated tiles with no ramp access
 		for ( const [ key, tile ] of grid ) {
 
-			if ( tile.autoRamp || tile._consumed || tile.finishFlank ) continue;
-			if ( tile.elevation <= 12 ) continue; // ground level
+			if ( tile.autoRamp || tile._consumed ) continue;
+			if ( tile.elevation <= 12 ) continue;
 
 			const [ egx, egz ] = key.split( ',' ).map( Number );
 			let hasRampNeighbor = false;
@@ -289,55 +254,6 @@ export class ValidationService {
 		this.lastIssues = issues;
 		this._eventBus.emit( 'validation:result', result );
 		return result;
-
-	}
-
-	/** @private */
-	_walkFromFinish( finishKey ) {
-
-		const visited = new Set();
-		visited.loopClosed = false;
-
-		const queue = [ finishKey ];
-
-		while ( queue.length > 0 ) {
-
-			const key = queue.shift();
-			if ( visited.has( key ) ) {
-
-				if ( key === finishKey && visited.size > 1 ) visited.loopClosed = true;
-				continue;
-
-			}
-
-			visited.add( key );
-
-			const [ gx, gz ] = key.split( ',' ).map( Number );
-			const tile = this._project.getTile( gx, gz );
-			if ( ! tile ) continue;
-
-			// Simple adjacency flood-fill: any neighboring tile is reachable.
-			// The editor is the source of truth — tile placement defines connectivity.
-			for ( const dir of DIR_INFO ) {
-
-				const nx = gx + dir.dx;
-				const nz = gz + dir.dz;
-				const nKey = this._project.cellKey( nx, nz );
-				const nTile = this._project.getTile( nx, nz );
-
-				if ( ! nTile ) continue;
-
-				if ( ! visited.has( nKey ) || ( nKey === finishKey && visited.size > 2 ) ) {
-
-					queue.push( nKey );
-
-				}
-
-			}
-
-		}
-
-		return visited;
 
 	}
 

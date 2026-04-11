@@ -6,7 +6,8 @@ import { getTrackAsphaltMode } from './TrackAsphaltMode.js';
 import { loadModels } from './ModelLoader.js';
 import { Camera } from './Camera.js';
 import { Controls } from './Controls.js';
-import { buildTrack, decodeCells, transformCells, deriveRampCells, computeSpawnPosition, computeTrackBounds, TRACK_CELLS, CELL_RAW, GRID_SCALE, ORIENT_DEG } from './Track.js';
+import { buildTrack, transformCells, deriveRampCells, computeSpawnPosition, computeTrackBounds, TRACK_CELLS, CELL_RAW, GRID_SCALE, ORIENT_DEG } from './Track.js';
+import { V4_TYPE_NAMES, V4_TO_INTERNAL, ELEV_GROUND, CURVE_VARIANT_DECODE } from './track-editor/models/TrackProject.js';
 import { RaceLobby } from './RaceLobby.js';
 import { AFKDetector } from './AFKDetector.js';
 import { buildTrackColliders, resetPhysicsWorld } from './Physics.js';
@@ -64,6 +65,39 @@ const ACCESSORY_DEFS = [
 ];
 
 let _charMeshesLogged = false;
+
+/** Convert v4 JSON trackTiles to the cells array format the game expects. */
+function _v4TilesToCells( v4 ) {
+
+	const cells = [];
+
+	for ( const entry of ( v4.trackTiles || [] ) ) {
+
+		const type = V4_TYPE_NAMES[ entry.t ] ?? 'trk-straight';
+		const orient = V4_TO_INTERNAL[ entry.o ] ?? 0;
+		const elevStep = entry.e ?? ELEV_GROUND;
+
+		const flags = {};
+		const stepsAbove = elevStep - ELEV_GROUND;
+		if ( stepsAbove === 1 ) flags.elevation = 1;
+		else if ( stepsAbove >= 2 ) flags.elevation = 2;
+		flags.fullElevation = elevStep;
+
+		const f = entry.f ?? 0;
+		if ( f & 0x01 ) flags.curveOverride = true;
+		if ( f & 0x02 ) flags.rotationOverride = true;
+		if ( f & 0x04 ) flags.rampStyle = 'smooth';
+
+		const cvCode = ( f >> 3 ) & 0x07;
+		if ( cvCode && CURVE_VARIANT_DECODE[ cvCode ] ) flags.curveVariant = CURVE_VARIANT_DECODE[ cvCode ];
+
+		cells.push( [ entry.gx, entry.gz, type, orient, flags ] );
+
+	}
+
+	return cells;
+
+}
 
 function applyCharacterCustomization( vehicle, settings ) {
 
@@ -457,24 +491,42 @@ export function createGameEngine( canvasContainer ) {
 		const asphaltMode = getTrackAsphaltMode( globalThis.location?.search ?? '' );
 
 		const urlParams = new URLSearchParams( window.location.search );
-		const mapParam = urlParams.get( 'map' )
-			|| new URLSearchParams( window.location.hash.slice( 1 ) ).get( 'map' );
+		const hash = window.location.hash.slice( 1 );
 		const debugTopdown = urlParams.get( 'debug' ) === 'topdown';
 		let customCells = null;
 
 		if ( config.trackData ) {
 
-			customCells = config.trackData;
+			// config.trackData can be raw cells array or v4 JSON object
+			if ( Array.isArray( config.trackData ) ) {
 
-		} else if ( mapParam ) {
+				customCells = config.trackData;
 
+			} else if ( config.trackData.trackTiles ) {
+
+				customCells = _v4TilesToCells( config.trackData );
+
+			}
+
+		} else if ( hash.startsWith( 'track=v4:' ) ) {
+
+			// v4 JSON track (base64url-encoded)
 			try {
 
-				customCells = decodeCells( mapParam );
+				const b64 = hash.slice( 9 );
+				const bytes = atob( b64.replace( /-/g, '+' ).replace( /_/g, '/' ) );
+				const json = new TextDecoder().decode( Uint8Array.from( bytes, c => c.charCodeAt( 0 ) ) );
+				const v4 = JSON.parse( json );
+
+				if ( v4.trackTiles ) {
+
+					customCells = _v4TilesToCells( v4 );
+
+				}
 
 			} catch ( e ) {
 
-				console.warn( 'Invalid map parameter, using default track' );
+				console.warn( 'Invalid v4 track parameter, using default track' );
 
 			}
 
@@ -681,6 +733,7 @@ export function createGameEngine( canvasContainer ) {
 				if ( _aiManager.count > 0 ) _aiManager.teleportToGrid( _vehicle );
 				_raceMode.start();
 				_aiManager.startRace();
+				if ( _debugMenu ) _debugMenu.hide();
 
 			},
 		} );
@@ -749,6 +802,7 @@ export function createGameEngine( canvasContainer ) {
 			if ( _aiManager.count > 0 ) _aiManager.teleportToGrid( _vehicle );
 			_raceMode.start();
 			_aiManager.startRace();
+			if ( _debugMenu ) _debugMenu.hide();
 
 		}, 500 );
 

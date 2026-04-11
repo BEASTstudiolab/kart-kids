@@ -15,14 +15,8 @@ Port of the Kenney "Starter Kit Racing" Godot 4.6 project (in `_godot/`) to plai
   - `Particles.js` — Smoke trail effects
   - `Audio.js` — Sound
   - `ElevationUtils.js` — Shared elevation helpers (editor + game)
-  - `editor/` — Editor modules (extracted from editor.html)
-    - `EditorState.js` — Constants (AUTOTILE, ORIENT_FLIP, DIR_*), cellKey
-    - `AutoTile.js` — Exit bitmasks, connectivity, resolve logic
-    - `Grid.js` — placeMesh, resolveCell, undo/redo snapshots
-    - `Curves.js` — Curve options, rendering, load-time derivation
-    - `Elevation.js` — Elevation cycling, ramp clearing/derivation
-    - `Persistence.js` — Save/load, named saves, getCellsArray
-    - `Debug.js` — Debug tooltip, debug mode toggle
+  - `TrackSaves.js` — Named track save/delete (localStorage, shared between game UI and editor)
+  - `WaypointTemplates.js` — Per-tile waypoint paths for AI track intelligence
 - `models/` — GLB models shared between both versions
 - `audio/` — Audio assets
 - `benchmark/` — Physics library benchmark (Rapier vs crashcat vs bounce)
