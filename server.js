@@ -803,11 +803,32 @@ wss.on( 'connection', ( ws ) => {
 
 				}, 15000 );
 
-				roomBroadcast( room, {
-					type: 'raceLoading',
-					trackData: room.trackData || null,
-					trackId: room.trackId || null,
-				} );
+				// Build player roster for each recipient (excludes self)
+				for ( const [ pid, player ] of room.players ) {
+
+					const others = [];
+					for ( const [ oid, op ] of room.players ) {
+
+						if ( oid === pid ) continue;
+						others.push( {
+							id: oid,
+							vehicleIndex: op.vehicleIndex,
+							vehicleId: op.vehicleId,
+							characterIndex: op.characterIndex,
+							tint: op.tint,
+							name: op.name,
+						} );
+
+					}
+
+					player.ws.send( JSON.stringify( {
+						type: 'raceLoading',
+						trackData: room.trackData || null,
+						trackId: room.trackId || null,
+						players: others,
+					} ) );
+
+				}
 
 				break;
 

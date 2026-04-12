@@ -852,6 +852,7 @@ export class LobbyOverlay {
 			vehicleId,
 			roomCode:  this._roomCode,
 			network:   this._network,
+			players:   msg.players || [],
 		};
 
 		// Fade to black, then start race
