@@ -40,7 +40,7 @@ const CHARACTER_ANIM_PATH = 'characters/Kart_Beast_Driving.glb';
 const GRID_CENTER_X = 15;
 const GRID_Z        = 8;       // center of the tile
 const GRID_Y        = 0;
-const GRID_SPACING  = 3.5;    // lateral spacing between karts
+const GRID_SPACING  = 1.8;    // lateral spacing between karts (tight for narrow FOV camera)
 const KART_SCALE    = 0.5;    // root_scale matches Vehicle.js
 
 // Color tints for remote karts (hue-shifted from base)
@@ -371,15 +371,14 @@ export class PartyLobbyScene {
 	 * Uses the base vehicle model with a unique color.
 	 * @param {string} playerId
 	 */
-	addRemoteKart( playerId ) {
+	addRemoteKart( playerId, kartId ) {
 
 		if ( this._karts.has( playerId ) ) return;
 
 		const tint = REMOTE_TINTS[ this._nextTintIdx % REMOTE_TINTS.length ];
 		this._nextTintIdx ++;
 
-		// Use the base (first) vehicle for all remote karts
-		this._loadKart( playerId, 'kart-1', tint );
+		this._loadKart( playerId, kartId || 'kart-1', tint );
 
 	}
 

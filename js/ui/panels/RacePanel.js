@@ -266,6 +266,7 @@ export class RacePanel {
 
 			const settings = new Settings();
 			const vehicleId = settings.getSelectedKartId();
+			this._network.setDisplayName( settings.getDisplayName() || '' );
 			const result = await this._network.findRoom( vehicleId );
 
 			// Hide and dispose overlay, then start the race

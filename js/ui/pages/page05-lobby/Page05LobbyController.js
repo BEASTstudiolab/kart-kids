@@ -313,12 +313,13 @@ export class Page05LobbyController extends PageControllerBase {
 
 	_handleNetPlayerJoin( msg ) {
 
-		const existing = this._members.find( ( m ) => m.id === msg.playerId );
+		const pid = msg.id ?? msg.playerId;
+		const existing = this._members.find( ( m ) => m.id === pid );
 		if ( ! existing ) {
 
 			this._members.push( {
-				id:     msg.playerId,
-				name:   msg.name ?? `Player ${this._members.length + 1}`,
+				id:     pid,
+				name:   msg.name || `Player ${this._members.length + 1}`,
 				role:   'MEMBER',
 				ready:  false,
 				online: true,
@@ -332,7 +333,8 @@ export class Page05LobbyController extends PageControllerBase {
 
 	_handleNetPlayerLeave( msg ) {
 
-		this._members = this._members.filter( ( m ) => m.id !== msg.playerId );
+		const pid = msg.id ?? msg.playerId;
+		this._members = this._members.filter( ( m ) => m.id !== pid );
 		this._view?.setMembers( this._members );
 
 	}
@@ -480,16 +482,33 @@ export class Page05LobbyController extends PageControllerBase {
 
 		const settings = new Settings();
 		const vehicleId = settings.get( 'vehicleModel' ) ?? 'kart-1';
+		this._network.setDisplayName( settings.getDisplayName() || '' );
 
 		this._network.joinRoom( code, vehicleId ).then( ( result ) => {
 
 			this._roomCode = result.roomCode ?? code;
-			this._hostId = result.hostId ?? null;
+			this._hostId = result.host ?? null;
 			this._isHost = this._network.localPlayerId === this._hostId;
 
-			if ( result.members ) {
+			// Populate member list from existingPlayers in welcome message
+			if ( result.existingPlayers ) {
 
-				this._members = result.members;
+				for ( const p of result.existingPlayers ) {
+
+					const existing = this._members.find( ( m ) => m.id === p.id );
+					if ( ! existing ) {
+
+						this._members.push( {
+							id:     p.id,
+							name:   p.name || `Player ${ this._members.length + 1 }`,
+							role:   'MEMBER',
+							ready:  false,
+							online: true,
+						} );
+
+					}
+
+				}
 
 			}
 

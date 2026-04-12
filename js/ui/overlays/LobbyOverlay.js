@@ -595,6 +595,7 @@ export class LobbyOverlay {
 		// Add local player to member list
 		const settings = new Settings();
 		const displayName = settings.getDisplayName() || 'Player';
+		this._network.setDisplayName( displayName );
 		this._members.push( {
 			id:   'local',
 			name: displayName,
@@ -636,7 +637,7 @@ export class LobbyOverlay {
 
 				}
 
-				const roomCode = await this._network.createRoom();
+				const roomCode = await this._network.createRoom( settings.getSelectedKartId() );
 				this._roomCode = roomCode;
 
 				if ( this._roomCodeEl ) {
@@ -793,12 +794,13 @@ export class LobbyOverlay {
 
 	_handlePlayerJoin( msg ) {
 
-		const existing = this._members.find( ( m ) => m.id === msg.playerId );
+		const pid = msg.id ?? msg.playerId;
+		const existing = this._members.find( ( m ) => m.id === pid );
 		if ( ! existing ) {
 
 			this._members.push( {
-				id:   msg.playerId,
-				name: msg.name ?? `Player ${this._members.length + 1}`,
+				id:   pid,
+				name: msg.name || `Player ${this._members.length + 1}`,
 			} );
 
 		}
@@ -806,17 +808,18 @@ export class LobbyOverlay {
 		this._renderMembers();
 
 		// Add remote kart to the 3D party lobby scene
-		this._partyLobbyScene?.addRemoteKart( msg.playerId );
+		this._partyLobbyScene?.addRemoteKart( pid, msg.vehicleId );
 
 	}
 
 	_handlePlayerLeave( msg ) {
 
-		this._members = this._members.filter( ( m ) => m.id !== msg.playerId );
+		const pid = msg.id ?? msg.playerId;
+		this._members = this._members.filter( ( m ) => m.id !== pid );
 		this._renderMembers();
 
 		// Remove kart from the 3D party lobby scene
-		this._partyLobbyScene?.removeKart( msg.playerId );
+		this._partyLobbyScene?.removeKart( pid );
 
 	}
 
@@ -1014,8 +1017,33 @@ export class LobbyOverlay {
 
 			const settings = new Settings();
 			const vehicleId = settings.getSelectedKartId();
+			this._network.setDisplayName( settings.getDisplayName() || '' );
 
-			await this._network.joinRoom( code, vehicleId );
+			const joinResult = await this._network.joinRoom( code, vehicleId );
+
+			// Populate member list with existing players from welcome message
+			if ( joinResult && joinResult.existingPlayers ) {
+
+				for ( const p of joinResult.existingPlayers ) {
+
+					const existing = this._members.find( ( m ) => m.id === p.id );
+					if ( ! existing ) {
+
+						this._members.push( {
+							id:   p.id,
+							name: p.name || `Player ${ this._members.length + 1 }`,
+						} );
+
+						// Add remote kart to the 3D party lobby scene
+						this._partyLobbyScene?.addRemoteKart( p.id, p.vehicleId );
+
+					}
+
+				}
+
+				this._renderMembers();
+
+			}
 
 			// Switch to guest mode
 			this._isHost = false;

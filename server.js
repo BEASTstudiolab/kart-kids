@@ -334,12 +334,13 @@ function hslToHex( h, s, l ) {
 
 // ── Room join/leave helpers ─────────────────────────────────────────────────
 
-function addPlayerToRoom( room, playerId, ws, vehicleId ) {
+function addPlayerToRoom( room, playerId, ws, vehicleId, name ) {
 
 	const index = room.joinCounter ++;
 	const vehicleIndex = vehicleId != null ? vehicleId : ( index % 4 );
 	const characterIndex = 0;
 	const tint = computeTint( index );
+	const playerName = typeof name === 'string' ? name.slice( 0, 20 ) : '';
 
 	const player = {
 		ws,
@@ -347,6 +348,7 @@ function addPlayerToRoom( room, playerId, ws, vehicleId ) {
 		vehicleId: vehicleId != null ? vehicleId : null,
 		characterIndex,
 		tint,
+		name: playerName,
 		lastState: null,
 		spectating: false,
 	};
@@ -368,6 +370,7 @@ function addPlayerToRoom( room, playerId, ws, vehicleId ) {
 			vehicleId: p.vehicleId,
 			characterIndex: p.characterIndex,
 			tint: p.tint,
+			name: p.name,
 			spectating: p.spectating,
 		} );
 
@@ -401,6 +404,7 @@ function addPlayerToRoom( room, playerId, ws, vehicleId ) {
 		vehicleId: player.vehicleId,
 		characterIndex,
 		tint,
+		name: playerName,
 	}, playerId );
 
 	console.log( `Player ${ playerId } joined room ${ room.code } (vehicle ${ vehicleIndex }, tint ${ tint || 'none' })` );
@@ -520,19 +524,28 @@ wss.on( 'connection', ( ws ) => {
 
 			case 'createRoom': {
 
-				if ( hasJoinedRoom ) {
+				clearTimeout( autoJoinTimeout );
 
-					ws.send( JSON.stringify( { type: 'error', code: 'alreadyInRoom', message: 'Already in a room' } ) );
-					break;
+				// If auto-join already fired, leave the default room first
+				if ( hasJoinedRoom && clientInfo ) {
+
+					const prevRoom = rooms.get( clientInfo.roomCode );
+					if ( prevRoom ) {
+
+						connectedClients.delete( ws );
+						removePlayerFromRoom( prevRoom, clientInfo.playerId );
+
+					}
+
+					hasJoinedRoom = false;
 
 				}
 
-				clearTimeout( autoJoinTimeout );
 				hasJoinedRoom = true;
 
 				const code = generateRoomCode();
 				const room = createRoom( code );
-				addPlayerToRoom( room, playerId, ws, msg.vehicleId );
+				addPlayerToRoom( room, playerId, ws, msg.vehicleId, msg.name );
 
 				console.log( `Room created: ${ code } by ${ playerId }` );
 				break;
@@ -541,14 +554,23 @@ wss.on( 'connection', ( ws ) => {
 
 			case 'joinRoom': {
 
-				if ( hasJoinedRoom ) {
+				clearTimeout( autoJoinTimeout );
 
-					ws.send( JSON.stringify( { type: 'error', code: 'alreadyInRoom', message: 'Already in a room' } ) );
-					break;
+				// If auto-join already fired, leave the default room first
+				if ( hasJoinedRoom && clientInfo ) {
+
+					const prevRoom = rooms.get( clientInfo.roomCode );
+					if ( prevRoom ) {
+
+						connectedClients.delete( ws );
+						removePlayerFromRoom( prevRoom, clientInfo.playerId );
+
+					}
+
+					hasJoinedRoom = false;
 
 				}
 
-				clearTimeout( autoJoinTimeout );
 				hasJoinedRoom = true;
 
 				const roomCode = ( msg.roomCode || '' ).toUpperCase().trim();
@@ -556,6 +578,7 @@ wss.on( 'connection', ( ws ) => {
 
 				if ( ! room ) {
 
+					hasJoinedRoom = false;
 					ws.send( JSON.stringify( { type: 'error', code: 'roomNotFound', message: 'Room not found' } ) );
 					break;
 
@@ -563,26 +586,36 @@ wss.on( 'connection', ( ws ) => {
 
 				if ( room.players.size >= MAX_PLAYERS_PER_ROOM ) {
 
+					hasJoinedRoom = false;
 					ws.send( JSON.stringify( { type: 'error', code: 'roomFull', message: 'Room is full' } ) );
 					break;
 
 				}
 
-				addPlayerToRoom( room, playerId, ws, msg.vehicleId );
+				addPlayerToRoom( room, playerId, ws, msg.vehicleId, msg.name );
 				break;
 
 			}
 
 			case 'findRoom': {
 
-				if ( hasJoinedRoom ) {
+				clearTimeout( autoJoinTimeout );
 
-					ws.send( JSON.stringify( { type: 'error', code: 'alreadyInRoom', message: 'Already in a room' } ) );
-					break;
+				// If auto-join already fired, leave the default room first
+				if ( hasJoinedRoom && clientInfo ) {
+
+					const prevRoom = rooms.get( clientInfo.roomCode );
+					if ( prevRoom ) {
+
+						connectedClients.delete( ws );
+						removePlayerFromRoom( prevRoom, clientInfo.playerId );
+
+					}
+
+					hasJoinedRoom = false;
 
 				}
 
-				clearTimeout( autoJoinTimeout );
 				hasJoinedRoom = true;
 
 				// Find an available room (not default, idle, has slots)
@@ -606,7 +639,7 @@ wss.on( 'connection', ( ws ) => {
 
 				}
 
-				addPlayerToRoom( foundRoom, playerId, ws, msg.vehicleId );
+				addPlayerToRoom( foundRoom, playerId, ws, msg.vehicleId, msg.name );
 				break;
 
 			}

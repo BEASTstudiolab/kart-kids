@@ -106,10 +106,12 @@ export class NetworkClient {
 		this._sendInterval = null;
 		this._pendingState = null;
 		this._localPlayerId = null;
+		this._lastWelcome = null;
 		this._sessionToken = null;
 		this._serverUrl = null;
 
 		this._reconnectAttempts = 0;
+		this._displayName = '';
 
 		// Pending promise resolvers for room operations
 		this._pendingCreateRoom = null;
@@ -142,6 +144,7 @@ export class NetworkClient {
 
 	/** @returns {string|null} Local player ID assigned by the server. */
 	get localPlayerId() { return this._localPlayerId; }
+	get lastWelcome() { return this._lastWelcome; }
 
 	async connect( url ) {
 
@@ -168,13 +171,32 @@ export class NetworkClient {
 
 				case 'welcome':
 					this._localPlayerId = msg.id ?? msg.playerId ?? null;
+					this._lastWelcome = msg;
 					this._storeSession( msg.sessionToken ?? null );
 					if ( this.onWelcome ) this.onWelcome( msg );
-					// Resolve pending createRoom if roomCode present
-					if ( msg.roomCode && this._pendingCreateRoom ) {
+					// Resolve pending room operations — welcome is the server's join confirmation.
+					// Skip auto-join default room welcomes — they arrive before explicit
+					// createRoom/joinRoom/findRoom and would incorrectly resolve those promises.
+					if ( msg.roomCode && msg.roomCode !== '__default__' ) {
 
-						this._pendingCreateRoom.resolve( msg.roomCode );
-						this._pendingCreateRoom = null;
+						if ( this._pendingCreateRoom ) {
+
+							this._pendingCreateRoom.resolve( msg.roomCode );
+							this._pendingCreateRoom = null;
+
+						}
+						if ( this._pendingJoinRoom ) {
+
+							this._pendingJoinRoom.resolve( msg );
+							this._pendingJoinRoom = null;
+
+						}
+						if ( this._pendingFindRoom ) {
+
+							this._pendingFindRoom.resolve( msg );
+							this._pendingFindRoom = null;
+
+						}
 
 					}
 					break;
@@ -318,6 +340,16 @@ export class NetworkClient {
 
 	}
 
+	/**
+	 * Set the local player's display name (included in room join messages).
+	 * @param {string} name
+	 */
+	setDisplayName( name ) {
+
+		this._displayName = name || '';
+
+	}
+
 	// ---------------------------------------------------------------------------
 	// Room operations
 	// ---------------------------------------------------------------------------
@@ -326,12 +358,12 @@ export class NetworkClient {
 	 * Create a new room. Resolves with the room code string.
 	 * @returns {Promise<string>}
 	 */
-	createRoom() {
+	createRoom( vehicleId ) {
 
 		return new Promise( ( resolve, reject ) => {
 
 			this._pendingCreateRoom = { resolve, reject };
-			this._transport.send( { type: 'createRoom' } );
+			this._transport.send( { type: 'createRoom', name: this._displayName, vehicleId } );
 
 			// Timeout after 5s
 			setTimeout( () => {
@@ -360,7 +392,7 @@ export class NetworkClient {
 		return new Promise( ( resolve, reject ) => {
 
 			this._pendingJoinRoom = { resolve, reject };
-			this._transport.send( { type: 'joinRoom', roomCode: code, vehicleId } );
+			this._transport.send( { type: 'joinRoom', roomCode: code, vehicleId, name: this._displayName } );
 
 			setTimeout( () => {
 
@@ -387,7 +419,7 @@ export class NetworkClient {
 		return new Promise( ( resolve, reject ) => {
 
 			this._pendingFindRoom = { resolve, reject };
-			this._transport.send( { type: 'findRoom', vehicleId } );
+			this._transport.send( { type: 'findRoom', vehicleId, name: this._displayName } );
 
 			setTimeout( () => {
 

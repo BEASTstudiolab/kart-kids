@@ -674,41 +674,53 @@ export function createGameEngine( canvasContainer ) {
 		_playerManager = new PlayerManager( scene, world, models, spawnPosition, spawnAngle );
 
 		// ── Multiplayer connection ───────────────────────────────────────────
-		_network = new NetworkClient();
+		_network = config.network || new NetworkClient();
+		if ( ! config.network && _settings ) _network.setDisplayName( _settings.getDisplayName() || '' );
 		const spectateBtn = document.getElementById( 'spectate-btn' );
 
-		if ( customCells || config.mode === 'solo' ) {
+		if ( ( customCells || config.mode === 'solo' ) && ! config.network ) {
 
 			_playerManager.initSinglePlayer();
 
 		} else try {
 
-			await _network.connect();
+			if ( ! _network.connected ) await _network.connect();
 			_multiplayer = true;
 
-			await new Promise( ( resolve, reject ) => {
+			if ( config.network ) {
 
-				const timeout = setTimeout( () => reject( new Error( 'Server welcome timed out' ) ), 5000 );
+				// Lobby already connected and received welcome — init from existing state
+				const welcomeData = _network.lastWelcome || { id: _network.localPlayerId };
+				_playerManager.initLocalPlayer( welcomeData );
+				if ( spectateBtn ) spectateBtn.style.display = 'block';
 
-				_network.onWelcome = ( data ) => {
+			} else {
 
-					clearTimeout( timeout );
+				await new Promise( ( resolve, reject ) => {
 
-					try {
+					const timeout = setTimeout( () => reject( new Error( 'Server welcome timed out' ) ), 5000 );
 
-						_playerManager.initLocalPlayer( data );
-						if ( spectateBtn ) spectateBtn.style.display = 'block';
-						resolve();
+					_network.onWelcome = ( data ) => {
 
-					} catch ( err ) {
+						clearTimeout( timeout );
 
-						reject( err );
+						try {
 
-					}
+							_playerManager.initLocalPlayer( data );
+							if ( spectateBtn ) spectateBtn.style.display = 'block';
+							resolve();
 
-				};
+						} catch ( err ) {
 
-			} );
+							reject( err );
+
+						}
+
+					};
+
+				} );
+
+			}
 
 			_network.onPlayerJoin = ( data ) => _playerManager.addRemotePlayer( data );
 			_network.onPlayerLeave = ( data ) => _playerManager.removeRemotePlayer( data.id );

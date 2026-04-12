@@ -258,6 +258,7 @@ export class Page03QuickPlayController extends PageControllerBase {
 
 				}
 
+				this._network.setDisplayName( settings.getDisplayName() || '' );
 				const result = await this._network.findRoom( vehicleId );
 
 				this.navigate( RouteIds.LOBBY, {
