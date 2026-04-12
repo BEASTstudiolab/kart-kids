@@ -335,7 +335,7 @@ export class PlayerManager {
 		} else {
 
 			modelName = VEHICLE_MODEL_NAMES[ vehicleIndex % VEHICLE_MODEL_NAMES.length ];
-			charName = CHARACTER_MODEL_NAMES[ ( characterIndex || 0 ) % CHARACTER_MODEL_NAMES.length ];
+			charName = PLAYER_CHARACTER_ID;
 			characterOffset = null;
 			bodyHeight = undefined;
 
