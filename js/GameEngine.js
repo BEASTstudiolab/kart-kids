@@ -832,6 +832,9 @@ export function createGameEngine( canvasContainer ) {
 
 		console.log( `[GameEngine] Race start: mode=${ mode }, multiplayer=${ _multiplayer }, aiCount=${ aiCount }, trackIntel=${ !! ( _trackIntel && _trackIntel.valid ) }` );
 
+		// Tell server we're ready (party lobby flow — server waits for all players)
+		if ( _multiplayer && _network ) _network.sendRaceLoaded();
+
 		if ( aiCount > 0 ) {
 
 			_aiManager.setCount( aiCount );

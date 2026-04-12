@@ -251,6 +251,15 @@ function resetRoomRace( room ) {
 
 	}
 
+	if ( room.loadingTimeout ) {
+
+		clearTimeout( room.loadingTimeout );
+		room.loadingTimeout = null;
+
+	}
+
+	if ( room.loadedPlayers ) room.loadedPlayers.clear();
+
 	room.raceState = 'idle';
 	room.countdownCount = 0;
 
@@ -783,7 +792,42 @@ wss.on( 'connection', ( ws ) => {
 
 				}
 
-				startRoomRaceCountdown( room );
+				room.raceState = 'loading';
+				room.loadedPlayers = new Set();
+				room.loadingTimeout = setTimeout( () => {
+
+					room.loadingTimeout = null;
+					room.raceState = 'idle';
+					startRoomRaceCountdown( room );
+
+				}, 15000 );
+
+				roomBroadcast( room, {
+					type: 'raceLoading',
+					trackData: room.trackData || null,
+					trackId: room.trackId || null,
+				} );
+
+				break;
+
+			}
+
+			case 'raceLoaded': {
+
+				if ( ! clientInfo ) break;
+				const room = rooms.get( clientInfo.roomCode );
+				if ( ! room || room.raceState !== 'loading' ) break;
+				room.loadedPlayers.add( clientInfo.playerId );
+
+				// Check if all players loaded
+				if ( room.loadedPlayers.size >= room.players.size ) {
+
+					if ( room.loadingTimeout ) { clearTimeout( room.loadingTimeout ); room.loadingTimeout = null; }
+					room.raceState = 'idle';
+					startRoomRaceCountdown( room );
+
+				}
+
 				break;
 
 			}

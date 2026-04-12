@@ -78,7 +78,7 @@ export class PlayerManager {
 	initLocalPlayer( welcomeData ) {
 
 		this.localId = welcomeData.id;
-		const vehicle = this._createVehicle( welcomeData.vehicleIndex, welcomeData.characterIndex, welcomeData.tint, this.spawnPosition, this.spawnAngle );
+		const vehicle = this._createVehicle( welcomeData.vehicleIndex, welcomeData.characterIndex, welcomeData.tint, this.spawnPosition, this.spawnAngle, false, welcomeData.vehicleId );
 		this.localVehicle = vehicle;
 		this.players.set( this.localId, {
 			vehicle,
@@ -115,7 +115,7 @@ export class PlayerManager {
 			this.spawnPosition[ 2 ] + offset[ 1 ],
 		];
 
-		const vehicle = this._createVehicle( joinData.vehicleIndex, joinData.characterIndex, joinData.tint, spawnPos, this.spawnAngle, true );
+		const vehicle = this._createVehicle( joinData.vehicleIndex, joinData.characterIndex, joinData.tint, spawnPos, this.spawnAngle, true, joinData.vehicleId );
 		vehicle.remote = true;
 
 		// Remove SpotLights/PointLight to avoid Three.js shader recompilation
@@ -316,7 +316,7 @@ export class PlayerManager {
 
 		// Local player gets a kart from the registry; AI/remote get trucks
 		let modelName, charName, characterOffset, bodyHeight;
-		if ( ! isRemote && vehicleId ) {
+		if ( vehicleId ) {
 
 			const config = getVehicleById( vehicleId );
 			modelName = config.id;

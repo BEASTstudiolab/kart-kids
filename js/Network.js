@@ -127,6 +127,7 @@ export class NetworkClient {
 		this.onDisconnect = null;
 
 		// Race sync callbacks
+		this.onRaceLoading = null;
 		this.onRaceCountdown = null;
 		this.onRaceStart = null;
 		this.onPlayerLap = null;
@@ -283,6 +284,7 @@ export class NetworkClient {
 				case 'playerLeave': if ( this.onPlayerLeave ) this.onPlayerLeave( msg ); break;
 				case 'world': if ( this.onWorldUpdate ) this.onWorldUpdate( msg ); break;
 				case 'playerSpectate': if ( this.onPlayerSpectate ) this.onPlayerSpectate( msg ); break;
+				case 'raceLoading': if ( this.onRaceLoading ) this.onRaceLoading( msg ); break;
 				case 'raceCountdown': if ( this.onRaceCountdown ) this.onRaceCountdown( msg ); break;
 				case 'raceStart': if ( this.onRaceStart ) this.onRaceStart( msg ); break;
 				case 'playerLap': if ( this.onPlayerLap ) this.onPlayerLap( msg ); break;
@@ -443,6 +445,15 @@ export class NetworkClient {
 	startRace( trackData ) {
 
 		this._transport.send( { type: 'startRace', trackData } );
+
+	}
+
+	/**
+	 * Tell the server this client has finished loading the race.
+	 */
+	sendRaceLoaded() {
+
+		this._transport.send( { type: 'raceLoaded' } );
 
 	}
 

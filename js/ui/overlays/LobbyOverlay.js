@@ -767,11 +767,13 @@ export class LobbyOverlay {
 
 		this._onPlayerJoinBound = ( msg ) => this._handlePlayerJoin( msg );
 		this._onPlayerLeaveBound = ( msg ) => this._handlePlayerLeave( msg );
+		this._onRaceLoadingBound = ( msg ) => this._handleRaceStart( msg );
 		this._onRaceStartBound = ( msg ) => this._handleRaceStart( msg );
 		this._onDisconnectBound = () => this._handleDisconnect();
 
 		this._network.onPlayerJoin = this._onPlayerJoinBound;
 		this._network.onPlayerLeave = this._onPlayerLeaveBound;
+		this._network.onRaceLoading = this._onRaceLoadingBound;
 		this._network.onRaceStart = this._onRaceStartBound;
 		this._network.onDisconnect = this._onDisconnectBound;
 
@@ -783,6 +785,7 @@ export class LobbyOverlay {
 
 		if ( this._network.onPlayerJoin === this._onPlayerJoinBound ) this._network.onPlayerJoin = null;
 		if ( this._network.onPlayerLeave === this._onPlayerLeaveBound ) this._network.onPlayerLeave = null;
+		if ( this._network.onRaceLoading === this._onRaceLoadingBound ) this._network.onRaceLoading = null;
 		if ( this._network.onRaceStart === this._onRaceStartBound ) this._network.onRaceStart = null;
 		if ( this._network.onDisconnect === this._onDisconnectBound ) this._network.onDisconnect = null;
 
