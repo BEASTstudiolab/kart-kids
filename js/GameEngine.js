@@ -690,11 +690,12 @@ export function createGameEngine( canvasContainer ) {
 			if ( config.network ) {
 
 				// Lobby already connected — build welcome data from config + stored state
+				const lastWelcome = _network.lastWelcome || {};
 				const welcomeData = {
-					...( _network.lastWelcome || {} ),
+					...lastWelcome,
 					id: _network.localPlayerId,
-					vehicleId: config.vehicleId,
-					existingPlayers: config.players || [],
+					vehicleId: config.vehicleId || lastWelcome.vehicleId,
+					existingPlayers: config.players || lastWelcome.existingPlayers || [],
 				};
 				_playerManager.initLocalPlayer( welcomeData );
 				if ( spectateBtn ) spectateBtn.style.display = 'block';
