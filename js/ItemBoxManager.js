@@ -18,7 +18,7 @@ export class ItemBoxManager {
 		// Callback set by main.js for VFX/audio on pickup
 		this.onPickup = null;
 
-		const count = Math.max( 1, Math.floor( trackIntel.count / 3 ) );
+		const count = Math.max( 1, Math.floor( trackIntel.count / 12 ) );
 		const positions = trackIntel.getDistributedPositions( count );
 
 		const material = new THREE.MeshStandardMaterial( {

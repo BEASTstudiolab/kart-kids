@@ -192,7 +192,7 @@ export class PlayerManager {
 				entry.vehicle.setTargetState(
 					pState.pos, pState.rot, pState.vel, pState.angVel,
 					pState.speed, pState.drift, pState.boost,
-					pState.shield, pState.star, pState.damage
+					pState.shield, pState.star, pState.damage, pState.trick
 				);
 
 			}
@@ -355,6 +355,7 @@ export class PlayerManager {
 		const [ sx, sy, sz ] = position;
 		vehicle.vehPos.set( sx, sy, sz );
 		vehicle.groundHeight = sy;
+		vehicle._trackBaseY = this.spawnPosition[ 1 ] || 0;
 		vehicle.prevModelPos.set( sx, sy, sz );
 		vehicle.container.rotation.y = angle;
 

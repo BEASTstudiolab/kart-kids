@@ -339,13 +339,18 @@ export function createGameEngine( canvasContainer ) {
 	const BPL_STATIC = addBroadphaseLayer( worldSettings );
 	const OL_MOVING = addObjectLayer( worldSettings, BPL_MOVING );
 	const OL_STATIC = addObjectLayer( worldSettings, BPL_STATIC );
+	const OL_TRACK_SUPPORT = addObjectLayer( worldSettings, BPL_STATIC );
+	const OL_TRACK_BLOCKER = addObjectLayer( worldSettings, BPL_STATIC );
 
 	enableCollision( worldSettings, OL_MOVING, OL_STATIC );
+	enableCollision( worldSettings, OL_MOVING, OL_TRACK_BLOCKER );
 	enableCollision( worldSettings, OL_MOVING, OL_MOVING );
 
 	const world = createWorld( worldSettings );
 	world._OL_MOVING = OL_MOVING;
 	world._OL_STATIC = OL_STATIC;
+	world._OL_TRACK_SUPPORT = OL_TRACK_SUPPORT;
+	world._OL_TRACK_BLOCKER = OL_TRACK_BLOCKER;
 
 	// ── Mutable game-specific state ──────────────────────────────────────────
 
@@ -353,7 +358,8 @@ export function createGameEngine( canvasContainer ) {
 	let _listenerRegistry = [];   // { target, event, handler }
 	let _hudContainer = null;     // Single DOM container for all game HUD elements
 	let _trackedBodies = [];      // Physics bodies to reset on stop()
-	let _trackBody = null;        // Track collider body reference
+	let _trackSupportBody = null; // Driveable support mesh body
+	let _trackBlockerBody = null; // Wall/blocker mesh body
 	let _trackGroup = null;       // Track mesh group added to scene
 
 	// Game subsystem references (nulled during stop)
@@ -429,6 +435,7 @@ export function createGameEngine( canvasContainer ) {
 	let _wheelDebug = null;
 	let _debugMenu = null;
 	let _colliderDebugGroup = null;
+	let _barrierDebugGroup = null;
 	let _meshDebugGroup = null;
 	let _tileLabelsGroup = null;
 	let _heightLabelsGroup = null;
@@ -590,27 +597,50 @@ export function createGameEngine( canvasContainer ) {
 
 		// ── Track colliders ──────────────────────────────────────────────────
 		// Teleport old track body if switching tracks
-		if ( _trackBody ) {
-
-			rigidBody.setPosition( world, _trackBody, [ 0, - 10000, 0 ], false );
-
-		}
+		if ( _trackSupportBody ) rigidBody.setPosition( world, _trackSupportBody, [ 0, - 10000, 0 ], false );
+		if ( _trackBlockerBody ) rigidBody.setPosition( world, _trackBlockerBody, [ 0, - 10000, 0 ], false );
 
 		const trackColliderData = buildTrackColliders( world, models, renderCells );
-		_trackBody = trackColliderData.trackBody;
+		_trackSupportBody = trackColliderData.supportBody;
+		_trackBlockerBody = trackColliderData.blockerBody;
 
-		// Build debug visualization of track surface collider
+		// Build debug visualization of track support/blocker collider meshes
 		_colliderDebugGroup = new THREE.Group();
 		_colliderDebugGroup.visible = false;
 		scene.add( _colliderDebugGroup );
-		{
+		if ( trackColliderData.supportPositions && trackColliderData.supportPositions.length > 0 ) {
 
 			const geo = new THREE.BufferGeometry();
-			geo.setAttribute( 'position', new THREE.BufferAttribute( trackColliderData.positions, 3 ) );
-			geo.setIndex( new THREE.BufferAttribute( trackColliderData.indices, 1 ) );
+			geo.setAttribute( 'position', new THREE.BufferAttribute( trackColliderData.supportPositions, 3 ) );
+			geo.setIndex( new THREE.BufferAttribute( trackColliderData.supportIndices, 1 ) );
 			const edges = new THREE.EdgesGeometry( geo, 15 );
 			const mat = new THREE.LineBasicMaterial( { color: 0xff69b4, depthTest: false, transparent: true, opacity: 0.6 } );
 			_colliderDebugGroup.add( new THREE.LineSegments( edges, mat ) );
+
+		}
+		if ( trackColliderData.blockerPositions && trackColliderData.blockerPositions.length > 0 ) {
+
+			const geo = new THREE.BufferGeometry();
+			geo.setAttribute( 'position', new THREE.BufferAttribute( trackColliderData.blockerPositions, 3 ) );
+			geo.setIndex( new THREE.BufferAttribute( trackColliderData.blockerIndices, 1 ) );
+			const edges = new THREE.EdgesGeometry( geo, 15 );
+			const mat = new THREE.LineBasicMaterial( { color: 0xffa500, depthTest: false, transparent: true, opacity: 0.45 } );
+			_colliderDebugGroup.add( new THREE.LineSegments( edges, mat ) );
+
+		}
+
+		// Build debug visualization of extruded barrier walls (cyan)
+		_barrierDebugGroup = new THREE.Group();
+		_barrierDebugGroup.visible = false;
+		scene.add( _barrierDebugGroup );
+		if ( trackColliderData.barrierPositions && trackColliderData.barrierPositions.length > 0 ) {
+
+			const geo = new THREE.BufferGeometry();
+			geo.setAttribute( 'position', new THREE.BufferAttribute( trackColliderData.barrierPositions, 3 ) );
+			geo.setIndex( new THREE.BufferAttribute( trackColliderData.barrierIndices, 1 ) );
+			const edges = new THREE.EdgesGeometry( geo, 15 );
+			const mat = new THREE.LineBasicMaterial( { color: 0x00ffff, depthTest: false, transparent: true, opacity: 0.5 } );
+			_barrierDebugGroup.add( new THREE.LineSegments( edges, mat ) );
 
 		}
 
@@ -931,7 +961,7 @@ export function createGameEngine( canvasContainer ) {
 			vehicle: _vehicle, cam: _cam, aiManager: _aiManager,
 			controls: _controls,
 			dirLight, dirLightOffset: _dirLightOffset, hemiLight,
-			meshDebugGroup: _meshDebugGroup, colliderDebugGroup: _colliderDebugGroup,
+			meshDebugGroup: _meshDebugGroup, colliderDebugGroup: _colliderDebugGroup, barrierDebugGroup: _barrierDebugGroup,
 			tileLabelsGroup: _tileLabelsGroup, heightLabelsGroup: _heightLabelsGroup,
 			renderCells, models,
 			groundIndicator: _groundIndicator, jitterDisplay: _jitterDisplay, draftIndicator: _draftIndicator,
@@ -1421,6 +1451,7 @@ export function createGameEngine( canvasContainer ) {
 
 		// Remove debug groups from scene
 		if ( _colliderDebugGroup ) { scene.remove( _colliderDebugGroup ); _colliderDebugGroup = null; }
+		if ( _barrierDebugGroup ) { scene.remove( _barrierDebugGroup ); _barrierDebugGroup = null; }
 		if ( _meshDebugGroup ) { scene.remove( _meshDebugGroup ); _meshDebugGroup = null; }
 		if ( _tileLabelsGroup ) { scene.remove( _tileLabelsGroup ); _tileLabelsGroup = null; }
 		if ( _heightLabelsGroup ) { scene.remove( _heightLabelsGroup ); _heightLabelsGroup = null; }
@@ -1468,6 +1499,8 @@ export function createGameEngine( canvasContainer ) {
 
 		// Null out remaining game refs
 		_vehicle = null;
+		_trackSupportBody = null;
+		_trackBlockerBody = null;
 		_audio = null;
 		_raceMode = null;
 		_raceLobby = null;
@@ -1728,7 +1761,10 @@ export function createGameEngine( canvasContainer ) {
 		// ── DEBUG updates ────────────────────────────────────────────────────
 		if ( _debugCollider && _vehicle ) {
 
-			const colliderY = ( _vehicle._vehicleY || 0 ) + 0.8;
+			// Position debug box at the actual physics body position
+			// (matches Vehicle.js rigidBody.setPosition)
+			const lift = _vehicle._lastColliderLift ?? 0.8;
+			const colliderY = ( _vehicle._vehicleY || 0 ) + lift;
 			_debugCollider.position.set( _vehicle.vehPos.x, colliderY, _vehicle.vehPos.z );
 			const yaw = Math.atan2(
 				2 * ( _vehicle.container.quaternion.w * _vehicle.container.quaternion.y ),
@@ -1770,6 +1806,38 @@ export function createGameEngine( canvasContainer ) {
 			// Edge-trigger: cycle camera view on Y press
 			if ( rawInput.switchView && ! _prevSwitchView ) _cam.cycleMode();
 			_prevSwitchView = !! rawInput.switchView;
+
+			// Consume landing events for camera/audio/haptics feedback
+			if ( _vehicle && _vehicle._landingEvent ) {
+
+				const le = _vehicle._landingEvent;
+				_cam.applyLandingImpact( le.severity, le.impactSpeed );
+				if ( _audio ) _audio.playImpact( le.impactSpeed );
+				if ( _haptics ) _haptics.impulse( le.impactSpeed / 8 );
+				_vehicle._landingEvent = null;
+
+			}
+
+			if ( _vehicle && _vehicle._trickEvent ) {
+
+				const te = _vehicle._trickEvent;
+
+				if ( te.rewardGranted ) {
+
+					if ( _audio ) _audio.playBoostWhoosh();
+					if ( _boostBurst ) {
+
+						_boostFwd.set( 0, 0, 1 ).applyQuaternion( _vehicle.container.quaternion );
+						_boostBurst.emit( _vehicle.container.position, _boostFwd.x, _boostFwd.z );
+
+					}
+					if ( _haptics ) _haptics.impulse( 0.35 );
+
+				}
+
+				_vehicle._trickEvent = null;
+
+			}
 
 			_cam.update( dt, followVehicle.vehPos, followVehicle.container.quaternion, {
 				inputX: followVehicle.inputX,

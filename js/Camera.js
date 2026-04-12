@@ -50,6 +50,11 @@ export class Camera {
 		this._shakeDecay = 0;
 		this.MAX_SHAKE = 0.8;
 
+		// Landing impact camera effects
+		this._landingFOVDelta = 0;
+		this._landingDropOffset = 0;
+		this._landingChasePunch = 0;
+
 		// Speed-reactive camera (Unit 1 — gameplay-juice-pass-plan.md)
 		this.speedFOVMax = 12;
 		this.speedDistMax = 1;
@@ -197,6 +202,36 @@ export class Camera {
 
 	}
 
+	/**
+	 * Camera impact effect for landings. Dips FOV, drops camera Y, and
+	 * punches chase distance inward briefly.
+	 * @param {string} severity - 'clean', 'hard', or 'bad'
+	 * @param {number} impactSpeed - vertical impact velocity
+	 */
+	applyLandingImpact( severity, impactSpeed ) {
+
+		switch ( severity ) {
+
+			case 'clean':
+				this._landingFOVDelta = - 1;
+				this._landingDropOffset = - 0.05;
+				this._landingChasePunch = 0;
+				break;
+			case 'hard':
+				this._landingFOVDelta = - 3;
+				this._landingDropOffset = - 0.15;
+				this._landingChasePunch = - 0.5;
+				break;
+			case 'bad':
+				this._landingFOVDelta = - 5;
+				this._landingDropOffset = - 0.3;
+				this._landingChasePunch = - 1.0;
+				break;
+
+		}
+
+	}
+
 	update( dt, target, vehicleQuaternion, vehicleState = {} ) {
 
 		if ( this.mode === 'chase' && vehicleQuaternion ) {
@@ -253,6 +288,23 @@ export class Camera {
 			// Exponential decay -- ~150ms to near-zero at rate 15
 			this._shakeDecay *= Math.exp( - 15 * dt );
 			if ( this._shakeDecay < 0.01 ) this._shakeDecay = 0;
+
+			// Landing impact: camera Y drop (springs back)
+			if ( this._landingDropOffset !== 0 ) {
+
+				this.camera.position.y += this._landingDropOffset;
+				this._landingDropOffset *= Math.exp( - 8 * dt );
+				if ( Math.abs( this._landingDropOffset ) < 0.005 ) this._landingDropOffset = 0;
+
+			}
+
+			// Landing chase distance punch (springs back)
+			if ( this._landingChasePunch !== 0 ) {
+
+				this._landingChasePunch *= Math.exp( - 6 * dt );
+				if ( Math.abs( this._landingChasePunch ) < 0.01 ) this._landingChasePunch = 0;
+
+			}
 
 			// Look target: ahead normally, behind (past vehicle) when looking behind
 			if ( this.lookBehind ) {
@@ -314,8 +366,16 @@ export class Camera {
 				const boostSmooth = 1 - Math.exp( - this.boostDecayRate * dt );
 				this._boostDelta += ( 0 - this._boostDelta ) * boostSmooth;
 
-				// Additive FOV: base + speed widen + boost widen - cornering narrow
-				const targetFOV = this.baseFOV + speedDelta + this._boostDelta - corneringDelta;
+				// Decay landing FOV delta
+				if ( this._landingFOVDelta !== 0 ) {
+
+					this._landingFOVDelta *= Math.exp( - 6 * dt );
+					if ( Math.abs( this._landingFOVDelta ) < 0.05 ) this._landingFOVDelta = 0;
+
+				}
+
+				// Additive FOV: base + speed widen + boost widen - cornering narrow + landing dip
+				const targetFOV = this.baseFOV + speedDelta + this._boostDelta - corneringDelta + this._landingFOVDelta;
 
 				// Asymmetric smoothing for FOV
 				const fovRate = targetFOV < this._currentFOV
@@ -328,7 +388,7 @@ export class Camera {
 				const distRate = targetDist > this._currentChaseDistance ? this.attackRate : this.releaseRate;
 				const distSmooth = 1 - Math.exp( - distRate * dt );
 				this._currentChaseDistance += ( targetDist - this._currentChaseDistance ) * distSmooth;
-				this.chaseDistance = this._currentChaseDistance;
+				this.chaseDistance = this._currentChaseDistance + this._landingChasePunch;
 
 				// rotateZ applies roll around the camera's local forward axis,
 				// which is correct after lookAt() has set the orientation.

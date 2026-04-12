@@ -6,7 +6,9 @@
       "WebSearch",
       "WebFetch(domain:cdn.jsdelivr.net)",
       "Bash(node -e ':*)",
-      "Bash(node --input-type=module -e ':*)"
+      "Bash(node --input-type=module -e ':*)",
+      "Bash(wc -l \"e:/Vibe Projects/kart-kids/js/\"*.js)",
+      "Bash(node -e \"const fs = require\\('fs'\\); const code = fs.readFileSync\\('js/Physics.js', 'utf8'\\); console.log\\('Lines:', code.split\\('\\\\n'\\).length\\); console.log\\('OK'\\);\")"
     ]
   }
 }

@@ -1,12 +1,13 @@
 import * as THREE from 'three';
 import { rigidBody } from 'crashcat';
-import { VehicleGroundRaycast } from './vehicle/VehicleGroundRaycast.js';
+import { VehicleGroundRaycast, SurfaceType } from './vehicle/VehicleGroundRaycast.js';
 import { VehicleRemoteSync } from './vehicle/VehicleRemoteSync.js';
 import { VehicleHealth } from './vehicle/VehicleHealth.js';
 import { VehicleDamageDeform } from './vehicle/VehicleDamageDeform.js';
 import { VehicleStateMachine, PhysicsState } from './vehicle/VehicleStateMachine.js';
-import { VehicleAirborne } from './vehicle/VehicleAirborne.js';
+import { VehicleAirborne, LaunchSource } from './vehicle/VehicleAirborne.js';
 import { VehicleRespawn } from './vehicle/VehicleRespawn.js';
+import { VehicleTrickController } from './vehicle/VehicleTrickController.js';
 import { CharacterAnimator } from './CharacterAnimator.js';
 import { ANIMATION_CLIPS } from './ModelLoader.js';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
@@ -51,10 +52,28 @@ export class Vehicle {
 		this.rigidBody = null;
 		this.physicsWorld = null;
 
+		// Landing feedback state
+		this._landingEvent = null;   // set on LANDING state, consumed by GameEngine
+		this._landingSquash = 0;     // temporary body Y compression (visual only)
+
+		// Suspension bounce: damped spring for springy landing feel
+		this._landingBounceVel = 0;    // current bounce velocity
+		this._landingBounceOffset = 0; // current bounce displacement
+		this._trickEvent = null;
+		this._lastTrickResult = null;
+		this._airborneWallContact = false;
+		this._aerialHintTimer = 0;
+		this._aerialHintText = 'HOLD DRIFT + TAP A DIRECTION';
+
+		// Hit-stop micro-freeze (visual-only slowdown on heavy impacts)
+		this._hitStopFrames = 0;
+
 		this.modelVelocity = new THREE.Vector3();
 		this.prevModelPos = new THREE.Vector3( 3.5, 0, 5 );
 
 		this.container = new THREE.Group();
+		this.visualRoot = new THREE.Group();
+		this.container.add( this.visualRoot );
 		this.bodyNode = null;
 		this.wheels = [];
 		this.wheelFL = null;
@@ -149,12 +168,12 @@ export class Vehicle {
 			// Body lean
 			bodyLeanPitch: 6,
 			bodyLeanRoll: 5,
-			// Suspension
+			// Suspension (increased travel for visible arcade bounce)
 			rideHeight: 0,
-			suspStiffness: 200,
-			suspDamping: 25,
-			suspMaxCompress: 0.05,
-			suspMaxExtend: 0.05,
+			suspStiffness: 160,
+			suspDamping: 18,
+			suspMaxCompress: 0.12,
+			suspMaxExtend: 0.15,
 			// Bump physics (vehicle-vs-vehicle)
 			bumpForceScale: 0.8,
 			bumpMaxForce: 15,
@@ -167,6 +186,24 @@ export class Vehicle {
 			curbDragClampDist: 0.5,     // below this distance, hard-clamp speed
 			curbDragClampSpeed: 0.3,    // max linearSpeed when within clamp distance
 			wallRepulsionForce: 3.0,    // outward push velocity when touching/near wall
+			// Burnout-style impact physics
+			impactLaunchThreshold: 8.0, // min combat impact force that becomes an airtime launch
+			impactLaunchScale: 0.3,     // vertical velocity = (pushMag - threshold) * scale
+			impactLaunchCap: 3.0,       // max vertical velocity from impact launch
+			bumpVerticalThreshold: 8.0, // min pushMag to launch defender airborne
+			bumpVerticalScale: 0.3,     // vertical velocity = (pushMag - threshold) * scale
+			bumpVerticalCap: 3.0,       // max vertical velocity from bump
+			bumpSpinThreshold: 10.0,    // min pushMag for spin-out on side impact
+			bumpSpinRate: 0.15,         // angular velocity added per unit of force
+			bumpSpeedTransferRate: 0.02,// speed transfer from defender to attacker
+			bumpHitStopThreshold: 12.0, // min pushMag for hit-stop micro-freeze
+			// Non-linear acceleration curve
+			launchAccelRate: 3.0,       // 0-40% speed: punchy start
+			midAccelRate: 1.5,          // 40-70% speed: moderate
+			topEndAccelRate: 0.4,       // 70-100% speed: gradual approach
+			// Asymmetric slope gravity
+			slopeGravityUphill: 0.7,    // uphill gravity factor (from 0.5)
+			slopeGravityDownhill: 0.5,  // downhill gravity factor
 		};
 
 		// Raycast ground detection (delegated to VehicleGroundRaycast)
@@ -182,9 +219,14 @@ export class Vehicle {
 		this._prevGroundHeight = 0;
 		this._verticalVelocity = 0;
 		this._vehicleY = 0;
+		this._smoothVehicleY = 0; // filtered body Y for bump absorption
 		this._airborneTimer = 0;
 		this._launchCooldown = 0;
+		this._rampLiftTimer = 0; // keeps collider elevated briefly after leaving ramp
+		this._lastColliderLift = 0.8; // last computed collider lift for debug viz
 		this._wallHitTime = 0; // set by contact listener to suppress launches after wall bounce
+		this._lastOnTrackPos = new THREE.Vector3( 3.5, 0, 5 ); // last grounded position for respawn
+		this._trackBaseY = 0; // start line elevation — source of truth for off-track Y detection
 
 		// Curb drag — wall proximity detection
 		this._wallProximityLeft = 0;   // 0 = far, 1 = touching wall
@@ -250,6 +292,7 @@ export class Vehicle {
 
 		// Airborne controller (takeoff impulse, air control, landing severity)
 		this._airborne = new VehicleAirborne();
+		this._trick = new VehicleTrickController();
 
 		// Respawn controller (checkpoint-aware respawn flow)
 		this._respawn = new VehicleRespawn();
@@ -260,7 +303,9 @@ export class Vehicle {
 
 		const clonedVehicle = vehicleModel.clone();
 
-		this.container.add( clonedVehicle );
+		this.visualRoot.clear();
+		this.visualRoot.rotation.set( 0, 0, 0 );
+		this.visualRoot.add( clonedVehicle );
 
 		const allNodeNames = [];
 
@@ -457,11 +502,12 @@ export class Vehicle {
 
 		}
 
-		// Remove all children from container EXCEPT lights
+		// Remove all children from container EXCEPT lights and the visual root
 		const keep = [];
 		for ( const child of this.container.children ) {
 
-			if ( child.isLight || child.isSpotLight || child.isPointLight ||
+			if ( child === this.visualRoot ||
+				child.isLight || child.isSpotLight || child.isPointLight ||
 				child === this.underglowLight ||
 				this.headlights.includes( child ) ||
 				this.headlights.some( ( hl ) => hl.target === child ) ) {
@@ -474,6 +520,9 @@ export class Vehicle {
 
 		this.container.clear();
 		for ( const child of keep ) this.container.add( child );
+		if ( ! this.visualRoot.parent ) this.container.add( this.visualRoot );
+		this.visualRoot.clear();
+		this.visualRoot.rotation.set( 0, 0, 0 );
 
 		// Reset node references
 		this.bodyNode = null;
@@ -487,7 +536,7 @@ export class Vehicle {
 
 		// Clone and add new model
 		const clonedVehicle = newVehicleModel.clone();
-		this.container.add( clonedVehicle );
+		this.visualRoot.add( clonedVehicle );
 
 		// Re-find named nodes
 		clonedVehicle.traverse( ( child ) => {
@@ -579,7 +628,7 @@ export class Vehicle {
 
 	raycastGround( dt ) {
 
-		this._groundRaycast.updateGround( dt, this );
+		return this._groundRaycast.updateGround( dt, this );
 
 	}
 
@@ -726,9 +775,9 @@ export class Vehicle {
 
 	}
 
-	setTargetState( pos, rot, vel, angVel, speed, drift, boostActive, shield, star, damage ) {
+	setTargetState( pos, rot, vel, angVel, speed, drift, boostActive, shield, star, damage, trick ) {
 
-		this._remoteSync.setTargetState( pos, rot, vel, angVel, speed, drift, boostActive, shield, star, damage );
+		this._remoteSync.setTargetState( pos, rot, vel, angVel, speed, drift, boostActive, shield, star, damage, trick );
 
 	}
 
@@ -755,6 +804,15 @@ export class Vehicle {
 
 		this.inputX = controlsInput.x;
 		this.inputZ = controlsInput.z;
+		const trickIntent = controlsInput.trickIntent || null;
+
+		// Hit-stop micro-freeze: slow down dt for visual impact on heavy collisions
+		if ( this._hitStopFrames > 0 ) {
+
+			dt *= 0.1;
+			this._hitStopFrames --;
+
+		}
 
 		// Tick health timers (invuln, consecutive hit cooldown)
 		if ( this.health ) this.health.update( dt );
@@ -878,7 +936,20 @@ export class Vehicle {
 
 			} else {
 
-				this.linearSpeed = THREE.MathUtils.lerp( this.linearSpeed, targetSpeed, dt * this.debug.accelerationRate );
+				// Non-linear acceleration: punchy start, gradual approach to top speed
+				const speedRatio = Math.abs( this.linearSpeed );
+				let accelCurve;
+				if ( speedRatio < 0.4 ) {
+
+					accelCurve = THREE.MathUtils.lerp( this.debug.launchAccelRate, this.debug.midAccelRate, speedRatio / 0.4 );
+
+				} else {
+
+					accelCurve = THREE.MathUtils.lerp( this.debug.midAccelRate, this.debug.topEndAccelRate, ( speedRatio - 0.4 ) / 0.6 );
+
+				}
+
+				this.linearSpeed = THREE.MathUtils.lerp( this.linearSpeed, targetSpeed, dt * accelCurve );
 
 			}
 
@@ -914,9 +985,19 @@ export class Vehicle {
 
 		}
 
+		// Sharp momentum decay on recent wall hit
+		const now = performance.now() / 1000;
+		if ( this._wallHitTime > 0 && ( now - this._wallHitTime ) < 0.1 && this.momentum > 0 ) {
+
+			this.momentum *= 0.3;
+
+		}
+
 		// Curb drag — progressive slowdown near walls
 		this.raycastWallProximity();
 		const maxProximity = Math.max( this._wallProximityLeft, this._wallProximityRight );
+		if ( this._launchCooldown > 0 ) this._launchCooldown = Math.max( 0, this._launchCooldown - dt );
+		if ( this._aerialHintTimer > 0 ) this._aerialHintTimer = Math.max( 0, this._aerialHintTimer - dt );
 
 		if ( maxProximity > 0 ) {
 
@@ -934,7 +1015,7 @@ export class Vehicle {
 		}
 
 		// Raycast ground detection
-		this.raycastGround( dt );
+		const groundSensor = this.raycastGround( dt );
 
 		// Align vehicle orientation to surface normal — adaptive rate matches normal blend
 		const targetQuat = this.alignWithY( this.container.quaternion, this.groundNormal );
@@ -986,12 +1067,29 @@ export class Vehicle {
 
 			}
 
-			// Position collider above track surface geometry (curbs top out at ~0.5 world space).
-			// halfHeight=0.3, so center at +0.8 keeps bottom at +0.5 (clears curbs).
-			// On ramps, raise the collider higher to prevent the upright box from
-			// catching on the ramp lip geometry (the collider uses yaw-only, no pitch).
+			// Position collider above track surface geometry.
+			// Track whether we've recently been on a ramp so the elevated lift
+			// persists briefly at the crest — prevents the box catching on the lip.
 			const onRampSurface = this.groundNormal.y < 0.96;
-			const colliderLift = onRampSurface ? 1.4 : 0.8;
+			if ( onRampSurface ) this._rampLiftTimer = 0.3;
+			else if ( this._rampLiftTimer > 0 ) this._rampLiftTimer -= dt;
+			const needsRampLift = onRampSurface || this._rampLiftTimer > 0;
+			const colliderLift = needsRampLift ? 1.4 : 0.8;
+
+			// Prevent wall-climbing: clamp grounded vehicle height near walls,
+			// but NOT on ramp surfaces where side-barriers also register as walls.
+			if ( ! onRampSurface ) {
+
+				const nearWall = Math.max( this._wallProximityLeft || 0, this._wallProximityRight || 0 ) > 0.5;
+				if ( this._grounded && nearWall && this._vehicleY > this.groundHeight + 0.3 ) {
+
+					this._vehicleY = this.groundHeight + 0.3;
+
+				}
+
+			}
+
+			this._lastColliderLift = colliderLift;
 			const colliderY = this._vehicleY + colliderLift;
 			rigidBody.setPosition( this.physicsWorld, this.rigidBody,
 				[ this.vehPos.x, colliderY, this.vehPos.z ], false );
@@ -1012,11 +1110,18 @@ export class Vehicle {
 		// Vertical positioning: grounded spring when wheels touch, gravity when airborne
 		const targetY = this.groundHeight + this.debug.rideHeight;
 		const recentWallHit = ( performance.now() / 1000 - this._wallHitTime ) < 0.5;
+		this._grounded = this._airborne.resolveGroundContact( this, groundSensor );
+
+		// Post-wall-hit Y clamp: prevent the physics solver from lifting
+		// the vehicle above the barrier by clamping Y for 0.3s after impact.
+		if ( recentWallHit && this._vehicleY > this.groundHeight + 0.5 ) {
+
+			this._vehicleY = this.groundHeight + 0.5;
+
+		}
 
 		// Wall/bump contacts force vehicle back to grounded — barriers must
 		// never cause vertical lift, only ramps should launch players.
-		// Skip on ramp surfaces: wall contacts there are from side barriers,
-		// not from collisions that would cause unwanted vertical lift.
 		const onRampForWall = this.groundNormal.y < 0.96;
 		if ( recentWallHit && ! this._grounded && ! onRampForWall ) {
 
@@ -1024,6 +1129,9 @@ export class Vehicle {
 			this._verticalVelocity = 0;
 			this._vehicleY = targetY;
 			this._airborneTimer = 0;
+			this._airborne.markWallContact( this );
+			this._trick.cancel( this );
+			this._airborne.resetLaunchState( this );
 
 		}
 
@@ -1060,7 +1168,11 @@ export class Vehicle {
 
 		}
 
-		const offTrackDetected = ( this._allWheelsMissTimer > 1.0 ) || tooFarFromTrack;
+		// Below-track detection: if the vehicle drops more than 3 units below
+		// the start line elevation, it's off the track surface entirely.
+		const belowTrack = this._vehicleY < this._trackBaseY - 3.0;
+
+		const offTrackDetected = ( this._allWheelsMissTimer > 1.0 ) || tooFarFromTrack || belowTrack;
 
 		if ( offTrackDetected ) {
 
@@ -1072,11 +1184,13 @@ export class Vehicle {
 
 		}
 
-		// Kill plane and full flip are instant respawn (no grace period)
+		// Kill plane and full flip are instant respawn (no grace period).
+		// Below-track gets a shorter grace (0.5s) since it's clearly off-track.
 		const killPlaneHit = this.groundHeight < - 10;
 		const flipRespawn = this._flipStatus === 'respawn';
+		const grace = belowTrack ? 0.5 : this._offTrackGrace;
 		const respawnRequested = killPlaneHit || flipRespawn ||
-			( this._offTrackTimer > this._offTrackGrace );
+			( this._offTrackTimer > grace );
 
 		// ── Evaluate physics state machine ─────────────────────────────
 		this._stateMachine.evaluate( {
@@ -1107,10 +1221,16 @@ export class Vehicle {
 			if ( dropAmount > 0.3 && Math.abs( this.linearSpeed ) > 0.2 &&
 				 ! recentWallHit && this._launchCooldown <= 0 ) {
 
-				this._grounded = false;
-				this._verticalVelocity = - 0.5;
-				this._airborneTimer = 0;
-				this._launchCooldown = 0.15;
+				// Speed-scaled initial velocity: faster = more hang time off edges.
+				// At low speed, drop quickly. At high speed, carry upward momentum
+				// proportional to how fast the ground dropped away (arcade hang time).
+				const speedT = THREE.MathUtils.clamp( Math.abs( this.linearSpeed ), 0, 1 );
+				const dropScale = THREE.MathUtils.clamp( dropAmount / 2.0, 0, 1 );
+				// Low speed: fall at -1.5. High speed + big drop: float at +1.5
+				this._airborne.beginLaunch( this, {
+					source: LaunchSource.DROP,
+					verticalVelocity: THREE.MathUtils.lerp( - 1.5, 1.5 * dropScale, speedT ),
+				} );
 				this._stateMachine.forceState( PhysicsState.AIRBORNE );
 
 			} else {
@@ -1118,6 +1238,9 @@ export class Vehicle {
 				// Normal grounded: track surface directly
 				this._vehicleY = targetY;
 				this._airborneTimer = 0;
+
+				// Track last good on-track position for nearest-surface respawn
+				this._lastOnTrackPos.copy( this.vehPos );
 
 				// Compute upward velocity from slope + speed for launch momentum
 				_forward.set( 0, 0, 1 ).applyQuaternion( this.container.quaternion );
@@ -1134,10 +1257,13 @@ export class Vehicle {
 							Math.abs( this.linearSpeed ) > 0.3 && ! recentWallHit ) {
 
 					// Ramp crest launch
-					this._grounded = false;
-					this._airborneTimer = 0;
-					this._launchCooldown = 0.3;
-					this._airborne.applyTakeoff( this, this._groundRaycast.surfaceType );
+					const launchSource = this._groundRaycast.surfaceType === SurfaceType.RAMP_EXIT
+						? LaunchSource.JUMP
+						: LaunchSource.RAMP;
+					this._airborne.beginLaunch( this, {
+						source: launchSource,
+						surfaceType: this._groundRaycast.surfaceType,
+					} );
 					this._stateMachine.forceState( PhysicsState.AIRBORNE );
 
 				} else {
@@ -1153,20 +1279,44 @@ export class Vehicle {
 		} else if ( physState === PhysicsState.TAKEOFF ) {
 
 			// Single-frame launch — apply authored takeoff impulse
-			this._grounded = false;
-			this._airborneTimer = 0;
-			this._launchCooldown = 0.3;
-			this._airborne.applyTakeoff( this, this._groundRaycast.surfaceType );
+			const launchSource = this._groundRaycast.surfaceType === SurfaceType.RAMP_EXIT
+				? LaunchSource.JUMP
+				: LaunchSource.RAMP;
+			this._airborne.beginLaunch( this, {
+				source: launchSource,
+				surfaceType: this._groundRaycast.surfaceType,
+			} );
 
 		} else if ( physState === PhysicsState.AIRBORNE ) {
 
 			// Airborne: gravity, air control, stabilization
+			if ( trickIntent ) this._trick.tryStartTrick( this, trickIntent );
 			this._airborne.updateAirborne( dt, this );
+			this._trick.update( dt, this );
 
 		} else if ( physState === PhysicsState.LANDING ) {
 
 			// Landing: severity classification, snap, bounce clamping
-			this._airborne.applyLanding( this );
+			const landingInfo = this._airborne.applyLanding( this );
+
+			if ( ! landingInfo.suppressEvent ) {
+
+				// Emit landing event for camera/audio/haptics feedback
+				this._landingEvent = {
+					severity: landingInfo.severity,
+					impactSpeed: landingInfo.impactSpeed,
+					trickType: landingInfo.trickType,
+					trickRewardGranted: landingInfo.rewardGranted,
+					launchSource: landingInfo.launchSource,
+					bounced: landingInfo.bounced,
+				};
+
+				// Landing squash: temporary body compression for visual feedback
+				if ( landingInfo.severity === 'clean' ) this._landingSquash = 0.02;
+				else if ( landingInfo.severity === 'hard' ) this._landingSquash = 0.06;
+				else this._landingSquash = 0.12;
+
+			}
 
 		} else if ( physState === PhysicsState.RECOVERY ) {
 
@@ -1175,6 +1325,7 @@ export class Vehicle {
 			this._airborneTimer = 0;
 			this._verticalVelocity = 0;
 			this._airborne.updateRecovery( dt, this );
+			this._trick.update( 0, this );
 
 		} else if ( physState === PhysicsState.RESPAWNING ) {
 
@@ -1183,12 +1334,43 @@ export class Vehicle {
 
 		}
 
+		if ( physState !== PhysicsState.AIRBORNE && physState !== PhysicsState.TAKEOFF ) {
+
+			this._trick.update( 0, this );
+
+		}
+
 		// Update respawn invulnerability timer
 		this._respawn.update( dt );
+		this.trickState = this._trick.getStateSnapshot();
+
+		// Bump absorption filter: small bumps on flat ground tracked slowly,
+		// but on ramps or large changes tracked instantly to prevent visual float.
+		const heightDelta = Math.abs( this._vehicleY - this._smoothVehicleY );
+		const onRampVisual = this.groundNormal.y < 0.96;
+		let absorbRate;
+		if ( onRampVisual || heightDelta > 0.5 ) {
+
+			absorbRate = 50.0; // near-instant on ramps and big changes
+
+		} else if ( heightDelta > 0.15 ) {
+
+			absorbRate = 20.0; // fast for medium bumps
+
+		} else {
+
+			absorbRate = 10.0; // gentle for small road bumps
+
+		}
+
+		this._smoothVehicleY = THREE.MathUtils.lerp(
+			this._smoothVehicleY, this._vehicleY,
+			1 - Math.exp( - absorbRate * dt )
+		);
 
 		this.container.position.set(
 			this.vehPos.x,
-			this._vehicleY,
+			this._smoothVehicleY,
 			this.vehPos.z
 		);
 
@@ -1231,6 +1413,8 @@ export class Vehicle {
 				physicsState: this._stateMachine.getStateName(),
 				surfaceType: this._groundRaycast.surfaceType,
 				landingSeverity: this._airborne.lastSeverity,
+				launchSource: this._airborne.launchSource,
+				trickState: this._trick.getStateSnapshot(),
 			};
 
 		}
@@ -1455,8 +1639,10 @@ export class Vehicle {
 		}
 
 		// ── Effective top speed (R13) — max of base, nitro, mini-boost ────────
+		// Momentum bonus: up to 8% extra top speed at full momentum
+		const momentumBonus = 1 + this.momentum * 0.08;
 		this.effectiveTopSpeed = Math.max(
-			this.debug.topSpeed * ( this.externalTopSpeedMultiplier || 1 ) * ( this.draftSpeedMultiplier || 1 ),
+			this.debug.topSpeed * ( this.externalTopSpeedMultiplier || 1 ) * ( this.draftSpeedMultiplier || 1 ) * momentumBonus,
 			this.boostActive ? this.debug.boostTopSpeed : 0,
 			this.driftBoostTimer > 0 ? this.debug.topSpeed * this.driftBoostMultiplier : 0,
 			this.miniBoostTimer > 0 ? this.miniBoostTopSpeed : 0,
@@ -1496,8 +1682,11 @@ export class Vehicle {
 
 			}
 
-			// Slope gravity affects speed: slows uphill, accelerates downhill
-			const slopeGravity = - 9.81 * _forward.y * 0.5;
+			// Asymmetric slope gravity: uphills resist more, downhills limited
+			const slopeFactor = _forward.y > 0
+				? this.debug.slopeGravityUphill
+				: this.debug.slopeGravityDownhill;
+			const slopeGravity = - 9.81 * _forward.y * slopeFactor;
 
 			// Project drive to horizontal plane
 			_forward.y = 0;
@@ -1580,9 +1769,22 @@ export class Vehicle {
 			const newVelX = this.vehVel.x + ( driveX - this.vehVel.x ) * blendRate + bumpDeltaX + repelX;
 			const newVelZ = this.vehVel.z + ( driveZ - this.vehVel.z ) * blendRate + bumpDeltaZ + repelZ;
 
+			// Clamp world-space speed to prevent tunneling through barriers
+			const MAX_WORLD_SPEED = 45;
+			const worldSpeedSq = newVelX * newVelX + newVelZ * newVelZ;
+			let clampedVelX = newVelX;
+			let clampedVelZ = newVelZ;
+			if ( worldSpeedSq > MAX_WORLD_SPEED * MAX_WORLD_SPEED ) {
+
+				const scale = MAX_WORLD_SPEED / Math.sqrt( worldSpeedSq );
+				clampedVelX *= scale;
+				clampedVelZ *= scale;
+
+			}
+
 			// Always zero Y velocity — vertical position is managed entirely by raycasts,
 			// never by the physics body (gravityFactor=0).
-			rigidBody.setLinearVelocity( this.physicsWorld, this.rigidBody, [ newVelX, 0, newVelZ ] );
+			rigidBody.setLinearVelocity( this.physicsWorld, this.rigidBody, [ clampedVelX, 0, clampedVelZ ] );
 			rigidBody.setAngularVelocity( this.physicsWorld, this.rigidBody, [ 0, 0, 0 ] );
 
 		}
@@ -1685,7 +1887,40 @@ export class Vehicle {
 			dt * 5
 		);
 
-		this.bodyNode.position.y = THREE.MathUtils.lerp( this.bodyNode.position.y, 0.2 + this.debug.bodyHeight, dt * 3 );
+			let bodyTargetY = 0.2 + this.debug.bodyHeight;
+
+		// Landing squash: temporary downward compression that springs back
+		if ( this._landingSquash > 0.001 ) {
+
+			bodyTargetY -= this._landingSquash;
+			this._landingSquash *= Math.exp( - 12 * dt );
+
+		}
+
+		// Suspension bounce: damped spring for arcade off-road landing feel.
+		// Stiffness ~40 gives ~1 Hz oscillation, damping ~5 gives 2-3 bounces.
+		if ( Math.abs( this._landingBounceVel ) > 0.005 || Math.abs( this._landingBounceOffset ) > 0.005 ) {
+
+			const stiffness = 40;
+			const damping = 5;
+			const springForce = - stiffness * this._landingBounceOffset;
+			const dampForce = - damping * this._landingBounceVel;
+			this._landingBounceVel += ( springForce + dampForce ) * dt;
+			this._landingBounceOffset += this._landingBounceVel * dt;
+
+			// Clamp to reasonable visual range
+			this._landingBounceOffset = THREE.MathUtils.clamp( this._landingBounceOffset, - 0.2, 0.4 );
+			bodyTargetY += this._landingBounceOffset;
+
+		} else {
+
+			this._landingBounceOffset = 0;
+			this._landingBounceVel = 0;
+
+		}
+
+		// Direct set (no lerp) so the spring bounce is visible, not smoothed away
+		this.bodyNode.position.y = bodyTargetY;
 
 	}
 
@@ -1796,6 +2031,7 @@ export class Vehicle {
 		const [ sx, sy, sz ] = position;
 		vehicle.vehPos.set( sx, sy, sz );
 		vehicle.groundHeight = sy;
+		vehicle._trackBaseY = sy;
 		vehicle.prevModelPos.set( sx, sy, sz );
 		vehicle.container.rotation.y = angle;
 

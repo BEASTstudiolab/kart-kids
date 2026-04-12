@@ -287,6 +287,8 @@ function startRoomTick( room ) {
 					boost: p.lastState.boost,
 					shield: p.lastState.shield,
 					star: p.lastState.star,
+					damage: p.lastState.damage,
+					trick: p.lastState.trick,
 					spectating: p.spectating,
 				} );
 

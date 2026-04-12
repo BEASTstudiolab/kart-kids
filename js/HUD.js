@@ -144,6 +144,21 @@ export class HUD {
 		].join( ';' );
 		document.body.appendChild( this._powerupEl );
 
+		// ── Aerial hint ─────────────────────────────────────────────────────
+		this._aerialHintEl = document.createElement( 'div' );
+		this._aerialHintEl.style.cssText = [
+			'position:fixed', 'top:38%', 'left:50%', 'transform:translate(-50%,-50%)',
+			'font:bold 26px/1 monospace', 'letter-spacing:1px',
+			'color:#fff6bf', 'background:rgba(0,0,0,0.68)',
+			'padding:10px 18px', 'border-radius:10px',
+			'border:1px solid rgba(255,255,255,0.18)',
+			'box-shadow:0 10px 28px rgba(0,0,0,0.28)',
+			'text-shadow:0 0 18px rgba(255,240,140,0.35)',
+			'z-index:1000', 'pointer-events:none', 'user-select:none', 'display:none',
+			'white-space:nowrap',
+		].join( ';' );
+		document.body.appendChild( this._aerialHintEl );
+
 		// ── Lobby panel (top-center: status + ready button) ──────────────────
 		this._lobbyPanel = document.createElement( 'div' );
 		this._lobbyPanel.style.cssText = [
@@ -187,6 +202,7 @@ export class HUD {
 				this._resultsEl.style.display = 'none';
 				this._boostContainer.style.display = 'none';
 				this._powerupEl.style.display = 'none';
+				this._aerialHintEl.style.display = 'none';
 				this._updateLobby( lobbyState );
 				break;
 
@@ -195,6 +211,7 @@ export class HUD {
 				this._resultsEl.style.display = 'none';
 				this._raceHud.style.display = 'none';
 				this._boostContainer.style.display = 'none';
+				this._aerialHintEl.style.display = 'none';
 				this._countdownEl.style.display = 'block';
 
 				const countText = displayState.countdown > 0
@@ -247,6 +264,7 @@ export class HUD {
 				this._updateBoostBar( displayState );
 				this._updateDriftIndicator( displayState );
 				this._updatePowerupIndicator( dt, displayState );
+				this._updateAerialHint( displayState );
 				break;
 
 			case 'finished':
@@ -255,6 +273,7 @@ export class HUD {
 				this._raceHud.style.display = 'none';
 				this._boostContainer.style.display = 'none';
 				this._powerupEl.style.display = 'none';
+				this._aerialHintEl.style.display = 'none';
 				this._resultsEl.style.display = 'block';
 				this._resultsTotalLine.textContent = `Total: ${ this._formatTime( displayState.totalTime ) }`;
 				this._resultsBestLine.textContent = `Best Lap: ${ this._formatTime( displayState.bestLap ) }`;
@@ -400,6 +419,20 @@ export class HUD {
 			this._powerupEl.style.display = 'none';
 
 		}
+
+	}
+
+	_updateAerialHint( displayState ) {
+
+		if ( ! displayState.aerialHintActive ) {
+
+			this._aerialHintEl.style.display = 'none';
+			return;
+
+		}
+
+		this._aerialHintEl.style.display = 'block';
+		this._aerialHintEl.textContent = displayState.aerialHintText || 'HOLD DRIFT + TAP A DIRECTION';
 
 	}
 

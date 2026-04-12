@@ -217,6 +217,8 @@ export class RaceMode extends GameMode {
 		s.starActive = v ? v.starActive : false;
 		s.driftActive = v ? v.driftActive : false;
 		s.driftSparkTier = v ? v.driftSparkTier : 0;
+		s.aerialHintActive = !! ( v && v._aerialHintTimer > 0 );
+		s.aerialHintText = v ? v._aerialHintText || '' : '';
 
 		return s;
 

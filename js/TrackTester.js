@@ -145,13 +145,18 @@ function createPhysicsWorld() {
 	const BPL_STATIC = addBroadphaseLayer( worldSettings );
 	const OL_MOVING = addObjectLayer( worldSettings, BPL_MOVING );
 	const OL_STATIC = addObjectLayer( worldSettings, BPL_STATIC );
+	const OL_TRACK_SUPPORT = addObjectLayer( worldSettings, BPL_STATIC );
+	const OL_TRACK_BLOCKER = addObjectLayer( worldSettings, BPL_STATIC );
 
 	enableCollision( worldSettings, OL_MOVING, OL_STATIC );
+	enableCollision( worldSettings, OL_MOVING, OL_TRACK_BLOCKER );
 	enableCollision( worldSettings, OL_MOVING, OL_MOVING );
 
 	const w = createWorld( worldSettings );
 	w._OL_MOVING = OL_MOVING;
 	w._OL_STATIC = OL_STATIC;
+	w._OL_TRACK_SUPPORT = OL_TRACK_SUPPORT;
+	w._OL_TRACK_BLOCKER = OL_TRACK_BLOCKER;
 
 	rigidBody.create( w, {
 		shape: box.create( { halfExtents: [ 50, 0.01, 50 ] } ),

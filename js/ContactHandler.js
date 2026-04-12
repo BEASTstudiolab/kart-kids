@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import { PhysicsState } from './vehicle/VehicleStateMachine.js';
+import { LaunchSource } from './vehicle/VehicleAirborne.js';
 
 
 // Reusable vectors for bump calculations (avoid per-contact allocation)
@@ -26,6 +28,21 @@ export function createContactListener( ctx ) {
 	const { vehicle, audio, cam, wallSparks, haptics, bodyToVehicle, combatManager } = ctx;
 
 	let lastImpactTime = 0;
+
+	function _cancelAirTrick( targetVehicle ) {
+
+		if ( ! targetVehicle ) return;
+		const state = targetVehicle._stateMachine?.currentState;
+		const airborne = ! targetVehicle._grounded ||
+			state === PhysicsState.AIRBORNE ||
+			state === PhysicsState.TAKEOFF;
+
+		if ( ! airborne ) return;
+
+		if ( targetVehicle._airborne ) targetVehicle._airborne.markWallContact( targetVehicle );
+		if ( targetVehicle._trick ) targetVehicle._trick.cancel( targetVehicle );
+
+	}
 
 	function _applyBump( vehicleA, vehicleB ) {
 
@@ -112,10 +129,75 @@ export function createContactListener( ctx ) {
 
 		vehicleA.lastBumpTime = now;
 		vehicleB.lastBumpTime = now;
+		_cancelAirTrick( attacker );
+		_cancelAirTrick( defender );
 
-		// Suppress vertical launch after bump — keep both karts grounded
-		defender._wallHitTime = now;
-		defender._verticalVelocity = 0;
+		// Burnout-style vertical launch on strong hits, but make it explicit so
+		// the landing path can distinguish combat airtime from authored jumps.
+		const impactLaunchThreshold = vehicle.debug.impactLaunchThreshold ?? vehicle.debug.bumpVerticalThreshold;
+		const impactLaunchScale = vehicle.debug.impactLaunchScale ?? vehicle.debug.bumpVerticalScale;
+		const impactLaunchCap = vehicle.debug.impactLaunchCap ?? vehicle.debug.bumpVerticalCap;
+		if ( pushMag > impactLaunchThreshold ) {
+
+			const verticalLaunch = Math.min(
+				( pushMag - impactLaunchThreshold ) * impactLaunchScale,
+				impactLaunchCap
+			);
+			if ( defender._airborne?.beginLaunch ) {
+
+				defender._airborne.beginLaunch( defender, {
+					source: LaunchSource.IMPACT,
+					verticalVelocity: verticalLaunch,
+					verticalCap: impactLaunchCap,
+				} );
+
+			} else {
+
+				defender._verticalVelocity = verticalLaunch;
+				defender._grounded = false;
+				defender._launchCooldown = 0.3;
+
+			}
+			if ( defender._stateMachine ) {
+
+				defender._stateMachine.forceState( PhysicsState.AIRBORNE );
+
+			}
+
+		} else {
+
+			// Suppress vertical launch after bump for weak/medium hits
+			defender._wallHitTime = now;
+			defender._verticalVelocity = 0;
+
+		}
+
+		// Spin-out on strong side impacts
+		const sideHitStrength = Math.abs( _bumpRight.dot( _bumpNormalXZ ) );
+		if ( sideHitStrength > 0.5 && pushMag > vehicle.debug.bumpSpinThreshold ) {
+
+			const spinDirection = Math.sign( _bumpRight.dot( _bumpNormalXZ ) );
+			defender.angularSpeed += spinDirection * pushMag * vehicle.debug.bumpSpinRate;
+
+		}
+
+		// Speed transfer: attacker steals speed from defender
+		const transferRate = vehicle.debug.bumpSpeedTransferRate;
+		if ( transferRate > 0 ) {
+
+			const speedTransfer = Math.min( pushMag * transferRate, Math.abs( defender.linearSpeed ) * 0.2 );
+			attacker.linearSpeed += speedTransfer * 0.3;
+			defender.linearSpeed -= speedTransfer;
+
+		}
+
+		// Hit-stop micro-freeze on heavy impacts
+		if ( pushMag > vehicle.debug.bumpHitStopThreshold ) {
+
+			defender._hitStopFrames = ( defender._hitStopFrames || 0 ) + 2;
+			attacker._hitStopFrames = ( attacker._hitStopFrames || 0 ) + 1;
+
+		}
 
 		// VFX/audio for local player
 		if ( vehicleA === vehicle || vehicleB === vehicle ) {
@@ -213,20 +295,30 @@ export function createContactListener( ctx ) {
 			const nx = wn[ 0 ] * normalSign;
 			const nz = wn[ 2 ] * normalSign;
 
-			// Let crashcat's collision solver handle the wall bounce naturally.
-			// Scale damping by impact angle: glancing ~15% loss, head-on ~55% loss.
-			const dot = Math.abs( nx * sv.x + nz * sv.z ) / ( speed || 1 );
-			const dampFactor = THREE.MathUtils.lerp( 0.85, 0.45, dot );
-			vehicle.linearSpeed *= dampFactor;
-			// Only suppress vertical velocity on flat ground — on ramp surfaces,
-			// wall contacts are from side barriers and should not kill launch momentum.
-			const onRamp = vehicle.groundNormal && vehicle.groundNormal.y < 0.96;
-			if ( ! onRamp ) {
+			// Wall-slide projection: remove velocity component going into the wall,
+			// then apply a speed penalty based on impact angle.
+			const intoWall = sv.x * nx + sv.z * nz;
+			if ( intoWall < 0 ) {
 
-				vehicle._wallHitTime = now;
-				vehicle._verticalVelocity = 0;
+				// Project velocity onto wall plane (slide along wall)
+				sv.x -= nx * intoWall;
+				sv.z -= nz * intoWall;
 
 			}
+
+			// Additional speed penalty scaled by impact angle
+			// Head-on (dot~1): lose 65%. Glancing (dot~0): lose 8%.
+			const dot = Math.abs( intoWall ) / ( speed || 1 );
+			const dampFactor = THREE.MathUtils.lerp( 0.92, 0.35, dot );
+			vehicle.linearSpeed *= dampFactor;
+
+			// Always suppress upward velocity on wall contact — hitting a wall
+			// should never launch the vehicle upward regardless of surface slope.
+			// Ramp launches go through the TAKEOFF state path, not wall contacts.
+			vehicle._wallHitTime = now;
+			if ( vehicle._airborne ) vehicle._airborne.markWallContact( vehicle );
+			if ( vehicle._trick ) vehicle._trick.cancel( vehicle );
+			if ( vehicle._verticalVelocity > 0 ) vehicle._verticalVelocity = 0;
 			audio.playImpact( speed );
 
 			// Route wall damage through combat system

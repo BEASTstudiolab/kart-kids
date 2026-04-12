@@ -62,7 +62,7 @@ export function setupDebugPanel( ctx ) {
 		scene, renderer, bloomPass, postFX,
 		vehicle, cam, aiManager, controls,
 		dirLight, dirLightOffset, hemiLight,
-		meshDebugGroup, colliderDebugGroup,
+		meshDebugGroup, colliderDebugGroup, barrierDebugGroup,
 		tileLabelsGroup, heightLabelsGroup,
 		renderCells, models,
 		groundIndicator, jitterDisplay, draftIndicator,
@@ -363,6 +363,12 @@ export function setupDebugPanel( ctx ) {
 	debugMenu.addCheckbox( generalTab, 'Show collider geometry (pink)', false, ( v ) => {
 
 		colliderDebugGroup.visible = v;
+
+	} );
+
+	debugMenu.addCheckbox( generalTab, 'Show barrier extensions (cyan)', false, ( v ) => {
+
+		if ( barrierDebugGroup ) barrierDebugGroup.visible = v;
 
 	} );
 
@@ -1186,6 +1192,86 @@ export function setupDebugPanel( ctx ) {
 		}
 
 	} );
+
+	// ── Tab: Aerial/Impact ──────────────────────────────────────────────────
+	const aerialTab = debugMenu.addTab( 'aerial', 'Aerial/Impact' );
+	const airCfg = vehicle._airborne ? vehicle._airborne.config : {};
+	const trickCfg = vehicle._trick ? vehicle._trick.config : {};
+
+	debugMenu.addHeader( aerialTab, 'Gravity Curve' );
+	debugMenu.addSlider( aerialTab, 'Apex gravity scale', 0.1, 1.0, 0.05, airCfg.apexGravityScale ?? 0.7, ( v ) => { airCfg.apexGravityScale = v; } );
+	debugMenu.addSlider( aerialTab, 'Descent gravity scale', 1.0, 3.0, 0.1, airCfg.descentGravityScale ?? 1.3, ( v ) => { airCfg.descentGravityScale = v; } );
+	debugMenu.addSlider( aerialTab, 'Descent auto-level', 0.0, 12.0, 0.5, airCfg.descentAutoLevel ?? 7.0, ( v ) => { airCfg.descentAutoLevel = v; } );
+
+	debugMenu.addHeader( aerialTab, 'Air Control' );
+	debugMenu.addSlider( aerialTab, 'Air yaw rate', 0.0, 1.0, 0.05, airCfg.airYawRate ?? 0.3, ( v ) => { airCfg.airYawRate = v; } );
+	debugMenu.addSlider( aerialTab, 'Air pitch control', 0.0, 2.0, 0.1, airCfg.airPitchControlRate ?? 0.8, ( v ) => { airCfg.airPitchControlRate = v; } );
+	debugMenu.addSlider( aerialTab, 'Air roll control', 0.0, 2.0, 0.1, airCfg.airRollControlRate ?? 0.5, ( v ) => { airCfg.airRollControlRate = v; } );
+
+	debugMenu.addHeader( aerialTab, 'Takeoff' );
+	debugMenu.addSlider( aerialTab, 'Launch impulse scale', 0.1, 2.0, 0.05, airCfg.launchImpulseScale ?? 0.85, ( v ) => { airCfg.launchImpulseScale = v; } );
+	debugMenu.addSlider( aerialTab, 'Launch cap', 1.0, 12.0, 0.5, airCfg.launchCap ?? 6.0, ( v ) => { airCfg.launchCap = v; } );
+	debugMenu.addSlider( aerialTab, 'Ramp launch boost', 0.8, 1.6, 0.05, airCfg.rampLaunchBoost ?? 1.1, ( v ) => { airCfg.rampLaunchBoost = v; } );
+	debugMenu.addSlider( aerialTab, 'Jump launch boost', 0.8, 1.8, 0.05, airCfg.jumpLaunchBoost ?? 1.2, ( v ) => { airCfg.jumpLaunchBoost = v; } );
+	debugMenu.addSlider( aerialTab, 'Launch commit window', 0.05, 0.5, 0.01, airCfg.launchCommitWindow ?? 0.18, ( v ) => { airCfg.launchCommitWindow = v; } );
+	debugMenu.addSlider( aerialTab, 'Jump commit window', 0.05, 0.5, 0.01, airCfg.jumpCommitWindow ?? 0.3, ( v ) => { airCfg.jumpCommitWindow = v; } );
+	debugMenu.addSlider( aerialTab, 'Drop commit window', 0.05, 0.35, 0.01, airCfg.dropCommitWindow ?? 0.15, ( v ) => { airCfg.dropCommitWindow = v; } );
+	debugMenu.addSlider( aerialTab, 'Impact commit window', 0.05, 0.4, 0.01, airCfg.impactCommitWindow ?? 0.22, ( v ) => { airCfg.impactCommitWindow = v; } );
+	debugMenu.addSlider( aerialTab, 'Min airtime latch', 0.0, 0.4, 0.01, airCfg.minAirTime ?? 0.12, ( v ) => { airCfg.minAirTime = v; } );
+	debugMenu.addSlider( aerialTab, 'Re-ground distance', 0.1, 1.0, 0.05, airCfg.regroundDistance ?? 0.5, ( v ) => { airCfg.regroundDistance = v; } );
+
+	debugMenu.addHeader( aerialTab, 'Landing' );
+	debugMenu.addSlider( aerialTab, 'Clean max impact', 1.0, 8.0, 0.5, airCfg.landingCleanMaxImpact ?? 3.0, ( v ) => { airCfg.landingCleanMaxImpact = v; } );
+	debugMenu.addSlider( aerialTab, 'Hard max impact', 3.0, 12.0, 0.5, airCfg.landingHardMaxImpact ?? 6.0, ( v ) => { airCfg.landingHardMaxImpact = v; } );
+	debugMenu.addSlider( aerialTab, 'Clean recovery', 0.0, 0.5, 0.02, airCfg.landingCleanRecovery ?? 0.1, ( v ) => { airCfg.landingCleanRecovery = v; } );
+	debugMenu.addSlider( aerialTab, 'Hard recovery', 0.0, 1.0, 0.02, airCfg.landingHardRecovery ?? 0.3, ( v ) => { airCfg.landingHardRecovery = v; } );
+	debugMenu.addSlider( aerialTab, 'Bad recovery', 0.0, 1.5, 0.05, airCfg.landingBadRecovery ?? 0.5, ( v ) => { airCfg.landingBadRecovery = v; } );
+	debugMenu.addSlider( aerialTab, 'Hard speed mult', 0.3, 1.0, 0.05, airCfg.landingHardSpeedMult ?? 0.9, ( v ) => { airCfg.landingHardSpeedMult = v; } );
+	debugMenu.addSlider( aerialTab, 'Bad speed mult', 0.1, 1.0, 0.05, airCfg.landingBadSpeedMult ?? 0.7, ( v ) => { airCfg.landingBadSpeedMult = v; } );
+
+	debugMenu.addHeader( aerialTab, 'Suspension Bounce' );
+	debugMenu.addSlider( aerialTab, 'Bounce kick', 0.0, 2.0, 0.05, airCfg.landingBounceRestitution ?? 0.5, ( v ) => { airCfg.landingBounceRestitution = v; } );
+	debugMenu.addSlider( aerialTab, 'Bounce min impact', 0.0, 3.0, 0.1, airCfg.landingBounceMinImpact ?? 0.5, ( v ) => { airCfg.landingBounceMinImpact = v; } );
+
+	debugMenu.addHeader( aerialTab, 'Tricks' );
+	debugMenu.addSlider( aerialTab, 'Trick duration', 0.25, 1.5, 0.05, trickCfg.trickDuration ?? 0.65, ( v ) => { trickCfg.trickDuration = v; } );
+	debugMenu.addSlider( aerialTab, 'Trick complete pct', 0.5, 1.0, 0.05, trickCfg.completionWindow ?? 0.85, ( v ) => { trickCfg.completionWindow = v; } );
+	debugMenu.addSlider( aerialTab, 'Hint duration', 0.2, 1.5, 0.05, trickCfg.hintDuration ?? 0.85, ( v ) => { trickCfg.hintDuration = v; } );
+	debugMenu.addSlider( aerialTab, 'Trick reward duration', 0.3, 2.0, 0.05, trickCfg.rewardBoostDuration ?? 1.1, ( v ) => { trickCfg.rewardBoostDuration = v; } );
+	debugMenu.addSlider( aerialTab, 'Trick reward top speed', 200, 420, 5, trickCfg.rewardBoostTopSpeed ?? 320, ( v ) => { trickCfg.rewardBoostTopSpeed = v; } );
+
+	debugMenu.addHeader( aerialTab, 'Impact Launch' );
+	debugMenu.addSlider( aerialTab, 'Bump min speed', 0.5, 5.0, 0.5, vehicle.debug.bumpMinSpeed ?? 2.0, ( v ) => { vehicle.debug.bumpMinSpeed = v; } );
+	debugMenu.addSlider( aerialTab, 'Impact launch threshold', 0, 20, 1, vehicle.debug.impactLaunchThreshold ?? vehicle.debug.bumpVerticalThreshold ?? 8.0, ( v ) => {
+
+		vehicle.debug.impactLaunchThreshold = v;
+		vehicle.debug.bumpVerticalThreshold = v;
+
+	} );
+	debugMenu.addSlider( aerialTab, 'Impact launch scale', 0, 1, 0.05, vehicle.debug.impactLaunchScale ?? vehicle.debug.bumpVerticalScale ?? 0.3, ( v ) => {
+
+		vehicle.debug.impactLaunchScale = v;
+		vehicle.debug.bumpVerticalScale = v;
+
+	} );
+	debugMenu.addSlider( aerialTab, 'Impact launch cap', 0, 6, 0.5, vehicle.debug.impactLaunchCap ?? vehicle.debug.bumpVerticalCap ?? 3.0, ( v ) => {
+
+		vehicle.debug.impactLaunchCap = v;
+		vehicle.debug.bumpVerticalCap = v;
+
+	} );
+	debugMenu.addHeader( aerialTab, 'Bump Combat' );
+	debugMenu.addSlider( aerialTab, 'Bump spin threshold', 0, 20, 1, vehicle.debug.bumpSpinThreshold ?? 10.0, ( v ) => { vehicle.debug.bumpSpinThreshold = v; } );
+	debugMenu.addSlider( aerialTab, 'Bump spin rate', 0, 0.5, 0.01, vehicle.debug.bumpSpinRate ?? 0.15, ( v ) => { vehicle.debug.bumpSpinRate = v; } );
+	debugMenu.addSlider( aerialTab, 'Bump speed transfer', 0, 0.1, 0.005, vehicle.debug.bumpSpeedTransferRate ?? 0.02, ( v ) => { vehicle.debug.bumpSpeedTransferRate = v; } );
+	debugMenu.addSlider( aerialTab, 'Hit-stop threshold', 0, 20, 1, vehicle.debug.bumpHitStopThreshold ?? 12.0, ( v ) => { vehicle.debug.bumpHitStopThreshold = v; } );
+
+	debugMenu.addHeader( aerialTab, 'Acceleration' );
+	debugMenu.addSlider( aerialTab, 'Launch accel rate', 0.5, 10, 0.5, vehicle.debug.launchAccelRate ?? 3.0, ( v ) => { vehicle.debug.launchAccelRate = v; } );
+	debugMenu.addSlider( aerialTab, 'Mid accel rate', 0.5, 5, 0.5, vehicle.debug.midAccelRate ?? 1.5, ( v ) => { vehicle.debug.midAccelRate = v; } );
+	debugMenu.addSlider( aerialTab, 'Top-end accel rate', 0.1, 2, 0.1, vehicle.debug.topEndAccelRate ?? 0.4, ( v ) => { vehicle.debug.topEndAccelRate = v; } );
+	debugMenu.addSlider( aerialTab, 'Slope gravity uphill', 0.1, 1.5, 0.1, vehicle.debug.slopeGravityUphill ?? 0.7, ( v ) => { vehicle.debug.slopeGravityUphill = v; } );
+	debugMenu.addSlider( aerialTab, 'Slope gravity downhill', 0.1, 1.5, 0.1, vehicle.debug.slopeGravityDownhill ?? 0.5, ( v ) => { vehicle.debug.slopeGravityDownhill = v; } );
 
 	return { debugMenu, debugCollider, wheelDebug };
 

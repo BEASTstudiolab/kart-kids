@@ -14,12 +14,28 @@ import { SurfaceType } from './VehicleGroundRaycast.js';
 import { PhysicsState } from './VehicleStateMachine.js';
 
 const _forward = new THREE.Vector3();
+const _up = new THREE.Vector3( 0, 1, 0 );
+const _levelQuat = new THREE.Quaternion();
 
 // Landing severity levels
 export const LandingSeverity = {
 	CLEAN: 'clean',
 	HARD: 'hard',
 	BAD: 'bad',
+};
+
+export const LaunchSource = {
+	NONE: 'none',
+	RAMP: 'ramp',
+	JUMP: 'jump',
+	DROP: 'drop',
+	IMPACT: 'impact',
+};
+
+const LANDING_SEVERITY_RANK = {
+	[ LandingSeverity.CLEAN ]: 0,
+	[ LandingSeverity.HARD ]: 1,
+	[ LandingSeverity.BAD ]: 2,
 };
 
 // Per-ramp-type base launch impulses
@@ -44,8 +60,23 @@ export class VehicleAirborne {
 
 		// Landing result
 		this.lastSeverity = LandingSeverity.CLEAN;
+		this.lastImpactSpeed = 0;
 		this.recoveryDuration = 0;     // how long RECOVERY state lasts
 		this.recoverySpeedPenalty = 1;  // speed multiplier during recovery (1 = no penalty)
+		this.launchSource = LaunchSource.NONE;
+		this.wallContactSinceLaunch = false;
+		this.lastLandingInfo = {
+			severity: LandingSeverity.CLEAN,
+			impactSpeed: 0,
+			launchSource: LaunchSource.NONE,
+			trickType: null,
+			rewardGranted: false,
+			bounced: false,
+			suppressEvent: false,
+		};
+		this._carriedLandingSeverity = null;
+		this._carriedLandingImpactSpeed = 0;
+		this._suppressNextLandingEvent = false;
 
 		// Tuning (exposed via vehicle.debug)
 		this.config = {
@@ -54,10 +85,25 @@ export class VehicleAirborne {
 			launchSpeedMin: 0.3,          // minimum speed factor
 			launchSpeedMax: 1.0,          // maximum speed factor
 			launchSpeedRef: 0.8,          // speed at which factor = 1.0
-			launchCap: 6.0,              // absolute max vertical velocity
+			launchCap: 5.0,              // absolute max vertical velocity
+			rampLaunchBoost: 1.1,         // extra pop for authored ramp launches
+			jumpLaunchBoost: 1.2,         // extra pop for jump exits / crest launches
+			launchCommitWindow: 0.18,     // ignore ground contact briefly after launch
+			jumpCommitWindow: 0.3,        // a little longer to keep crest launches consistent
+			dropCommitWindow: 0.15,       // short float-off protection for ledges
+			impactCommitWindow: 0.22,     // protects dramatic impact launches from instant re-ground
+			minAirTime: 0.12,             // minimum airtime before latching support again
+			regroundDistance: 0.5,        // max distance above support to reattach
+
+			// Gravity curve (hang time feel)
+			apexGravityScale: 0.7,       // slight hang time at apex (1.0 = no effect)
+			descentGravityScale: 1.3,    // slightly faster descent (1.0 = no effect)
+			descentAutoLevel: 7.0,       // how aggressively the body levels on descent
 
 			// Air control
-			airYawRate: 0.3,             // fraction of normal steering rate in air
+			airYawRate: 0.14,            // much weaker yaw than grounded steering
+			airPitchControlRate: 0.8,    // pitch influence from forward/back input (rad/s)
+			airRollControlRate: 0.5,     // cosmetic roll from left/right input (rad/s)
 			airPitchStabilize: 2.0,      // restoring torque rate for pitch (rad/s)
 			airPitchThreshold: 0.52,     // 30° in radians — pitch beyond this triggers correction
 			airAngularDamping: 2.0,      // angular velocity decay rate (1/s)
@@ -78,8 +124,8 @@ export class VehicleAirborne {
 			landingBadRecovery: 0.5,     // recovery duration for BAD
 			landingHardSpeedMult: 0.9,   // speed penalty during HARD recovery
 			landingBadSpeedMult: 0.7,    // speed penalty during BAD recovery
-			landingBounceRestitution: 0.35, // bounce factor on landing (damped)
-			landingBounceMinImpact: 0.5,   // minimum impact speed to trigger bounce
+			landingBounceRestitution: 0.5,  // suspension spring kick factor (higher = bouncier)
+			landingBounceMinImpact: 0.5,   // minimum impact speed to trigger suspension bounce
 		};
 
 	}
@@ -97,6 +143,9 @@ export class VehicleAirborne {
 
 		// Base impulse from ramp type
 		const baseImpulse = RAMP_IMPULSE[ surfaceType ] ?? RAMP_IMPULSE[ SurfaceType.RAMP_UP ];
+		let sourceBoost = 1.0;
+		if ( surfaceType === SurfaceType.RAMP_EXIT ) sourceBoost = cfg.jumpLaunchBoost ?? 1.2;
+		else if ( surfaceType === SurfaceType.RAMP_UP || surfaceType === SurfaceType.FLAT ) sourceBoost = cfg.rampLaunchBoost ?? 1.1;
 
 		// Speed factor: faster approach = higher launch, with ceiling
 		const speedNorm = Math.abs( v.linearSpeed ) / cfg.launchSpeedRef;
@@ -110,7 +159,7 @@ export class VehicleAirborne {
 		// Blend: use the greater of slope-based, authored impulse, or existing
 		// momentum (ramp crest launches may have pre-computed velocity from
 		// the slope frames before the normal flattened out)
-		const authoredVelocity = baseImpulse * speedFactor * cfg.launchImpulseScale;
+		const authoredVelocity = baseImpulse * speedFactor * cfg.launchImpulseScale * sourceBoost;
 		const existingMomentum = v._verticalVelocity;
 		const finalVelocity = Math.max( slopeVelocity, authoredVelocity, existingMomentum );
 
@@ -125,6 +174,168 @@ export class VehicleAirborne {
 
 	}
 
+	_getLaunchProfile( source ) {
+
+		switch ( source ) {
+
+			case LaunchSource.JUMP:
+				return {
+					commitWindow: this.config.jumpCommitWindow ?? 0.3,
+					verticalCap: this.config.launchCap,
+				};
+
+			case LaunchSource.DROP:
+				return {
+					commitWindow: this.config.dropCommitWindow ?? 0.15,
+					verticalCap: this.config.launchCap,
+				};
+
+			case LaunchSource.IMPACT:
+				return {
+					commitWindow: this.config.impactCommitWindow ?? 0.22,
+					verticalCap: this.config.launchCap,
+				};
+
+			case LaunchSource.RAMP:
+			default:
+				return {
+					commitWindow: this.config.launchCommitWindow ?? 0.18,
+					verticalCap: this.config.launchCap,
+				};
+
+		}
+
+	}
+
+	_clearCarriedLandingState() {
+
+		this._carriedLandingSeverity = null;
+		this._carriedLandingImpactSpeed = 0;
+		this._suppressNextLandingEvent = false;
+
+	}
+
+	clearLandingCarry() {
+
+		this._clearCarriedLandingState();
+
+	}
+
+	_classifyLandingSeverity( impactSpeed, pitchDeviation ) {
+
+		const cfg = this.config;
+
+		if ( impactSpeed < cfg.landingCleanMaxImpact &&
+			 pitchDeviation < cfg.landingCleanMaxPitch ) {
+
+			return LandingSeverity.CLEAN;
+
+		}
+
+		if ( impactSpeed < cfg.landingHardMaxImpact &&
+			 pitchDeviation < cfg.landingHardMaxPitch ) {
+
+			return LandingSeverity.HARD;
+
+		}
+
+		return LandingSeverity.BAD;
+
+	}
+
+	_applyRecoveryForSeverity( severity ) {
+
+		const cfg = this.config;
+
+		switch ( severity ) {
+
+			case LandingSeverity.CLEAN:
+				this.recoveryDuration = cfg.landingCleanRecovery;
+				this.recoverySpeedPenalty = 1.0;
+				break;
+
+			case LandingSeverity.HARD:
+				this.recoveryDuration = cfg.landingHardRecovery;
+				this.recoverySpeedPenalty = cfg.landingHardSpeedMult;
+				break;
+
+			case LandingSeverity.BAD:
+			default:
+				this.recoveryDuration = cfg.landingBadRecovery;
+				this.recoverySpeedPenalty = cfg.landingBadSpeedMult;
+				break;
+
+		}
+
+	}
+
+	_getDominantLandingSeverity( nextSeverity ) {
+
+		if ( ! this._carriedLandingSeverity ) return nextSeverity;
+
+		const carriedRank = LANDING_SEVERITY_RANK[ this._carriedLandingSeverity ] ?? 0;
+		const nextRank = LANDING_SEVERITY_RANK[ nextSeverity ] ?? 0;
+		return carriedRank > nextRank ? this._carriedLandingSeverity : nextSeverity;
+
+	}
+
+	beginLaunch( v, {
+		source = LaunchSource.RAMP,
+		surfaceType = SurfaceType.RAMP_UP,
+		verticalVelocity = null,
+		commitWindow = null,
+		verticalCap = null,
+	} = {} ) {
+
+		const launchProfile = this._getLaunchProfile( source );
+
+		this.launchSource = source;
+		this.wallContactSinceLaunch = false;
+		this._clearCarriedLandingState();
+		v._airborneWallContact = false;
+		v._grounded = false;
+		v._airborneTimer = 0;
+		v._launchCooldown = commitWindow ?? launchProfile.commitWindow;
+
+		if ( verticalVelocity == null ) {
+
+			this.applyTakeoff( v, surfaceType );
+
+		} else {
+
+			const cap = verticalCap ?? launchProfile.verticalCap ?? this.config.launchCap;
+			v._verticalVelocity = Math.min( verticalVelocity, cap );
+			this.launchSpeed = Math.abs( v.linearSpeed );
+			this.launchVerticalVelocity = v._verticalVelocity;
+			this._airYawInfluence = 0;
+
+		}
+
+		if ( v._trick ) v._trick.onLaunch( v, source );
+
+	}
+
+	resolveGroundContact( v, sensor = {} ) {
+
+		if ( ! sensor.hasSupport ) return false;
+
+		const aboveSurface = sensor.aboveSurface ?? ( v._vehicleY - v.groundHeight );
+		const launchLocked = this.launchSource !== LaunchSource.NONE && v._launchCooldown > 0;
+
+		if ( launchLocked ) return false;
+		if ( this.launchSource !== LaunchSource.NONE &&
+			v._airborneTimer < this.config.minAirTime &&
+			v._verticalVelocity >= 0 ) return false;
+
+		if ( aboveSurface < 0 ) return true;
+		if ( sensor.frontOnSurface && aboveSurface <= this.config.regroundDistance ) return true;
+		if ( sensor.rearOnSurface && aboveSurface <= this.config.regroundDistance * 0.8 ) return true;
+		if ( v._verticalVelocity < 0 && aboveSurface <= this.config.regroundDistance ) return true;
+
+		return this.launchSource === LaunchSource.NONE;
+
+	}
+
 	// ── Airborne Update ─────────────────────────────────────────
 
 	/**
@@ -135,12 +346,44 @@ export class VehicleAirborne {
 	updateAirborne( dt, v ) {
 
 		const cfg = this.config;
-		const GRAVITY = 9.81;
+		const BASE_GRAVITY = 9.81;
 
-		// ── Gravity ──
+		// ── Gravity curve: reduced near apex (hang time), increased on descent ──
 		v._airborneTimer = ( v._airborneTimer || 0 ) + dt;
-		v._verticalVelocity -= GRAVITY * dt;
+		let gravityMult;
+		if ( v._verticalVelocity > 0 ) {
+
+			// Rising: lerp from apexGravityScale (at apex) to 1.0 (at launch speed)
+			const t = Math.min( v._verticalVelocity / ( this.launchVerticalVelocity || 1 ), 1 );
+			gravityMult = THREE.MathUtils.lerp( cfg.apexGravityScale, 1.0, t );
+
+		} else {
+
+			// Falling: lerp from 1.0 to descentGravityScale as fall speed increases
+			const t = Math.min( Math.abs( v._verticalVelocity ) / 6.0, 1 );
+			gravityMult = THREE.MathUtils.lerp( 1.0, cfg.descentGravityScale, t );
+
+		}
+
+		v._verticalVelocity -= BASE_GRAVITY * gravityMult * dt;
 		v._vehicleY += v._verticalVelocity * dt;
+
+		if ( v._verticalVelocity < 0 ) {
+
+			const yaw = Math.atan2(
+				2 * ( v.container.quaternion.w * v.container.quaternion.y ),
+				1 - 2 * ( v.container.quaternion.y * v.container.quaternion.y )
+			);
+			_levelQuat.setFromAxisAngle( _up, yaw );
+			const autoLevelRate = 1 - Math.exp( - cfg.descentAutoLevel * dt );
+			v.container.quaternion.slerp( _levelQuat, autoLevelRate );
+			if ( v._groundRaycast?._targetNormal ) {
+
+				v._groundRaycast._targetNormal.lerp( _up, autoLevelRate ).normalize();
+
+			}
+
+		}
 
 		// Hard ceiling: never fly more than 4 units above ground
 		const MAX_AIR_HEIGHT = 4.0;
@@ -172,18 +415,30 @@ export class VehicleAirborne {
 
 		}
 
-		// ── Pitch stabilization ──
-		// If the vehicle pitches beyond threshold, apply restoring torque.
-		// The VehicleGroundRaycast already tilts the target normal nose-down
-		// during airborne (line 341-345). We add stabilization to prevent
-		// excessive pitch from collisions.
-		// Note: pitch is encoded in the groundNormal target, so we
-		// influence it indirectly by biasing toward level.
+		// ── Air pitch control ──
+		// Forward/back input biases the target normal for nose-up/nose-down
+		if ( v.inputZ !== 0 && v._groundRaycast ) {
 
-		// ── Angular damping ──
-		// The existing quaternion SLERP toward groundNormal provides damping.
-		// Additional damping would require angular velocity tracking which
-		// isn't in the current architecture. The SLERP rate handles this.
+			const pitchRate = cfg.airPitchControlRate * dt;
+			_forward.set( 0, 0, 1 ).applyQuaternion( v.container.quaternion );
+			// Bias the target normal: inputZ > 0 (gas) = nose up, inputZ < 0 = nose down
+			const pitchBias = - v.inputZ * pitchRate;
+			v._groundRaycast._targetNormal.x += _forward.x * pitchBias;
+			v._groundRaycast._targetNormal.z += _forward.z * pitchBias;
+			v._groundRaycast._targetNormal.normalize();
+
+		}
+
+		// ── Cosmetic air roll ──
+		// Left/right input adds body lean in air (visual only, no trajectory change)
+		if ( v.inputX !== 0 && v.bodyNode ) {
+
+			const rollTarget = - v.inputX * 0.3; // max ~17° visual roll
+			v.bodyNode.rotation.z = THREE.MathUtils.lerp(
+				v.bodyNode.rotation.z, rollTarget, 1 - Math.exp( - cfg.airRollControlRate * dt )
+			);
+
+		}
 
 	}
 
@@ -198,71 +453,58 @@ export class VehicleAirborne {
 	applyLanding( v ) {
 
 		const cfg = this.config;
-		const impactSpeed = Math.abs( v._verticalVelocity );
+		const launchSource = this.launchSource;
+		const rawImpactSpeed = Math.abs( v._verticalVelocity );
 
 		// Compute pitch deviation: how far from level the vehicle is
 		_forward.set( 0, 0, 1 ).applyQuaternion( v.container.quaternion );
 		const pitchDeviation = Math.abs( Math.asin( THREE.MathUtils.clamp( _forward.y, - 1, 1 ) ) );
 
-		// Classify severity
-		let severity;
-
-		if ( impactSpeed < cfg.landingCleanMaxImpact &&
-			 pitchDeviation < cfg.landingCleanMaxPitch ) {
-
-			severity = LandingSeverity.CLEAN;
-
-		} else if ( impactSpeed < cfg.landingHardMaxImpact &&
-					pitchDeviation < cfg.landingHardMaxPitch ) {
-
-			severity = LandingSeverity.HARD;
-
-		} else {
-
-			severity = LandingSeverity.BAD;
-
-		}
-
-		// Set recovery params
-		switch ( severity ) {
-
-			case LandingSeverity.CLEAN:
-				this.recoveryDuration = cfg.landingCleanRecovery;
-				this.recoverySpeedPenalty = 1.0;
-				break;
-
-			case LandingSeverity.HARD:
-				this.recoveryDuration = cfg.landingHardRecovery;
-				this.recoverySpeedPenalty = cfg.landingHardSpeedMult;
-				break;
-
-			case LandingSeverity.BAD:
-				this.recoveryDuration = cfg.landingBadRecovery;
-				this.recoverySpeedPenalty = cfg.landingBadSpeedMult;
-				break;
-
-		}
+		const baseSeverity = this._classifyLandingSeverity( rawImpactSpeed, pitchDeviation );
+		const severity = this._getDominantLandingSeverity( baseSeverity );
+		const impactSpeed = Math.max( rawImpactSpeed, this._carriedLandingImpactSpeed );
+		this._applyRecoveryForSeverity( severity );
 
 		// Snap to ground
 		const targetY = v.groundHeight + v.debug.rideHeight;
 		v._vehicleY = targetY;
 		v._grounded = true;
 
-		// Jiggly bounce: landings on flat/downhill get a damped bounce.
-		// Skip bounce on ramp surfaces — bouncing prevents the vehicle
-		// from climbing steep ramps like trk-jump-long.
+		const rewardGranted = v._trick ? v._trick.onLanding( v, severity ) : false;
+		const trickType = v._lastTrickResult?.type || null;
+
+		const landingInfo = {
+			severity,
+			impactSpeed,
+			pitchDeviation,
+			launchSource,
+			trickType,
+			rewardGranted,
+			bounced: false,
+			suppressEvent: false,
+		};
+
+		// Landing bounce: actual vehicle lift for arcade feel.
+		// Short controlled bounce — vehicle goes briefly airborne then resettles.
+		// Also kicks the suspension spring for body squash/rebound on top.
 		const landingOnRamp = v.groundNormal.y < 0.96;
 
-		if ( ! landingOnRamp && impactSpeed > cfg.landingBounceMinImpact ) {
+		if ( ! landingOnRamp && rawImpactSpeed > cfg.landingBounceMinImpact ) {
 
-			const bounceVel = impactSpeed * cfg.landingBounceRestitution;
+			const bounceVel = rawImpactSpeed * cfg.landingBounceRestitution;
 
 			if ( bounceVel > 0.3 ) {
 
-				// Enough energy for a visible bounce — go back airborne
-				v._verticalVelocity = bounceVel;
+				// Real bounce: brief airborne with capped velocity, but keep the
+				// original touchdown severity for the eventual recovery frame.
+				v._verticalVelocity = Math.min( bounceVel, 2.5 );
 				v._grounded = false;
-				v._launchCooldown = 0.1;
+				v._launchCooldown = 0.08;
+				landingInfo.bounced = true;
+				this._carriedLandingSeverity = severity;
+				this._carriedLandingImpactSpeed = impactSpeed;
+				this._suppressNextLandingEvent = true;
+				this.resetLaunchState( v );
 
 				if ( v._stateMachine ) {
 
@@ -270,19 +512,31 @@ export class VehicleAirborne {
 
 				}
 
-				this.lastSeverity = severity;
+				// Also kick the body spring for visual squash
+				v._landingBounceVel = bounceVel * 0.5;
 
-				// Don't enter RECOVERY yet — the bounce will land again
-				return severity;
+				this.lastImpactSpeed = impactSpeed;
+				this.lastSeverity = severity;
+				this.lastLandingInfo = landingInfo;
+				return landingInfo;
 
 			}
 
+			// Sub-threshold: body spring only
+			v._landingBounceVel = bounceVel;
+
 		}
 
-		// Sub-threshold bounce: just settle
 		v._verticalVelocity = 0;
 
+		landingInfo.suppressEvent = this._suppressNextLandingEvent;
+		this._clearCarriedLandingState();
 		this.lastSeverity = severity;
+		this.lastImpactSpeed = impactSpeed;
+		this.lastLandingInfo = landingInfo;
+		this.launchSource = LaunchSource.NONE;
+		this.wallContactSinceLaunch = false;
+		v._airborneWallContact = false;
 
 		// Store recovery duration in state machine for RECOVERY state timing
 		if ( v._stateMachine ) {
@@ -292,7 +546,22 @@ export class VehicleAirborne {
 
 		}
 
-		return severity;
+		return landingInfo;
+
+	}
+
+	markWallContact( v ) {
+
+		this.wallContactSinceLaunch = true;
+		if ( v ) v._airborneWallContact = true;
+
+	}
+
+	resetLaunchState( v ) {
+
+		this.launchSource = LaunchSource.NONE;
+		this.wallContactSinceLaunch = false;
+		if ( v ) v._airborneWallContact = false;
 
 	}
 
@@ -311,9 +580,10 @@ export class VehicleAirborne {
 
 		if ( duration <= 0 ) return;
 
-		// Fade speed penalty from full penalty to 1.0 over recovery duration
+		// Ease-out quadratic: sharp initial decel then gradual recovery
 		const t = Math.min( elapsed / duration, 1 );
-		const penalty = THREE.MathUtils.lerp( this.recoverySpeedPenalty, 1.0, t );
+		const eased = 1 - ( 1 - t ) * ( 1 - t );
+		const penalty = THREE.MathUtils.lerp( this.recoverySpeedPenalty, 1.0, eased );
 
 		// Apply as a soft clamp rather than multiplier to avoid jerk
 		if ( penalty < 1.0 ) {

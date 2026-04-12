@@ -1,13 +1,12 @@
 /**
- * VehicleRespawn — Checkpoint-aware respawn flow.
+ * VehicleRespawn — Nearest-surface respawn flow.
  *
  * When the vehicle enters RESPAWNING state:
- * 1. Compute current track progress
- * 2. Find nearest checkpoint behind current position
- * 3. Teleport vehicle to checkpoint position, aligned to track forward
- * 4. Zero velocities, reset unstable state
- * 5. Brief invulnerability period
- * 6. Transition back to GROUNDED
+ * 1. Find the nearest waypoint to the vehicle's last grounded position
+ * 2. Teleport vehicle to that waypoint, aligned to track forward
+ * 3. Zero velocities, reset unstable state
+ * 4. Brief invulnerability period
+ * 5. Transition back to GROUNDED
  *
  * Falls back to hardcoded spawn [3.5, 0, 5] if TrackIntel unavailable.
  */
@@ -54,25 +53,25 @@ export class VehicleRespawn {
 
 		if ( trackIntel && trackIntel.valid ) {
 
-			// Find checkpoint behind current position
-			const progress = trackIntel.getProgress(
-				v.vehPos.x, v.vehPos.z, v._assistWaypointHint
-			);
-			const checkpoint = trackIntel.getNearestCheckpointBehind( progress );
+			// Respawn at the nearest waypoint to where the vehicle last touched
+			// the track — puts the player back close to where they fell off.
+			const refPos = v._lastOnTrackPos || v.vehPos;
+			const nearIdx = trackIntel.getNearestWaypoint( refPos.x, refPos.z );
+			const info = trackIntel.getWaypointInfo( nearIdx );
 
-			if ( checkpoint ) {
+			if ( info ) {
 
-				spawnX = checkpoint.x;
-				spawnZ = checkpoint.z;
-				spawnYaw = Math.atan2( checkpoint.forward.x, checkpoint.forward.z );
-
-			} else {
-
-				// No checkpoints — use first waypoint
-				const info = trackIntel.getWaypointInfo( 0 );
 				spawnX = info.position.x;
 				spawnZ = info.position.z;
 				spawnYaw = Math.atan2( info.forward.x, info.forward.z );
+
+			} else {
+
+				// Fallback: first waypoint
+				const first = trackIntel.getWaypointInfo( 0 );
+				spawnX = first.position.x;
+				spawnZ = first.position.z;
+				spawnYaw = Math.atan2( first.forward.x, first.forward.z );
 
 			}
 
@@ -91,15 +90,42 @@ export class VehicleRespawn {
 		v._bumpVel.set( 0, 0, 0 );
 		v._vehicleY = FALLBACK_SPAWN.y;
 		v.groundHeight = FALLBACK_SPAWN.y;
+		v.groundNormal.set( 0, 1, 0 );
 		v._verticalVelocity = 0;
 		v._groundVelocity = 0;
 		v.linearSpeed = 0;
 		v.angularSpeed = 0;
 		v.acceleration = 0;
 		v._airborneTimer = 0;
+		v._launchCooldown = 0;
 		v._offTrackTimer = 0;
 		v._allWheelsMissTimer = 0;
 		v._grounded = true;
+		v._airborneWallContact = false;
+		v._wallHitTime = 0;
+		v._landingEvent = null;
+		v._trickEvent = null;
+		v._lastTrickResult = null;
+		v._aerialHintTimer = 0;
+		v._aerialHintText = 'HOLD DRIFT + TAP A DIRECTION';
+		v._landingBounceVel = 0;
+		v._landingBounceOffset = 0;
+		v._landingSquash = 0;
+
+		if ( v._groundRaycast?._targetNormal ) v._groundRaycast._targetNormal.set( 0, 1, 0 );
+		if ( v._airborne ) {
+
+			v._airborne.resetLaunchState( v );
+			v._airborne.clearLandingCarry?.();
+			v._airborne.lastImpactSpeed = 0;
+
+		}
+		if ( v._trick ) {
+
+			v._trick.cancel( v );
+			v.trickState = v._trick.getStateSnapshot();
+
+		}
 
 		// Clear powerup state
 		v.shieldActive = false;
@@ -123,6 +149,7 @@ export class VehicleRespawn {
 		v.container.quaternion.identity();
 		const halfYaw = spawnYaw / 2;
 		v.container.quaternion.set( 0, Math.sin( halfYaw ), 0, Math.cos( halfYaw ) );
+		if ( v.visualRoot ) v.visualRoot.rotation.set( 0, 0, 0 );
 
 		// Sync physics body
 		if ( v.rigidBody && v.physicsWorld ) {
@@ -142,6 +169,8 @@ export class VehicleRespawn {
 		// Transition back to GROUNDED
 		if ( v._stateMachine ) {
 
+			v._stateMachine._recoveryDuration = 0;
+			v._stateMachine.landingSeverity = 'clean';
 			v._stateMachine.forceState( PhysicsState.GROUNDED );
 
 		}

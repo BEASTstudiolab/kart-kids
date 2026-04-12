@@ -105,6 +105,7 @@ let paused = false;
 
 let autoTest = null;  // { phase, timer, log[] }
 let jumpTest = null;  // Jump-specific multi-tile test
+let wallScrapeTest = null;
 
 // ── Jump tile auto-test ────────────────────────────────────────────────────
 
@@ -118,6 +119,11 @@ function startJumpTest() {
 		phase: 'loading',   // 'loading', 'accelerating', 'climbing', 'airborne', 'landing', 'done'
 		timer: 0,
 		wasGrounded: true,
+		launchSource: 'none',
+		trickType: null,
+		trickCompleted: null,
+		landingSeverity: null,
+		rewardGranted: false,
 		launchSpeed: 0,
 		launchVertVel: 0,
 		launchY: 0,
@@ -149,6 +155,11 @@ function loadNextJumpTile() {
 	jumpTest.phase = 'loading';
 	jumpTest.timer = 0;
 	jumpTest.wasGrounded = true;
+	jumpTest.launchSource = 'none';
+	jumpTest.trickType = null;
+	jumpTest.trickCompleted = null;
+	jumpTest.landingSeverity = null;
+	jumpTest.rewardGranted = false;
 	jumpTest.peakY = 0;
 	jumpTest.airTime = 0;
 	currentTileIndex = idx;
@@ -193,10 +204,12 @@ function updateJumpTest( dt ) {
 		jumpTest.launchY = vehicle._vehicleY;
 		jumpTest.peakY = vehicle._vehicleY;
 		jumpTest.airTime = 0;
+		jumpTest.launchSource = vehicle._airborne?.launchSource || 'none';
+		jumpTest.trickType = vehicle.trickState?.currentTrick || vehicle.trickState?.completedTrick || null;
 		jumpTest.normalAtLaunch = `(${ n.x.toFixed( 2 ) },${ n.y.toFixed( 2 ) },${ n.z.toFixed( 2 ) })`;
 		console.log(
-			`%c[JUMP-TEST] LAUNCH! vertVel=${ jumpTest.launchVertVel.toFixed( 2 ) } ` +
-			`speed=${ jumpTest.launchSpeed.toFixed( 3 ) } Y=${ jumpTest.launchY.toFixed( 2 ) }`,
+			`%c[JUMP-TEST] LAUNCH! source=${ jumpTest.launchSource } vertVel=${ jumpTest.launchVertVel.toFixed( 2 ) } ` +
+			`speed=${ jumpTest.launchSpeed.toFixed( 3 ) } Y=${ jumpTest.launchY.toFixed( 2 ) } trick=${ jumpTest.trickType || 'none' }`,
 			'color: #0ff'
 		);
 
@@ -215,22 +228,31 @@ function updateJumpTest( dt ) {
 
 		jumpTest.phase = 'landing';
 		jumpTest.landingVertVel = vehicle._verticalVelocity;
+		jumpTest.landingSeverity = vehicle._airborne?.lastSeverity || null;
+		jumpTest.trickCompleted = vehicle._lastTrickResult?.type || null;
+		jumpTest.rewardGranted = !! vehicle._lastTrickResult?.rewardGranted;
 		jumpTest.normalAtLanding = `(${ n.x.toFixed( 2 ) },${ n.y.toFixed( 2 ) },${ n.z.toFixed( 2 ) })`;
 
 		console.log(
 			`%c[JUMP-TEST] LANDED! airTime=${ jumpTest.airTime.toFixed( 2 ) }s ` +
-			`peakY=${ jumpTest.peakY.toFixed( 2 ) } landVertVel=${ jumpTest.landingVertVel.toFixed( 2 ) }`,
+			`peakY=${ jumpTest.peakY.toFixed( 2 ) } landVertVel=${ jumpTest.landingVertVel.toFixed( 2 ) } ` +
+			`severity=${ jumpTest.landingSeverity || 'unknown' } reward=${ jumpTest.rewardGranted ? 'yes' : 'no' }`,
 			'color: #0f0'
 		);
 
 		jumpTest.results.push( {
 			tile: TILE_FILES[ jumpTest.currentTile ],
+			launchSource: jumpTest.launchSource,
+			trickType: jumpTest.trickType,
+			trickCompleted: jumpTest.trickCompleted,
 			launchSpeed: jumpTest.launchSpeed,
 			launchVertVel: jumpTest.launchVertVel,
 			launchY: jumpTest.launchY,
 			peakY: jumpTest.peakY,
 			airTime: jumpTest.airTime,
 			landingVertVel: jumpTest.landingVertVel,
+			landingSeverity: jumpTest.landingSeverity,
+			rewardGranted: jumpTest.rewardGranted,
 			normalAtLaunch: jumpTest.normalAtLaunch,
 			normalAtLanding: jumpTest.normalAtLanding,
 		} );
@@ -275,12 +297,178 @@ function printJumpTestResults() {
 
 		console.log(
 			`  ${ r.tile }:\n` +
-			`    Launch: vertVel=${ r.launchVertVel.toFixed( 2 ) } speed=${ r.launchSpeed.toFixed( 3 ) } Y=${ r.launchY.toFixed( 2 ) } normal=${ r.normalAtLaunch } ${ launchOK ? '✓' : '✗ (no upward momentum)' }\n` +
+			`    Launch: source=${ r.launchSource || 'none' } trick=${ r.trickType || 'none' } vertVel=${ r.launchVertVel.toFixed( 2 ) } speed=${ r.launchSpeed.toFixed( 3 ) } Y=${ r.launchY.toFixed( 2 ) } normal=${ r.normalAtLaunch } ${ launchOK ? '✓' : '✗ (no upward momentum)' }\n` +
 			`    Flight: airTime=${ r.airTime.toFixed( 2 ) }s peakY=${ r.peakY.toFixed( 2 ) } ${ airOK ? '✓' : '✗ (too short)' }\n` +
-			`    Landing: vertVel=${ r.landingVertVel.toFixed( 2 ) } normal=${ r.normalAtLanding } ${ landOK ? '✓' : '✗ (too hard)' }`
+			`    Landing: severity=${ r.landingSeverity || 'unknown' } trickDone=${ r.trickCompleted || 'none' } reward=${ r.rewardGranted ? 'yes' : 'no' } vertVel=${ r.landingVertVel.toFixed( 2 ) } normal=${ r.normalAtLanding } ${ landOK ? '✓' : '✗ (too hard)' }`
 		);
 
 	}
+
+}
+
+function placeVehicleForWallScrape( config ) {
+
+	if ( ! vehicle || ! vehicle.rigidBody ) return;
+
+	const surfaceY = findSurfaceY( world, config.x, config.z );
+	const yaw = config.yaw;
+	const halfYaw = yaw / 2;
+	const colliderLift = vehicle._lastColliderLift ?? 0.8;
+
+	rigidBody.setPosition( world, vehicle.rigidBody, [ config.x, surfaceY + colliderLift, config.z ], false );
+	rigidBody.setQuaternion( world, vehicle.rigidBody, [ 0, Math.sin( halfYaw ), 0, Math.cos( halfYaw ) ], false );
+	rigidBody.setLinearVelocity( world, vehicle.rigidBody, [ 0, 0, 0 ] );
+	rigidBody.setAngularVelocity( world, vehicle.rigidBody, [ 0, 0, 0 ] );
+
+	vehicle.vehPos.set( config.x, surfaceY, config.z );
+	vehicle.vehVel.set( 0, 0, 0 );
+	vehicle.groundHeight = surfaceY;
+	vehicle._prevGroundHeight = surfaceY;
+	vehicle._vehicleY = surfaceY;
+	vehicle._smoothVehicleY = surfaceY;
+	vehicle._verticalVelocity = 0;
+	vehicle._grounded = true;
+	vehicle._airborneTimer = 0;
+	vehicle._launchCooldown = 0;
+	vehicle.linearSpeed = 0;
+	vehicle.acceleration = 0;
+	vehicle.angularSpeed = 0;
+	vehicle._wallHitTime = 0;
+	vehicle._bumpVel.set( 0, 0, 0 );
+	vehicle.container.position.set( config.x, surfaceY, config.z );
+	vehicle.container.quaternion.setFromAxisAngle( new THREE.Vector3( 0, 1, 0 ), yaw );
+
+}
+
+function startWallScrapeTest() {
+
+	spawnVehicle();
+
+	const scenarios = [
+		{
+			label: 'negative-z wall',
+			x: - 3.4,
+			z: - 3.25,
+			yaw: Math.PI / 2 + 0.12,
+		},
+		{
+			label: 'positive-z wall',
+			x: - 3.4,
+			z: 3.25,
+			yaw: Math.PI / 2 - 0.12,
+		},
+	];
+
+	wallScrapeTest = {
+		scenarios,
+		index: 0,
+		phase: 'settle',
+		timer: 0,
+		settleTime: 0.45,
+		driveTime: 2.4,
+		results: [],
+		peakLift: 0,
+		maxWallProximity: 0,
+		escaped: false,
+	};
+
+	placeVehicleForWallScrape( scenarios[ 0 ] );
+	console.log( '%c[WALL-SCRAPE] ═══ Starting wall scrape test ═══', 'color: #ff9f1c; font-weight: bold' );
+	console.log( `%c[WALL-SCRAPE] Scenario 1: ${ scenarios[ 0 ].label }`, 'color: #ff9f1c' );
+
+}
+
+function finalizeWallScrapeScenario() {
+
+	const scenario = wallScrapeTest.scenarios[ wallScrapeTest.index ];
+
+	wallScrapeTest.results.push( {
+		label: scenario.label,
+		peakLift: wallScrapeTest.peakLift,
+		maxWallProximity: wallScrapeTest.maxWallProximity,
+		escaped: wallScrapeTest.escaped,
+	} );
+
+	wallScrapeTest.index ++;
+
+	if ( wallScrapeTest.index >= wallScrapeTest.scenarios.length ) {
+
+		console.log( '%c[WALL-SCRAPE] ═══ Results ═══', 'color: #ff9f1c; font-weight: bold' );
+
+		for ( const result of wallScrapeTest.results ) {
+
+			const passed = result.maxWallProximity > 0.5 && result.peakLift < 0.35 && ! result.escaped;
+			console.log(
+				`  ${ result.label }: peakLift=${ result.peakLift.toFixed( 3 ) } ` +
+				`wallProximity=${ result.maxWallProximity.toFixed( 3 ) } escaped=${ result.escaped } ` +
+				`${ passed ? '✓' : '✗' }`
+			);
+
+		}
+
+		wallScrapeTest = null;
+		return;
+
+	}
+
+	const nextScenario = wallScrapeTest.scenarios[ wallScrapeTest.index ];
+	wallScrapeTest.phase = 'settle';
+	wallScrapeTest.timer = 0;
+	wallScrapeTest.peakLift = 0;
+	wallScrapeTest.maxWallProximity = 0;
+	wallScrapeTest.escaped = false;
+	placeVehicleForWallScrape( nextScenario );
+	console.log( `%c[WALL-SCRAPE] Scenario ${ wallScrapeTest.index + 1 }: ${ nextScenario.label }`, 'color: #ff9f1c' );
+
+}
+
+function updateWallScrapeTest( dt ) {
+
+	if ( ! wallScrapeTest || ! vehicle ) return null;
+
+	wallScrapeTest.timer += dt;
+	const currentScenario = wallScrapeTest.scenarios[ wallScrapeTest.index ];
+	const lift = Math.max( 0, vehicle._vehicleY - vehicle.groundHeight );
+
+	wallScrapeTest.peakLift = Math.max( wallScrapeTest.peakLift, lift );
+	wallScrapeTest.maxWallProximity = Math.max( wallScrapeTest.maxWallProximity, vehicle._wallProximityAny || 0 );
+	if ( Math.abs( vehicle.vehPos.z ) > 5.4 ) wallScrapeTest.escaped = true;
+
+	if ( wallScrapeTest.phase === 'settle' && wallScrapeTest.timer >= wallScrapeTest.settleTime ) {
+
+		wallScrapeTest.phase = 'drive';
+		wallScrapeTest.timer = 0;
+
+	}
+
+	if ( wallScrapeTest.phase === 'drive' ) {
+
+		if ( wallScrapeTest.timer >= wallScrapeTest.driveTime ) {
+
+			finalizeWallScrapeScenario();
+			return { x: 0, z: 0, touchActive: false, boost: false, gas: false, brake: false };
+
+		}
+
+		const logInterval = Math.floor( wallScrapeTest.timer * 4 ) !== Math.floor( ( wallScrapeTest.timer - dt ) * 4 );
+
+		if ( logInterval ) {
+
+			console.log(
+				`[WALL-SCRAPE] ${ currentScenario.label } ` +
+				`t=${ wallScrapeTest.timer.toFixed( 2 ) }s ` +
+				`lift=${ lift.toFixed( 3 ) } ` +
+				`wall=${ ( vehicle._wallProximityAny || 0 ).toFixed( 3 ) } ` +
+				`pos=(${ vehicle.vehPos.x.toFixed( 2 ) }, ${ vehicle.vehPos.z.toFixed( 2 ) })`
+			);
+
+		}
+
+		return { x: 0, z: 1, touchActive: false, boost: false, gas: true, brake: false };
+
+	}
+
+	return { x: 0, z: 0, touchActive: false, boost: false, gas: false, brake: false };
 
 }
 
@@ -676,13 +864,18 @@ function createPhysicsWorld() {
 	const BPL_STATIC = addBroadphaseLayer( worldSettings );
 	const OL_MOVING = addObjectLayer( worldSettings, BPL_MOVING );
 	const OL_STATIC = addObjectLayer( worldSettings, BPL_STATIC );
+	const OL_TRACK_SUPPORT = addObjectLayer( worldSettings, BPL_STATIC );
+	const OL_TRACK_BLOCKER = addObjectLayer( worldSettings, BPL_STATIC );
 
 	enableCollision( worldSettings, OL_MOVING, OL_STATIC );
+	enableCollision( worldSettings, OL_MOVING, OL_TRACK_BLOCKER );
 	enableCollision( worldSettings, OL_MOVING, OL_MOVING );
 
 	const w = createWorld( worldSettings );
 	w._OL_MOVING = OL_MOVING;
 	w._OL_STATIC = OL_STATIC;
+	w._OL_TRACK_SUPPORT = OL_TRACK_SUPPORT;
+	w._OL_TRACK_BLOCKER = OL_TRACK_BLOCKER;
 
 	// Safety-net ground far below
 	rigidBody.create( w, {
@@ -883,9 +1076,10 @@ function animate() {
 	const dt = Math.min( timer.getDelta(), 1 / 30 );
 
 	if ( keyJustPressed.KeyP ) paused = ! paused;
-	if ( keyJustPressed.KeyG && ! autoTest && ! jumpTest && ! jitterTest ) startAutoTest();
-	if ( keyJustPressed.KeyJ && ! jumpTest && ! autoTest && ! jitterTest ) startJumpTest();
-	if ( keyJustPressed.KeyF && ! jitterTest && ! autoTest && ! jumpTest ) startJitterTest();
+	if ( keyJustPressed.KeyG && ! autoTest && ! jumpTest && ! jitterTest && ! wallScrapeTest ) startAutoTest();
+	if ( keyJustPressed.KeyJ && ! jumpTest && ! autoTest && ! jitterTest && ! wallScrapeTest ) startJumpTest();
+	if ( keyJustPressed.KeyF && ! jitterTest && ! autoTest && ! jumpTest && ! wallScrapeTest ) startJitterTest();
+	if ( keyJustPressed.KeyK && ! wallScrapeTest && ! autoTest && ! jumpTest && ! jitterTest ) startWallScrapeTest();
 
 	if ( keyJustPressed.KeyH ) {
 
@@ -913,7 +1107,8 @@ function animate() {
 		const jitterInput = updateJitterTest( dt );
 		const jumpInput = jitterInput || updateJumpTest( dt );
 		const autoInput = jumpInput || updateAutoTest( dt );
-		const input = autoInput || getInput();
+		const scrapeInput = autoInput || updateWallScrapeTest( dt );
+		const input = scrapeInput || getInput();
 		vehicle.inputX = input.x;
 		vehicle.inputZ = input.z;
 
@@ -980,6 +1175,7 @@ function animate() {
 				`normal:        (${ n.x.toFixed( 2 ) }, ${ n.y.toFixed( 2 ) }, ${ n.z.toFixed( 2 ) })\n` +
 				`linearSpeed:   ${ vehicle.linearSpeed.toFixed( 3 ) }` +
 				( autoTest ? `\nautoTest:      ${ autoTest.phase } ${ autoTest.timer.toFixed( 1 ) }s` : '' ) +
+				( wallScrapeTest ? `\nwallScrape:   ${ wallScrapeTest.phase } ${ wallScrapeTest.timer.toFixed( 1 ) }s` : '' ) +
 				( jumpTest ? `\njumpTest:      ${ jumpTest.phase } ${ jumpTest.timer.toFixed( 1 ) }s` : '' ) +
 				( jitterTest ? `\njitterTest:    ${ jitterTest.frameCount } frames, ${ jitterTest.spikes.length } spikes` : '' );
 

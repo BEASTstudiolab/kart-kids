@@ -16,6 +16,22 @@ export const SurfaceType = {
 	RAMP_EXIT: 3,
 };
 
+export function createSingleLayerRayFilter( world, objectLayer ) {
+
+	const rayFilter = filter.forWorld( world );
+	const layerCount = world?.settings?.layers?.objectLayers ?? 0;
+
+	for ( let layer = 0; layer < layerCount; layer ++ ) {
+
+		if ( layer === objectLayer ) continue;
+		filter.disableObjectLayer( rayFilter, world.settings.layers, layer );
+
+	}
+
+	return rayFilter;
+
+}
+
 
 export class VehicleGroundRaycast {
 
@@ -23,7 +39,8 @@ export class VehicleGroundRaycast {
 
 		this._rayCollector = null;
 		this._raySettings = null;
-		this._rayFilter = null;
+		this._groundRayFilter = null;
+		this._wallRayFilter = null;
 
 		// Wheel ray offsets in local space (read from model in init, fallback defaults)
 		this._wheelOffsets = [
@@ -67,10 +84,12 @@ export class VehicleGroundRaycast {
 		this._rayCollector = createClosestCastRayCollector();
 		this._raySettings = createDefaultCastRaySettings();
 
-		// Only ray against static bodies (track surface, walls, ground plane)
-		// Exclude OL_MOVING so the ray doesn't hit the vehicle's own sphere
-		this._rayFilter = filter.forWorld( world );
-		filter.disableObjectLayer( this._rayFilter, world.settings.layers, world._OL_MOVING );
+		const supportLayer = world._OL_TRACK_SUPPORT ?? world._OL_STATIC;
+		const blockerLayer = world._OL_TRACK_BLOCKER ?? world._OL_STATIC;
+
+		this._groundRayFilter = createSingleLayerRayFilter( world, supportLayer );
+
+		this._wallRayFilter = createSingleLayerRayFilter( world, blockerLayer );
 
 		v._prevGroundHeight = v.groundHeight;
 		v._vehicleY = v.groundHeight;
@@ -102,7 +121,7 @@ export class VehicleGroundRaycast {
 
 	/**
 	 * Per-frame 4-wheel ground raycast.
-	 * Writes: v.groundHeight, v.groundNormal, v._grounded
+	 * Writes: v.groundHeight, v.groundNormal
 	 * @param {number} dt
 	 * @param {object} v - The Vehicle instance
 	 */
@@ -148,7 +167,7 @@ export class VehicleGroundRaycast {
 			this._rayCollector.hit.fraction = 1;
 			this._rayCollector.earlyOutFraction = 1;
 
-			castRay( v.physicsWorld, this._rayCollector, this._raySettings, origin, direction, RAY_LENGTH, this._rayFilter );
+			castRay( v.physicsWorld, this._rayCollector, this._raySettings, origin, direction, RAY_LENGTH, this._groundRayFilter );
 
 			if ( this._rayCollector.hit.status === CastRayStatus.COLLIDING ) {
 
@@ -205,28 +224,6 @@ export class VehicleGroundRaycast {
 		}
 
 		if ( anyHit ) {
-
-			// Only re-ground when falling and near the surface — prevents mid-air snap
-			if ( v._launchCooldown > 0 ) {
-
-				const aboveSurface = v._vehicleY - v.groundHeight;
-				const frontBackOnSurface = this._wheelOnSurface[ 0 ] || this._wheelOnSurface[ 1 ];
-				if ( aboveSurface < 0 || ( frontBackOnSurface && aboveSurface < 0.5 ) || ( v._verticalVelocity < 0 && aboveSurface < 0.5 ) ) {
-
-					v._grounded = true;
-					v._launchCooldown = 0;
-
-				} else {
-
-					v._grounded = false;
-
-				}
-
-			} else {
-
-				v._grounded = true;
-
-			}
 
 			// Compute centroid, excluding wheels that went off-edge.
 			const EDGE_THRESHOLD = 0.4;
@@ -347,8 +344,6 @@ export class VehicleGroundRaycast {
 
 			if ( allMissed ) {
 
-				v._grounded = false;
-
 				// Gradual nose-down pitch while airborne
 				const airTime = v._airborneTimer || 0;
 				const pitchAmount = Math.min( airTime * 0.3, 0.4 );
@@ -363,9 +358,20 @@ export class VehicleGroundRaycast {
 
 		}
 
-		// Adaptive normal blend: slow on flat ground, fast on slopes
+		const frontOnSurface = this._wheelOnSurface[ 0 ] || this._wheelOnSurface[ 1 ];
+		const rearOnSurface = this._wheelOnSurface[ 2 ] || this._wheelOnSurface[ 3 ];
+		const allMissed = this._wheelMissedFrames[ 0 ] > 3 &&
+			this._wheelMissedFrames[ 1 ] > 3 &&
+			this._wheelMissedFrames[ 2 ] > 3 &&
+			this._wheelMissedFrames[ 3 ] > 3;
+
+		// Adaptive normal blend: snappier entering banks, slower leaving
 		const slopeAmount = 1 - this._targetNormal.y;
-		const normalRate = THREE.MathUtils.lerp( 5, 15, Math.min( slopeAmount * 5, 1 ) );
+		const prevSlopeAmount = 1 - v.groundNormal.y;
+		const enteringBank = slopeAmount > prevSlopeAmount;
+		const normalRate = enteringBank
+			? THREE.MathUtils.lerp( 8, 20, Math.min( slopeAmount * 5, 1 ) )
+			: THREE.MathUtils.lerp( 4, 10, Math.min( slopeAmount * 5, 1 ) );
 		v.groundNormal.lerp( this._targetNormal, 1 - Math.exp( - normalRate * dt ) );
 		v.groundNormal.normalize();
 
@@ -415,10 +421,18 @@ export class VehicleGroundRaycast {
 		this._prevNormalY = ny;
 		this._prevFrontOnSurface = frontOn;
 
+		return {
+			hasSupport: anyHit,
+			allMissed,
+			frontOnSurface,
+			rearOnSurface,
+			aboveSurface: v._vehicleY - v.groundHeight,
+		};
+
 	}
 
 	/**
-	 * Lateral wall-proximity rays for curb drag.
+	 * Wall-proximity rays for curb drag and wall-top rejection.
 	 * Writes: v._wallProximityLeft, v._wallProximityRight
 	 * @param {object} v - The Vehicle instance
 	 */
@@ -429,7 +443,7 @@ export class VehicleGroundRaycast {
 		const ZONE = v.debug.curbDragZone;
 		const origin = [ v.vehPos.x, v._vehicleY + 0.8, v.vehPos.z ];
 
-		// Yaw-only left/right directions (match collider frame, not tilted container)
+		// Yaw-only directions (match collider frame, not tilted container)
 		const yaw = Math.atan2(
 			2 * ( v.container.quaternion.w * v.container.quaternion.y ),
 			1 - 2 * ( v.container.quaternion.y * v.container.quaternion.y )
@@ -437,32 +451,45 @@ export class VehicleGroundRaycast {
 		const cosY = Math.cos( yaw );
 		const sinY = Math.sin( yaw );
 
-		// Left = -X local, Right = +X local (in yaw-only frame)
+		// Local axes in world space (yaw-only)
+		const leftX = - cosY, leftZ = sinY;
+		const rightX = cosY, rightZ = - sinY;
+		const fwdX = sinY, fwdZ = cosY;
+
+		// Diagonal normalization factor
+		const D = 0.7071; // 1/sqrt(2)
+
+		// 6 directions: left, right, forward, backward, front-left, front-right
 		const dirs = [
-			[ - cosY, 0, sinY ],
-			[ cosY, 0, - sinY ],
+			[ leftX, 0, leftZ ],                                          // 0: left
+			[ rightX, 0, rightZ ],                                        // 1: right
+			[ fwdX, 0, fwdZ ],                                            // 2: forward
+			[ - fwdX, 0, - fwdZ ],                                        // 3: backward
+			[ ( leftX + fwdX ) * D, 0, ( leftZ + fwdZ ) * D ],            // 4: front-left
+			[ ( rightX + fwdX ) * D, 0, ( rightZ + fwdZ ) * D ],          // 5: front-right
 		];
 
-		for ( let i = 0; i < 2; i ++ ) {
+		for ( let i = 0; i < dirs.length; i ++ ) {
 
 			this._rayCollector.hit.status = CastRayStatus.NOT_COLLIDING;
 			this._rayCollector.hit.fraction = 1;
 			this._rayCollector.earlyOutFraction = 1;
 
 			castRay( v.physicsWorld, this._rayCollector, this._raySettings,
-				origin, dirs[ i ], ZONE, this._rayFilter );
+				origin, dirs[ i ], ZONE, this._wallRayFilter );
 
 			let proximity = 0;
 
 			if ( this._rayCollector.hit.status === CastRayStatus.COLLIDING ) {
 
 				const dist = this._rayCollector.hit.fraction * ZONE;
-				proximity = 1 - ( dist / ZONE ); // 0 = far, 1 = touching
+				proximity = 1 - ( dist / ZONE );
 
 			}
 
+			// Store directional values for curb drag (left/right only)
 			if ( i === 0 ) v._wallProximityLeft = proximity;
-			else v._wallProximityRight = proximity;
+			else if ( i === 1 ) v._wallProximityRight = proximity;
 
 		}
 

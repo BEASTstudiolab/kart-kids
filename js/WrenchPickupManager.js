@@ -30,7 +30,7 @@ export class WrenchPickupManager {
 		this.onPickup = null;
 
 		// Place fewer wrenches than item boxes (roughly 1 per 5 waypoints)
-		const count = Math.max( 1, Math.floor( trackIntel.count / 5 ) );
+		const count = Math.max( 1, Math.floor( trackIntel.count / 20 ) );
 		// Offset by half to avoid overlapping with item boxes
 		const positions = trackIntel.getDistributedPositions( count );
 

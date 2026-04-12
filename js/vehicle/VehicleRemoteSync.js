@@ -16,6 +16,7 @@ export class VehicleRemoteSync {
 		this._targetShieldActive = false;
 		this._targetStarActive = false;
 		this._targetDamage = null;
+		this._targetTrick = null;
 		this._renderPos = new THREE.Vector3();
 		this._renderQuat = new THREE.Quaternion();
 		this._remoteInitialized = false;
@@ -30,7 +31,7 @@ export class VehicleRemoteSync {
 
 	}
 
-	setTargetState( pos, rot, vel, angVel, speed, drift, boostActive, shield, star, damage ) {
+	setTargetState( pos, rot, vel, angVel, speed, drift, boostActive, shield, star, damage, trick ) {
 
 		this._targetPos = pos;
 		this._targetQuat.set( rot[ 0 ], rot[ 1 ], rot[ 2 ], rot[ 3 ] );
@@ -42,6 +43,7 @@ export class VehicleRemoteSync {
 		this._targetShieldActive = shield;
 		this._targetStarActive = star;
 		this._targetDamage = damage || null;
+		this._targetTrick = trick || null;
 
 	}
 
@@ -82,6 +84,7 @@ export class VehicleRemoteSync {
 			shield: v.shieldActive,
 			star: v.starActive,
 			damage: dmg,
+			trick: v._trick ? v._trick.getRemoteState() : null,
 		};
 
 	}
@@ -171,6 +174,8 @@ export class VehicleRemoteSync {
 		v.boostActive = this._targetBoostActive || false;
 		v.shieldActive = this._targetShieldActive || false;
 		v.starActive = this._targetStarActive || false;
+		if ( v._trick ) v._trick.syncRemoteState( v, this._targetTrick );
+		if ( v._trick ) v.trickState = v._trick.getStateSnapshot();
 
 		// Sync remote damage deformation
 		if ( this._targetDamage ) v.damageDeform.update( dt, null, this._targetDamage );

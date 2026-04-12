@@ -1,3 +1,18 @@
+export function getTrickComboCandidate( input ) {
+
+	if ( ! input?.drift || input?.touchActive ) return null;
+	return input.directionTap || null;
+
+}
+
+export function deriveTrickIntent( input, previousCombo = null ) {
+
+	const candidate = getTrickComboCandidate( input );
+	if ( ! candidate || candidate === previousCombo ) return null;
+	return candidate;
+
+}
+
 export class Controls {
 
 	constructor( settings, camera ) {
@@ -38,6 +53,18 @@ export class Controls {
 		// Touch UI elements (for teardown/rebuild)
 		this._touchContainer = null;
 		this._touchCSS = null;
+		this._lastTrickCombo = null;
+		this._prevTrickKeys = {
+			KeyW: false,
+			ArrowUp: false,
+			KeyS: false,
+			ArrowDown: false,
+			KeyA: false,
+			ArrowLeft: false,
+			KeyD: false,
+			ArrowRight: false,
+		};
+		this._prevGamepadTrickState = { up: false, down: false, left: false, right: false };
 
 		// Store handler references for dispose()
 		this._onKeyDown = ( e ) => this.keys[ e.code ] = true;
@@ -534,6 +561,55 @@ export class Controls {
 
 	}
 
+	_readKeyboardTrickTap() {
+
+		const keyJustPressed = ( code ) => !! this.keys[ code ] && ! this._prevTrickKeys[ code ];
+		let tap = null;
+
+		if ( keyJustPressed( 'KeyW' ) || keyJustPressed( 'ArrowUp' ) ) tap = 'frontflip';
+		else if ( keyJustPressed( 'KeyS' ) || keyJustPressed( 'ArrowDown' ) ) tap = 'backflip';
+		else if ( keyJustPressed( 'KeyA' ) || keyJustPressed( 'ArrowLeft' ) ) tap = 'barrelLeft';
+		else if ( keyJustPressed( 'KeyD' ) || keyJustPressed( 'ArrowRight' ) ) tap = 'barrelRight';
+
+		for ( const code of Object.keys( this._prevTrickKeys ) ) {
+
+			this._prevTrickKeys[ code ] = !! this.keys[ code ];
+
+		}
+
+		return tap;
+
+	}
+
+	_readGamepadTrickTap( gp ) {
+
+		if ( ! gp ) {
+
+			this._prevGamepadTrickState = { up: false, down: false, left: false, right: false };
+			return null;
+
+		}
+
+		const stickX = gp.axes[ 0 ] || 0;
+		const stickY = gp.axes[ 1 ] || 0;
+		const currentState = {
+			up: stickY < - 0.65,
+			down: stickY > 0.65,
+			left: stickX < - 0.65,
+			right: stickX > 0.65,
+		};
+
+		let tap = null;
+		if ( currentState.up && ! this._prevGamepadTrickState.up ) tap = 'frontflip';
+		else if ( currentState.down && ! this._prevGamepadTrickState.down ) tap = 'backflip';
+		else if ( currentState.left && ! this._prevGamepadTrickState.left ) tap = 'barrelLeft';
+		else if ( currentState.right && ! this._prevGamepadTrickState.right ) tap = 'barrelRight';
+
+		this._prevGamepadTrickState = currentState;
+		return tap;
+
+	}
+
 	// ─── Main update ─────────────────────────────────────────────────────────
 
 	update() {
@@ -611,6 +687,11 @@ export class Controls {
 
 		}
 
+		const directionTap = this._readKeyboardTrickTap() || this._readGamepadTrickTap( gp );
+		const trickCandidate = getTrickComboCandidate( { drift, x, z, touchActive: this.touchActive, directionTap } );
+		const trickIntent = deriveTrickIntent( { drift, x, z, touchActive: this.touchActive, directionTap }, this._lastTrickCombo );
+		this._lastTrickCombo = trickCandidate;
+
 		// Item use: E key, touch button, or gamepad X (button 2)
 		let useItem = !! this.keys[ 'KeyE' ] || this._itemPressed;
 
@@ -647,7 +728,7 @@ export class Controls {
 
 		}
 
-		return { x, z, touchActive: this.touchActive, boost, drift, gas, brake, useItem, orbitX, zoomIn, zoomOut, lookBehind, switchView, jump };
+		return { x, z, touchActive: this.touchActive, boost, drift, gas, brake, useItem, orbitX, zoomIn, zoomOut, lookBehind, switchView, jump, trickIntent };
 
 	}
 

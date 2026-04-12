@@ -204,9 +204,6 @@ export class VehicleStateMachine {
 		// ── AIRBORNE ──────────────────────────────────────────
 		if ( cur === PhysicsState.AIRBORNE ) {
 
-			// Wall hit forces grounded
-			if ( s.recentWallHit ) return PhysicsState.GROUNDED;
-
 			// Landing: hit the ground while falling
 			if ( s.vehicleY <= s.targetY && s.verticalVelocity < 0 ) {
 
