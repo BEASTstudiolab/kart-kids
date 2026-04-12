@@ -426,16 +426,16 @@ export class PartyLobbyScene {
 		group.rotation.y = Math.PI;  // face the racing direction
 		this._scene.add( group );
 
-		this._karts.set( id, { group, slot } );
+		const gen = ++ this._loadGen;
+		this._karts.set( id, { group, slot, gen } );
 
 		const entry = getVehicleById( kartId );
 		if ( ! entry ) return;
 
-		const gen = ++ this._loadGen;
-
 		this._loader.load( `models/${ entry.path }`, ( kartGltf ) => {
 
-			if ( gen !== this._loadGen && id !== 'local' ) return;
+			const current = this._karts.get( id );
+			if ( ! current || current.gen !== gen ) return;
 
 			const kartModel = kartGltf.scene.clone();
 			kartModel.scale.setScalar( KART_SCALE );
@@ -474,7 +474,7 @@ export class PartyLobbyScene {
 			// Load character mesh and attach to seat anchor
 			this._loader.load( `models/${ CHARACTER_MESH_PATH }`, ( meshGltf ) => {
 
-				if ( gen !== this._loadGen && id !== 'local' ) return;
+				const cur = this._karts.get( id ); if ( ! cur || cur.gen !== gen ) return;
 
 				const character = SkeletonUtils.clone( meshGltf.scene );
 				character.scale.setScalar( 1.0 );
@@ -496,7 +496,7 @@ export class PartyLobbyScene {
 				// Apply driving pose animation (snapped to first frame)
 				this._loader.load( `models/${ CHARACTER_ANIM_PATH }`, ( animGltf ) => {
 
-					if ( gen !== this._loadGen && id !== 'local' ) return;
+					const cur = this._karts.get( id ); if ( ! cur || cur.gen !== gen ) return;
 
 					if ( animGltf.animations && animGltf.animations.length > 0 ) {
 

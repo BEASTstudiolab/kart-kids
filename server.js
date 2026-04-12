@@ -726,6 +726,7 @@ wss.on( 'connection', ( ws ) => {
 							vehicleId: p.vehicleId,
 							characterIndex: p.characterIndex,
 							tint: p.tint,
+							name: p.name,
 							spectating: p.spectating,
 						} );
 
