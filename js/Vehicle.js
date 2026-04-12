@@ -791,6 +791,13 @@ export class Vehicle {
 
 		this._remoteSync.update( dt, this );
 
+		// Tick character animation for remote players (driving pose)
+		if ( this.characterAnimator ) {
+
+			this.characterAnimator.update( dt, this.inputX || 0 );
+
+		}
+
 	}
 
 	update( dt, controlsInput ) {
