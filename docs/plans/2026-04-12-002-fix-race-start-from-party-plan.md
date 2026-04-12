@@ -1,7 +1,7 @@
 ---
 title: "fix: Race start from party lobby — vehicle resolution, multiplayer init, countdown sync"
 type: fix
-status: active
+status: completed
 date: 2026-04-12
 origin: docs/brainstorms/2026-04-12-race-start-from-party-requirements.md
 ---
