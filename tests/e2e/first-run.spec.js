@@ -1,32 +1,31 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * First-run name entry E2E tests.
+ * First-run onboarding E2E tests.
  *
- * Tests the NameEntryModal that appears on first launch when no display name
- * is saved in localStorage. The modal is non-dismissible and requires a name
- * and avatar color selection before proceeding.
+ * Tests the onboarding splash page that appears on first launch when no
+ * display name is saved in localStorage. The page is full-screen and requires
+ * a name before proceeding.
  *
- * DOM structure of the modal:
- *   .kk-modal (via ModalService)
- *     .kk-name-entry
- *       .kk-name-entry__input
- *       .kk-name-entry__error
- *       .kk-name-entry__avatar-options[role="radiogroup"]
- *         .kk-name-entry__avatar-option[role="radio"]
- *     footer
- *       [data-action="name-entry-confirm"]
+ * DOM structure:
+ *   div.kk-onboarding
+ *     div.kk-onboarding__card
+ *       h1.kk-onboarding__title
+ *       p.kk-onboarding__subtitle
+ *       div.kk-onboarding__field
+ *         input.kk-onboarding__input
+ *         span.kk-onboarding__error
+ *       button.kk-onboarding__btn
  */
 
 // ---------------------------------------------------------------------------
-// First-run modal
+// First-run onboarding
 // ---------------------------------------------------------------------------
 
-test.describe( 'First-run name entry', () => {
+test.describe( 'First-run onboarding', () => {
 
-	test( 'shows name entry modal when localStorage is empty', async ( { page } ) => {
+	test( 'shows onboarding page when localStorage is empty', async ( { page } ) => {
 
-		// Clear localStorage before navigating
 		await page.addInitScript( () => {
 
 			localStorage.clear();
@@ -35,33 +34,24 @@ test.describe( 'First-run name entry', () => {
 
 		await page.goto( '/' );
 
-		// The NameEntryModal should appear with "Welcome to Kart Kids!" title.
-		const modal = page.locator( '.kk-modal' );
-		await expect( modal ).toBeVisible( { timeout: 15000 } );
+		const onboarding = page.locator( '.kk-onboarding' );
+		await expect( onboarding ).toBeVisible( { timeout: 15000 } );
 
-		// Should show welcome title
-		await expect( modal ).toContainText( 'Welcome to Kart Kids' );
+		await expect( onboarding ).toContainText( 'KART KIDS' );
+		await expect( onboarding ).toContainText( 'Enter your name' );
 
 	} );
 
-	test( 'shows name input field and avatar options', async ( { page } ) => {
+	test( 'shows name input field', async ( { page } ) => {
 
 		await page.addInitScript( () => localStorage.clear() );
 		await page.goto( '/' );
 
-		const modal = page.locator( '.kk-modal' );
-		await expect( modal ).toBeVisible( { timeout: 15000 } );
+		const onboarding = page.locator( '.kk-onboarding' );
+		await expect( onboarding ).toBeVisible( { timeout: 15000 } );
 
-		// Name input
-		const nameInput = modal.locator( '.kk-name-entry__input' );
+		const nameInput = onboarding.locator( '.kk-onboarding__input' );
 		await expect( nameInput ).toBeVisible();
-
-		// Avatar options (radiogroup with 3 color choices: red, blue, green)
-		const avatarGroup = modal.locator( '[role="radiogroup"]' );
-		await expect( avatarGroup ).toBeVisible();
-
-		const avatarOptions = modal.locator( '.kk-name-entry__avatar-option' );
-		await expect( avatarOptions ).toHaveCount( 3 );
 
 	} );
 
@@ -70,45 +60,39 @@ test.describe( 'First-run name entry', () => {
 		await page.addInitScript( () => localStorage.clear() );
 		await page.goto( '/' );
 
-		const modal = page.locator( '.kk-modal' );
-		await expect( modal ).toBeVisible( { timeout: 15000 } );
+		const onboarding = page.locator( '.kk-onboarding' );
+		await expect( onboarding ).toBeVisible( { timeout: 15000 } );
 
 		// Click confirm without entering a name
-		const confirmBtn = modal.locator( '[data-action="name-entry-confirm"]' );
+		const confirmBtn = onboarding.locator( '.kk-onboarding__btn' );
 		await confirmBtn.click();
 
 		// Error message should appear
-		const error = modal.locator( '.kk-name-entry__error' );
+		const error = onboarding.locator( '.kk-onboarding__error' );
 		await expect( error ).toBeVisible( { timeout: 3000 } );
 		await expect( error ).toContainText( 'Please enter a display name' );
 
-		// Modal should still be visible (not dismissed)
-		await expect( modal ).toBeVisible();
+		// Onboarding should still be visible
+		await expect( onboarding ).toBeVisible();
 
 	} );
 
-	test( 'entering name and picking avatar closes the modal', async ( { page } ) => {
+	test( 'entering name and confirming closes the onboarding', async ( { page } ) => {
 
 		await page.addInitScript( () => localStorage.clear() );
 		await page.goto( '/' );
 
-		const modal = page.locator( '.kk-modal' );
-		await expect( modal ).toBeVisible( { timeout: 15000 } );
+		const onboarding = page.locator( '.kk-onboarding' );
+		await expect( onboarding ).toBeVisible( { timeout: 15000 } );
 
-		// Enter a display name
-		const nameInput = modal.locator( '.kk-name-entry__input' );
+		const nameInput = onboarding.locator( '.kk-onboarding__input' );
 		await nameInput.fill( 'RacerX' );
 
-		// Pick an avatar color (click the first option)
-		const avatarOptions = modal.locator( '.kk-name-entry__avatar-option' );
-		await avatarOptions.first().click();
-
-		// Click confirm
-		const confirmBtn = modal.locator( '[data-action="name-entry-confirm"]' );
+		const confirmBtn = onboarding.locator( '.kk-onboarding__btn' );
 		await confirmBtn.click();
 
-		// Modal should close
-		await expect( modal ).toBeHidden( { timeout: 5000 } );
+		// Onboarding should fade out and be removed
+		await expect( onboarding ).toBeHidden( { timeout: 5000 } );
 
 	} );
 
@@ -117,20 +101,16 @@ test.describe( 'First-run name entry', () => {
 		await page.addInitScript( () => localStorage.clear() );
 		await page.goto( '/' );
 
-		const modal = page.locator( '.kk-modal' );
-		await expect( modal ).toBeVisible( { timeout: 15000 } );
+		const onboarding = page.locator( '.kk-onboarding' );
+		await expect( onboarding ).toBeVisible( { timeout: 15000 } );
 
-		// Enter name and confirm
-		const nameInput = modal.locator( '.kk-name-entry__input' );
+		const nameInput = onboarding.locator( '.kk-onboarding__input' );
 		await nameInput.fill( 'PersistTest' );
 
-		const avatarOptions = modal.locator( '.kk-name-entry__avatar-option' );
-		await avatarOptions.first().click();
-
-		const confirmBtn = modal.locator( '[data-action="name-entry-confirm"]' );
+		const confirmBtn = onboarding.locator( '.kk-onboarding__btn' );
 		await confirmBtn.click();
 
-		await expect( modal ).toBeHidden( { timeout: 5000 } );
+		await expect( onboarding ).toBeHidden( { timeout: 5000 } );
 
 		// Check localStorage
 		const stored = await page.evaluate( () => {
@@ -146,48 +126,12 @@ test.describe( 'First-run name entry', () => {
 
 	} );
 
-	test( 'avatar choice persists in localStorage', async ( { page } ) => {
+	test( 'subsequent visits skip the onboarding when name exists', async ( { page } ) => {
 
-		await page.addInitScript( () => localStorage.clear() );
-		await page.goto( '/' );
-
-		const modal = page.locator( '.kk-modal' );
-		await expect( modal ).toBeVisible( { timeout: 15000 } );
-
-		// Enter name
-		const nameInput = modal.locator( '.kk-name-entry__input' );
-		await nameInput.fill( 'AvatarTest' );
-
-		// Pick the second avatar option (blue).
-		// Use dispatchEvent to bypass the hero preview panel that can
-		// intercept pointer events while the modal overlay animates in.
-		const avatarOptions = modal.locator( '.kk-name-entry__avatar-option' );
-		await avatarOptions.nth( 1 ).dispatchEvent( 'click' );
-
-		const confirmBtn = modal.locator( '[data-action="name-entry-confirm"]' );
-		await confirmBtn.dispatchEvent( 'click' );
-
-		await expect( modal ).toBeHidden( { timeout: 5000 } );
-
-		// Check localStorage for avatar choice
-		const stored = await page.evaluate( () => {
-
-			return localStorage.getItem( 'kart-kids-settings' );
-
-		} );
-
-		const parsed = JSON.parse( stored );
-		expect( parsed.profile.avatarChoice ).toBe( 'blue' );
-
-	} );
-
-	test( 'subsequent visits skip the modal when name exists', async ( { page } ) => {
-
-		// Seed settings with a name already set
 		await page.addInitScript( () => {
 
 			const settings = {
-				profile: { displayName: 'ReturningPlayer', avatarChoice: 'green' },
+				profile: { displayName: 'ReturningPlayer' },
 				gameplay: {},
 				controls: {},
 				audio: {},
@@ -203,9 +147,9 @@ test.describe( 'First-run name entry', () => {
 		const titlePage = page.locator( '.page-title' );
 		await expect( titlePage ).toBeVisible( { timeout: 10000 } );
 
-		// The modal should NOT appear
-		const modal = page.locator( '.kk-modal' );
-		await expect( modal ).toBeHidden( { timeout: 3000 } );
+		// The onboarding should NOT appear
+		const onboarding = page.locator( '.kk-onboarding' );
+		await expect( onboarding ).toBeHidden( { timeout: 3000 } );
 
 	} );
 
@@ -214,22 +158,16 @@ test.describe( 'First-run name entry', () => {
 		await page.addInitScript( () => localStorage.clear() );
 		await page.goto( '/' );
 
-		const modal = page.locator( '.kk-modal' );
-		await expect( modal ).toBeVisible( { timeout: 15000 } );
+		const onboarding = page.locator( '.kk-onboarding' );
+		await expect( onboarding ).toBeVisible( { timeout: 15000 } );
 
-		// Enter a name and press Enter
-		const nameInput = modal.locator( '.kk-name-entry__input' );
+		const nameInput = onboarding.locator( '.kk-onboarding__input' );
 		await nameInput.fill( 'EnterKeyTest' );
 
-		// Pick an avatar
-		const avatarOptions = modal.locator( '.kk-name-entry__avatar-option' );
-		await avatarOptions.first().click();
-
-		// Press Enter on the input
 		await nameInput.press( 'Enter' );
 
-		// Modal should close
-		await expect( modal ).toBeHidden( { timeout: 5000 } );
+		// Onboarding should close
+		await expect( onboarding ).toBeHidden( { timeout: 5000 } );
 
 		// Name should be saved
 		const stored = await page.evaluate( () => {

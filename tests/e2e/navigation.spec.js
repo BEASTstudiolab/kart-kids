@@ -29,7 +29,7 @@ async function seedSettings( page ) {
 	await page.addInitScript( () => {
 
 		const settings = {
-			profile: { displayName: 'TestPlayer', avatarChoice: 'red' },
+			profile: { displayName: 'TestPlayer' },
 			gameplay: {},
 			controls: {},
 			audio: {},

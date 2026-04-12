@@ -17,7 +17,6 @@ async function seedSettings( page, overrides = {} ) {
 		const settings = {
 			profile: {
 				displayName: overrides.displayName || 'TestPlayer',
-				avatarChoice: overrides.avatarChoice || 'red',
 			},
 			gameplay: {},
 			controls: {},

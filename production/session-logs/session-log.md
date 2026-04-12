@@ -26462,3 +26462,627 @@ production/session-logs/session-log.md
 tile-tester.html
 ---
 
+## Session End: 20260412_125305
+### Commits
+17a5ac8 kart-kids-v0.35-physics-track-bug-fixes-arial-stunts
+---
+
+## Session End: 20260412_172633
+### Commits
+17a5ac8 kart-kids-v0.35-physics-track-bug-fixes-arial-stunts
+### Uncommitted Changes
+production/session-logs/session-log.md
+---
+
+## Session End: 20260412_173614
+### Commits
+17a5ac8 kart-kids-v0.35-physics-track-bug-fixes-arial-stunts
+### Uncommitted Changes
+js/Settings.js
+js/ui/components/NameEntryModal.js
+js/ui/panels/ProfilePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/e2e/first-run.spec.js
+tests/e2e/garage.spec.js
+tests/e2e/navigation.spec.js
+tests/e2e/play-modes.spec.js
+tests/e2e/profile-settings.spec.js
+---
+
+## Session End: 20260412_174116
+### Commits
+17a5ac8 kart-kids-v0.35-physics-track-bug-fixes-arial-stunts
+### Uncommitted Changes
+js/Settings.js
+js/ui/components/NameEntryModal.js
+js/ui/panels/ProfilePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/e2e/first-run.spec.js
+tests/e2e/garage.spec.js
+tests/e2e/navigation.spec.js
+tests/e2e/play-modes.spec.js
+tests/e2e/profile-settings.spec.js
+---
+
+## Session End: 20260412_175047
+### Commits
+17a5ac8 kart-kids-v0.35-physics-track-bug-fixes-arial-stunts
+### Uncommitted Changes
+js/Settings.js
+js/ui/components/NameEntryModal.js
+js/ui/panels/ProfilePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+tests/e2e/first-run.spec.js
+tests/e2e/garage.spec.js
+tests/e2e/navigation.spec.js
+tests/e2e/play-modes.spec.js
+tests/e2e/profile-settings.spec.js
+---
+
+## Session End: 20260412_175909
+### Commits
+17a5ac8 kart-kids-v0.35-physics-track-bug-fixes-arial-stunts
+### Uncommitted Changes
+js/GameEngine.js
+js/Network.js
+js/Settings.js
+js/ui/components/NameEntryModal.js
+js/ui/overlays/LobbyOverlay.js
+js/ui/pages/page03-quick-play/Page03QuickPlayController.js
+js/ui/pages/page05-lobby/Page05LobbyController.js
+js/ui/panels/ProfilePanel.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+tests/e2e/first-run.spec.js
+tests/e2e/garage.spec.js
+tests/e2e/navigation.spec.js
+tests/e2e/play-modes.spec.js
+tests/e2e/profile-settings.spec.js
+---
+
+## Session End: 20260412_180753
+### Commits
+17a5ac8 kart-kids-v0.35-physics-track-bug-fixes-arial-stunts
+### Uncommitted Changes
+js/GameEngine.js
+js/Network.js
+js/Settings.js
+js/ui/components/NameEntryModal.js
+js/ui/overlays/LobbyOverlay.js
+js/ui/pages/page03-quick-play/Page03QuickPlayController.js
+js/ui/pages/page05-lobby/Page05LobbyController.js
+js/ui/panels/ProfilePanel.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+tests/e2e/first-run.spec.js
+tests/e2e/garage.spec.js
+tests/e2e/navigation.spec.js
+tests/e2e/play-modes.spec.js
+tests/e2e/profile-settings.spec.js
+---
+
+## Session End: 20260412_181737
+### Commits
+17a5ac8 kart-kids-v0.35-physics-track-bug-fixes-arial-stunts
+### Uncommitted Changes
+js/GameEngine.js
+js/Network.js
+js/Settings.js
+js/ui/components/NameEntryModal.js
+js/ui/overlays/LobbyOverlay.js
+js/ui/pages/page03-quick-play/Page03QuickPlayController.js
+js/ui/pages/page05-lobby/Page05LobbyController.js
+js/ui/panels/ProfilePanel.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+tests/e2e/first-run.spec.js
+tests/e2e/garage.spec.js
+tests/e2e/navigation.spec.js
+tests/e2e/play-modes.spec.js
+tests/e2e/profile-settings.spec.js
+---
+
+## Session End: 20260412_182357
+### Commits
+17a5ac8 kart-kids-v0.35-physics-track-bug-fixes-arial-stunts
+### Uncommitted Changes
+js/GameEngine.js
+js/Network.js
+js/Settings.js
+js/ui/components/NameEntryModal.js
+js/ui/overlays/LobbyOverlay.js
+js/ui/pages/page03-quick-play/Page03QuickPlayController.js
+js/ui/pages/page05-lobby/Page05LobbyController.js
+js/ui/panels/ProfilePanel.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+tests/e2e/first-run.spec.js
+tests/e2e/garage.spec.js
+tests/e2e/navigation.spec.js
+tests/e2e/play-modes.spec.js
+tests/e2e/profile-settings.spec.js
+---
+
+## Session End: 20260412_183221
+### Commits
+17a5ac8 kart-kids-v0.35-physics-track-bug-fixes-arial-stunts
+### Uncommitted Changes
+js/GameEngine.js
+js/Network.js
+js/Settings.js
+js/ui/components/NameEntryModal.js
+js/ui/overlays/LobbyOverlay.js
+js/ui/pages/page03-quick-play/Page03QuickPlayController.js
+js/ui/pages/page05-lobby/Page05LobbyController.js
+js/ui/panels/ProfilePanel.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+tests/e2e/first-run.spec.js
+tests/e2e/garage.spec.js
+tests/e2e/navigation.spec.js
+tests/e2e/play-modes.spec.js
+tests/e2e/profile-settings.spec.js
+---
+
+## Session End: 20260412_184939
+### Commits
+17a5ac8 kart-kids-v0.35-physics-track-bug-fixes-arial-stunts
+### Uncommitted Changes
+js/GameEngine.js
+js/Network.js
+js/Settings.js
+js/ui/PartyLobbyScene.js
+js/ui/components/NameEntryModal.js
+js/ui/overlays/LobbyOverlay.js
+js/ui/pages/page03-quick-play/Page03QuickPlayController.js
+js/ui/pages/page05-lobby/Page05LobbyController.js
+js/ui/panels/ProfilePanel.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+tests/e2e/first-run.spec.js
+tests/e2e/garage.spec.js
+tests/e2e/navigation.spec.js
+tests/e2e/play-modes.spec.js
+tests/e2e/profile-settings.spec.js
+---
+
+## Session End: 20260412_190146
+### Commits
+17a5ac8 kart-kids-v0.35-physics-track-bug-fixes-arial-stunts
+### Uncommitted Changes
+js/GameEngine.js
+js/Network.js
+js/Settings.js
+js/ui/PartyLobbyScene.js
+js/ui/components/NameEntryModal.js
+js/ui/overlays/LobbyOverlay.js
+js/ui/pages/page03-quick-play/Page03QuickPlayController.js
+js/ui/pages/page05-lobby/Page05LobbyController.js
+js/ui/panels/ProfilePanel.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+tests/e2e/first-run.spec.js
+tests/e2e/garage.spec.js
+tests/e2e/navigation.spec.js
+tests/e2e/play-modes.spec.js
+tests/e2e/profile-settings.spec.js
+---
+
+## Session End: 20260412_190800
+### Commits
+17a5ac8 kart-kids-v0.35-physics-track-bug-fixes-arial-stunts
+### Uncommitted Changes
+js/GameEngine.js
+js/Network.js
+js/Settings.js
+js/ui/PartyLobbyScene.js
+js/ui/components/NameEntryModal.js
+js/ui/overlays/LobbyOverlay.js
+js/ui/pages/page03-quick-play/Page03QuickPlayController.js
+js/ui/pages/page05-lobby/Page05LobbyController.js
+js/ui/panels/ProfilePanel.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+tests/e2e/first-run.spec.js
+tests/e2e/garage.spec.js
+tests/e2e/navigation.spec.js
+tests/e2e/play-modes.spec.js
+tests/e2e/profile-settings.spec.js
+---
+
+## Session End: 20260412_191016
+### Commits
+17a5ac8 kart-kids-v0.35-physics-track-bug-fixes-arial-stunts
+### Uncommitted Changes
+js/GameEngine.js
+js/Network.js
+js/Settings.js
+js/ui/PartyLobbyScene.js
+js/ui/components/NameEntryModal.js
+js/ui/overlays/LobbyOverlay.js
+js/ui/pages/page03-quick-play/Page03QuickPlayController.js
+js/ui/pages/page05-lobby/Page05LobbyController.js
+js/ui/panels/ProfilePanel.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+tests/e2e/first-run.spec.js
+tests/e2e/garage.spec.js
+tests/e2e/navigation.spec.js
+tests/e2e/play-modes.spec.js
+tests/e2e/profile-settings.spec.js
+---
+
+## Session End: 20260412_191149
+### Commits
+17a5ac8 kart-kids-v0.35-physics-track-bug-fixes-arial-stunts
+### Uncommitted Changes
+js/GameEngine.js
+js/Network.js
+js/Settings.js
+js/ui/PartyLobbyScene.js
+js/ui/components/NameEntryModal.js
+js/ui/overlays/LobbyOverlay.js
+js/ui/pages/page03-quick-play/Page03QuickPlayController.js
+js/ui/pages/page05-lobby/Page05LobbyController.js
+js/ui/panels/ProfilePanel.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+tests/e2e/first-run.spec.js
+tests/e2e/garage.spec.js
+tests/e2e/navigation.spec.js
+tests/e2e/play-modes.spec.js
+tests/e2e/profile-settings.spec.js
+---
+
+## Session End: 20260412_191609
+### Commits
+17a5ac8 kart-kids-v0.35-physics-track-bug-fixes-arial-stunts
+### Uncommitted Changes
+js/GameEngine.js
+js/Network.js
+js/Settings.js
+js/ui/PartyLobbyScene.js
+js/ui/components/NameEntryModal.js
+js/ui/overlays/LobbyOverlay.js
+js/ui/pages/page03-quick-play/Page03QuickPlayController.js
+js/ui/pages/page05-lobby/Page05LobbyController.js
+js/ui/panels/ProfilePanel.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+tests/e2e/first-run.spec.js
+tests/e2e/garage.spec.js
+tests/e2e/navigation.spec.js
+tests/e2e/play-modes.spec.js
+tests/e2e/profile-settings.spec.js
+---
+
+## Session End: 20260412_191931
+### Commits
+17a5ac8 kart-kids-v0.35-physics-track-bug-fixes-arial-stunts
+### Uncommitted Changes
+js/GameEngine.js
+js/Network.js
+js/Settings.js
+js/ui/PartyLobbyScene.js
+js/ui/components/NameEntryModal.js
+js/ui/overlays/LobbyOverlay.js
+js/ui/pages/page03-quick-play/Page03QuickPlayController.js
+js/ui/pages/page05-lobby/Page05LobbyController.js
+js/ui/panels/ProfilePanel.js
+js/ui/panels/RacePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+server.js
+tests/e2e/first-run.spec.js
+tests/e2e/garage.spec.js
+tests/e2e/navigation.spec.js
+tests/e2e/play-modes.spec.js
+tests/e2e/profile-settings.spec.js
+---
+
+## Session End: 20260412_192819
+### Commits
+9090c0d fix: party join flow + player name sync + lobby kart spawning
+17a5ac8 kart-kids-v0.35-physics-track-bug-fixes-arial-stunts
+### Uncommitted Changes
+js/Settings.js
+js/ui/components/NameEntryModal.js
+js/ui/panels/ProfilePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/e2e/first-run.spec.js
+tests/e2e/garage.spec.js
+tests/e2e/navigation.spec.js
+tests/e2e/play-modes.spec.js
+tests/e2e/profile-settings.spec.js
+---
+
+## Session End: 20260412_194731
+### Commits
+14d20d9 fix: race start from party — vehicle resolution, loaded gate, raceLoading flow
+9090c0d fix: party join flow + player name sync + lobby kart spawning
+17a5ac8 kart-kids-v0.35-physics-track-bug-fixes-arial-stunts
+### Uncommitted Changes
+docs/plans/2026-04-12-002-fix-race-start-from-party-plan.md
+js/Settings.js
+js/ui/components/NameEntryModal.js
+js/ui/panels/ProfilePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/e2e/first-run.spec.js
+tests/e2e/garage.spec.js
+tests/e2e/navigation.spec.js
+tests/e2e/play-modes.spec.js
+tests/e2e/profile-settings.spec.js
+---
+
+## Session End: 20260412_195200
+### Commits
+a9a30a2 fix: per-kart load gen guard + reconnect name field
+14d20d9 fix: race start from party — vehicle resolution, loaded gate, raceLoading flow
+9090c0d fix: party join flow + player name sync + lobby kart spawning
+17a5ac8 kart-kids-v0.35-physics-track-bug-fixes-arial-stunts
+### Uncommitted Changes
+docs/plans/2026-04-12-002-fix-race-start-from-party-plan.md
+js/Settings.js
+js/ui/components/NameEntryModal.js
+js/ui/panels/ProfilePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/e2e/first-run.spec.js
+tests/e2e/garage.spec.js
+tests/e2e/navigation.spec.js
+tests/e2e/play-modes.spec.js
+tests/e2e/profile-settings.spec.js
+---
+
+## Session End: 20260412_201233
+### Commits
+06fcfb7 fix: use kart-beast character for all vehicles (fixes T-pose on remotes)
+a9a30a2 fix: per-kart load gen guard + reconnect name field
+14d20d9 fix: race start from party — vehicle resolution, loaded gate, raceLoading flow
+9090c0d fix: party join flow + player name sync + lobby kart spawning
+17a5ac8 kart-kids-v0.35-physics-track-bug-fixes-arial-stunts
+### Uncommitted Changes
+docs/plans/2026-04-12-002-fix-race-start-from-party-plan.md
+js/Settings.js
+js/ui/components/NameEntryModal.js
+js/ui/panels/ProfilePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/e2e/first-run.spec.js
+tests/e2e/garage.spec.js
+tests/e2e/navigation.spec.js
+tests/e2e/play-modes.spec.js
+tests/e2e/profile-settings.spec.js
+---
+
+## Session End: 20260412_203252
+### Commits
+a73423f fix: include player roster in raceLoading for proper multiplayer spawn
+06fcfb7 fix: use kart-beast character for all vehicles (fixes T-pose on remotes)
+a9a30a2 fix: per-kart load gen guard + reconnect name field
+14d20d9 fix: race start from party — vehicle resolution, loaded gate, raceLoading flow
+9090c0d fix: party join flow + player name sync + lobby kart spawning
+### Uncommitted Changes
+docs/plans/2026-04-12-002-fix-race-start-from-party-plan.md
+js/Settings.js
+js/ui/components/NameEntryModal.js
+js/ui/panels/ProfilePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/e2e/first-run.spec.js
+tests/e2e/garage.spec.js
+tests/e2e/navigation.spec.js
+tests/e2e/play-modes.spec.js
+tests/e2e/profile-settings.spec.js
+---
+
+## Session End: 20260412_204055
+### Commits
+4bbfeaa fix: tick character animator for remote vehicles (fixes T-pose)
+a73423f fix: include player roster in raceLoading for proper multiplayer spawn
+06fcfb7 fix: use kart-beast character for all vehicles (fixes T-pose on remotes)
+a9a30a2 fix: per-kart load gen guard + reconnect name field
+14d20d9 fix: race start from party — vehicle resolution, loaded gate, raceLoading flow
+9090c0d fix: party join flow + player name sync + lobby kart spawning
+### Uncommitted Changes
+docs/plans/2026-04-12-002-fix-race-start-from-party-plan.md
+js/Settings.js
+js/ui/components/NameEntryModal.js
+js/ui/panels/ProfilePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/e2e/first-run.spec.js
+tests/e2e/garage.spec.js
+tests/e2e/navigation.spec.js
+tests/e2e/play-modes.spec.js
+tests/e2e/profile-settings.spec.js
+---
+
+## Session End: 20260412_205234
+### Commits
+4bbfeaa fix: tick character animator for remote vehicles (fixes T-pose)
+a73423f fix: include player roster in raceLoading for proper multiplayer spawn
+06fcfb7 fix: use kart-beast character for all vehicles (fixes T-pose on remotes)
+a9a30a2 fix: per-kart load gen guard + reconnect name field
+14d20d9 fix: race start from party — vehicle resolution, loaded gate, raceLoading flow
+9090c0d fix: party join flow + player name sync + lobby kart spawning
+### Uncommitted Changes
+docs/plans/2026-04-12-002-fix-race-start-from-party-plan.md
+js/Settings.js
+js/ui/components/NameEntryModal.js
+js/ui/panels/ProfilePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/e2e/first-run.spec.js
+tests/e2e/garage.spec.js
+tests/e2e/navigation.spec.js
+tests/e2e/play-modes.spec.js
+tests/e2e/profile-settings.spec.js
+---
+
+## Session End: 20260412_205519
+### Commits
+d0f21e0 fix: fall back to lastWelcome.existingPlayers for matchmaking flow
+4bbfeaa fix: tick character animator for remote vehicles (fixes T-pose)
+a73423f fix: include player roster in raceLoading for proper multiplayer spawn
+06fcfb7 fix: use kart-beast character for all vehicles (fixes T-pose on remotes)
+a9a30a2 fix: per-kart load gen guard + reconnect name field
+14d20d9 fix: race start from party — vehicle resolution, loaded gate, raceLoading flow
+9090c0d fix: party join flow + player name sync + lobby kart spawning
+### Uncommitted Changes
+docs/plans/2026-04-12-002-fix-race-start-from-party-plan.md
+js/Settings.js
+js/ui/components/NameEntryModal.js
+js/ui/panels/ProfilePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/e2e/first-run.spec.js
+tests/e2e/garage.spec.js
+tests/e2e/navigation.spec.js
+tests/e2e/play-modes.spec.js
+tests/e2e/profile-settings.spec.js
+---
+
+## Session End: 20260412_205859
+### Commits
+d0f21e0 fix: fall back to lastWelcome.existingPlayers for matchmaking flow
+4bbfeaa fix: tick character animator for remote vehicles (fixes T-pose)
+a73423f fix: include player roster in raceLoading for proper multiplayer spawn
+06fcfb7 fix: use kart-beast character for all vehicles (fixes T-pose on remotes)
+a9a30a2 fix: per-kart load gen guard + reconnect name field
+14d20d9 fix: race start from party — vehicle resolution, loaded gate, raceLoading flow
+9090c0d fix: party join flow + player name sync + lobby kart spawning
+### Uncommitted Changes
+docs/plans/2026-04-12-002-fix-race-start-from-party-plan.md
+js/Settings.js
+js/ui/components/NameEntryModal.js
+js/ui/panels/ProfilePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/e2e/first-run.spec.js
+tests/e2e/garage.spec.js
+tests/e2e/navigation.spec.js
+tests/e2e/play-modes.spec.js
+tests/e2e/profile-settings.spec.js
+---
+
+## Session End: 20260412_210007
+### Commits
+d0f21e0 fix: fall back to lastWelcome.existingPlayers for matchmaking flow
+4bbfeaa fix: tick character animator for remote vehicles (fixes T-pose)
+a73423f fix: include player roster in raceLoading for proper multiplayer spawn
+06fcfb7 fix: use kart-beast character for all vehicles (fixes T-pose on remotes)
+a9a30a2 fix: per-kart load gen guard + reconnect name field
+14d20d9 fix: race start from party — vehicle resolution, loaded gate, raceLoading flow
+9090c0d fix: party join flow + player name sync + lobby kart spawning
+### Uncommitted Changes
+docs/plans/2026-04-12-002-fix-race-start-from-party-plan.md
+js/Settings.js
+js/ui/components/NameEntryModal.js
+js/ui/panels/ProfilePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/e2e/first-run.spec.js
+tests/e2e/garage.spec.js
+tests/e2e/navigation.spec.js
+tests/e2e/play-modes.spec.js
+tests/e2e/profile-settings.spec.js
+---
+
+## Session End: 20260412_210702
+### Commits
+ce52d42 docs: mark race-start-from-party plan as completed
+d0f21e0 fix: fall back to lastWelcome.existingPlayers for matchmaking flow
+4bbfeaa fix: tick character animator for remote vehicles (fixes T-pose)
+a73423f fix: include player roster in raceLoading for proper multiplayer spawn
+06fcfb7 fix: use kart-beast character for all vehicles (fixes T-pose on remotes)
+a9a30a2 fix: per-kart load gen guard + reconnect name field
+14d20d9 fix: race start from party — vehicle resolution, loaded gate, raceLoading flow
+9090c0d fix: party join flow + player name sync + lobby kart spawning
+### Uncommitted Changes
+js/Settings.js
+js/ui/components/NameEntryModal.js
+js/ui/panels/ProfilePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/e2e/first-run.spec.js
+tests/e2e/garage.spec.js
+tests/e2e/navigation.spec.js
+tests/e2e/play-modes.spec.js
+tests/e2e/profile-settings.spec.js
+---
+
+## Session End: 20260412_211027
+### Commits
+ce52d42 docs: mark race-start-from-party plan as completed
+d0f21e0 fix: fall back to lastWelcome.existingPlayers for matchmaking flow
+4bbfeaa fix: tick character animator for remote vehicles (fixes T-pose)
+a73423f fix: include player roster in raceLoading for proper multiplayer spawn
+06fcfb7 fix: use kart-beast character for all vehicles (fixes T-pose on remotes)
+a9a30a2 fix: per-kart load gen guard + reconnect name field
+14d20d9 fix: race start from party — vehicle resolution, loaded gate, raceLoading flow
+9090c0d fix: party join flow + player name sync + lobby kart spawning
+### Uncommitted Changes
+js/Settings.js
+js/ui/components/NameEntryModal.js
+js/ui/panels/ProfilePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/e2e/first-run.spec.js
+tests/e2e/garage.spec.js
+tests/e2e/navigation.spec.js
+tests/e2e/play-modes.spec.js
+tests/e2e/profile-settings.spec.js
+---
+
+## Session End: 20260412_211107
+### Commits
+ce52d42 docs: mark race-start-from-party plan as completed
+d0f21e0 fix: fall back to lastWelcome.existingPlayers for matchmaking flow
+4bbfeaa fix: tick character animator for remote vehicles (fixes T-pose)
+a73423f fix: include player roster in raceLoading for proper multiplayer spawn
+06fcfb7 fix: use kart-beast character for all vehicles (fixes T-pose on remotes)
+a9a30a2 fix: per-kart load gen guard + reconnect name field
+14d20d9 fix: race start from party — vehicle resolution, loaded gate, raceLoading flow
+9090c0d fix: party join flow + player name sync + lobby kart spawning
+### Uncommitted Changes
+js/Settings.js
+js/ui/components/NameEntryModal.js
+js/ui/panels/ProfilePanel.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/e2e/first-run.spec.js
+tests/e2e/garage.spec.js
+tests/e2e/navigation.spec.js
+tests/e2e/play-modes.spec.js
+tests/e2e/profile-settings.spec.js
+---
+

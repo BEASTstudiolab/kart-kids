@@ -29,7 +29,6 @@ const DEFAULTS = {
 	ghostEnabled: true,
 	profile: {
 		displayName: null,
-		avatarChoice: null,
 	},
 	loadout: {
 		selectedKartId: 'kart-1',
@@ -152,20 +151,6 @@ export class Settings {
 		this._data.profile.displayName = name;
 		this._save();
 		window.dispatchEvent( new CustomEvent( 'settings-changed', { detail: { key: 'profile.displayName', value: name } } ) );
-
-	}
-
-	getAvatarChoice() {
-
-		return this._data.profile.avatarChoice;
-
-	}
-
-	setAvatarChoice( avatar ) {
-
-		this._data.profile.avatarChoice = avatar;
-		this._save();
-		window.dispatchEvent( new CustomEvent( 'settings-changed', { detail: { key: 'profile.avatarChoice', value: avatar } } ) );
 
 	}
 

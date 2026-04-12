@@ -19,14 +19,10 @@
 import { Settings } from '../../Settings.js';
 
 // ---------------------------------------------------------------------------
-// Avatar color palette — maps avatarChoice index to a hex color.
+// Default avatar color.
 // ---------------------------------------------------------------------------
 
-const AVATAR_COLORS = [
-	'#f44336', '#e91e63', '#9c27b0', '#673ab7',
-	'#3f51b5', '#2196f3', '#00bcd4', '#009688',
-	'#4caf50', '#ff9800', '#ff5722', '#795548',
-];
+const AVATAR_COLOR = '#3498db';
 
 export class ProfilePanel {
 
@@ -327,13 +323,10 @@ export class ProfilePanel {
 
 		const settings = new Settings();
 		const displayName = settings.getDisplayName() ?? 'Player';
-		const avatarChoice = settings.getAvatarChoice();
 		const stats = settings.getStats();
 
 		// Avatar color indicator.
-		const colorIdx = typeof avatarChoice === 'number' ? avatarChoice : 0;
-		const color = AVATAR_COLORS[ colorIdx % AVATAR_COLORS.length ];
-		this._avatarEl.style.background = color;
+		this._avatarEl.style.background = AVATAR_COLOR;
 		this._avatarEl.textContent = displayName.charAt( 0 );
 
 		// Player name.
