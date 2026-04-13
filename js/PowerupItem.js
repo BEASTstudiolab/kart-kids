@@ -107,6 +107,7 @@ export const ITEMS = {
 				sourceVehicle: owner,
 				homing: false,
 				homingStrength: 0,
+				explosionPreset: 'mine',
 				onHit( target ) {
 
 					// Spin the target: inject angular velocity
@@ -326,6 +327,7 @@ export const ITEMS = {
 				sourceVehicle: owner,
 				homing: false,
 				homingStrength: 0,
+				explosionPreset: 'pulseShockwave',
 				explodeOnTimeout: true, // explodes at end of lifetime
 			};
 

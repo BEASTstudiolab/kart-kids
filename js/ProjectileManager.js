@@ -14,11 +14,13 @@ export class ProjectileManager {
 	/**
 	 * @param {THREE.Scene} scene
 	 * @param {import('./CombatManager.js').CombatManager} combatManager
+	 * @param {import('./explosions/ExplosionFXManager.js').ExplosionFXManager|null} explosionFXManager
 	 */
-	constructor( scene, combatManager ) {
+	constructor( scene, combatManager, explosionFXManager = null ) {
 
 		this._scene = scene;
 		this._combatManager = combatManager;
+		this._explosionFXManager = explosionFXManager;
 
 		/** @type {Array<object>} Active projectile/hazard descriptors */
 		this._active = [];
@@ -89,6 +91,8 @@ export class ProjectileManager {
 
 				}
 
+				this._spawnExplosionFX( p, 'timeout' );
+
 				this._remove( i );
 				continue;
 
@@ -97,12 +101,32 @@ export class ProjectileManager {
 			// Check collisions
 			if ( this._checkCollisions( p, allVehicles, false ) && p.type === 'projectile' ) {
 
+				this._spawnExplosionFX( p, 'hit' );
+
 				// Projectiles are consumed on first hit
 				this._remove( i );
 
 			}
 
 		}
+
+	}
+
+	_spawnExplosionFX( projectile, reason ) {
+
+		if ( ! this._explosionFXManager || ! projectile ) return;
+
+		const type = projectile.explosionPreset || projectile.explosionType;
+		if ( ! type ) return;
+
+		this._explosionFXManager.spawnEffect( {
+			type,
+			position: projectile.mesh.position.clone(),
+			normal: new THREE.Vector3( 0, 1, 0 ),
+			direction: projectile.velocity ? projectile.velocity.clone() : new THREE.Vector3( 0, 0, 1 ),
+			intensity: reason === 'timeout' ? 0.9 : 1,
+			localPlayerInvolved: projectile.sourceVehicle && projectile.sourceVehicle.isLocalPlayer === true,
+		} );
 
 	}
 

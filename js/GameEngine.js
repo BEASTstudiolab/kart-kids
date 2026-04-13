@@ -34,6 +34,7 @@ import { DamageSFX } from './DamageSFX.js';
 import { DamageVFX } from './DamageVFX.js';
 import { HUDDamage } from './HUDDamage.js';
 import { ProjectileManager } from './ProjectileManager.js';
+import { ExplosionFXManager } from './explosions/ExplosionFXManager.js';
 import { ItemSlotManager } from './ItemSlotManager.js';
 import { rollItem } from './PowerupItem.js';
 import { WreckManager } from './WreckManager.js';
@@ -382,6 +383,7 @@ export function createGameEngine( canvasContainer ) {
 	let _damageSFX = null;
 	let _damageVFX = null;
 	let _hudDamage = null;
+	let _explosionFXManager = null;
 	let _projectileManager = null;
 	let _wreckManager = null;
 	let _eliminationManager = null;
@@ -1329,7 +1331,8 @@ export function createGameEngine( canvasContainer ) {
 		_damageSFX = ( _audio.listener && _audio.listener.context ) ? new DamageSFX( _audio.listener.context ) : null;
 		_damageVFX = new DamageVFX( scene );
 		_hudDamage = new HUDDamage();
-		_projectileManager = new ProjectileManager( scene, _combatManager );
+		_explosionFXManager = new ExplosionFXManager( scene, { quality: tier || 'high' } );
+		_projectileManager = new ProjectileManager( scene, _combatManager, _explosionFXManager );
 		_wreckManager = new WreckManager( scene, world );
 		_eliminationManager = new EliminationManager();
 
@@ -1449,6 +1452,7 @@ export function createGameEngine( canvasContainer ) {
 		if ( _itemPickupVFX ) { _itemPickupVFX.dispose(); _itemPickupVFX = null; }
 		if ( _damageVFX ) { _damageVFX.dispose(); _damageVFX = null; }
 		if ( _hudDamage ) { _hudDamage.dispose(); _hudDamage = null; }
+		if ( _explosionFXManager ) { _explosionFXManager.dispose(); _explosionFXManager = null; }
 		if ( _projectileManager ) { _projectileManager.dispose(); _projectileManager = null; }
 		if ( _wreckManager ) { _wreckManager.dispose(); _wreckManager = null; }
 		if ( _wrenchPickupManager ) { _wrenchPickupManager.dispose(); _wrenchPickupManager = null; }
