@@ -94,3 +94,17 @@ test( 'exports the four shipped explosion presets', () => {
 	assert.ok( getExplosionPreset( 'bomb' ).budgets.mesh < getExplosionPreset( 'missileStrike' ).budgets.mesh );
 
 } );
+
+test( 'returns immutable shared preset data from the supported access path', () => {
+
+	const preset = getExplosionPreset( 'mine' );
+
+	assert.throws( () => {
+
+		preset.label = 'Changed';
+
+	}, TypeError );
+
+	assert.equal( getExplosionPreset( 'mine' ).label, 'Mine Burst' );
+
+} );

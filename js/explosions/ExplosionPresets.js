@@ -214,8 +214,26 @@ export const EXPLOSION_PRESETS = {
 	},
 };
 
+deepFreeze( EXPLOSION_PRESETS );
+
 export function getExplosionPreset( id ) {
 
 	return EXPLOSION_PRESETS[ id ] || null;
+
+}
+
+function deepFreeze( value ) {
+
+	if ( ! value || typeof value !== 'object' || Object.isFrozen( value ) ) return value;
+
+	Object.freeze( value );
+
+	for ( const key of Object.keys( value ) ) {
+
+		deepFreeze( value[ key ] );
+
+	}
+
+	return value;
 
 }
