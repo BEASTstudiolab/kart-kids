@@ -17,11 +17,16 @@
 				Switch effects on the fly and tune the active setup without squinting at tiny previews.
 			</p>
 			<div class="vfx-hero__meta">
-				<span>12 live effects</span>
+				<span data-testid="vfx-library-count">15 live effects</span>
 				<span>Large stage preview</span>
 				<span>Per-effect JSON export</span>
 			</div>
 		</header>
+
+		<nav class="vfx-library-tabs" aria-label="Effect libraries">
+			<button type="button" class="vfx-library-tab" data-library-tab="vfx" aria-pressed="true">VFX</button>
+			<button type="button" class="vfx-library-tab" data-library-tab="shader" aria-pressed="false">SHADERS</button>
+		</nav>
 
 		<main class="vfx-workbench">
 			<section class="vfx-stage-shell" data-testid="vfx-stage-shell" aria-label="Visual effect stage">
@@ -29,14 +34,21 @@
 					<button type="button" class="vfx-nav-button" data-action="previous-effect">Prev</button>
 					<div class="vfx-stage-toolbar__copy">
 						<div class="vfx-stage-toolbar__eyebrow">Active Effect</div>
-						<div class="vfx-stage-toolbar__title" data-testid="vfx-active-effect-name">Explosion</div>
-						<div class="vfx-stage-toolbar__id" data-testid="vfx-active-effect-id">explosion</div>
+						<div class="vfx-stage-toolbar__title" data-testid="vfx-active-effect-name">Mine Burst</div>
+						<div class="vfx-stage-toolbar__id" data-testid="vfx-active-effect-id">mine</div>
 					</div>
 					<button type="button" class="vfx-nav-button" data-action="next-effect">Next</button>
 				</div>
 
 				<div class="vfx-stage" data-testid="vfx-stage">
 					<canvas class="vfx-stage__canvas" data-testid="vfx-stage-canvas"></canvas>
+					<canvas class="vfx-stage__canvas vfx-stage__canvas--shader" data-testid="vfx-shader-stage-canvas" hidden></canvas>
+					<div class="vfx-stage__fallback" data-testid="vfx-shader-fallback" hidden>
+						<div class="vfx-stage__fallback-card">
+							<strong>Shaders unavailable</strong>
+							<span data-testid="vfx-shader-fallback-message">This browser could not start the shader stage.</span>
+						</div>
+					</div>
 					<div class="vfx-stage__hud">
 						<div class="vfx-stage__badge-row">
 							<span class="vfx-stage__badge vfx-stage__badge--accent">Live Preview</span>
@@ -44,7 +56,7 @@
 						</div>
 						<div class="vfx-stage__foot-row">
 							<span class="vfx-stage__readout">Arrow Keys Supported</span>
-							<span class="vfx-stage__readout">Canvas FX</span>
+							<span class="vfx-stage__readout" data-testid="vfx-stage-renderer-label">Canvas FX</span>
 						</div>
 					</div>
 				</div>
@@ -65,7 +77,7 @@
 				</div>
 
 				<p class="vfx-controls-panel__description" data-testid="vfx-controls-description">
-					Big arcade bloom with a punchy flash, rolling smoke, and hot debris.
+					Compact ground pop with a sharp core, tight ring, and small spark burst.
 				</p>
 
 				<div class="vfx-controls-panel__stats">
@@ -77,6 +89,6 @@
 			</aside>
 		</main>
 	</div>
-	<script src="js/vfx-test-standalone.js"></script>
+	<script type="module" src="js/vfx-test-standalone.js"></script>
 </body>
 </html>

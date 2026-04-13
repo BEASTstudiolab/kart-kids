@@ -5,6 +5,8 @@ export const EXPLOSION_PRESET_IDS = [
 	'pulseShockwave',
 ];
 
+Object.freeze( EXPLOSION_PRESET_IDS );
+
 export const EXPLOSION_PRESETS = {
 	mine: {
 		id: 'mine',
