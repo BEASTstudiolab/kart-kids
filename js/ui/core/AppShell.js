@@ -77,6 +77,14 @@ const TAB_RENDER_MODES = {
 	profile: 'lobby',
 };
 
+function shouldExposeKartDebug() {
+
+	if ( typeof window === 'undefined' || ! window.location ) return false;
+	if ( window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ) return true;
+	return window.location.search.includes( 'debug=' );
+
+}
+
 export class AppShell {
 
 	/**
@@ -260,11 +268,38 @@ export class AppShell {
 
 			this._engine = createGameEngine( canvasContainer );
 			this._services.engine = this._engine;
-			window.__kartDebug = {
-				app: this,
-				engine: this._engine,
-				getAIState: () => this._engine?.getDebugAIState?.() ?? [],
-			};
+			if ( shouldExposeKartDebug() ) {
+
+				const debugSettings = new Settings();
+				window.__kartDebug = {
+					app: this,
+					engine: this._engine,
+					getState: () => ( {
+						activeTab: this._activeTab,
+						renderMode: this._renderMode,
+						shellVisible: this._shell ? this._shell.style.display !== 'none' : false,
+						tabBarVisible: this._tabBarEl ? this._tabBarEl.style.display !== 'none' : false,
+						engine: this._engine?.getDebugState?.() ?? null,
+					} ),
+					getAIState: () => this._engine?.getDebugAIState?.() ?? [],
+					setAICount: ( count ) => {
+
+						const nextCount = Math.max( 0, Math.min( 8, Math.round( Number( count ) || 0 ) ) );
+						debugSettings.set( 'aiCount', nextCount );
+						return nextCount;
+
+					},
+					setCameraMode: ( mode ) => {
+
+						debugSettings.set( 'cameraMode', mode );
+						return mode;
+
+					},
+					switchTab: ( tab ) => this.switchTab( tab ),
+					startSoloRace: ( config = {} ) => this.startRace( { ...config, mode: 'solo' } ),
+				};
+
+			}
 
 			// Create GaragePreview sharing the renderer from GameEngine.
 			const renderer = this._engine.getRenderer();

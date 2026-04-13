@@ -293,19 +293,27 @@ export class LoadingOverlay {
 
 		if ( ! this._visible ) return;
 		this._visible = false;
+		if ( ! this._el ) return;
 
-		this._el.classList.remove( 'kk-loading-overlay--visible' );
-		this._el.setAttribute( 'aria-hidden', 'true' );
+		const overlayEl = this._el;
+		overlayEl.classList.remove( 'kk-loading-overlay--visible' );
+		overlayEl.setAttribute( 'aria-hidden', 'true' );
+
+		let settled = false;
+		let timeoutId = null;
 
 		const onEnd = () => {
 
-			this._el.removeEventListener( 'transitionend', onEnd );
-			if ( this._el.parentNode ) this._el.parentNode.removeChild( this._el );
+			if ( settled ) return;
+			settled = true;
+			if ( timeoutId !== null ) clearTimeout( timeoutId );
+			overlayEl.removeEventListener( 'transitionend', onEnd );
+			if ( overlayEl.parentNode ) overlayEl.parentNode.removeChild( overlayEl );
 
 		};
 
-		this._el.addEventListener( 'transitionend', onEnd );
-		setTimeout( onEnd, 400 );
+		overlayEl.addEventListener( 'transitionend', onEnd );
+		timeoutId = setTimeout( onEnd, 400 );
 
 	}
 

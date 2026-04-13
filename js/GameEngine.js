@@ -2000,7 +2000,13 @@ export function createGameEngine( canvasContainer ) {
 
 		if ( ! _aiManager || ! _trackIntel ) return [];
 
-		return ( _aiManager._racers || [] ).map( ( ai ) => ( {
+		const debugEntries = _aiManager?.getAIDebugData ? _aiManager.getAIDebugData() : [];
+
+		return ( _aiManager._racers || [] ).map( ( ai, index ) => {
+
+			const controllerDebug = debugEntries[ index ]?.debugState || null;
+
+			return {
 			id: ai.id,
 			profile: ai.profile?.name || 'Unknown',
 			x: Number( ai.vehicle.vehPos.x.toFixed( 2 ) ),
@@ -2013,7 +2019,48 @@ export function createGameEngine( canvasContainer ) {
 			reversing: !! ai.controller?._reversing,
 			inputX: Number( ( ai.controller?._input?.x ?? 0 ).toFixed( 3 ) ),
 			inputZ: Number( ( ai.controller?._input?.z ?? 0 ).toFixed( 3 ) ),
-		} ) );
+			mode: controllerDebug?.mode || null,
+			turnSeverity: controllerDebug ? Number( ( controllerDebug.turnSeverity ?? 0 ).toFixed( 3 ) ) : null,
+			trafficOccupancy: controllerDebug ? Number( ( controllerDebug.trafficOccupancy ?? 0 ).toFixed( 3 ) ) : null,
+			wallEscapeFactor: controllerDebug ? Number( ( controllerDebug.wallEscapeFactor ?? 0 ).toFixed( 3 ) ) : null,
+			routeTarget: controllerDebug?.routeTarget || null,
+			finalTarget: controllerDebug?.finalTarget || null,
+			wrenchTarget: controllerDebug?.wrenchTarget || null,
+		};
+
+		} );
+
+	}
+
+	function _getDebugState() {
+
+		const raceState = _raceMode?.getDisplayState ? _raceMode.getDisplayState() : null;
+		const player = _vehicle ? {
+			x: Number( _vehicle.vehPos.x.toFixed( 2 ) ),
+			z: Number( _vehicle.vehPos.z.toFixed( 2 ) ),
+			speed: Number( _vehicle.linearSpeed.toFixed( 2 ) ),
+			yaw: Number( _vehicle.container.rotation.y.toFixed( 3 ) ),
+			inputX: Number( ( _vehicle.inputX ?? 0 ).toFixed( 3 ) ),
+			inputZ: Number( ( _vehicle.inputZ ?? 0 ).toFixed( 3 ) ),
+		} : null;
+
+		return {
+			running: _running,
+			multiplayer: _multiplayer,
+			spectating: _spectating,
+			trackIntelValid: !! _trackIntel?.valid,
+			race: raceState ? {
+				state: raceState.state ?? null,
+				countdown: raceState.countdown ?? null,
+				lap: raceState.lap ?? null,
+				totalLaps: raceState.totalLaps ?? null,
+				position: raceState.position ?? null,
+				positionLabel: raceState.positionLabel ?? null,
+			} : null,
+			player,
+			aiCount: _aiManager?.count ?? 0,
+			ai: _getDebugAIState(),
+		};
 
 	}
 
@@ -2028,6 +2075,7 @@ export function createGameEngine( canvasContainer ) {
 		getScene: () => scene,
 		isRunning: () => _running,
 		getDebugAIState: _getDebugAIState,
+		getDebugState: _getDebugState,
 	};
 
 }
