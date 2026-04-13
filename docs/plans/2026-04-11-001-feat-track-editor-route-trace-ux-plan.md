@@ -1,7 +1,5 @@
 # Track Editor Route Trace UX Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
-
 **Goal:** Make route-trace inspection in `track-editor.html` easier to tune by auto-showing the route overlay, adding pause/play controls, removing chase-camera orbit drift, and keeping the compass aligned with the live camera heading.
 
 **Architecture:** Keep the viewport markup persistent in `track-editor.html`, but move behavior into focused JS units. Extend `CameraController` with pause/resume chase semantics and chase-time `camera:moved` emissions, add a `RouteTraceController` service to own the temporary debug-overlay snapshot plus playback UI state, and add a lightweight `CompassOverlay` helper that rotates a semantic compass rose from camera events. `EditorApp` stays the composition root and delegates route-trace behavior instead of owning the state machine inline.

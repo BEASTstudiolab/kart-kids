@@ -2,7 +2,37 @@ import * as THREE from 'three';
 
 const _rearPos = new THREE.Vector3();
 const _rearLook = new THREE.Vector3();
+const _rendererSize = new THREE.Vector2();
 const _viewport = new THREE.Vector4();
+const _scissor = new THREE.Vector4();
+const _clearColor = new THREE.Color();
+
+const QUALITY_CONFIG = {
+	low: {
+		enabled: false,
+		cadence: Infinity,
+		width: 220,
+		border: 0,
+	},
+	medium: {
+		enabled: true,
+		cadence: 2,
+		width: 260,
+		border: 2,
+	},
+	high: {
+		enabled: true,
+		cadence: 1,
+		width: 300,
+		border: 2,
+	},
+	ultra: {
+		enabled: true,
+		cadence: 1,
+		width: 340,
+		border: 3,
+	},
+};
 
 export class RearviewMirror {
 
@@ -13,62 +43,32 @@ export class RearviewMirror {
 		// Rear-facing camera: wide aspect (3:1), moderate FOV
 		this.rearCamera = new THREE.PerspectiveCamera( 60, 3, 1.5, 150 );
 
-		// Render target — kept small for fast pixel readback
-		this.rtWidth = 300;
-		this.rtHeight = 100;
-		this.renderTarget = new THREE.WebGLRenderTarget( this.rtWidth, this.rtHeight, {
-			minFilter: THREE.LinearFilter,
-			magFilter: THREE.LinearFilter,
-		} );
-
 		// Vehicle-local offsets for the rear camera
 		this.rearOffset = new THREE.Vector3( 0, 1.5, - 2 );
 		this.rearLookBehind = - 8;
-
-		// CSS overlay with rounded corners
-		this.frame = document.createElement( 'div' );
-		this.frame.style.cssText =
-			'position:fixed;top:10px;left:50%;transform:translateX(-50%);' +
-			'width:300px;height:100px;' +
-			'border-radius:12px;border:4px solid rgba(200,200,200,0.6);' +
-			'pointer-events:none;z-index:5;overflow:hidden;box-sizing:border-box;' +
-			'background:#000;display:none;';
-		document.body.appendChild( this.frame );
-
-		// 2D canvas inside frame — avoids post-processing pipeline entirely
-		this._canvas = document.createElement( 'canvas' );
-		this._canvas.width = this.rtWidth;
-		this._canvas.height = this.rtHeight;
-		this._canvas.style.cssText = 'width:100%;height:100%;display:block;';
-		this.frame.appendChild( this._canvas );
-		this._ctx = this._canvas.getContext( '2d' );
-
-		// Buffers for pixel readback
-		this._pixelBuf = new Uint8Array( this.rtWidth * this.rtHeight * 4 );
-		this._imageData = new ImageData( this.rtWidth, this.rtHeight );
-
 		this.enabled = false; // off by default — user can enable in settings
 		this.visible = true; // effective visibility (enabled + not isometric)
+		this._qualityTier = 'high';
+		this._frameCounter = 0;
 
 	}
 
 	setEnabled( v ) {
 
 		this.enabled = v;
-		this._updateVisibility();
 
 	}
 
 	setVisible( v ) {
 
 		this.visible = v;
-		this.frame.style.display = ( this.enabled && v ) ? '' : 'none';
 
 	}
 
-	_updateVisibility() {
+	setQualityTier( tier ) {
 
-		this.frame.style.display = ( this.enabled && this.visible ) ? '' : 'none';
+		this._qualityTier = QUALITY_CONFIG[ tier ] ? tier : 'high';
+		this._frameCounter = 0;
 
 	}
 
@@ -88,47 +88,75 @@ export class RearviewMirror {
 	}
 
 	// Call with effects temporarily disabled (caller handles setEffects toggling)
-	render( scene ) {
+	render( scene, postFX = null ) {
 
 		if ( ! this.enabled || ! this.visible ) return;
 
+		const quality = QUALITY_CONFIG[ this._qualityTier ] || QUALITY_CONFIG.high;
+		if ( ! quality.enabled ) return;
+
+		this._frameCounter = ( this._frameCounter + 1 ) % quality.cadence;
+		if ( quality.cadence > 1 && this._frameCounter !== 0 ) return;
+
 		const renderer = this.renderer;
+		renderer.getSize( _rendererSize );
 
-		// Save and restore viewport to prevent corrupting main camera render
-		const vp = renderer.getViewport( _viewport );
+		const mirrorWidth = Math.min( quality.width, Math.max( 180, _rendererSize.x - 24 ) );
+		const mirrorHeight = Math.round( mirrorWidth / 3 );
+		const border = quality.border;
+		const frameWidth = mirrorWidth + border * 2;
+		const frameHeight = mirrorHeight + border * 2;
+		const insetX = Math.round( ( _rendererSize.x - frameWidth ) * 0.5 );
+		const insetY = Math.round( 10 );
 
-		renderer.setRenderTarget( this.renderTarget );
-		renderer.clear();
-		renderer.render( scene, this.rearCamera );
+		const previousAutoClear = renderer.autoClear;
+		const previousScissorTest = renderer.getScissorTest();
+		const previousClearAlpha = renderer.getClearAlpha();
+		renderer.getViewport( _viewport );
+		renderer.getScissor( _scissor );
+		renderer.getClearColor( _clearColor );
 
-		// Read pixels from GPU → CPU buffer
-		renderer.readRenderTargetPixels(
-			this.renderTarget, 0, 0, this.rtWidth, this.rtHeight, this._pixelBuf
-		);
+		postFX?.suspendEffects?.();
 
-		renderer.setRenderTarget( null );
-		renderer.setViewport( vp );
+		try {
 
-		// WebGL renders bottom-up; flip rows for Canvas 2D (top-down)
-		const src = this._pixelBuf;
-		const dst = this._imageData.data;
-		const rowBytes = this.rtWidth * 4;
-		for ( let y = 0; y < this.rtHeight; y ++ ) {
+			renderer.autoClear = false;
+			renderer.setScissorTest( true );
 
-			const srcOff = ( this.rtHeight - 1 - y ) * rowBytes;
-			const dstOff = y * rowBytes;
-			dst.set( src.subarray( srcOff, srcOff + rowBytes ), dstOff );
+			if ( border > 0 ) {
+
+				renderer.setViewport( insetX, insetY, frameWidth, frameHeight );
+				renderer.setScissor( insetX, insetY, frameWidth, frameHeight );
+				renderer.setClearColor( 0x101010, 0.95 );
+				renderer.clear( true, true, true );
+
+			}
+
+			renderer.setViewport( insetX + border, insetY + border, mirrorWidth, mirrorHeight );
+			renderer.setScissor( insetX + border, insetY + border, mirrorWidth, mirrorHeight );
+			renderer.setClearColor( _clearColor, previousClearAlpha );
+			renderer.clear( true, true, true );
+			renderer.render( scene, this.rearCamera );
+
+		} finally {
+
+			renderer.setClearColor( _clearColor, previousClearAlpha );
+			renderer.setViewport( _viewport );
+			renderer.setScissor( _scissor );
+			renderer.setScissorTest( previousScissorTest );
+			renderer.autoClear = previousAutoClear;
+			postFX?.restoreEffects?.();
 
 		}
-
-		this._ctx.putImageData( this._imageData, 0, 0 );
 
 	}
 
 	dispose() {
 
-		this.renderTarget.dispose();
-		if ( this.frame.parentNode ) this.frame.parentNode.removeChild( this.frame );
+		this.renderer = null;
+		this.rearCamera = null;
+		this.enabled = false;
+		this.visible = false;
 
 	}
 

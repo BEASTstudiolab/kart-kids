@@ -136,6 +136,7 @@ export async function loadModels( trackTileSet, asphaltMode, cells, onProgress )
 
 				}
 
+				loadedCount ++;
 				if ( onProgress ) onProgress( loadedCount, totalCount, name );
 				resolve();
 
@@ -145,6 +146,7 @@ export async function loadModels( trackTileSet, asphaltMode, cells, onProgress )
 				if ( name.startsWith( 'character-' ) ) {
 
 					console.warn( '[model] Optional character model not found:', name );
+					loadedCount ++;
 					if ( onProgress ) onProgress( loadedCount, totalCount, name );
 					resolve();
 

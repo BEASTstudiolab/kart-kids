@@ -144,6 +144,54 @@ test( 'VehicleAirborne ignores opportunistic ground contact during launch commit
 
 } );
 
+test( 'VehicleAirborne allows descending follow-up support during jump commit', () => {
+
+	const airborne = new VehicleAirborne();
+	const vehicle = createVehicleStub();
+
+	airborne.beginLaunch( vehicle, {
+		source: LaunchSource.JUMP,
+		verticalVelocity: 4.2,
+	} );
+
+	vehicle._airborneTimer = 0.05;
+	vehicle._verticalVelocity = - 1.2;
+
+	const sensor = {
+		hasSupport: true,
+		allMissed: false,
+		frontOnSurface: true,
+		rearOnSurface: false,
+		aboveSurface: 0.2,
+	};
+
+	assert.equal( airborne.resolveGroundContact( vehicle, sensor ), true );
+
+} );
+
+test( 'VehicleAirborne skips recovery lockout when landing on a ramp surface', () => {
+
+	const airborne = new VehicleAirborne();
+	const vehicle = createVehicleStub();
+
+	vehicle.groundNormal = new THREE.Vector3( 0, 0.8, 0.6 ).normalize();
+	vehicle._stateMachine = {
+		_recoveryDuration: - 1,
+		landingSeverity: null,
+		forceState() {},
+	};
+	vehicle._verticalVelocity = - 1.8;
+	vehicle.groundHeight = 0;
+	airborne.launchSource = LaunchSource.JUMP;
+
+	airborne.applyLanding( vehicle );
+
+	assert.equal( airborne.recoveryDuration, 0 );
+	assert.equal( airborne.recoverySpeedPenalty, 1 );
+	assert.equal( vehicle._stateMachine._recoveryDuration, 0 );
+
+} );
+
 test( 'VehicleTrickController arms tricks only for authored ramp and jump launches', () => {
 
 	const trick = new VehicleTrickController();

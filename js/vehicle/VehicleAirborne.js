@@ -321,8 +321,12 @@ export class VehicleAirborne {
 
 		const aboveSurface = sensor.aboveSurface ?? ( v._vehicleY - v.groundHeight );
 		const launchLocked = this.launchSource !== LaunchSource.NONE && v._launchCooldown > 0;
+		const hasWheelContact = sensor.frontOnSurface || sensor.rearOnSurface;
+		const descendingOntoSupport = hasWheelContact &&
+			v._verticalVelocity <= 0 &&
+			aboveSurface <= this.config.regroundDistance;
 
-		if ( launchLocked ) return false;
+		if ( launchLocked && ! descendingOntoSupport ) return false;
 		if ( this.launchSource !== LaunchSource.NONE &&
 			v._airborneTimer < this.config.minAirTime &&
 			v._verticalVelocity >= 0 ) return false;
@@ -488,6 +492,14 @@ export class VehicleAirborne {
 		// Short controlled bounce — vehicle goes briefly airborne then resettles.
 		// Also kicks the suspension spring for body squash/rebound on top.
 		const landingOnRamp = v.groundNormal.y < 0.96;
+
+		if ( landingOnRamp ) {
+
+			// Consecutive authored jumps need immediate ramp logic on the next frame.
+			this.recoveryDuration = 0;
+			this.recoverySpeedPenalty = 1.0;
+
+		}
 
 		if ( ! landingOnRamp && rawImpactSpeed > cfg.landingBounceMinImpact ) {
 

@@ -11,10 +11,30 @@ const GROUP_Y_OFFSET = - 0.5;
 const SUPPORT_NORMAL_MIN_Y = 0.5;
 const BLOCKER_NORMAL_MAX_ABS_Y = 0.5;
 const CLOSED_SHELL_MIN_LOCAL_Y = 0.05;
+const JUMP_CREST_CLEAR_HALF_WIDTH = 0.5;
+const JUMP_CREST_BLOCKER_MIN_LOCAL_Z = 1.0;
+const SHORT_JUMP_CREST_SUPPORT_HALF_WIDTH = 0.6;
+const SHORT_JUMP_CREST_SUPPORT_MIN_LOCAL_Z = 0.5;
+const SHORT_JUMP_CREST_SUPPORT_MIN_LOCAL_Y = 0.8;
+const LONG_JUMP_CAP_HALF_WIDTH = CELL_RAW / 2;
+const LONG_JUMP_START_CAP_Z = [ - CELL_RAW / 2, - 3.75 ];
+const LONG_JUMP_END_CAP_Z = [ 4.64, CELL_RAW / 2 ];
+const LONG_JUMP_START_CAP_Y = 0.085;
+const LONG_JUMP_END_CAP_Y = 2.821;
 
 const WALL_EXTEND_UP = 3.0;
 const WALL_THICKNESS = 1.0;
 const WALL_MIN_HEIGHT = 0.25;
+const WALL_CELL_SAMPLE_EPSILON = 0.01;
+
+export const VEHICLE_BODY_HALF_EXTENTS = Object.freeze( [ 0.4, 0.3, 0.7 ] );
+export const VEHICLE_RAMP_EXTRA_LIFT = 0.6;
+
+export function getVehicleColliderCenterY( extraLift = 0 ) {
+
+	return 0.8 + extraLift;
+
+}
 
 function elevToY( flags ) {
 
@@ -71,6 +91,98 @@ function getPrimitiveIndexSlices( geometry ) {
 	}
 
 	return groups.map( ( group ) => createSequentialIndexArray( group.count, group.start ) );
+
+}
+
+function isJumpTileKey( tileKey ) {
+
+	return typeof tileKey === 'string' &&
+		( tileKey.includes( 'trk-jump' ) || tileKey.includes( '_jmp_' ) );
+
+}
+
+function isShortJumpTileKey( tileKey ) {
+
+	return typeof tileKey === 'string' &&
+		( tileKey.includes( 'trk-jump-short' ) || tileKey.includes( '480_jmp_01_short' ) );
+
+}
+
+function isLongJumpTileKey( tileKey ) {
+
+	return typeof tileKey === 'string' &&
+		( tileKey.includes( 'trk-jump-long' ) || tileKey.includes( '500_jmp_03_long' ) );
+
+}
+
+function filterShortJumpCrestSupportIndices( positions, supportIndices, options = {} ) {
+
+	if ( ! supportIndices || supportIndices.length === 0 ) return supportIndices;
+
+	const centerHalfWidth = options.centerHalfWidth ?? SHORT_JUMP_CREST_SUPPORT_HALF_WIDTH;
+	const minLocalZ = options.minLocalZ ?? SHORT_JUMP_CREST_SUPPORT_MIN_LOCAL_Z;
+	const minLocalY = options.minLocalY ?? SHORT_JUMP_CREST_SUPPORT_MIN_LOCAL_Y;
+	const filtered = [];
+
+	for ( let i = 0; i < supportIndices.length; i += 3 ) {
+
+		const ia = supportIndices[ i ] * 3;
+		const ib = supportIndices[ i + 1 ] * 3;
+		const ic = supportIndices[ i + 2 ] * 3;
+
+		const centroidX = ( positions[ ia ] + positions[ ib ] + positions[ ic ] ) / 3;
+		const centroidY = ( positions[ ia + 1 ] + positions[ ib + 1 ] + positions[ ic + 1 ] ) / 3;
+		const centroidZ = ( positions[ ia + 2 ] + positions[ ib + 2 ] + positions[ ic + 2 ] ) / 3;
+		const isShortJumpCap =
+			Math.abs( centroidX ) < centerHalfWidth &&
+			centroidZ > minLocalZ &&
+			centroidY > minLocalY;
+
+		if ( isShortJumpCap ) continue;
+
+		filtered.push(
+			supportIndices[ i ],
+			supportIndices[ i + 1 ],
+			supportIndices[ i + 2 ],
+		);
+
+	}
+
+	return filtered;
+
+}
+
+function filterJumpCrestBlockerIndices( positions, blockerIndices, options = {} ) {
+
+	if ( ! blockerIndices || blockerIndices.length === 0 ) return blockerIndices;
+
+	const centerHalfWidth = options.centerHalfWidth ?? JUMP_CREST_CLEAR_HALF_WIDTH;
+	const minLocalZ = options.minLocalZ ?? JUMP_CREST_BLOCKER_MIN_LOCAL_Z;
+	const filtered = [];
+
+	for ( let i = 0; i < blockerIndices.length; i += 3 ) {
+
+		const ia = blockerIndices[ i ] * 3;
+		const ib = blockerIndices[ i + 1 ] * 3;
+		const ic = blockerIndices[ i + 2 ] * 3;
+
+		const centroidX = ( positions[ ia ] + positions[ ib ] + positions[ ic ] ) / 3;
+		const centroidZ = ( positions[ ia + 2 ] + positions[ ib + 2 ] + positions[ ic + 2 ] ) / 3;
+		const intrudesCenterLane =
+			Math.abs( centroidX ) < centerHalfWidth &&
+			centroidZ > minLocalZ;
+
+		if ( intrudesCenterLane ) continue;
+
+		filtered.push(
+			blockerIndices[ i ],
+			blockerIndices[ i + 1 ],
+			blockerIndices[ i + 2 ],
+		);
+
+	}
+
+	return filtered;
 
 }
 
@@ -150,6 +262,12 @@ export function classifyTrackPrimitiveTriangles( positions, indices, options = {
 	}
 
 	const isElevatedClosedShell = downwardTriangleCount > 0 && minY > baseThreshold;
+	const filteredSupportIndices = isShortJumpTileKey( options.tileKey )
+		? filterShortJumpCrestSupportIndices( positions, supportIndices, options.shortJumpSupportFilter )
+		: supportIndices;
+	const filteredBlockerIndices = isJumpTileKey( options.tileKey )
+		? filterJumpCrestBlockerIndices( positions, blockerIndices, options.jumpCrestFilter )
+		: blockerIndices;
 
 	return {
 		minY: Number.isFinite( minY ) ? minY : 0,
@@ -158,8 +276,8 @@ export function classifyTrackPrimitiveTriangles( positions, indices, options = {
 		downwardTriangleCount,
 		sideTriangleCount,
 		isElevatedClosedShell,
-		supportIndices: isElevatedClosedShell ? [] : supportIndices,
-		blockerIndices,
+		supportIndices: isElevatedClosedShell ? [] : filteredSupportIndices,
+		blockerIndices: filteredBlockerIndices,
 	};
 
 }
@@ -204,6 +322,57 @@ function appendCollisionOnlySupportQuad( targetPositions, targetIndices, gx, gz,
 	targetIndices.push(
 		vertexOffset, vertexOffset + 1, vertexOffset + 2,
 		vertexOffset, vertexOffset + 2, vertexOffset + 3,
+	);
+
+}
+
+function appendSupportQuadFromLocalRect( targetPositions, targetIndices, matrix, xMin, xMax, zMin, zMax, y ) {
+
+	const vertexOffset = targetPositions.length / 3;
+	const localVerts = [
+		[ xMin, y, zMin ],
+		[ xMax, y, zMin ],
+		[ xMax, y, zMax ],
+		[ xMin, y, zMax ],
+	];
+
+	for ( const [ x, localY, z ] of localVerts ) {
+
+		_vec3.set( x, localY, z );
+		_vec3.applyMatrix4( matrix );
+		targetPositions.push( _vec3.x, _vec3.y + GROUP_Y_OFFSET, _vec3.z );
+
+	}
+
+	targetIndices.push(
+		vertexOffset, vertexOffset + 1, vertexOffset + 2,
+		vertexOffset, vertexOffset + 2, vertexOffset + 3,
+	);
+
+}
+
+function appendLongJumpSupportCaps( targetPositions, targetIndices, matrix ) {
+
+	appendSupportQuadFromLocalRect(
+		targetPositions,
+		targetIndices,
+		matrix,
+		- LONG_JUMP_CAP_HALF_WIDTH,
+		LONG_JUMP_CAP_HALF_WIDTH,
+		LONG_JUMP_START_CAP_Z[ 0 ],
+		LONG_JUMP_START_CAP_Z[ 1 ],
+		LONG_JUMP_START_CAP_Y,
+	);
+
+	appendSupportQuadFromLocalRect(
+		targetPositions,
+		targetIndices,
+		matrix,
+		- LONG_JUMP_CAP_HALF_WIDTH,
+		LONG_JUMP_CAP_HALF_WIDTH,
+		LONG_JUMP_END_CAP_Z[ 0 ],
+		LONG_JUMP_END_CAP_Z[ 1 ],
+		LONG_JUMP_END_CAP_Y,
 	);
 
 }
@@ -311,8 +480,13 @@ function buildBarrierGeometryFromBlockers( blockerPositions, blockerIndices, roa
 
 		if ( maxY - roadY < WALL_MIN_HEIGHT ) continue;
 
-		const cellCX = ( Math.floor( centroidX / CELL_RAW ) + 0.5 ) * CELL_RAW;
-		const cellCZ = ( Math.floor( centroidZ / CELL_RAW ) + 0.5 ) * CELL_RAW;
+		// Sample slightly inward from the face before resolving the owning cell.
+		// Without this nudge, faces that lie exactly on a positive cell boundary
+		// get attributed to the neighbouring cell and can be extruded inward.
+		const sampleX = centroidX - _n.x * WALL_CELL_SAMPLE_EPSILON;
+		const sampleZ = centroidZ - _n.z * WALL_CELL_SAMPLE_EPSILON;
+		const cellCX = ( Math.floor( sampleX / CELL_RAW ) + 0.5 ) * CELL_RAW;
+		const cellCZ = ( Math.floor( sampleZ / CELL_RAW ) + 0.5 ) * CELL_RAW;
 		const toCenterX = cellCX - centroidX;
 		const toCenterZ = cellCZ - centroidZ;
 		const inwardDot = _n.x * toCenterX + _n.z * toCenterZ;
@@ -377,7 +551,7 @@ function buildBarrierGeometryFromBlockers( blockerPositions, blockerIndices, roa
 
 }
 
-function buildSceneCollisionGeometry( sceneRoot, roadHeightHints = [ 0 ] ) {
+function buildSceneCollisionGeometry( sceneRoot, roadHeightHints = [ 0 ], tileKey = null ) {
 
 	const supportPositions = [];
 	const supportIndices = [];
@@ -399,7 +573,7 @@ function buildSceneCollisionGeometry( sceneRoot, roadHeightHints = [ 0 ] ) {
 
 		for ( const primitiveIndexArray of primitiveIndices ) {
 
-			const classification = classifyTrackPrimitiveTriangles( posAttr.array, primitiveIndexArray );
+			const classification = classifyTrackPrimitiveTriangles( posAttr.array, primitiveIndexArray, { tileKey } );
 
 			appendTransformedPrimitiveGeometry(
 				supportPositions,
@@ -420,6 +594,12 @@ function buildSceneCollisionGeometry( sceneRoot, roadHeightHints = [ 0 ] ) {
 		}
 
 	} );
+
+	if ( isLongJumpTileKey( tileKey ) ) {
+
+		appendLongJumpSupportCaps( supportPositions, supportIndices, sceneRoot.matrixWorld );
+
+	}
 
 	const barrierGeometry = buildBarrierGeometryFromBlockers( blockerPositions, blockerIndices, roadHeightHints );
 
@@ -496,7 +676,7 @@ export function buildTrackCollisionGeometry( models, customCells ) {
 
 			for ( const primitiveIndexArray of primitiveIndices ) {
 
-				const classification = classifyTrackPrimitiveTriangles( posAttr.array, primitiveIndexArray );
+				const classification = classifyTrackPrimitiveTriangles( posAttr.array, primitiveIndexArray, { tileKey: key } );
 
 				appendTransformedPrimitiveGeometry(
 					supportPositions,
@@ -517,6 +697,12 @@ export function buildTrackCollisionGeometry( models, customCells ) {
 			}
 
 		} );
+
+		if ( isLongJumpTileKey( key ) ) {
+
+			appendLongJumpSupportCaps( supportPositions, supportIndices, dummy.matrix );
+
+		}
 
 	}
 
@@ -598,10 +784,10 @@ export function buildTrackColliders( world, models, customCells ) {
 
 }
 
-export function buildSingleTileCollider( world, glbScene ) {
+export function buildSingleTileCollider( world, glbScene, tileKey = null ) {
 
 	const roadHeightHints = [ glbScene.position?.y || 0 ];
-	const geometry = buildSceneCollisionGeometry( glbScene, roadHeightHints );
+	const geometry = buildSceneCollisionGeometry( glbScene, roadHeightHints, tileKey );
 	const supportLayer = world._OL_TRACK_SUPPORT ?? world._OL_STATIC;
 	const blockerLayer = world._OL_TRACK_BLOCKER ?? world._OL_STATIC;
 
@@ -656,7 +842,7 @@ export function resetPhysicsWorld( world, bodies ) {
 export function createVehicleBody( world, spawnPos ) {
 
 	const body = rigidBody.create( world, {
-		shape: box.create( { halfExtents: [ 0.4, 0.3, 0.7 ] } ),
+		shape: box.create( { halfExtents: VEHICLE_BODY_HALF_EXTENTS } ),
 		motionType: MotionType.DYNAMIC,
 		objectLayer: world._OL_MOVING,
 		position: spawnPos || [ 3.5, 0.8, 5 ],

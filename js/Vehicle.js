@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { rigidBody } from 'crashcat';
+import { VEHICLE_RAMP_EXTRA_LIFT, getVehicleColliderCenterY } from './Physics.js';
 import { VehicleGroundRaycast, SurfaceType } from './vehicle/VehicleGroundRaycast.js';
 import { VehicleRemoteSync } from './vehicle/VehicleRemoteSync.js';
 import { VehicleHealth } from './vehicle/VehicleHealth.js';
@@ -223,7 +224,8 @@ export class Vehicle {
 		this._airborneTimer = 0;
 		this._launchCooldown = 0;
 		this._rampLiftTimer = 0; // keeps collider elevated briefly after leaving ramp
-		this._lastColliderLift = 0.8; // last computed collider lift for debug viz
+		this._renderCrestLift = 0; // visual-only body lift to keep the kart clear of jump crest lips
+		this._lastColliderLift = getVehicleColliderCenterY(); // last collider center offset for debug viz
 		this._wallHitTime = 0; // set by contact listener to suppress launches after wall bounce
 		this._lastOnTrackPos = new THREE.Vector3( 3.5, 0, 5 ); // last grounded position for respawn
 		this._trackBaseY = 0; // start line elevation — source of truth for off-track Y detection
@@ -1032,6 +1034,7 @@ export class Vehicle {
 		// Anti-flip check: self-right or trigger respawn if too tilted
 		const flipStatus = this._airborne.checkFlip( dt, this );
 		this._flipStatus = flipStatus;
+		let crestLiftWindowActive = false;
 
 		if ( this.rigidBody ) {
 
@@ -1081,7 +1084,10 @@ export class Vehicle {
 			if ( onRampSurface ) this._rampLiftTimer = 0.3;
 			else if ( this._rampLiftTimer > 0 ) this._rampLiftTimer -= dt;
 			const needsRampLift = onRampSurface || this._rampLiftTimer > 0;
-			const colliderLift = needsRampLift ? 1.4 : 0.8;
+			crestLiftWindowActive = needsRampLift;
+			const colliderLift = getVehicleColliderCenterY(
+				needsRampLift ? VEHICLE_RAMP_EXTRA_LIFT : 0
+			);
 
 			// Prevent wall-climbing: clamp grounded vehicle height near walls,
 			// but NOT on ramp surfaces where side-barriers also register as walls.
@@ -1350,6 +1356,20 @@ export class Vehicle {
 		// Update respawn invulnerability timer
 		this._respawn.update( dt );
 		this.trickState = this._trick.getStateSnapshot();
+
+		const renderLiftState = this._stateMachine.currentState;
+		const renderCrestLiftTarget = crestLiftWindowActive &&
+			( renderLiftState === PhysicsState.GROUNDED || renderLiftState === PhysicsState.RAMP_APPROACH ) &&
+			this.groundNormal.y < 0.9 &&
+			! recentWallHit
+			? 0.5
+			: 0;
+		const renderCrestLiftRate = renderCrestLiftTarget > this._renderCrestLift ? 18.0 : 24.0;
+		this._renderCrestLift = THREE.MathUtils.lerp(
+			this._renderCrestLift,
+			renderCrestLiftTarget,
+			1 - Math.exp( - renderCrestLiftRate * dt )
+		);
 
 		// Bump absorption filter: small bumps on flat ground tracked slowly,
 		// but on ramps or large changes tracked instantly to prevent visual float.
@@ -1894,7 +1914,7 @@ export class Vehicle {
 			dt * 5
 		);
 
-			let bodyTargetY = 0.2 + this.debug.bodyHeight;
+		let bodyTargetY = 0.2 + this.debug.bodyHeight + this._renderCrestLift;
 
 		// Landing squash: temporary downward compression that springs back
 		if ( this._landingSquash > 0.001 ) {

@@ -36,7 +36,6 @@ const TILE_FILES = [
 	'kartkids_base_trk_440_tun_closed_exit_1x1.gltf',
 	'kartkids_base_trk_460_tun_openframe_mid_1x1.gltf',
 	'kartkids_base_trk_480_jmp_01_short_25pct_1x1.gltf',
-	'kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.gltf',
 	'kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.gltf',
 	'kartkids_base_trk_510_srt_startfinish_arch_3x1.gltf',
 	'kartkids_base_trk_520_trn_90_l_3x3.gltf',
@@ -263,7 +262,7 @@ async function loadTrack() {
 
 		// Build collider (uses matrixWorld so position is accounted for)
 		tileScene.updateMatrixWorld( true );
-		buildSingleTileCollider( world, tileScene );
+		buildSingleTileCollider( world, tileScene, tileName );
 
 	}
 
@@ -299,7 +298,7 @@ async function reloadSlot( slotIndex ) {
 		if ( slots[ i ].scene ) {
 
 			slots[ i ].scene.updateMatrixWorld( true );
-			buildSingleTileCollider( world, slots[ i ].scene );
+			buildSingleTileCollider( world, slots[ i ].scene, TILE_FILES[ slots[ i ].tileIndex ] );
 
 		}
 

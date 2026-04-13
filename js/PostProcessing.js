@@ -255,6 +255,7 @@ export class PostProcessing {
 
 		// Preset generation counter for rapid-switch race guard
 		this._presetGeneration = 0;
+		this._suspendedEffects = null;
 
 		// Custom ShaderPass instances
 		const motionBlurPass   = new ShaderPass( motionBlurShader );
@@ -292,6 +293,29 @@ export class PostProcessing {
 			.map( e => e.pass );
 
 		this.renderer.setEffects( active );
+
+	}
+
+	/** Temporarily disable post-processing without recomputing passes on restore. */
+	suspendEffects() {
+
+		if ( this._suspendedEffects ) return;
+
+		this._suspendedEffects = this.effects
+			.filter( e => e.enabled && e.pass !== null )
+			.map( e => e.pass );
+
+		this.renderer.setEffects( [] );
+
+	}
+
+	/** Restore the effect stack captured by suspendEffects(). */
+	restoreEffects() {
+
+		if ( ! this._suspendedEffects ) return;
+
+		this.renderer.setEffects( this._suspendedEffects );
+		this._suspendedEffects = null;
 
 	}
 

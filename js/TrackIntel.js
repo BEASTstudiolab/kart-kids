@@ -1,6 +1,14 @@
 import { CELL_RAW, GRID_SCALE, ORIENT_DEG } from './Track.js';
-import { TRACK_INTEL_BASE_CONNECTIVITY, normalizeLegacyTrackIntelCells } from './TrackOrientation.js';
-import { getTemplateWaypoints, transformToWorld } from './WaypointTemplates.js';
+import {
+	TRACK_INTEL_BASE_CONNECTIVITY,
+	getCurveVariantSize,
+	normalizeLegacyTrackIntelCells,
+} from './TrackOrientation.js';
+import {
+	getCurveBlockTemplateWaypoints,
+	getTemplateWaypoints,
+	transformToWorld,
+} from './WaypointTemplates.js';
 
 // ─── Connectivity Table ──────────────────────────────────────
 // Each piece type maps to its two open edges at orientation 0 (0°).
@@ -49,6 +57,12 @@ function getOpenEdges( pieceType, cellOrient ) {
 
 	const deg = ORIENT_DEG[ cellOrient ] ?? 0;
 	return base.map( e => rotateEdge( e, deg ) );
+
+}
+
+function isCurveArmType( type ) {
+
+	return type === 'trk-straight' || type.startsWith( 'trk-elev-' );
 
 }
 
@@ -221,55 +235,190 @@ export class TrackIntel {
 		// ── Generate sub-tile waypoints from templates ────────────
 		this.waypoints = [];
 		this._waypointToCellIndex = [];
+		this._buildWaypoints( ordered, entryEdges, exitEdges );
+		this._rebuildRouteCache();
 
-		for ( let i = 0; i < ordered.length; i ++ ) {
+	}
 
-			const [ gx, gz, type, orient, flags ] = ordered[ i ];
-			const orientDeg = ORIENT_DEG[ orient ] ?? 0;
-			const entry = entryEdges[ i ];
-			const exit = exitEdges[ i ];
+	_buildWaypoints( ordered, entryEdges, exitEdges ) {
 
-			// Compute elevation Y — for ramps, interpolate between neighbor elevations
-			const thisElev = flags?.fullElevation ?? 12;
-			const thisY = ( thisElev - 12 ) * 2.5;
-			const isRamp = type.includes( 'ramp' );
+		const curveBlocksByStart = this._buildCurveBlocks( ordered, entryEdges, exitEdges );
 
-			let entryY = thisY;
-			let exitY = thisY;
+		for ( let i = 0; i < ordered.length; ) {
 
-			if ( isRamp ) {
+			const block = curveBlocksByStart.get( i );
+			if ( block ) {
 
-				// Ramp tiles sit at ground elevation in data but visually slope.
-				// Look at prev/next cell elevations to determine the slope.
-				const prevIdx = ( i - 1 + ordered.length ) % ordered.length;
-				const nextIdx = ( i + 1 ) % ordered.length;
-				const prevElev = ordered[ prevIdx ][ 4 ]?.fullElevation ?? 12;
-				const nextElev = ordered[ nextIdx ][ 4 ]?.fullElevation ?? 12;
-				entryY = ( prevElev - 12 ) * 2.5;
-				exitY = ( nextElev - 12 ) * 2.5;
+				const worldPts = this._buildCurveBlockWorldPoints( ordered, block );
+				this._appendWorldPoints( worldPts, block.anchorIndex );
+				i = block.endIndex + 1;
+				continue;
 
 			}
 
-			// Get template in local space, then transform to world
-			const localPts = getTemplateWaypoints( type, entry, exit, orientDeg );
-			const worldPts = transformToWorld( localPts, gx, gz, orientDeg, entryY, exitY );
-
-			// Skip the first point of each tile after the first to avoid
-			// duplicate waypoints at tile boundaries
-			const startIdx = ( this.waypoints.length === 0 ) ? 0 : 1;
-
-			for ( let j = startIdx; j < worldPts.length; j ++ ) {
-
-				this.waypoints.push( worldPts[ j ] );
-				this._waypointToCellIndex.push( i );
-
-			}
+			const worldPts = this._buildCellWorldPoints( ordered, entryEdges, exitEdges, i );
+			this._appendWorldPoints( worldPts, i );
+			i ++;
 
 		}
 
-		this.count = this.waypoints.length;
+	}
 
-		// Precompute cumulative distances and total loop length
+	_buildCurveBlocks( ordered, entryEdges, exitEdges ) {
+
+		const blocksByStart = new Map();
+		const claimed = new Set();
+
+		for ( let i = 0; i < ordered.length; i ++ ) {
+
+			const block = this._createCurveBlock( ordered, entryEdges, exitEdges, i );
+			if ( ! block ) continue;
+
+			let overlaps = false;
+			for ( let idx = block.startIndex; idx <= block.endIndex; idx ++ ) {
+
+				if ( claimed.has( idx ) ) {
+
+					overlaps = true;
+					break;
+
+				}
+
+			}
+
+			if ( overlaps ) continue;
+
+			for ( let idx = block.startIndex; idx <= block.endIndex; idx ++ ) {
+
+				claimed.add( idx );
+
+			}
+
+			blocksByStart.set( block.startIndex, block );
+
+		}
+
+		return blocksByStart;
+
+	}
+
+	_createCurveBlock( ordered, entryEdges, exitEdges, anchorIndex ) {
+
+		const [ gx, gz, type, orient, flags ] = ordered[ anchorIndex ];
+		const curveVariant = flags?.curveVariant;
+		const curveSize = getCurveVariantSize( curveVariant );
+		if ( type !== 'trk-corner-1x1' || curveSize < 2 ) return null;
+
+		const startIndex = anchorIndex - ( curveSize - 1 );
+		const endIndex = anchorIndex + ( curveSize - 1 );
+		if ( startIndex < 0 || endIndex >= ordered.length ) return null;
+
+		for ( let i = startIndex; i < anchorIndex; i ++ ) {
+
+			if ( ! isCurveArmType( ordered[ i ][ 2 ] ) ) return null;
+
+		}
+
+		for ( let i = anchorIndex + 1; i <= endIndex; i ++ ) {
+
+			if ( ! isCurveArmType( ordered[ i ][ 2 ] ) ) return null;
+
+		}
+
+		const orientDeg = ORIENT_DEG[ orient ] ?? 0;
+		const entry = entryEdges[ anchorIndex ];
+		const exit = exitEdges[ anchorIndex ];
+		const localPts = getCurveBlockTemplateWaypoints( curveVariant, entry, exit, orientDeg );
+		if ( ! localPts || localPts.length === 0 ) return null;
+
+		const entryY = this._getCellSurfaceY( ordered[ startIndex ] );
+		const exitY = this._getCellSurfaceY( ordered[ endIndex ] );
+
+		return {
+			anchorIndex,
+			startIndex,
+			endIndex,
+			gx,
+			gz,
+			orientDeg,
+			entryY,
+			exitY,
+			localPts,
+		};
+
+	}
+
+	_buildCurveBlockWorldPoints( ordered, block ) {
+
+		return transformToWorld(
+			block.localPts,
+			block.gx,
+			block.gz,
+			block.orientDeg,
+			block.entryY,
+			block.exitY
+		);
+
+	}
+
+	_buildCellWorldPoints( ordered, entryEdges, exitEdges, index ) {
+
+		const [ gx, gz, type, orient, flags ] = ordered[ index ];
+		const orientDeg = ORIENT_DEG[ orient ] ?? 0;
+		const entry = entryEdges[ index ];
+		const exit = exitEdges[ index ];
+
+		let entryY = this._getCellSurfaceY( ordered[ index ] );
+		let exitY = entryY;
+
+		if ( type.includes( 'ramp' ) ) {
+
+			const prevIdx = ( index - 1 + ordered.length ) % ordered.length;
+			const nextIdx = ( index + 1 ) % ordered.length;
+			entryY = this._getCellSurfaceY( ordered[ prevIdx ] );
+			exitY = this._getCellSurfaceY( ordered[ nextIdx ] );
+
+		}
+
+		const localPts = getTemplateWaypoints( type, entry, exit, orientDeg );
+		return transformToWorld( localPts, gx, gz, orientDeg, entryY, exitY );
+
+	}
+
+	_appendWorldPoints( worldPts, cellIndex ) {
+
+		const startIdx = this.waypoints.length === 0 ? 0 : 1;
+
+		for ( let j = startIdx; j < worldPts.length; j ++ ) {
+
+			this.waypoints.push( worldPts[ j ] );
+			this._waypointToCellIndex.push( cellIndex );
+
+		}
+
+	}
+
+	_getCellSurfaceY( cell ) {
+
+		const thisElev = cell?.[ 4 ]?.fullElevation ?? 12;
+		return ( thisElev - 12 ) * 2.5;
+
+	}
+
+	_rebuildRouteCache() {
+
+		this.count = this.waypoints.length;
+		this._checkpointCache = null;
+		this._segmentInfo = [];
+
+		if ( this.count === 0 ) {
+
+			this._cumDist = new Float64Array( 0 );
+			this.totalLength = 0;
+			return;
+
+		}
+
 		this._cumDist = new Float64Array( this.count );
 		this._cumDist[ 0 ] = 0;
 
@@ -283,12 +432,45 @@ export class TrackIntel {
 
 		}
 
-		// Closing segment: last waypoint → first waypoint
-		const lastWp = this.waypoints[ this.count - 1 ];
-		const firstWp = this.waypoints[ 0 ];
-		const closeDx = firstWp.x - lastWp.x;
-		const closeDz = firstWp.z - lastWp.z;
-		this.totalLength = this._cumDist[ this.count - 1 ] + Math.sqrt( closeDx * closeDx + closeDz * closeDz );
+		for ( let i = 0; i < this.count; i ++ ) {
+
+			const a = this.waypoints[ i ];
+			const b = this.waypoints[ ( i + 1 ) % this.count ];
+			const dx = b.x - a.x;
+			const dy = ( b.y || 0 ) - ( a.y || 0 );
+			const dz = b.z - a.z;
+			const length = Math.sqrt( dx * dx + dz * dz );
+			const forward = length > 0
+				? { x: dx / length, z: dz / length }
+				: { x: 0, z: 1 };
+
+			this._segmentInfo.push( {
+				index: i,
+				startDist: this._cumDist[ i ],
+				length,
+				forward,
+				curvature: 0,
+				from: a,
+				to: b,
+				deltaY: dy,
+			} );
+
+		}
+
+		const lastSeg = this._segmentInfo[ this._segmentInfo.length - 1 ];
+		this.totalLength = lastSeg.startDist + lastSeg.length;
+
+		for ( let i = 0; i < this._segmentInfo.length; i ++ ) {
+
+			const curr = this._segmentInfo[ i ];
+			const next = this._segmentInfo[ ( i + 1 ) % this._segmentInfo.length ];
+			const dot = Math.max( - 1, Math.min( 1, curr.forward.x * next.forward.x + curr.forward.z * next.forward.z ) );
+			const cross = curr.forward.x * next.forward.z - curr.forward.z * next.forward.x;
+			const signedAngle = Math.atan2( cross, dot );
+			const avgLen = Math.max( ( curr.length + next.length ) * 0.5, 1e-6 );
+			curr.curvature = signedAngle / avgLen;
+
+		}
 
 	}
 
@@ -424,57 +606,7 @@ export class TrackIntel {
 	 */
 	getProgress( worldX, worldZ, lastSegmentHint ) {
 
-		const n = this.count;
-		let bestDist = Infinity;
-		let bestProgress = 0;
-
-		const searchWindow = ( lastSegmentHint !== undefined && lastSegmentHint !== null );
-		const windowSize = 3;
-
-		// Try windowed search first
-		if ( searchWindow ) {
-
-			for ( let offset = -windowSize; offset <= windowSize; offset ++ ) {
-
-				const i = ( ( lastSegmentHint + offset ) % n + n ) % n;
-				const result = this._projectOntoSegment( worldX, worldZ, i );
-
-				if ( result.dist < bestDist ) {
-
-					bestDist = result.dist;
-					bestProgress = result.progress;
-
-				}
-
-			}
-
-			// If we found something reasonably close, use it
-			if ( bestDist < this.totalLength * 0.15 ) {
-
-				return bestProgress;
-
-			}
-
-		}
-
-		// Full scan fallback
-		bestDist = Infinity;
-		bestProgress = 0;
-
-		for ( let i = 0; i < n; i ++ ) {
-
-			const result = this._projectOntoSegment( worldX, worldZ, i );
-
-			if ( result.dist < bestDist ) {
-
-				bestDist = result.dist;
-				bestProgress = result.progress;
-
-			}
-
-		}
-
-		return bestProgress;
+		return this.projectToRoute( worldX, worldZ, lastSegmentHint )?.progress ?? 0;
 
 	}
 
@@ -488,15 +620,112 @@ export class TrackIntel {
 
 	}
 
+	projectToRoute( worldX, worldZ, lastSegmentHint ) {
+
+		if ( this.count === 0 || this.totalLength <= 0 ) return null;
+
+		let best = null;
+		const searchWindow = lastSegmentHint !== undefined && lastSegmentHint !== null;
+		const windowSize = 8;
+
+		if ( searchWindow ) {
+
+			for ( let offset = -windowSize; offset <= windowSize; offset ++ ) {
+
+				const i = ( ( lastSegmentHint + offset ) % this.count + this.count ) % this.count;
+				const candidate = this._projectOntoSegmentDetailed( worldX, worldZ, i );
+				if ( ! best || candidate.distanceFromRoute < best.distanceFromRoute ) {
+
+					best = candidate;
+
+				}
+
+			}
+
+			if ( best && best.distanceFromRoute < 30 ) return best;
+
+		}
+
+		for ( let i = 0; i < this.count; i ++ ) {
+
+			const candidate = this._projectOntoSegmentDetailed( worldX, worldZ, i );
+			if ( ! best || candidate.distanceFromRoute < best.distanceFromRoute ) {
+
+				best = candidate;
+
+			}
+
+		}
+
+		return best;
+
+	}
+
+	sampleRoute( distanceAlongTrack, lateralOffset = 0 ) {
+
+		if ( this.count === 0 || this.totalLength <= 0 ) return null;
+
+		const normalizedDistance = this._normalizeDistance( distanceAlongTrack );
+		const segIndex = this._findSegmentIndexByDistance( normalizedDistance );
+		const seg = this._segmentInfo[ segIndex ];
+		const t = seg.length > 0
+			? Math.max( 0, Math.min( 1, ( normalizedDistance - seg.startDist ) / seg.length ) )
+			: 0;
+
+		const baseX = seg.from.x + ( seg.to.x - seg.from.x ) * t;
+		const baseY = ( seg.from.y || 0 ) + seg.deltaY * t;
+		const baseZ = seg.from.z + ( seg.to.z - seg.from.z ) * t;
+		const perpX = - seg.forward.z;
+		const perpZ = seg.forward.x;
+
+		return {
+			x: baseX + perpX * lateralOffset,
+			y: baseY,
+			z: baseZ + perpZ * lateralOffset,
+			forward: { x: seg.forward.x, z: seg.forward.z },
+			curvature: seg.curvature,
+			segmentIndex: segIndex,
+			distanceAlongTrack: normalizedDistance,
+		};
+
+	}
+
 	// ─── Spatial Queries (R6, R7, R8) ────────────────────────
 
 	/**
 	 * Returns the index of the nearest waypoint to a world position (XZ distance).
 	 */
-	getNearestWaypoint( worldX, worldZ ) {
+	getNearestWaypoint( worldX, worldZ, lastWaypointHint ) {
 
 		let bestIdx = 0;
 		let bestDist = Infinity;
+		const searchWindow = lastWaypointHint !== undefined && lastWaypointHint !== null;
+		const windowSize = 8;
+
+		if ( searchWindow ) {
+
+			for ( let offset = -windowSize; offset <= windowSize; offset ++ ) {
+
+				const i = ( ( lastWaypointHint + offset ) % this.count + this.count ) % this.count;
+				const w = this.waypoints[ i ];
+				const dx = w.x - worldX;
+				const dz = w.z - worldZ;
+				const d = dx * dx + dz * dz;
+
+				if ( d < bestDist ) {
+
+					bestDist = d;
+					bestIdx = i;
+
+				}
+
+			}
+
+			if ( bestDist < 400 ) return bestIdx;
+
+			bestDist = Infinity;
+
+		}
 
 		for ( let i = 0; i < this.count; i ++ ) {
 
@@ -545,47 +774,16 @@ export class TrackIntel {
 	getDistributedPositions( count ) {
 
 		const positions = [];
-		const n = this.count;
 
 		for ( let i = 0; i < count; i ++ ) {
 
-			const targetDist = this.totalLength * i / count;
-
-			// Find which segment this distance falls on
-			let segIdx = 0;
-
-			for ( let s = 0; s < n; s ++ ) {
-
-				const nextS = ( s + 1 ) % n;
-				const segStart = this._cumDist[ s ];
-				const segEnd = ( nextS === 0 ) ? this.totalLength : this._cumDist[ nextS ];
-
-				if ( targetDist >= segStart && targetDist < segEnd ) {
-
-					segIdx = s;
-					break;
-
-				}
-
-			}
-
-			const segStart = this._cumDist[ segIdx ];
-			const a = this.waypoints[ segIdx ];
-			const b = this.waypoints[ ( segIdx + 1 ) % n ];
-
-			const dx = b.x - a.x;
-			const dz = b.z - a.z;
-			const segLen = Math.sqrt( dx * dx + dz * dz );
-
-			const t = segLen > 0 ? ( targetDist - segStart ) / segLen : 0;
-
-			const fx = segLen > 0 ? dx / segLen : 0;
-			const fz = segLen > 0 ? dz / segLen : 1;
+			const sample = this.sampleRoute( this.totalLength * i / count );
+			if ( ! sample ) continue;
 
 			positions.push( {
-				x: a.x + dx * t,
-				z: a.z + dz * t,
-				forward: { x: fx, z: fz }
+				x: sample.x,
+				z: sample.z,
+				forward: sample.forward,
 			} );
 
 		}
@@ -605,11 +803,23 @@ export class TrackIntel {
 		this._orderedCells = [];
 		this.count = 0;
 		this._cumDist = new Float64Array( 0 );
+		this._segmentInfo = [];
 		this.totalLength = 0;
+		this._checkpointCache = null;
 
 	}
 
 	_projectOntoSegment( worldX, worldZ, segIndex ) {
+
+		const projected = this._projectOntoSegmentDetailed( worldX, worldZ, segIndex );
+		return {
+			dist: projected.distanceFromRoute,
+			progress: projected.progress,
+		};
+
+	}
+
+	_projectOntoSegmentDetailed( worldX, worldZ, segIndex ) {
 
 		const n = this.count;
 		const a = this.waypoints[ segIndex ];
@@ -637,15 +847,56 @@ export class TrackIntel {
 
 		const dx = worldX - cx;
 		const dz = worldZ - cz;
-		const dist = Math.sqrt( dx * dx + dz * dz );
+		const segLen = Math.sqrt( abLenSq );
+		const forwardX = segLen > 0 ? abx / segLen : 0;
+		const forwardZ = segLen > 0 ? abz / segLen : 1;
+		const perpX = - forwardZ;
+		const perpZ = forwardX;
+		const lateralOffset = dx * perpX + dz * perpZ;
+		const distanceFromRoute = Math.sqrt( dx * dx + dz * dz );
 
 		// Compute progress
-		const segLen = Math.sqrt( abLenSq );
 		const cumAtSeg = this._cumDist[ segIndex ];
 		const progressDist = cumAtSeg + segLen * t;
 		const progress = this.totalLength > 0 ? ( progressDist / this.totalLength ) % 1 : 0;
 
-		return { dist, progress };
+		return {
+			segmentIndex: segIndex,
+			distanceAlongTrack: progressDist,
+			progress,
+			lateralOffset,
+			distanceFromRoute,
+			point: { x: cx, z: cz },
+			forward: { x: forwardX, z: forwardZ },
+		};
+
+	}
+
+	_normalizeDistance( distanceAlongTrack ) {
+
+		if ( this.totalLength <= 0 ) return 0;
+		let dist = distanceAlongTrack % this.totalLength;
+		if ( dist < 0 ) dist += this.totalLength;
+		return dist;
+
+	}
+
+	_findSegmentIndexByDistance( distanceAlongTrack ) {
+
+		for ( let i = 0; i < this._segmentInfo.length; i ++ ) {
+
+			const seg = this._segmentInfo[ i ];
+			const endDist = seg.startDist + seg.length;
+
+			if ( distanceAlongTrack >= seg.startDist && distanceAlongTrack < endDist ) {
+
+				return i;
+
+			}
+
+		}
+
+		return this._segmentInfo.length - 1;
 
 	}
 

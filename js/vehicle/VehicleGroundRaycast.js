@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { castRay, createClosestCastRayCollector, createDefaultCastRaySettings, CastRayStatus, filter } from 'crashcat';
+import { getVehicleColliderCenterY } from '../Physics.js';
 import { SpringAnimator } from '../SpringAnimator.js';
 
 
@@ -227,6 +228,7 @@ export class VehicleGroundRaycast {
 
 			// Compute centroid, excluding wheels that went off-edge.
 			const EDGE_THRESHOLD = 0.4;
+			const AIRBORNE_REATTACH_THRESHOLD = 3.0;
 			const n = v.groundNormal;
 			let cx = 0, cy = 0, cz = 0, hitWheelCount = 0;
 
@@ -240,9 +242,13 @@ export class VehicleGroundRaycast {
 				const localOff = this._wheelOffsets[ i ];
 				_forward.copy( localOff ).applyQuaternion( v.container.quaternion );
 				const predictedY = v.groundHeight - ( n.x * _forward.x + n.z * _forward.z ) / ( n.y || 1 );
+				const acceptThreshold = ( ! v._grounded || v._verticalVelocity < 0 )
+					? AIRBORNE_REATTACH_THRESHOLD
+					: EDGE_THRESHOLD;
 
-				// Accept if hit is near the prediction (on the same surface)
-				if ( this._wheelRawHitY[ i ] > predictedY - EDGE_THRESHOLD ) {
+				// While descending or already airborne, allow reattaching to a
+				// substantially lower follow-up surface such as chained jumps.
+				if ( this._wheelRawHitY[ i ] > predictedY - acceptThreshold ) {
 
 					cx += wheelWorldX[ i ];
 					cy += this._wheelRawHitY[ i ];
@@ -276,6 +282,7 @@ export class VehicleGroundRaycast {
 						cy += this._wheelRawHitY[ i ];
 						cz += wheelWorldZ[ i ];
 						hitWheelCount ++;
+						this._wheelOnSurface[ i ] = true;
 
 					}
 
@@ -441,7 +448,11 @@ export class VehicleGroundRaycast {
 		if ( ! this._rayCollector || ! v.physicsWorld ) return;
 
 		const ZONE = v.debug.curbDragZone;
-		const origin = [ v.vehPos.x, v._vehicleY + 0.8, v.vehPos.z ];
+		const origin = [
+			v.vehPos.x,
+			v.rigidBody?.position?.[ 1 ] ?? ( v._vehicleY + getVehicleColliderCenterY() ),
+			v.vehPos.z,
+		];
 
 		// Yaw-only directions (match collider frame, not tilted container)
 		const yaw = Math.atan2(

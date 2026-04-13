@@ -465,46 +465,48 @@ export function createGameEngine( canvasContainer ) {
 		}
 
 		_running = true;
-		_trackedBodies = [];
-		_listenerRegistry = [];
-		_allActiveVehicles = [];
-		_multiplayer = false;
-		_spectating = false;
-		_wasBoostActive = false;
-		_prevDriftStage = 0;
-		_lastShadowX = 0;
-		_lastShadowZ = 0;
-		_shadowFrameCounter = 0;
-		_lastFrameTime = 0;
-		_fpsFrames = 0;
-		_fpsTime = performance.now();
-		_gamePaused = false;
-		_prevSwitchView = false;
-		_fpsCapMs = { value: 0 };
-		_draftIndicatorEnabled = { value: false };
+		try {
 
-		// ── HUD container (all game DOM elements go here for easy teardown) ──
-		_hudContainer = document.createElement( 'div' );
-		_hudContainer.id = 'game-hud-container';
-		_hudContainer.style.cssText = 'position:absolute;inset:0;pointer-events:none;z-index:10;';
-		_hudContainer.style.pointerEvents = 'none';
-		document.body.appendChild( _hudContainer );
+			_trackedBodies = [];
+			_listenerRegistry = [];
+			_allActiveVehicles = [];
+			_multiplayer = false;
+			_spectating = false;
+			_wasBoostActive = false;
+			_prevDriftStage = 0;
+			_lastShadowX = 0;
+			_lastShadowZ = 0;
+			_shadowFrameCounter = 0;
+			_lastFrameTime = 0;
+			_fpsFrames = 0;
+			_fpsTime = performance.now();
+			_gamePaused = false;
+			_prevSwitchView = false;
+			_fpsCapMs = { value: 0 };
+			_draftIndicatorEnabled = { value: false };
 
-		// Allow child elements to receive pointer events
-		const hudStyle = document.createElement( 'style' );
-		hudStyle.textContent = '#game-hud-container > * { pointer-events: auto; }';
-		_hudContainer.appendChild( hudStyle );
+			// ── HUD container (all game DOM elements go here for easy teardown) ──
+			_hudContainer = document.createElement( 'div' );
+			_hudContainer.id = 'game-hud-container';
+			_hudContainer.style.cssText = 'position:absolute;inset:0;pointer-events:none;z-index:10;';
+			_hudContainer.style.pointerEvents = 'none';
+			document.body.appendChild( _hudContainer );
 
-		// ── Track setup ──────────────────────────────────────────────────────
-		const trackTileSet = getTrackTileSet( globalThis.location?.search ?? '' );
-		const asphaltMode = getTrackAsphaltMode( globalThis.location?.search ?? '' );
+			// Allow child elements to receive pointer events
+			const hudStyle = document.createElement( 'style' );
+			hudStyle.textContent = '#game-hud-container > * { pointer-events: auto; }';
+			_hudContainer.appendChild( hudStyle );
 
-		const urlParams = new URLSearchParams( window.location.search );
-		const hash = window.location.hash.slice( 1 );
-		const debugTopdown = urlParams.get( 'debug' ) === 'topdown';
-		let customCells = null;
+			// ── Track setup ──────────────────────────────────────────────────────
+			const trackTileSet = getTrackTileSet( globalThis.location?.search ?? '' );
+			const asphaltMode = getTrackAsphaltMode( globalThis.location?.search ?? '' );
 
-		if ( config.trackData ) {
+			const urlParams = new URLSearchParams( window.location.search );
+			const hash = window.location.hash.slice( 1 );
+			const debugTopdown = urlParams.get( 'debug' ) === 'topdown';
+			let customCells = null;
+
+			if ( config.trackData ) {
 
 			// config.trackData can be raw cells array or v4 JSON object
 			if ( Array.isArray( config.trackData ) ) {
@@ -539,28 +541,28 @@ export function createGameEngine( canvasContainer ) {
 
 			}
 
-		}
+			}
 
-		const activeCells = customCells || TRACK_CELLS;
-		const renderCells = transformCells( activeCells );
+			const activeCells = customCells || TRACK_CELLS;
+			const renderCells = transformCells( activeCells );
 
 		// Loading progress UI
 		const loadingBar = document.getElementById( 'loading-bar' );
 		const loadingText = document.getElementById( 'loading-text' );
 
-		const models = await loadModels( trackTileSet, asphaltMode, renderCells, ( loaded, total, name ) => {
+			const models = await loadModels( trackTileSet, asphaltMode, renderCells, ( loaded, total, name ) => {
 
 			const pct = Math.round( ( loaded / total ) * 100 );
 			if ( loadingBar ) loadingBar.style.width = pct + '%';
 			if ( loadingText ) loadingText.textContent = `Loading models... ${ loaded }/${ total }`;
 
-		} );
+			} );
 
-		const spawn = computeSpawnPosition( activeCells );
-		const bounds = computeTrackBounds( activeCells );
-		const hw = bounds.halfWidth;
-		const hd = bounds.halfDepth;
-		const groundSize = Math.max( hw, hd ) * 2 + 20;
+			const spawn = computeSpawnPosition( activeCells );
+			const bounds = computeTrackBounds( activeCells );
+			const hw = bounds.halfWidth;
+			const hd = bounds.halfDepth;
+			const groundSize = Math.max( hw, hd ) * 2 + 20;
 
 		// Shadow frustum
 		const shadowRadius = 25;
@@ -1241,6 +1243,7 @@ export function createGameEngine( canvasContainer ) {
 			}
 
 			window.dispatchEvent( new CustomEvent( 'settings-changed', { detail: { key: 'quality', value: tier } } ) );
+			if ( _rearview?.setQualityTier ) _rearview.setQualityTier( tier );
 
 		}
 
@@ -1269,6 +1272,7 @@ export function createGameEngine( canvasContainer ) {
 				renderer.shadowMap.needsUpdate = true;
 				renderer.setPixelRatio( TIER_PIXEL_RATIO[ value ] );
 				renderer.setSize( window.innerWidth, window.innerHeight );
+				if ( _rearview?.setQualityTier ) _rearview.setQualityTier( value );
 
 			}
 
@@ -1331,7 +1335,7 @@ export function createGameEngine( canvasContainer ) {
 		_damageSFX = ( _audio.listener && _audio.listener.context ) ? new DamageSFX( _audio.listener.context ) : null;
 		_damageVFX = new DamageVFX( scene );
 		_hudDamage = new HUDDamage();
-		_explosionFXManager = new ExplosionFXManager( scene, { quality: tier || 'high' } );
+		_explosionFXManager = new ExplosionFXManager( scene, { quality: _settings.get( 'quality' ) || 'high' } );
 		_projectileManager = new ProjectileManager( scene, _combatManager, _explosionFXManager );
 		_wreckManager = new WreckManager( scene, world );
 		_eliminationManager = new EliminationManager();
@@ -1419,11 +1423,27 @@ export function createGameEngine( canvasContainer ) {
 		}
 
 		// Dismiss loading overlay
-		const overlay = document.getElementById( 'loading-overlay' );
-		if ( overlay ) {
+			const overlay = document.getElementById( 'loading-overlay' );
+			if ( overlay ) {
 
-			overlay.classList.add( 'fade-out' );
-			setTimeout( () => overlay.remove(), 400 );
+				overlay.classList.add( 'fade-out' );
+				setTimeout( () => overlay.remove(), 400 );
+
+			}
+
+		} catch ( err ) {
+
+			try {
+
+				stop();
+
+			} catch ( stopErr ) {
+
+				console.error( '[GameEngine] stop() during failed start also failed:', stopErr );
+
+			}
+
+			throw err;
 
 		}
 
@@ -1567,6 +1587,7 @@ export function createGameEngine( canvasContainer ) {
 	function update( externalDt ) {
 
 		if ( ! _running ) return;
+		if ( ! _timer || ! _controls || ! _raceMode || ! _playerManager || ! _aiManager || ! _bodyToVehicle || ! _contactListener || ! _cam ) return;
 
 		// Optional FPS cap
 		if ( _fpsCapMs.value > 0 ) {
@@ -1879,10 +1900,6 @@ export function createGameEngine( canvasContainer ) {
 				_rearview.setVisible( true );
 				_rearview.update( followVehicle.vehPos, followVehicle.container.quaternion );
 
-				renderer.setEffects( [] );
-				_rearview.render( scene );
-				if ( postFX ) postFX.rebuildEffects();
-
 			} else {
 
 				_rearview.setVisible( false );
@@ -1963,6 +1980,11 @@ export function createGameEngine( canvasContainer ) {
 		}
 
 		renderer.render( scene, _cam.camera );
+		if ( _rearview && _rearview.enabled && _rearview.visible ) {
+
+			_rearview.render( scene, postFX );
+
+		}
 
 	}
 

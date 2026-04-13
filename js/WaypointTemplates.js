@@ -5,6 +5,7 @@
 // Tile spans -5 to +5 (CELL_RAW = 10).
 
 import { CELL_RAW, GRID_SCALE } from './Track.js';
+import { getCurveVariantSize } from './TrackOrientation.js';
 
 // ─── Rotation ────────────────────────────────────────────────────────
 
@@ -121,6 +122,72 @@ const CURVE_3x3_WIDE_S_E = [
 
 const CURVE_3x3_WIDE_E_S = [ ...CURVE_3x3_WIDE_S_E ].reverse();
 
+const CURVE_VARIANT_ARC_PARAMS = {
+	'2x2-wide': { handleRatio: 0.5522847498, steps: 5 },
+	'3x3': { handleRatio: 0.5522847498, steps: 7 },
+	'3x3-wide': { handleRatio: 0.5522847498, steps: 9 },
+};
+
+function sampleCubicBezier( p0, p1, p2, p3, t ) {
+
+	const invT = 1 - t;
+	const invT2 = invT * invT;
+	const t2 = t * t;
+	return {
+		x:
+			invT2 * invT * p0.x +
+			3 * invT2 * t * p1.x +
+			3 * invT * t2 * p2.x +
+			t2 * t * p3.x,
+		z:
+			invT2 * invT * p0.z +
+			3 * invT2 * t * p1.z +
+			3 * invT * t2 * p2.z +
+			t2 * t * p3.z,
+	};
+
+}
+
+function buildFootprintCurvePoints( curveVariant ) {
+
+	const size = getCurveVariantSize( curveVariant );
+	const params = CURVE_VARIANT_ARC_PARAMS[ curveVariant ];
+	if ( size < 2 || ! params ) return null;
+
+	const reach = ( size - 0.5 ) * CELL_RAW;
+	const handle = reach * params.handleRatio;
+	const p0 = { x: - reach, z: 0 };
+	const p1 = { x: - reach + handle, z: 0 };
+	const p2 = { x: 0, z: reach - handle };
+	const p3 = { x: 0, z: reach };
+	const points = [];
+
+	for ( let i = 0; i < params.steps; i ++ ) {
+
+		const t = params.steps > 1 ? i / ( params.steps - 1 ) : 0;
+		points.push( sampleCubicBezier( p0, p1, p2, p3, t ) );
+
+	}
+
+	return points;
+
+}
+
+const CURVE_VARIANT_TEMPLATES = Object.fromEntries(
+	Object.keys( CURVE_VARIANT_ARC_PARAMS ).map( ( curveVariant ) => {
+
+		const points = buildFootprintCurvePoints( curveVariant );
+		return [
+			curveVariant,
+			{
+				'W>S': points,
+				'S>W': [ ...points ].reverse(),
+			},
+		];
+
+	} )
+);
+
 // ─── Chicane: S-curve through 3x3 footprint (N+S at orient 0) ───────
 const CHICANE_S_N = [
 	{ x: 0, z: NEAR },
@@ -225,6 +292,18 @@ export function getTemplateWaypoints( tileType, entryEdge, exitEdge, orientDeg )
 		{ x: 0, z: 0 },
 		{ x: exitDelta[ 0 ] * NEAR, z: exitDelta[ 1 ] * NEAR },
 	];
+
+}
+
+export function getCurveBlockTemplateWaypoints( curveVariant, entryEdge, exitEdge, orientDeg ) {
+
+	const invDeg = ( 360 - orientDeg ) % 360;
+	const baseEntry = rotateEdge( entryEdge, invDeg );
+	const baseExit = rotateEdge( exitEdge, invDeg );
+
+	const templates = CURVE_VARIANT_TEMPLATES[ curveVariant ];
+	const template = templates?.[ `${baseEntry}>${baseExit}` ];
+	return template || null;
 
 }
 

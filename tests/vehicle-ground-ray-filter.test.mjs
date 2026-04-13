@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import * as THREE from 'three';
 import {
 	registerAll,
 	createWorldSettings,
@@ -16,7 +17,7 @@ import {
 	CastRayStatus,
 	updateWorld,
 } from 'crashcat';
-import { createSingleLayerRayFilter } from '../js/vehicle/VehicleGroundRaycast.js';
+import { createSingleLayerRayFilter, VehicleGroundRaycast } from '../js/vehicle/VehicleGroundRaycast.js';
 
 registerAll();
 
@@ -105,5 +106,55 @@ test( 'blocker-layer ray filter hits blocker bodies and excludes support bodies'
 
 	assert.equal( castDown( world, blockerFilter, 0 ), false );
 	assert.equal( castDown( world, blockerFilter, 10 ), true );
+
+} );
+
+test( 'VehicleGroundRaycast reattaches to a lower support surface while descending', () => {
+
+	const world = createLayeredWorld();
+
+	rigidBody.create( world, {
+		shape: box.create( { halfExtents: [ 5, 0.1, 5 ] } ),
+		motionType: MotionType.STATIC,
+		objectLayer: world._OL_TRACK_SUPPORT,
+		position: [ 0, 0, 0 ],
+	} );
+
+	updateWorld( world, null, 1 / 60 );
+
+	const raycast = new VehicleGroundRaycast();
+	const vehicle = {
+		physicsWorld: world,
+		container: {
+			quaternion: new THREE.Quaternion(),
+		},
+		vehPos: { x: 0, z: 0 },
+		debug: {
+			suspStiffness: 200,
+			suspDamping: 25,
+		},
+		wheelFL: null,
+		wheelFR: null,
+		wheelBL: null,
+		wheelBR: null,
+		_vehicleY: 1.4,
+		groundHeight: 2.8,
+		groundNormal: new THREE.Vector3( 0, 1, 0 ),
+		_verticalVelocity: - 1.5,
+		_grounded: false,
+		_wallProximityLeft: 0,
+		_wallProximityRight: 0,
+	};
+
+	raycast.init( vehicle, world );
+	vehicle._vehicleY = 1.4;
+	vehicle.groundHeight = 2.8;
+
+	const sensor = raycast.updateGround( 1 / 60, vehicle );
+
+	assert.equal( sensor.frontOnSurface, true );
+	assert.equal( sensor.rearOnSurface, true );
+	assert.ok( Math.abs( vehicle.groundHeight - 0.1 ) < 0.25 );
+	assert.deepEqual( raycast._wheelOnSurface, [ true, true, true, true ] );
 
 } );

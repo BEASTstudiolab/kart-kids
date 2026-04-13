@@ -38,6 +38,18 @@ export const TRACK_INTEL_BASE_CONNECTIVITY = {
 	'trk-junction-4way': null,
 };
 
+export const CURVE_VARIANT_SIZE = {
+	'2x2-wide': 2,
+	'3x3': 3,
+	'3x3-wide': 3,
+};
+
+const LEGACY_CURVE_VARIANT_BY_TYPE = {
+	'trk-curve-2x2-l': '2x2-wide',
+	'trk-curve-3x3-l': '3x3',
+	'trk-curve-3x3-wide-l': '3x3-wide',
+};
+
 export function isNorthSouthOrient( orient ) {
 
 	return orient === 0 || orient === 10;
@@ -81,7 +93,20 @@ function cloneFlags( flags ) {
 
 function isLegacyCenterCurve3x3Type( type ) {
 
-	return type === 'trk-curve-3x3-l' || type === 'trk-curve-3x3-wide-l';
+	const variant = LEGACY_CURVE_VARIANT_BY_TYPE[ type ];
+	return CURVE_VARIANT_SIZE[ variant ] === 3;
+
+}
+
+export function getCurveVariantSize( curveVariant ) {
+
+	return CURVE_VARIANT_SIZE[ curveVariant ] ?? 0;
+
+}
+
+export function getLegacyCurveVariant( type ) {
+
+	return LEGACY_CURVE_VARIANT_BY_TYPE[ type ] ?? null;
 
 }
 
@@ -119,6 +144,27 @@ export function expandLegacyCenterCurve3x3( gx, gz, orient, flags ) {
 
 }
 
+function createCurveAnchorFlags( flags, curveVariant ) {
+
+	const anchorFlags = cloneFlags( flags ) || {};
+	anchorFlags.curveOverride = true;
+	anchorFlags.curveVariant = curveVariant;
+	return anchorFlags;
+
+}
+
+function createCurveArmFlags( flags ) {
+
+	const armFlags = cloneFlags( flags );
+	if ( ! armFlags ) return armFlags;
+
+	delete armFlags.curveOverride;
+	delete armFlags.curveVariant;
+
+	return armFlags;
+
+}
+
 export function normalizeLegacyTrackIntelCells( cells ) {
 
 	const reservedKeys = new Set( cells.map( ( [ gx, gz ] ) => `${gx},${gz}` ) );
@@ -150,6 +196,15 @@ export function normalizeLegacyTrackIntelCells( cells ) {
 
 			normalized.push( cell );
 			continue;
+
+		}
+
+		const curveVariant = getLegacyCurveVariant( type );
+		const anchorFlags = createCurveAnchorFlags( flags, curveVariant );
+		expanded[ 0 ][ 4 ] = anchorFlags;
+		for ( let i = 1; i < expanded.length; i ++ ) {
+
+			expanded[ i ][ 4 ] = createCurveArmFlags( flags );
 
 		}
 

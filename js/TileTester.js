@@ -7,7 +7,7 @@ import {
 	rigidBody, box, MotionType,
 	castRay, createClosestCastRayCollector, createDefaultCastRaySettings, CastRayStatus, filter
 } from 'crashcat';
-import { buildSingleTileCollider, createVehicleBody } from './Physics.js';
+import { buildSingleTileCollider, createVehicleBody, VEHICLE_BODY_HALF_EXTENTS, getVehicleColliderCenterY } from './Physics.js';
 import { Vehicle } from './Vehicle.js';
 import { getTrackAsphaltMode, applyTrackAsphaltMode } from './TrackAsphaltMode.js';
 
@@ -36,7 +36,6 @@ const TILE_FILES = [
 	'kartkids_base_trk_440_tun_closed_exit_1x1.gltf',
 	'kartkids_base_trk_460_tun_openframe_mid_1x1.gltf',
 	'kartkids_base_trk_480_jmp_01_short_25pct_1x1.gltf',
-	'kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.gltf',
 	'kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.gltf',
 	'kartkids_base_trk_510_srt_startfinish_arch_3x1.gltf',
 	'kartkids_base_trk_520_trn_90_l_3x3.gltf',
@@ -109,9 +108,18 @@ let wallScrapeTest = null;
 
 // ── Jump tile auto-test ────────────────────────────────────────────────────
 
-const JUMP_TILE_INDICES = [ 34, 35, 36 ];  // tiles 35-37 (0-based)
+const JUMP_TILE_INDICES = TILE_FILES
+	.map( ( tileName, index ) => tileName.includes( '_jmp_' ) ? index : - 1 )
+	.filter( ( index ) => index >= 0 );
 
 function startJumpTest() {
+
+	if ( JUMP_TILE_INDICES.length === 0 ) {
+
+		console.warn( '[JUMP-TEST] No jump tiles available in TILE_FILES.' );
+		return;
+
+	}
 
 	jumpTest = {
 		tileQueue: [ ...JUMP_TILE_INDICES ],
@@ -135,7 +143,10 @@ function startJumpTest() {
 		results: [],
 	};
 
-	console.log( '%c[JUMP-TEST] ═══ Starting jump test on 3 tiles ═══', 'color: magenta; font-weight: bold' );
+	console.log(
+		`%c[JUMP-TEST] ═══ Starting jump test on ${ JUMP_TILE_INDICES.length } tile${ JUMP_TILE_INDICES.length === 1 ? '' : 's' } ═══`,
+		'color: magenta; font-weight: bold'
+	);
 	loadNextJumpTile();
 
 }
@@ -313,7 +324,7 @@ function placeVehicleForWallScrape( config ) {
 	const surfaceY = findSurfaceY( world, config.x, config.z );
 	const yaw = config.yaw;
 	const halfYaw = yaw / 2;
-	const colliderLift = vehicle._lastColliderLift ?? 0.8;
+	const colliderLift = vehicle._lastColliderLift ?? getVehicleColliderCenterY();
 
 	rigidBody.setPosition( world, vehicle.rigidBody, [ config.x, surfaceY + colliderLift, config.z ], false );
 	rigidBody.setQuaternion( world, vehicle.rigidBody, [ 0, Math.sin( halfYaw ), 0, Math.cos( halfYaw ) ], false );
@@ -766,7 +777,7 @@ let bodyBoundsMesh = null;
 let tireBoundsMeshes = [ null, null, null, null ];
 
 // Vehicle box collider: halfExtents [0.4, 0.3, 0.7] from Physics.js
-const BODY_HALF = [ 0.4, 0.3, 0.7 ];
+const BODY_HALF = VEHICLE_BODY_HALF_EXTENTS;
 const TIRE_RADIUS = 0.18;
 
 function createBoundsVisuals() {
@@ -970,7 +981,7 @@ async function loadTile( index ) {
 	scene.add( tileScene );
 
 	// Build collider from the tile geometry
-	buildSingleTileCollider( world, tileScene );
+	buildSingleTileCollider( world, tileScene, tileName );
 
 	// Spawn vehicle on the tile surface
 	spawnVehicle();

@@ -1,5 +1,8 @@
 import { defineConfig } from '@playwright/test';
 
+const PLAYWRIGHT_PORT = process.env.PLAYWRIGHT_PORT || '3101';
+const PLAYWRIGHT_BASE_URL = `http://localhost:${ PLAYWRIGHT_PORT }`;
+
 export default defineConfig( {
 
 	testDir: './tests',
@@ -8,7 +11,7 @@ export default defineConfig( {
 	workers: 1,
 
 	use: {
-		baseURL: 'http://localhost:3000',
+		baseURL: PLAYWRIGHT_BASE_URL,
 		headless: true,
 		screenshot: 'only-on-failure',
 	},
@@ -22,9 +25,13 @@ export default defineConfig( {
 
 	webServer: {
 		command: 'node server.js',
-		port: 3000,
-		reuseExistingServer: true,
+		port: Number( PLAYWRIGHT_PORT ),
+		reuseExistingServer: false,
 		timeout: 10000,
+		env: {
+			...process.env,
+			PORT: PLAYWRIGHT_PORT,
+		},
 	},
 
 } );

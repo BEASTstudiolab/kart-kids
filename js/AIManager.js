@@ -357,6 +357,7 @@ export class AIManager {
 			if ( aiIdx < this._racers.length ) {
 
 				this._teleportVehicle( this._racers[ aiIdx ].vehicle, gridPositions[ slot ] );
+				ai.controller?.reset?.();
 				aiIdx ++;
 
 			}
@@ -397,6 +398,7 @@ export class AIManager {
 			ai.prevPos = null;
 			ai.passedHalfway = false;
 			ai.finishLine.resetCooldown();
+			ai.controller?.reset?.();
 
 		}
 
@@ -414,6 +416,7 @@ export class AIManager {
 			ai.finishLine.resetCooldown();
 			ai.vehicle.externalTopSpeedMultiplier = 1.0;
 			ai.tireMarks.clear();
+			ai.controller?.reset?.();
 
 		}
 

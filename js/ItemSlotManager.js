@@ -32,9 +32,10 @@ export class ItemSlotManager {
 	 * @param {object} trackIntel - TrackIntel instance
 	 * @param {object} projectileManager - ProjectileManager instance
 	 * @param {object} combatManager - CombatManager instance
+	 * @param {object} explosionFXManager - ExplosionFXManager instance
 	 * @returns {object|null} ProjectileDescriptor or null
 	 */
-	use( allVehicles, trackIntel, projectileManager, combatManager ) {
+	use( allVehicles, trackIntel, projectileManager, combatManager, explosionFXManager ) {
 
 		if ( ! this.heldItemId ) return null;
 
@@ -46,7 +47,7 @@ export class ItemSlotManager {
 
 		}
 
-		const result = item.use( this.vehicle, allVehicles, trackIntel, projectileManager, combatManager );
+		const result = item.use( this.vehicle, allVehicles, trackIntel, projectileManager, combatManager, explosionFXManager );
 		this.heldItemId = null;
 		return result;
 

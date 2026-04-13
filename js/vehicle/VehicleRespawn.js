@@ -12,6 +12,7 @@
  */
 
 import { rigidBody } from 'crashcat';
+import { getVehicleColliderCenterY } from '../Physics.js';
 import { PhysicsState } from './VehicleStateMachine.js';
 
 // Default fallback spawn position
@@ -155,7 +156,7 @@ export class VehicleRespawn {
 		if ( v.rigidBody && v.physicsWorld ) {
 
 			rigidBody.setPosition( v.physicsWorld, v.rigidBody,
-				[ spawnX, FALLBACK_SPAWN.y + 0.8, spawnZ ], false );
+				[ spawnX, FALLBACK_SPAWN.y + getVehicleColliderCenterY(), spawnZ ], false );
 			rigidBody.setLinearVelocity( v.physicsWorld, v.rigidBody, [ 0, 0, 0 ] );
 			rigidBody.setAngularVelocity( v.physicsWorld, v.rigidBody, [ 0, 0, 0 ] );
 			rigidBody.setQuaternion( v.physicsWorld, v.rigidBody,

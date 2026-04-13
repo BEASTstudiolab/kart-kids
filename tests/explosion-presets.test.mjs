@@ -13,7 +13,9 @@ test( 'exports the four shipped explosion presets', () => {
 		EXPLOSION_PRESET_IDS,
 		[ 'mine', 'bomb', 'missileStrike', 'pulseShockwave' ]
 	);
+	assert.ok( Object.isFrozen( EXPLOSION_PRESET_IDS ) );
 	assert.deepEqual( Object.keys( EXPLOSION_PRESETS ), EXPLOSION_PRESET_IDS );
+	assert.equal( getExplosionPreset( 'unknown' ), null );
 
 	const serialized = JSON.parse( JSON.stringify( EXPLOSION_PRESETS ) );
 	assert.deepEqual( Object.keys( serialized ), EXPLOSION_PRESET_IDS );
@@ -37,12 +39,14 @@ test( 'exports the four shipped explosion presets', () => {
 		assert.ok( preset.budgets.particles > 0 );
 		assert.ok( Array.isArray( preset.layers ) );
 		assert.ok( Array.isArray( preset.layerDropOrder ) );
+		assert.equal( new Set( preset.layerDropOrder ).size, preset.layerDropOrder.length );
 		assert.ok( preset.feedbackStrengths );
 		assert.ok( typeof preset.feedbackStrengths.cameraShake === 'number' );
 		assert.ok( typeof preset.feedbackStrengths.audio === 'number' );
 		assert.ok( typeof preset.feedbackStrengths.haptics === 'number' );
 
 		const layerIds = new Set( preset.layers.map( ( layer ) => layer.id ) );
+		assert.equal( layerIds.size, preset.layers.length );
 		let previousWeight = Infinity;
 
 		for ( const layerId of preset.layerDropOrder ) {
@@ -58,6 +62,9 @@ test( 'exports the four shipped explosion presets', () => {
 
 		for ( const layer of preset.layers ) {
 
+			assert.equal( typeof layer.id, 'string' );
+			assert.ok( layer.id.length > 0 );
+			assert.equal( typeof layer.kind, 'string' );
 			assert.equal( typeof layer.weight, 'number' );
 			assert.ok( Number.isFinite( layer.weight ) );
 
@@ -92,6 +99,32 @@ test( 'exports the four shipped explosion presets', () => {
 	assert.equal( getExplosionPreset( 'missileStrike' ).heroWeight, 'hero' );
 	assert.ok( getExplosionPreset( 'mine' ).budgets.mesh < getExplosionPreset( 'bomb' ).budgets.mesh );
 	assert.ok( getExplosionPreset( 'bomb' ).budgets.mesh < getExplosionPreset( 'missileStrike' ).budgets.mesh );
+	assert.ok( getExplosionPreset( 'mine' ).budgets.particles < getExplosionPreset( 'bomb' ).budgets.particles );
+	assert.ok( getExplosionPreset( 'bomb' ).budgets.particles < getExplosionPreset( 'missileStrike' ).budgets.particles );
+	assert.ok(
+		getExplosionPreset( 'mine' ).feedbackStrengths.cameraShake <
+		getExplosionPreset( 'bomb' ).feedbackStrengths.cameraShake
+	);
+	assert.ok(
+		getExplosionPreset( 'bomb' ).feedbackStrengths.cameraShake <
+		getExplosionPreset( 'missileStrike' ).feedbackStrengths.cameraShake
+	);
+	assert.ok(
+		getExplosionPreset( 'mine' ).feedbackStrengths.audio <
+		getExplosionPreset( 'bomb' ).feedbackStrengths.audio
+	);
+	assert.ok(
+		getExplosionPreset( 'bomb' ).feedbackStrengths.audio <
+		getExplosionPreset( 'missileStrike' ).feedbackStrengths.audio
+	);
+	assert.ok(
+		getExplosionPreset( 'mine' ).feedbackStrengths.haptics <
+		getExplosionPreset( 'bomb' ).feedbackStrengths.haptics
+	);
+	assert.ok(
+		getExplosionPreset( 'bomb' ).feedbackStrengths.haptics <
+		getExplosionPreset( 'missileStrike' ).feedbackStrengths.haptics
+	);
 
 } );
 
@@ -99,12 +132,39 @@ test( 'returns immutable shared preset data from the supported access path', () 
 
 	const preset = getExplosionPreset( 'mine' );
 
+	assert.ok( Object.isFrozen( preset ) );
+	assert.ok( Object.isFrozen( preset.budgets ) );
+	assert.ok( Object.isFrozen( preset.layers ) );
+	assert.ok( Object.isFrozen( preset.layers[ 0 ] ) );
+	assert.ok( Object.isFrozen( preset.feedbackStrengths ) );
+
 	assert.throws( () => {
 
 		preset.label = 'Changed';
 
 	}, TypeError );
 
+	assert.throws( () => {
+
+		preset.budgets.mesh = 99;
+
+	}, TypeError );
+
+	assert.throws( () => {
+
+		preset.layers[ 0 ].weight = 99;
+
+	}, TypeError );
+
+	assert.throws( () => {
+
+		preset.layers.push( { id: 'extra', kind: 'flash', weight: 999 } );
+
+	}, TypeError );
+
 	assert.equal( getExplosionPreset( 'mine' ).label, 'Mine Burst' );
+	assert.equal( getExplosionPreset( 'mine' ).budgets.mesh, 1 );
+	assert.equal( getExplosionPreset( 'mine' ).layers[ 0 ].weight, 1 );
+	assert.equal( getExplosionPreset( 'mine' ).layers.length, 5 );
 
 } );
