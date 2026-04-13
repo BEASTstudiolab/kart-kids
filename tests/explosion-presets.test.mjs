@@ -21,6 +21,14 @@ test( 'exports the four shipped explosion presets', () => {
 		assert.ok( preset.budgets.mesh > 0 );
 		assert.ok( preset.budgets.particles > 0 );
 		assert.ok( Array.isArray( preset.layers ) );
+		assert.ok( Array.isArray( preset.layerDropOrder ) );
+
+		const layerIds = new Set( preset.layers.map( ( layer ) => layer.id ) );
+		for ( const layerId of preset.layerDropOrder ) {
+
+			assert.ok( layerIds.has( layerId ) );
+
+		}
 
 	}
 

@@ -15,7 +15,7 @@ export const EXPLOSION_PRESETS = {
 			mesh: 1,
 			particles: 16,
 		},
-		layerDropOrder: [ 'smoke', 'debris' ],
+		layerDropOrder: [ 'smoke' ],
 		layers: [
 			{
 				id: 'flash',
@@ -117,7 +117,7 @@ export const EXPLOSION_PRESETS = {
 			mesh: 3,
 			particles: 34,
 		},
-		layerDropOrder: [ 'smoke', 'debris', 'streaks' ],
+		layerDropOrder: [ 'smoke', 'debris', 'streak' ],
 		layers: [
 			{
 				id: 'flash',
@@ -175,7 +175,7 @@ export const EXPLOSION_PRESETS = {
 			mesh: 2,
 			particles: 20,
 		},
-		layerDropOrder: [ 'smoke', 'debris' ],
+		layerDropOrder: [ 'afterglow', 'motes' ],
 		layers: [
 			{
 				id: 'pulse',
