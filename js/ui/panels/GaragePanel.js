@@ -17,12 +17,13 @@
  *   - services.notification.show()      — toast feedback
  */
 
-import { getAllVehicles, getVehicleById } from '../../VehicleRegistry.js';
+import { getAllVehicles, getVehicleById, PLAYER_CHARACTERS } from '../../VehicleRegistry.js';
 import { Settings }                      from '../../Settings.js';
 import { ProgressBar }                   from '../components/ProgressBar.js';
 import { CTAButton }                     from '../components/CTAButton.js';
 import { HudButton }                     from '../components/HudButton.js';
 import { HyperText }                     from '../effects/HyperText.js';
+import { ACCESSORY_DEFS, getVisibleAccessoryLabels } from '../../PlayerAppearance.js';
 
 /** Stat definitions — order matches the stats panel top-to-bottom. */
 const STAT_DEFS = [
@@ -31,6 +32,12 @@ const STAT_DEFS = [
 	{ key: 'acceleration', label: 'ACCELERATION',  statKey: 'acceleration' },
 	{ key: 'weight',       label: 'WEIGHT',        statKey: 'weight' },
 	{ key: 'boost',        label: 'BOOST',         statKey: 'boost' },
+];
+
+const COLOR_CONTROL_DEFS = [
+	{ key: 'charSkinColor', label: 'SKIN', fallback: '#d9a37f' },
+	{ key: 'characterColor', label: 'SUIT', fallback: '#00d4e8' },
+	{ key: 'vehicleColor', label: 'KART PAINT', fallback: '#f97316' },
 ];
 
 export class GaragePanel {
@@ -80,8 +87,23 @@ export class GaragePanel {
 		/** @type {HTMLElement|null} */
 		this._root = null;
 
+		/** @type {Map<string, { input: HTMLInputElement, row: HTMLElement }>} */
+		this._colorControls = new Map();
+
+		/** @type {Map<string, { row: HTMLElement, toggle: HTMLButtonElement, input: HTMLInputElement }>} */
+		this._accessoryControls = new Map();
+
+		/** @type {HTMLElement|null} */
+		this._styleSummaryEl = null;
+
+		/** @type {HTMLElement|null} */
+		this._stylePanel = null;
+
 		/** @type {Function|null} Bound keyboard handler for cleanup. */
 		this._keyHandler = null;
+
+		/** @type {Function|null} */
+		this._settingsChangedHandler = null;
 
 		this._injectCSS();
 		this._build();
@@ -295,6 +317,174 @@ export class GaragePanel {
 			/* HudButton variant in equip wrap */
 			.kk-garage__equip-wrap--equipped .kk-hud-button {
 				opacity: 0.6;
+			}
+
+			/* ===================================================
+			   Style panel — top-left character builder
+			   =================================================== */
+
+			.kk-garage__style {
+				position: absolute;
+				top: var(--space-6, 1.5rem);
+				bottom: 11rem;
+				left: var(--space-6, 1.5rem);
+				width: min( 22rem, calc( 100vw - 3rem ) );
+				background: rgba( 6, 10, 18, 0.72 );
+				border: 1px solid rgba( 255, 255, 255, 0.12 );
+				border-radius: var(--radius-lg, 16px);
+				padding: var(--space-4, 1rem);
+				display: flex;
+				flex-direction: column;
+				gap: var(--space-3, 0.75rem);
+				backdrop-filter: blur( 12px );
+				box-shadow: 0 18px 40px rgba( 0, 0, 0, 0.3 );
+				overflow-y: auto;
+				overscroll-behavior: contain;
+				z-index: 2;
+			}
+
+			.kk-garage__style-eyebrow {
+				font-family: var(--font-ui, sans-serif);
+				font-size: var(--text-xs, 0.75rem);
+				font-weight: var(--weight-bold, 700);
+				text-transform: uppercase;
+				letter-spacing: var(--tracking-wider, 0.1em);
+				color: var(--color-accent-cyan, #00d4e8);
+			}
+
+			.kk-garage__style-title {
+				font-family: var(--font-display, sans-serif);
+				font-size: var(--text-xl, 1.5rem);
+				font-weight: var(--weight-black, 900);
+				text-transform: uppercase;
+				letter-spacing: var(--tracking-wide, 0.08em);
+				color: var(--color-white, #fff);
+			}
+
+			.kk-garage__style-copy {
+				font-family: var(--font-ui, sans-serif);
+				font-size: var(--text-sm, 0.875rem);
+				line-height: 1.4;
+				color: var(--color-ink-200, #d9d9d9);
+			}
+
+			.kk-garage__style-group {
+				display: flex;
+				flex-direction: column;
+				gap: var(--space-2, 0.5rem);
+			}
+
+			.kk-garage__style-label {
+				font-family: var(--font-ui, sans-serif);
+				font-size: var(--text-xs, 0.75rem);
+				font-weight: var(--weight-bold, 700);
+				text-transform: uppercase;
+				letter-spacing: var(--tracking-wider, 0.1em);
+				color: var(--color-ink-400, #8f9bb3);
+			}
+
+			.kk-garage__color-row,
+			.kk-garage__accessory-row {
+				display: grid;
+				grid-template-columns: minmax( 0, 1fr ) auto auto;
+				align-items: center;
+				gap: var(--space-2, 0.5rem);
+				padding: var(--space-2, 0.5rem) var(--space-3, 0.75rem);
+				background: rgba( 255, 255, 255, 0.04 );
+				border: 1px solid rgba( 255, 255, 255, 0.08 );
+				border-radius: var(--radius-md, 12px);
+			}
+
+			.kk-garage__accessory-row--off {
+				opacity: 0.55;
+			}
+
+			.kk-garage__color-row--custom {
+				border-color: rgba( 249, 115, 22, 0.36 );
+				background: rgba( 249, 115, 22, 0.08 );
+				box-shadow: inset 0 0 0 1px rgba( 249, 115, 22, 0.08 );
+			}
+
+			.kk-garage__color-label,
+			.kk-garage__accessory-label {
+				font-family: var(--font-ui, sans-serif);
+				font-size: var(--text-sm, 0.875rem);
+				font-weight: var(--weight-semibold, 600);
+				color: var(--color-white, #fff);
+			}
+
+			.kk-garage__color-input {
+				width: 2.5rem;
+				height: 2.25rem;
+				padding: 0;
+				border: 1px solid rgba( 255, 255, 255, 0.16 );
+				border-radius: 999px;
+				background: transparent;
+				cursor: pointer;
+			}
+
+			.kk-garage__color-input::-webkit-color-swatch-wrapper {
+				padding: 0;
+			}
+
+			.kk-garage__color-input::-webkit-color-swatch {
+				border: none;
+				border-radius: 999px;
+			}
+
+			.kk-garage__mini-btn,
+			.kk-garage__accessory-toggle {
+				border: 1px solid rgba( 255, 255, 255, 0.14 );
+				border-radius: 999px;
+				background: rgba( 255, 255, 255, 0.06 );
+				color: var(--color-white, #fff);
+				font-family: var(--font-ui, sans-serif);
+				font-size: var(--text-xs, 0.75rem);
+				font-weight: var(--weight-bold, 700);
+				text-transform: uppercase;
+				letter-spacing: var(--tracking-wider, 0.08em);
+				padding: 0.55rem 0.8rem;
+				cursor: pointer;
+				transition: transform var(--duration-fast, 150ms) var(--ease-standard, ease),
+					border-color var(--duration-fast, 150ms) var(--ease-standard, ease),
+					background var(--duration-fast, 150ms) var(--ease-standard, ease);
+			}
+
+			.kk-garage__accessory-toggle--active {
+				border-color: rgba( 0, 212, 232, 0.6 );
+				background: rgba( 0, 212, 232, 0.12 );
+				color: var(--color-accent-cyan, #00d4e8);
+			}
+
+			.kk-garage__mini-btn:hover,
+			.kk-garage__accessory-toggle:hover {
+				transform: translateY( -1px );
+			}
+
+			.kk-garage__style-summary {
+				display: flex;
+				flex-direction: column;
+				gap: 0.25rem;
+				padding: var(--space-3, 0.75rem);
+				border-radius: var(--radius-md, 12px);
+				background: linear-gradient( 135deg, rgba( 249, 115, 22, 0.14 ), rgba( 0, 212, 232, 0.1 ) );
+				border: 1px solid rgba( 255, 255, 255, 0.08 );
+			}
+
+			.kk-garage__style-summary strong {
+				font-family: var(--font-display, sans-serif);
+				font-size: var(--text-sm, 0.875rem);
+				font-weight: var(--weight-black, 900);
+				letter-spacing: var(--tracking-wide, 0.08em);
+				text-transform: uppercase;
+				color: var(--color-white, #fff);
+			}
+
+			.kk-garage__style-summary span {
+				font-family: var(--font-ui, sans-serif);
+				font-size: var(--text-sm, 0.875rem);
+				line-height: 1.4;
+				color: var(--color-ink-100, #f3f3f3);
 			}
 
 			/* ===================================================
@@ -521,6 +711,25 @@ export class GaragePanel {
 
 			@media ( max-width: 480px ) {
 
+				.kk-garage__style {
+					top: var(--space-4, 1rem);
+					bottom: 12rem;
+					left: var(--space-4, 1rem);
+					right: var(--space-4, 1rem);
+					width: auto;
+					padding: var(--space-3, 0.75rem);
+				}
+
+				.kk-garage__style-title {
+					font-size: var(--text-lg, 1.125rem);
+				}
+
+				.kk-garage__color-row,
+				.kk-garage__accessory-row {
+					grid-template-columns: minmax( 0, 1fr ) auto auto;
+					padding: var(--space-2, 0.5rem);
+				}
+
 				.kk-garage__kart-name {
 					font-size: var(--text-2xl, 1.75rem);
 					bottom: 12.5rem;
@@ -605,6 +814,73 @@ export class GaragePanel {
 		this._equipWrap.appendChild( this._equipBtn.el );
 		root.appendChild( this._equipWrap );
 
+		// Character builder panel
+		const stylePanel = document.createElement( 'section' );
+		stylePanel.className = 'kk-garage__style';
+		stylePanel.setAttribute( 'aria-label', 'Character builder' );
+
+		const styleEyebrow = document.createElement( 'div' );
+		styleEyebrow.className = 'kk-garage__style-eyebrow';
+		styleEyebrow.textContent = 'Garage Builder';
+		stylePanel.appendChild( styleEyebrow );
+
+		const styleTitle = document.createElement( 'div' );
+		styleTitle.className = 'kk-garage__style-title';
+		styleTitle.textContent = PLAYER_CHARACTERS[ 0 ]?.label || 'Driver';
+		stylePanel.appendChild( styleTitle );
+
+		const styleCopy = document.createElement( 'div' );
+		styleCopy.className = 'kk-garage__style-copy';
+		styleCopy.textContent = 'Tune your driver look here. Every change is saved instantly and carries into the party lineup.';
+		stylePanel.appendChild( styleCopy );
+
+		const paletteGroup = document.createElement( 'div' );
+		paletteGroup.className = 'kk-garage__style-group';
+
+		const paletteLabel = document.createElement( 'div' );
+		paletteLabel.className = 'kk-garage__style-label';
+		paletteLabel.textContent = 'Palette';
+		paletteGroup.appendChild( paletteLabel );
+
+		for ( const def of COLOR_CONTROL_DEFS ) {
+
+			paletteGroup.appendChild( this._buildColorControl( def ) );
+
+		}
+
+		stylePanel.appendChild( paletteGroup );
+
+		const gearGroup = document.createElement( 'div' );
+		gearGroup.className = 'kk-garage__style-group';
+
+		const gearLabel = document.createElement( 'div' );
+		gearLabel.className = 'kk-garage__style-label';
+		gearLabel.textContent = 'Gear';
+		gearGroup.appendChild( gearLabel );
+
+		for ( const def of ACCESSORY_DEFS ) {
+
+			gearGroup.appendChild( this._buildAccessoryControl( def ) );
+
+		}
+
+		stylePanel.appendChild( gearGroup );
+
+		const summary = document.createElement( 'div' );
+		summary.className = 'kk-garage__style-summary';
+
+		const summaryTitle = document.createElement( 'strong' );
+		summaryTitle.textContent = 'Current Loadout';
+		summary.appendChild( summaryTitle );
+
+		const summaryText = document.createElement( 'span' );
+		summary.appendChild( summaryText );
+		this._styleSummaryEl = summaryText;
+
+		stylePanel.appendChild( summary );
+		root.appendChild( stylePanel );
+		this._stylePanel = stylePanel;
+
 		// Stats panel
 		const statsPanel = document.createElement( 'section' );
 		statsPanel.className = 'kk-garage__stats';
@@ -684,8 +960,186 @@ export class GaragePanel {
 		this._keyHandler = ( e ) => this._onKeyDown( e );
 		document.addEventListener( 'keydown', this._keyHandler );
 
+		this._settingsChangedHandler = ( e ) => {
+
+			if ( e.detail.key === 'charSkinColor' ||
+				e.detail.key === 'characterColor' ||
+				e.detail.key === 'vehicleColor' ||
+				e.detail.key === 'charAccessories' ) {
+
+				this._syncStyleControls();
+
+			}
+
+		};
+		window.addEventListener( 'settings-changed', this._settingsChangedHandler );
+
 		// Set initial state
 		this._syncToCurrentKart();
+		this._syncStyleControls();
+
+	}
+
+	_buildColorControl( def ) {
+
+		const row = document.createElement( 'div' );
+		row.className = 'kk-garage__color-row';
+
+		const label = document.createElement( 'span' );
+		label.className = 'kk-garage__color-label';
+		label.textContent = def.label;
+		row.appendChild( label );
+
+		const input = document.createElement( 'input' );
+		input.type = 'color';
+		input.className = 'kk-garage__color-input';
+		input.value = def.fallback;
+		input.setAttribute( 'aria-label', `${def.label} color` );
+		input.addEventListener( 'input', () => {
+
+			this._settings.set( def.key, input.value );
+			this._syncStyleControls();
+
+		} );
+		row.appendChild( input );
+
+		const reset = document.createElement( 'button' );
+		reset.type = 'button';
+		reset.className = 'kk-garage__mini-btn';
+		reset.textContent = 'RESET';
+		reset.addEventListener( 'click', () => {
+
+			this._settings.set( def.key, '' );
+			input.value = def.fallback;
+			this._syncStyleControls();
+
+		} );
+		row.appendChild( reset );
+
+		this._colorControls.set( def.key, { input, row } );
+		return row;
+
+	}
+
+	_buildAccessoryControl( def ) {
+
+		const row = document.createElement( 'div' );
+		row.className = 'kk-garage__accessory-row';
+
+		const label = document.createElement( 'span' );
+		label.className = 'kk-garage__accessory-label';
+		label.textContent = def.label;
+		row.appendChild( label );
+
+		const toggle = document.createElement( 'button' );
+		toggle.type = 'button';
+		toggle.className = 'kk-garage__accessory-toggle';
+		toggle.addEventListener( 'click', () => {
+
+			const current = this._settings.get( 'charAccessories' ) || {};
+			const nextAccessory = {
+				...( current[ def.key ] || { visible: true, color: '' } ),
+			};
+			nextAccessory.visible = nextAccessory.visible === false;
+			this._settings.set( 'charAccessories', {
+				...current,
+				[ def.key ]: nextAccessory,
+			} );
+			this._syncStyleControls();
+
+		} );
+		row.appendChild( toggle );
+
+		const input = document.createElement( 'input' );
+		input.type = 'color';
+		input.className = 'kk-garage__color-input';
+		input.value = '#ffffff';
+		input.setAttribute( 'aria-label', `${def.label} accent color` );
+		input.addEventListener( 'input', () => {
+
+			const current = this._settings.get( 'charAccessories' ) || {};
+			this._settings.set( 'charAccessories', {
+				...current,
+				[ def.key ]: {
+					...( current[ def.key ] || { visible: true, color: '' } ),
+					color: input.value,
+				},
+			} );
+			this._syncStyleControls();
+
+		} );
+		row.appendChild( input );
+
+		const reset = document.createElement( 'button' );
+		reset.type = 'button';
+		reset.className = 'kk-garage__mini-btn';
+		reset.textContent = 'CLEAR';
+		reset.addEventListener( 'click', () => {
+
+			const current = this._settings.get( 'charAccessories' ) || {};
+			this._settings.set( 'charAccessories', {
+				...current,
+				[ def.key ]: {
+					...( current[ def.key ] || { visible: true, color: '' } ),
+					color: '',
+				},
+			} );
+			input.value = '#ffffff';
+			this._syncStyleControls();
+
+		} );
+		row.appendChild( reset );
+
+		this._accessoryControls.set( def.key, { row, toggle, input } );
+		return row;
+
+	}
+
+	_syncStyleControls() {
+
+		for ( const def of COLOR_CONTROL_DEFS ) {
+
+			const control = this._colorControls.get( def.key );
+			if ( ! control ) continue;
+
+			const value = this._settings.get( def.key ) || '';
+			control.input.value = value || def.fallback;
+			control.row.classList.toggle( 'kk-garage__color-row--custom', !! value );
+
+		}
+
+		const accessories = this._settings.get( 'charAccessories' ) || {};
+		for ( const def of ACCESSORY_DEFS ) {
+
+			const control = this._accessoryControls.get( def.key );
+			if ( ! control ) continue;
+
+			const value = accessories[ def.key ] || { visible: true, color: '' };
+			const isVisible = value.visible !== false;
+			control.toggle.textContent = isVisible ? 'ON' : 'OFF';
+			control.toggle.classList.toggle( 'kk-garage__accessory-toggle--active', isVisible );
+			control.row.classList.toggle( 'kk-garage__accessory-row--off', ! isVisible );
+			control.input.value = value.color || '#ffffff';
+
+		}
+
+		this._updateStyleSummary();
+
+	}
+
+	_updateStyleSummary() {
+
+		if ( ! this._styleSummaryEl ) return;
+
+		const visibleAccessories = getVisibleAccessoryLabels( this._settings.getPlayerAppearance() );
+		const skinState = this._settings.get( 'charSkinColor' ) ? 'custom skin' : 'default skin';
+		const suitState = this._settings.get( 'characterColor' ) ? 'custom suit' : 'default suit';
+		const kartState = this._settings.get( 'vehicleColor' ) ? 'custom paint' : 'factory paint';
+		const gearState = visibleAccessories.length > 0
+			? visibleAccessories.join( ', ' )
+			: 'No visible accessories';
+
+		this._styleSummaryEl.textContent = `${skinState}, ${suitState}, ${kartState}. Gear: ${gearState}.`;
 
 	}
 
@@ -1006,6 +1460,7 @@ export class GaragePanel {
 		}
 
 		this._syncToCurrentKart();
+		this._syncStyleControls();
 		this._renderCarousel();
 
 		// Sync 3D preview to current kart.
@@ -1018,6 +1473,7 @@ export class GaragePanel {
 		if ( this._services.lobbyScene ) {
 
 			this._services.lobbyScene.setKart( this._currentVehicle().id );
+			this._services.lobbyScene.setAppearance( this._settings.getPlayerAppearance() );
 
 		}
 
@@ -1041,6 +1497,13 @@ export class GaragePanel {
 
 			document.removeEventListener( 'keydown', this._keyHandler );
 			this._keyHandler = null;
+
+		}
+
+		if ( this._settingsChangedHandler ) {
+
+			window.removeEventListener( 'settings-changed', this._settingsChangedHandler );
+			this._settingsChangedHandler = null;
 
 		}
 

@@ -11,6 +11,7 @@
 import { createGameEngine } from './GameEngine.js';
 
 const engine = createGameEngine( document.body );
+window.__kartDebug = engine;
 
 engine.start( { mode: 'solo' } ).then( () => {
 

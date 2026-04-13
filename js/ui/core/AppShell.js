@@ -260,6 +260,11 @@ export class AppShell {
 
 			this._engine = createGameEngine( canvasContainer );
 			this._services.engine = this._engine;
+			window.__kartDebug = {
+				app: this,
+				engine: this._engine,
+				getAIState: () => this._engine?.getDebugAIState?.() ?? [],
+			};
 
 			// Create GaragePreview sharing the renderer from GameEngine.
 			const renderer = this._engine.getRenderer();
@@ -269,6 +274,22 @@ export class AppShell {
 			// Create LobbyScene — 3D environment behind all menu tabs.
 			this._lobbyScene = new LobbyScene( renderer );
 			this._services.lobbyScene = this._lobbyScene;
+
+			window.addEventListener( 'settings-changed', ( e ) => {
+
+				if ( ! this._lobbyScene ) return;
+
+				if ( e.detail.key === 'vehicleColor' ||
+					e.detail.key === 'characterColor' ||
+					e.detail.key === 'charSkinColor' ||
+					e.detail.key === 'charAccessories' ) {
+
+					const nextSettings = new Settings();
+					this._lobbyScene.setAppearance( nextSettings.getPlayerAppearance() );
+
+				}
+
+			} );
 
 		}
 
@@ -649,6 +670,7 @@ export class AppShell {
 
 			const settings = new Settings();
 			this._lobbyScene.setKart( settings.getSelectedKartId() );
+			this._lobbyScene.setAppearance( settings.getPlayerAppearance() );
 
 		}
 

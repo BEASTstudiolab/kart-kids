@@ -6,6 +6,8 @@ const _forward = new THREE.Vector3();
 const _toTarget = new THREE.Vector3();
 
 const STUCK_THRESHOLD = 0.05;
+const STUCK_PROGRESS_SPEED_THRESHOLD = 0.75;
+const STUCK_PROGRESS_LINEAR_MIN = 0.2;
 const BEND_TURN_DEG = 10;
 const HARD_TURN_DEG = 25;
 const EXIT_BLEND_DISTANCE = 10;
@@ -15,6 +17,29 @@ const WALL_PIN_THRESHOLD = 0.82;
 const WALL_PIN_SPEED = 0.2;
 const WALL_PIN_TIME = 0.45;
 const RECOVERY_CLEAR_SPEED = 0.35;
+const WALL_ESCAPE_THRESHOLD = 0.25;
+const WALL_ESCAPE_TARGET_SHIFT = 6.0;
+const WALL_ESCAPE_THROTTLE_MIN = 0.45;
+const WALL_ESCAPE_BOOST_THRESHOLD = 0.2;
+const DEFAULT_LOOK_AHEAD_NEAR_DISTANCE = 12;
+const DEFAULT_LOOK_AHEAD_FAR_DISTANCE = 22;
+const DEFAULT_TURN_LOOK_AHEAD_DISTANCE = 24;
+const DEFAULT_TURN_LOOK_AHEAD_STEP_DISTANCE = 6;
+const DEFAULT_TRAFFIC_LOOK_AHEAD_DISTANCE = 16;
+const DEFAULT_TRAFFIC_LATERAL_BIAS = 1.4;
+const TURN_LOOK_AHEAD_NEAR_SCALE = 0.6;
+const TURN_LOOK_AHEAD_FAR_SCALE = 0.5;
+const TURN_LOOK_AHEAD_BLEND_MIN = 0.12;
+const ROUTE_RECAPTURE_GAIN = 0.7;
+const ROUTE_RECAPTURE_TURN_GAIN = 1.4;
+const ROUTE_RECAPTURE_MAX_SHIFT = 4.0;
+const TRAFFIC_CORNER_LATERAL_SUPPRESSION = 2.4;
+const NOISE_TURN_SUPPRESSION_THRESHOLD = 0.15;
+const TRAFFIC_SCAN_DIST_SQ = 36 * 36;
+const WRENCH_SEEK_MIN_FORWARD_DISTANCE = 1.5;
+const WRENCH_SEEK_MAX_FORWARD_DISTANCE = 18;
+const WRENCH_SEEK_MAX_LATERAL_DISTANCE = 3.0;
+const WRENCH_SEEK_MAX_PROGRESS_DELTA = 0.08;
 
 const { clamp, lerp } = THREE.MathUtils;
 
@@ -43,6 +68,12 @@ function seededUnit( seed ) {
 
 }
 
+function clonePoint( point ) {
+
+	return point ? { ...point } : null;
+
+}
+
 export class AIController {
 
 	constructor( trackIntel, seed, profile ) {
@@ -53,11 +84,10 @@ export class AIController {
 		this._laneSpread = ( seededUnit( this._seed ) - 0.5 ) * 2 * MAX_SEED_LANE_SPREAD;
 
 		this._segmentHint = null;
+		this._waypointHint = 0;
 
-		// Merge profile with defaults — missing keys fall back to DEFAULT_PROFILE
 		this._profile = Object.assign( {}, DEFAULT_PROFILE, profile );
 
-		// Recovery / route state
 		this._stuckTimer = 0;
 		this._wallPinTimer = 0;
 		this._reverseTimer = 0;
@@ -66,52 +96,384 @@ export class AIController {
 		this._reverseSteer = 0;
 		this._recoveryStableTimer = 0;
 		this._lastDistanceAlongTrack = null;
+		this._lastProgress = null;
 		this._activeTurnSign = 0;
 		this._exitBlendRemaining = 0;
 		this._exitLaneStart = 0;
 
-		// Reusable input object — avoids per-frame allocation
 		this._input = { x: 0, z: 0, touchActive: false, boost: false, drift: false, useItem: false };
 
-		// Combat behavior
 		this._combat = new AICombatBehavior();
+		this._allVehiclesRef = [];
+		this._wrenchPositionsRef = [];
 		this._wrenchTarget = null;
-		this._debugState = {
-			mode: 'follow',
-			segmentIndex: 0,
-			target: null,
-			cornerAngleDeg: 0,
-			desiredSpeedFactor: 1,
-			recoveryActive: false,
-		};
-		this.reset();
+		this._debugState = null;
+
+	}
+
+	reset() {
+
+		this._segmentHint = null;
+		this._waypointHint = 0;
+		this._stuckTimer = 0;
+		this._wallPinTimer = 0;
+		this._reverseTimer = 0;
+		this._reversing = false;
+		this._recovering = false;
+		this._reverseSteer = 0;
+		this._recoveryStableTimer = 0;
+		this._lastDistanceAlongTrack = null;
+		this._lastProgress = null;
+		this._activeTurnSign = 0;
+		this._exitBlendRemaining = 0;
+		this._exitLaneStart = 0;
+		this._wrenchTarget = null;
+		this._input.x = 0;
+		this._input.z = 0;
+		this._input.touchActive = false;
+		this._input.boost = false;
+		this._input.drift = false;
+		this._input.useItem = false;
+		this._debugState = null;
 
 	}
 
 	update( dt, vehicle ) {
 
 		const trackIntel = this._trackIntel;
-
-		// No track intelligence — drive forward with slight random steering.
 		if ( ! trackIntel || ! trackIntel.waypoints || trackIntel.count === 0 ) {
 
-			this._input.x = Math.sin( this._noisePhase + dt * 2 ) * 0.3;
-			this._input.z = 1.0;
-			this._input.boost = false;
-			this._input.useItem = false;
-			this._noisePhase += dt;
-			this._debugState = {
-				mode: 'fallback',
-				segmentIndex: 0,
-				target: null,
-				cornerAngleDeg: 0,
-				desiredSpeedFactor: 1,
-				recoveryActive: false,
-			};
-			return this._input;
+			return this._updateFallback( dt );
 
 		}
 
+		if ( this._supportsProgressSampling( trackIntel ) ) {
+
+			return this._updateWithProgressSampling( dt, vehicle );
+
+		}
+
+		if ( this._supportsRouteProjection( trackIntel ) ) {
+
+			return this._updateWithRouteProjection( dt, vehicle );
+
+		}
+
+		return this._updateFallback( dt );
+
+	}
+
+	_updateFallback( dt ) {
+
+		this._input.x = Math.sin( this._noisePhase + dt * 2 ) * 0.3;
+		this._input.z = 1.0;
+		this._input.boost = false;
+		this._input.useItem = false;
+		this._noisePhase += dt;
+		this._setDebugState( {
+			mode: 'fallback',
+			recoveryActive: false,
+		} );
+		return this._input;
+
+	}
+
+	_updateWithProgressSampling( dt, vehicle ) {
+
+		const trackIntel = this._trackIntel;
+		const pos = vehicle.vehPos;
+		const p = this._profile;
+
+		if ( this._reversing ) {
+
+			this._reverseTimer -= dt;
+
+			if ( this._reverseTimer <= 0 ) {
+
+				this._reversing = false;
+				this._stuckTimer = 0;
+				this._lastProgress = null;
+				this._waypointHint = 0;
+
+			} else {
+
+				this._input.x = this._reverseSteer;
+				this._input.z = - 1.0;
+				this._input.boost = false;
+				this._input.useItem = false;
+				this._setDebugState( {
+					mode: 'reversing',
+					recoveryActive: true,
+				} );
+				return this._input;
+
+			}
+
+		}
+
+		const currentProgress = trackIntel.getProgress( pos.x, pos.z, this._waypointHint );
+		let makingProgress = true;
+
+		if ( this._lastProgress !== null && dt > 0 && trackIntel.totalLength > 0 ) {
+
+			let progressDelta = currentProgress - this._lastProgress;
+			if ( progressDelta < - 0.5 ) progressDelta += 1;
+			if ( progressDelta > 0.5 ) progressDelta -= 1;
+
+			const trackSpeed = Math.abs( progressDelta * trackIntel.totalLength / dt );
+			makingProgress = trackSpeed >= STUCK_PROGRESS_SPEED_THRESHOLD;
+
+		}
+
+		this._lastProgress = currentProgress;
+
+		if (
+			Math.abs( vehicle.linearSpeed ) < STUCK_THRESHOLD ||
+			( Math.abs( vehicle.linearSpeed ) >= STUCK_PROGRESS_LINEAR_MIN && ! makingProgress )
+		) {
+
+			this._stuckTimer += dt;
+
+			if ( this._stuckTimer >= p.stuckTime ) {
+
+				this._reversing = true;
+				this._reverseTimer = p.reverseTime;
+				this._reverseSteer = getWallAwareReverseSteer( vehicle );
+				this._input.x = this._reverseSteer;
+				this._input.z = - 1.0;
+				this._input.boost = false;
+				this._input.useItem = false;
+				this._setDebugState( {
+					mode: 'stuck-reverse',
+					recoveryActive: true,
+				} );
+				return this._input;
+
+			}
+
+		} else {
+
+			this._stuckTimer = 0;
+
+		}
+
+		this._waypointHint = trackIntel.getNearestWaypoint?.( pos.x, pos.z, this._waypointHint ) ?? this._waypointHint;
+
+		const routeSample = trackIntel.sampleAtProgress( currentProgress );
+		const baseNearDistance = p.lookAheadNearDistance ?? ( p.lookAheadNear || DEFAULT_LOOK_AHEAD_NEAR_DISTANCE / 4 ) * 4;
+		const baseFarDistance = p.lookAheadFarDistance ?? ( p.lookAheadFar || DEFAULT_LOOK_AHEAD_FAR_DISTANCE / 4 ) * 4;
+		const turnLookAheadDistance = p.turnLookAheadDistance ?? Math.max( baseFarDistance, DEFAULT_TURN_LOOK_AHEAD_DISTANCE );
+		const turnLookAheadStepDistance = p.turnLookAheadStepDistance ?? DEFAULT_TURN_LOOK_AHEAD_STEP_DISTANCE;
+		const turnSeverity = trackIntel.estimateTurnSeverity(
+			currentProgress,
+			turnLookAheadDistance,
+			turnLookAheadStepDistance
+		);
+		const nearDistance = lerp(
+			baseNearDistance,
+			Math.max( 6, baseNearDistance * TURN_LOOK_AHEAD_NEAR_SCALE ),
+			turnSeverity
+		);
+		const farDistance = lerp(
+			baseFarDistance,
+			Math.max( nearDistance + 2, baseFarDistance * TURN_LOOK_AHEAD_FAR_SCALE ),
+			turnSeverity
+		);
+		const nearSample = trackIntel.sampleAhead( currentProgress, nearDistance );
+		const farSample = trackIntel.sampleAhead( currentProgress, farDistance );
+
+		const lookAheadBlend = clamp( lerp( p.lookAheadBlend, TURN_LOOK_AHEAD_BLEND_MIN, turnSeverity ), 0, 1 );
+		const nearWeight = 1 - lookAheadBlend;
+		const farWeight = lookAheadBlend;
+		const routeTargetX = nearSample.x * nearWeight + farSample.x * farWeight;
+		const routeTargetZ = nearSample.z * nearWeight + farSample.z * farWeight;
+		let targetX = routeTargetX;
+		let targetZ = routeTargetZ;
+
+		const routeOffsetX = pos.x - routeSample.x;
+		const routeOffsetZ = pos.z - routeSample.z;
+		const routeLateralError = routeOffsetX * routeSample.left.x + routeOffsetZ * routeSample.left.z;
+		const recaptureShift = clamp(
+			- routeLateralError * ( ROUTE_RECAPTURE_GAIN + turnSeverity * ROUTE_RECAPTURE_TURN_GAIN ),
+			- ROUTE_RECAPTURE_MAX_SHIFT,
+			ROUTE_RECAPTURE_MAX_SHIFT
+		);
+		targetX += routeSample.left.x * recaptureShift;
+		targetZ += routeSample.left.z * recaptureShift;
+
+		_forward.set( 0, 0, 1 ).applyQuaternion( vehicle.container.quaternion );
+		_forward.y = 0;
+		_forward.normalize();
+
+		_toTarget.set( targetX - pos.x, 0, targetZ - pos.z );
+		if ( _toTarget.lengthSq() < 0.0001 ) {
+
+			_toTarget.set( nearSample.forward.x, 0, nearSample.forward.z );
+
+		}
+		_toTarget.normalize();
+
+		const baseDot = _forward.x * _toTarget.x + _forward.z * _toTarget.z;
+
+		if ( p.lateralOffset !== 0 ) {
+
+			const lineScale = Math.max( 0.15, 1 - turnSeverity * 0.85 );
+			const scale = p.lateralOffset * Math.max( 0, baseDot ) * lineScale;
+
+			targetX += nearSample.left.x * scale;
+			targetZ += nearSample.left.z * scale;
+			this._refreshToTarget( pos, nearSample.forward, targetX, targetZ );
+
+		}
+
+		const traffic = this._computeTrafficResponse( vehicle, currentProgress, routeSample, p, turnSeverity );
+
+		if ( traffic.lateralBias !== 0 ) {
+
+			const laneSpace = Math.max( 0, 1 - turnSeverity * TRAFFIC_CORNER_LATERAL_SUPPRESSION );
+			targetX += routeSample.left.x * traffic.lateralBias * laneSpace;
+			targetZ += routeSample.left.z * traffic.lateralBias * laneSpace;
+			this._refreshToTarget( pos, nearSample.forward, targetX, targetZ );
+
+		}
+
+		const wallLeft = Math.max( 0, vehicle._wallProximityLeft || 0 );
+		const wallRight = Math.max( 0, vehicle._wallProximityRight || 0 );
+		const wallProximity = Math.max( wallLeft, wallRight );
+		let wallEscapeFactor = 0;
+
+		if ( wallProximity > WALL_ESCAPE_THRESHOLD ) {
+
+			wallEscapeFactor = Math.min(
+				1,
+				( wallProximity - WALL_ESCAPE_THRESHOLD ) / ( 1 - WALL_ESCAPE_THRESHOLD )
+			);
+
+			const leftX = - _forward.z;
+			const leftZ = _forward.x;
+			const lateralBias = wallRight - wallLeft;
+
+			targetX += leftX * lateralBias * WALL_ESCAPE_TARGET_SHIFT * wallEscapeFactor;
+			targetZ += leftZ * lateralBias * WALL_ESCAPE_TARGET_SHIFT * wallEscapeFactor;
+			this._refreshToTarget( pos, nearSample.forward, targetX, targetZ );
+
+		}
+
+		const targetDot = _forward.x * _toTarget.x + _forward.z * _toTarget.z;
+		const cross = _forward.x * _toTarget.z - _forward.z * _toTarget.x;
+
+		this._noisePhase += dt * 2.3;
+		const noise = turnSeverity < NOISE_TURN_SUPPRESSION_THRESHOLD &&
+			traffic.occupancy < 0.15 &&
+			wallEscapeFactor === 0
+			? Math.sin( this._noisePhase ) * p.noiseAmplitude
+			: 0;
+
+		const steerInput = clamp( cross * p.steerSensitivity + noise, - 1, 1 );
+
+		let throttle = 1.0;
+		if ( targetDot < p.turnThrottleDot ) {
+
+			throttle = Math.max( p.turnThrottleMin, targetDot );
+
+		}
+
+		const cornerThrottleCap = lerp( 1.0, p.turnThrottleMin, turnSeverity );
+		throttle = Math.min( throttle, cornerThrottleCap );
+
+		if ( traffic.throttleCap < 1.0 ) {
+
+			throttle = Math.min( throttle, traffic.throttleCap );
+
+		}
+
+		if ( wallEscapeFactor > 0 ) {
+
+			const escapeThrottleCap = lerp( 1.0, WALL_ESCAPE_THROTTLE_MIN, wallEscapeFactor );
+			throttle = Math.min( throttle, escapeThrottleCap );
+
+		}
+
+		let boost = false;
+		if ( vehicle.boostMeter >= 1.0 ) {
+
+			boost = p.boostEagerness ? true : targetDot > 0.95;
+
+		}
+
+		if ( turnSeverity > 0.18 ) boost = false;
+		if ( traffic.occupancy > 0.3 ) boost = false;
+		if ( wallEscapeFactor > WALL_ESCAPE_BOOST_THRESHOLD ) boost = false;
+
+		this._input.x = steerInput;
+		this._input.z = throttle;
+		this._input.boost = boost;
+		this._input.useItem = false;
+		this._wrenchTarget = null;
+
+		let finalTargetX = targetX;
+		let finalTargetZ = targetZ;
+		let debugMode = wallEscapeFactor > 0
+			? 'wall-escape'
+			: traffic.occupancy > 0.25
+				? 'traffic'
+				: 'route';
+
+		if ( this._combat.shouldUseItem( vehicle, this._allVehiclesRef ) ) {
+
+			this._input.useItem = true;
+
+		}
+
+		if ( this._wrenchPositionsRef && this._combat.shouldPursueWrench( vehicle, {
+			turnSeverity,
+			trafficOccupancy: traffic.occupancy,
+			wallEscapeFactor,
+		} ) ) {
+
+			const wrench = this._selectWrenchTarget( vehicle, currentProgress, nearSample );
+			if ( wrench ) {
+
+				this._wrenchTarget = wrench;
+				finalTargetX = wrench.x;
+				finalTargetZ = wrench.z;
+				debugMode = 'wrench';
+
+				_toTarget.set( wrench.x - pos.x, 0, wrench.z - pos.z );
+				const wrenchDistance = _toTarget.length();
+				if ( wrenchDistance > 0.5 && wrenchDistance < 30 ) {
+
+					_toTarget.normalize();
+					const wrenchCross = _forward.x * _toTarget.z - _forward.z * _toTarget.x;
+					this._input.x = clamp( wrenchCross * p.steerSensitivity, - 1, 1 );
+
+				}
+
+			}
+
+		}
+
+		this._setDebugState( {
+			mode: debugMode,
+			progress: currentProgress,
+			routeTarget: { x: routeTargetX, z: routeTargetZ },
+			anchorTarget: { x: routeSample.x, z: routeSample.z },
+			finalTarget: { x: finalTargetX, z: finalTargetZ },
+			target: { x: finalTargetX, z: finalTargetZ, laneOffset: 0, wrench: this._cloneWrenchTarget() },
+			turnSeverity,
+			trafficOccupancy: traffic.occupancy,
+			wallEscapeFactor,
+			recoveryActive: false,
+			wrenchTarget: this._cloneWrenchTarget(),
+		} );
+
+		return this._input;
+
+	}
+
+	_updateWithRouteProjection( dt, vehicle ) {
+
+		const trackIntel = this._trackIntel;
 		const pos = vehicle.vehPos;
 		const p = this._profile;
 		const speed = Math.abs( vehicle.linearSpeed || 0 );
@@ -126,6 +488,10 @@ export class AIController {
 			this._input.z = 0.4;
 			this._input.boost = false;
 			this._input.useItem = false;
+			this._setDebugState( {
+				mode: 'route-miss',
+				recoveryActive: false,
+			} );
 			return this._input;
 
 		}
@@ -149,18 +515,15 @@ export class AIController {
 
 			} else {
 
-				this._setDebugState( {
-					mode: 'reverse',
-					segmentIndex: routeProjection.segmentIndex,
-					target: null,
-					cornerAngleDeg: 0,
-					desiredSpeedFactor: 0,
-					recoveryActive: true,
-				} );
 				this._input.x = this._reverseSteer;
 				this._input.z = - 1.0;
 				this._input.boost = false;
 				this._input.useItem = false;
+				this._setDebugState( {
+					mode: 'reverse',
+					segmentIndex: routeProjection.segmentIndex,
+					recoveryActive: true,
+				} );
 				return this._input;
 
 			}
@@ -197,18 +560,15 @@ export class AIController {
 			this._segmentHint = null;
 			this._lastDistanceAlongTrack = null;
 
-			this._setDebugState( {
-				mode: 'reverse',
-				segmentIndex: routeProjection.segmentIndex,
-				target: null,
-				cornerAngleDeg: 0,
-				desiredSpeedFactor: 0,
-				recoveryActive: true,
-			} );
 			this._input.x = this._reverseSteer;
 			this._input.z = - 1.0;
 			this._input.boost = false;
 			this._input.useItem = false;
+			this._setDebugState( {
+				mode: 'reverse',
+				segmentIndex: routeProjection.segmentIndex,
+				recoveryActive: true,
+			} );
 			return this._input;
 
 		}
@@ -217,76 +577,88 @@ export class AIController {
 		const farDist = clamp( 10 + speed * 0.65, 10, 22 );
 		const brakeDist = clamp( 14 + speed * 0.9, 14, 28 );
 
-		const routeNow = trackIntel.sampleRoute( routeProjection.distanceAlongTrack, 0 )
-			|| { forward: { x: 0, z: 1 }, curvature: 0 };
-		const nearCenter = trackIntel.sampleRoute( routeProjection.distanceAlongTrack + nearDist, 0 ) || routeNow;
-		const farCenter = trackIntel.sampleRoute( routeProjection.distanceAlongTrack + farDist, 0 ) || nearCenter;
-		const brakeCenter = trackIntel.sampleRoute( routeProjection.distanceAlongTrack + brakeDist, 0 ) || farCenter;
+		const routeNow = this._sampleProjectedRoute( routeProjection.distanceAlongTrack, 0 )
+			|| { x: pos.x, z: pos.z, forward: { x: 0, z: 1 }, left: { x: - 1, z: 0 }, curvature: 0, segmentIndex: routeProjection.segmentIndex, progress: routeProjection.progress, distance: routeProjection.distanceAlongTrack };
+		const nearCenter = this._sampleProjectedRoute( routeProjection.distanceAlongTrack + nearDist, 0 ) || routeNow;
+		const farCenter = this._sampleProjectedRoute( routeProjection.distanceAlongTrack + farDist, 0 ) || nearCenter;
+		const brakeCenter = this._sampleProjectedRoute( routeProjection.distanceAlongTrack + brakeDist, 0 ) || farCenter;
 
 		const nearAngleDeg = signedAngleDeg( routeNow.forward, nearCenter.forward );
 		const cornerAngleDeg = signedAngleDeg( routeNow.forward, brakeCenter.forward );
+		const turnSeverity = clamp( Math.max( Math.abs( nearAngleDeg ) * 1.35, Math.abs( cornerAngleDeg ) * 0.65 ) / 85, 0, 1 );
 		const lanePlan = this._computeLanePlan( {
-			baseLane: this._recovering ? 0 : p.straightLaneOffset,
+			baseLane: this._recovering ? 0 : ( p.straightLaneOffset ?? 0 ),
 			nearAngleDeg,
 			cornerAngleDeg,
 			traveledDistance,
 			profile: p,
 		} );
 
-		const nearTarget = trackIntel.sampleRoute( routeProjection.distanceAlongTrack + nearDist, lanePlan.laneOffset ) || nearCenter;
-		const farTarget = trackIntel.sampleRoute( routeProjection.distanceAlongTrack + farDist, lanePlan.laneOffset ) || farCenter;
-		let targetX = nearTarget.x * 0.65 + farTarget.x * 0.35;
-		let targetZ = nearTarget.z * 0.65 + farTarget.z * 0.35;
+		const nearTarget = this._sampleProjectedRoute( routeProjection.distanceAlongTrack + nearDist, lanePlan.laneOffset ) || nearCenter;
+		const farTarget = this._sampleProjectedRoute( routeProjection.distanceAlongTrack + farDist, lanePlan.laneOffset ) || farCenter;
+		const routeTargetX = nearTarget.x * 0.65 + farTarget.x * 0.35;
+		const routeTargetZ = nearTarget.z * 0.65 + farTarget.z * 0.35;
+		let targetX = routeTargetX;
+		let targetZ = routeTargetZ;
 
-		this._wrenchTarget = null;
+		const recaptureShift = clamp(
+			- routeProjection.lateralOffset * ( ROUTE_RECAPTURE_GAIN + turnSeverity * ROUTE_RECAPTURE_TURN_GAIN ),
+			- ROUTE_RECAPTURE_MAX_SHIFT,
+			ROUTE_RECAPTURE_MAX_SHIFT
+		);
+		targetX += routeNow.left.x * recaptureShift;
+		targetZ += routeNow.left.z * recaptureShift;
 
 		_forward.set( 0, 0, 1 ).applyQuaternion( vehicle.container.quaternion );
 		_forward.y = 0;
 		_forward.normalize();
 
-		// Wrench seeking nudges the route target, but does not bypass
-		// the new braking / recovery logic.
-		const profileName = p.name || 'default';
-		if ( this._wrenchPositionsRef && this._combat.shouldSeekWrench( vehicle, profileName ) ) {
+		this._refreshToTarget( pos, nearTarget.forward || routeNow.forward, targetX, targetZ );
 
-			const wrench = this._combat.getNearestWrench( vehicle, this._wrenchPositionsRef );
-			if ( wrench ) {
+		const traffic = this._computeTrafficResponse( vehicle, routeProjection.progress, routeNow, p, turnSeverity );
 
-				const dx = wrench.x - pos.x;
-				const dz = wrench.z - pos.z;
-				const distSq = dx * dx + dz * dz;
-				if ( distSq > 0.25 && distSq < 900 ) {
+		if ( traffic.lateralBias !== 0 ) {
 
-					this._wrenchTarget = wrench;
-					targetX = wrench.x;
-					targetZ = wrench.z;
-
-				}
-
-			}
+			const laneSpace = Math.max( 0, 1 - turnSeverity * TRAFFIC_CORNER_LATERAL_SUPPRESSION );
+			targetX += routeNow.left.x * traffic.lateralBias * laneSpace;
+			targetZ += routeNow.left.z * traffic.lateralBias * laneSpace;
+			this._refreshToTarget( pos, nearTarget.forward || routeNow.forward, targetX, targetZ );
 
 		}
 
-		_toTarget.set( targetX - pos.x, 0, targetZ - pos.z );
-		if ( _toTarget.lengthSq() < 1e-6 ) {
+		let wallEscapeFactor = 0;
+		if ( wallPressure > WALL_ESCAPE_THRESHOLD ) {
 
-			_toTarget.set( nearTarget.forward?.x || routeNow.forward.x, 0, nearTarget.forward?.z || routeNow.forward.z );
+			wallEscapeFactor = Math.min(
+				1,
+				( wallPressure - WALL_ESCAPE_THRESHOLD ) / ( 1 - WALL_ESCAPE_THRESHOLD )
+			);
+			const leftX = - _forward.z;
+			const leftZ = _forward.x;
+			const lateralBias = wallRight - wallLeft;
+
+			targetX += leftX * lateralBias * WALL_ESCAPE_TARGET_SHIFT * wallEscapeFactor;
+			targetZ += leftZ * lateralBias * WALL_ESCAPE_TARGET_SHIFT * wallEscapeFactor;
+			this._refreshToTarget( pos, nearTarget.forward || routeNow.forward, targetX, targetZ );
 
 		}
 
-		_toTarget.normalize();
 		const dot = _forward.x * _toTarget.x + _forward.z * _toTarget.z;
 		const cross = _forward.x * _toTarget.z - _forward.z * _toTarget.x;
 
-		// Per-AI noise so bots don't follow identical lines
 		this._noisePhase += dt * 2.3;
-		const noise = Math.sin( this._noisePhase ) * p.noiseAmplitude;
+		const noise = turnSeverity < NOISE_TURN_SUPPRESSION_THRESHOLD &&
+			traffic.occupancy < 0.15 &&
+			wallEscapeFactor === 0
+			? Math.sin( this._noisePhase ) * p.noiseAmplitude
+			: 0;
 		const steerInput = clamp( cross * p.steerSensitivity + noise, - 1, 1 );
 
 		const turnRiskDeg = Math.max( Math.abs( nearAngleDeg ) * 1.35, Math.abs( cornerAngleDeg ) * 0.65 );
-		let desiredSpeedFactor = clamp( 1 - turnRiskDeg / 85, 0.32, 1 ) * p.cornerSpeedFactor;
+		let desiredSpeedFactor = clamp( 1 - turnRiskDeg / 85, 0.32, 1 ) * ( p.cornerSpeedFactor ?? 1 );
 		desiredSpeedFactor = clamp( desiredSpeedFactor, 0.25, 1.0 );
 		let throttle = desiredSpeedFactor;
+
 		if ( speed > desiredSpeedFactor + 0.08 && Math.abs( cornerAngleDeg ) >= BEND_TURN_DEG ) {
 
 			throttle = - clamp( ( speed - desiredSpeedFactor ) / 0.2, 0.35, 1.0 );
@@ -294,6 +666,19 @@ export class AIController {
 		} else if ( dot < p.turnThrottleDot ) {
 
 			throttle = Math.min( throttle, Math.max( p.turnThrottleMin, dot ) );
+
+		}
+
+		if ( traffic.throttleCap < 1.0 ) {
+
+			throttle = Math.min( throttle, traffic.throttleCap );
+
+		}
+
+		if ( wallEscapeFactor > 0 ) {
+
+			const escapeThrottleCap = lerp( 1.0, WALL_ESCAPE_THROTTLE_MIN, wallEscapeFactor );
+			throttle = Math.min( throttle, escapeThrottleCap );
 
 		}
 
@@ -324,7 +709,9 @@ export class AIController {
 			vehicle.boostMeter >= 1.0 &&
 			Math.abs( cornerAngleDeg ) < BEND_TURN_DEG &&
 			Math.abs( routeProjection.lateralOffset - lanePlan.laneOffset ) < 0.75 &&
-			wallPressure < 0.5
+			wallPressure < 0.5 &&
+			traffic.occupancy <= 0.3 &&
+			wallEscapeFactor <= WALL_ESCAPE_BOOST_THRESHOLD
 		) {
 
 			boost = p.boostEagerness ? true : dot > 0.92;
@@ -335,30 +722,102 @@ export class AIController {
 		this._input.z = throttle;
 		this._input.boost = boost;
 		this._input.useItem = false;
+		this._wrenchTarget = null;
 
-		// ── Combat behavior ──────────────────────────────────────
-		// Item use decision
-		if ( this._combat.shouldUseItem( vehicle, this._allVehiclesRef || [], profileName ) ) {
+		let finalTargetX = targetX;
+		let finalTargetZ = targetZ;
+		let debugMode = lanePlan.mode;
+		if ( wallEscapeFactor > 0 ) debugMode = 'wall-escape';
+		else if ( traffic.occupancy > 0.25 ) debugMode = 'traffic';
+
+		if ( this._combat.shouldUseItem( vehicle, this._allVehiclesRef ) ) {
 
 			this._input.useItem = true;
 
 		}
 
+		if ( this._wrenchPositionsRef && this._combat.shouldPursueWrench( vehicle, {
+			turnSeverity,
+			trafficOccupancy: traffic.occupancy,
+			wallEscapeFactor,
+		} ) ) {
+
+			const wrench = this._selectWrenchTarget( vehicle, routeProjection.progress, routeNow );
+			if ( wrench ) {
+
+				this._wrenchTarget = wrench;
+				finalTargetX = wrench.x;
+				finalTargetZ = wrench.z;
+				debugMode = 'wrench';
+
+				_toTarget.set( wrench.x - pos.x, 0, wrench.z - pos.z );
+				const wrenchDistance = _toTarget.length();
+				if ( wrenchDistance > 0.5 && wrenchDistance < 30 ) {
+
+					_toTarget.normalize();
+					const wrenchCross = _forward.x * _toTarget.z - _forward.z * _toTarget.x;
+					this._input.x = clamp( wrenchCross * p.steerSensitivity, - 1, 1 );
+
+				}
+
+			}
+
+		}
+
 		this._setDebugState( {
-			mode: lanePlan.mode,
+			mode: debugMode,
+			progress: routeProjection.progress,
 			segmentIndex: routeProjection.segmentIndex,
+			routeTarget: { x: routeTargetX, z: routeTargetZ },
+			anchorTarget: { x: routeNow.x, z: routeNow.z },
+			finalTarget: { x: finalTargetX, z: finalTargetZ },
 			target: {
-				x: targetX,
-				z: targetZ,
+				x: finalTargetX,
+				z: finalTargetZ,
 				laneOffset: lanePlan.laneOffset,
-				wrench: this._wrenchTarget ? { x: this._wrenchTarget.x, z: this._wrenchTarget.z } : null,
+				wrench: this._cloneWrenchTarget(),
 			},
 			cornerAngleDeg,
 			desiredSpeedFactor,
+			turnSeverity,
+			trafficOccupancy: traffic.occupancy,
+			wallEscapeFactor,
 			recoveryActive: this._recovering || this._reversing,
+			wrenchTarget: this._cloneWrenchTarget(),
 		} );
 
 		return this._input;
+
+	}
+
+	_sampleProjectedRoute( distanceAlongTrack, lateralOffset = 0 ) {
+
+		const sample = this._trackIntel.sampleRoute?.( distanceAlongTrack, lateralOffset );
+		if ( ! sample ) return null;
+
+		const forwardX = sample.forward?.x ?? 0;
+		const forwardZ = sample.forward?.z ?? 1;
+		const totalLength = this._trackIntel.totalLength || 0;
+		const distance = sample.distanceAlongTrack ?? distanceAlongTrack ?? 0;
+
+		return {
+			...sample,
+			left: { x: - forwardZ, z: forwardX },
+			progress: totalLength > 0 ? this._normalizeProgressDistance( distance, totalLength ) / totalLength : 0,
+			distance,
+		};
+
+	}
+
+	_refreshToTarget( pos, fallbackForward, targetX, targetZ ) {
+
+		_toTarget.set( targetX - pos.x, 0, targetZ - pos.z );
+		if ( _toTarget.lengthSq() < 0.0001 ) {
+
+			_toTarget.set( fallbackForward.x, 0, fallbackForward.z );
+
+		}
+		_toTarget.normalize();
 
 	}
 
@@ -411,6 +870,125 @@ export class AIController {
 
 	}
 
+	_computeTrafficResponse( vehicle, currentProgress, routeSample, profile, turnSeverity = 0 ) {
+
+		const response = { throttleCap: 1.0, lateralBias: 0, occupancy: 0 };
+		const vehicles = this._allVehiclesRef || [];
+		const trackIntel = this._trackIntel;
+
+		if ( vehicles.length === 0 || ! routeSample ) return response;
+
+		const totalLength = trackIntel?.totalLength || 0;
+		if ( totalLength <= 0 ) return response;
+
+		const lookAheadDistance = profile.trafficLookAheadDistance ?? DEFAULT_TRAFFIC_LOOK_AHEAD_DISTANCE;
+		const progressWindow = lookAheadDistance / totalLength;
+		const laneBiasMax = profile.trafficLateralBias ?? DEFAULT_TRAFFIC_LATERAL_BIAS;
+		const trafficThrottleMin = profile.trafficThrottleMin ?? Math.max( profile.turnThrottleMin, 0.35 );
+
+		for ( const entry of vehicles ) {
+
+			const otherVehicle = entry?.vehicle;
+			if ( ! otherVehicle || otherVehicle === vehicle ) continue;
+
+			const dx = otherVehicle.vehPos.x - vehicle.vehPos.x;
+			const dz = otherVehicle.vehPos.z - vehicle.vehPos.z;
+			const distSq = dx * dx + dz * dz;
+			if ( distSq > TRAFFIC_SCAN_DIST_SQ ) continue;
+
+			let delta = this._getTrackProgress( otherVehicle.vehPos.x, otherVehicle.vehPos.z ) - currentProgress;
+			if ( delta < 0 ) delta += 1;
+			if ( delta <= 0 || delta > progressWindow ) continue;
+
+			const relForward = dx * routeSample.forward.x + dz * routeSample.forward.z;
+			if ( relForward < - 1.0 ) continue;
+
+			const relLeft = dx * routeSample.left.x + dz * routeSample.left.z;
+			const sameLaneFactor = Math.max( 0, 1 - Math.min( Math.abs( relLeft ) / 3.25, 1 ) );
+			const closeness = Math.max( 0, 1 - delta / progressWindow );
+			const occupancy = sameLaneFactor * closeness;
+			if ( occupancy <= 0 ) continue;
+
+			response.occupancy = Math.max( response.occupancy, occupancy );
+			response.throttleCap = Math.min(
+				response.throttleCap,
+				lerp( 1.0, trafficThrottleMin, Math.min( 1, occupancy * ( 1 + turnSeverity * 0.5 ) ) )
+			);
+
+			if ( Math.abs( relLeft ) > 0.75 ) {
+
+				response.lateralBias += ( relLeft > 0 ? - 1 : 1 ) * occupancy * laneBiasMax;
+
+			}
+
+		}
+
+		response.lateralBias = clamp( response.lateralBias, - laneBiasMax, laneBiasMax );
+		return response;
+
+	}
+
+	_selectWrenchTarget( vehicle, currentProgress, routeSample ) {
+
+		const wrenchPositions = this._wrenchPositionsRef || [];
+		if ( wrenchPositions.length === 0 || ! routeSample ) return null;
+
+		let best = null;
+		let bestScore = Infinity;
+
+		for ( const wrench of wrenchPositions ) {
+
+			const dx = wrench.x - vehicle.vehPos.x;
+			const dz = wrench.z - vehicle.vehPos.z;
+			const relForward = dx * routeSample.forward.x + dz * routeSample.forward.z;
+			if ( relForward < WRENCH_SEEK_MIN_FORWARD_DISTANCE || relForward > WRENCH_SEEK_MAX_FORWARD_DISTANCE ) continue;
+
+			const relLeft = dx * routeSample.left.x + dz * routeSample.left.z;
+			if ( Math.abs( relLeft ) > WRENCH_SEEK_MAX_LATERAL_DISTANCE ) continue;
+
+			const wrenchProgress = this._getTrackProgress( wrench.x, wrench.z );
+			if ( Number.isFinite( wrenchProgress ) ) {
+
+				let progressDelta = wrenchProgress - currentProgress;
+				if ( progressDelta < 0 ) progressDelta += 1;
+				if ( progressDelta > WRENCH_SEEK_MAX_PROGRESS_DELTA ) continue;
+
+			}
+
+			const score = relForward + Math.abs( relLeft ) * 3;
+			if ( score < bestScore ) {
+
+				bestScore = score;
+				best = wrench;
+
+			}
+
+		}
+
+		return best;
+
+	}
+
+	_getTrackProgress( worldX, worldZ ) {
+
+		const trackIntel = this._trackIntel;
+
+		if ( typeof trackIntel?.getProgress === 'function' ) {
+
+			return trackIntel.getProgress( worldX, worldZ, this._segmentHint ?? this._waypointHint );
+
+		}
+
+		if ( typeof trackIntel?.projectToRoute === 'function' ) {
+
+			return trackIntel.projectToRoute( worldX, worldZ, this._segmentHint )?.progress ?? 0;
+
+		}
+
+		return 0;
+
+	}
+
 	_consumeDistanceDelta( distanceAlongTrack, totalLength ) {
 
 		if ( this._lastDistanceAlongTrack === null || totalLength <= 0 ) {
@@ -429,54 +1007,58 @@ export class AIController {
 
 	}
 
+	_normalizeProgressDistance( distance, totalLength ) {
+
+		if ( totalLength <= 0 ) return 0;
+		let normalized = distance % totalLength;
+		if ( normalized < 0 ) normalized += totalLength;
+		return normalized;
+
+	}
+
+	_supportsProgressSampling( trackIntel ) {
+
+		return typeof trackIntel?.getProgress === 'function' &&
+			typeof trackIntel?.sampleAtProgress === 'function' &&
+			typeof trackIntel?.sampleAhead === 'function' &&
+			typeof trackIntel?.estimateTurnSeverity === 'function';
+
+	}
+
+	_supportsRouteProjection( trackIntel ) {
+
+		return typeof trackIntel?.projectToRoute === 'function' &&
+			typeof trackIntel?.sampleRoute === 'function';
+
+	}
+
+	_cloneWrenchTarget() {
+
+		return this._wrenchTarget ? { x: this._wrenchTarget.x, z: this._wrenchTarget.z } : null;
+
+	}
+
 	_setDebugState( nextState ) {
 
 		this._debugState = {
-			mode: nextState.mode,
-			segmentIndex: nextState.segmentIndex,
-			target: nextState.target,
-			cornerAngleDeg: nextState.cornerAngleDeg,
-			desiredSpeedFactor: nextState.desiredSpeedFactor,
-			recoveryActive: nextState.recoveryActive,
+			mode: nextState.mode ?? 'follow',
+			progress: nextState.progress ?? null,
+			segmentIndex: nextState.segmentIndex ?? 0,
+			target: nextState.target ? { ...nextState.target } : null,
+			routeTarget: clonePoint( nextState.routeTarget ),
+			anchorTarget: clonePoint( nextState.anchorTarget ),
+			finalTarget: clonePoint( nextState.finalTarget ),
+			cornerAngleDeg: nextState.cornerAngleDeg ?? 0,
+			desiredSpeedFactor: nextState.desiredSpeedFactor ?? 1,
+			turnSeverity: nextState.turnSeverity ?? 0,
+			trafficOccupancy: nextState.trafficOccupancy ?? 0,
+			wallEscapeFactor: nextState.wallEscapeFactor ?? 0,
+			recoveryActive: nextState.recoveryActive ?? false,
+			wrenchTarget: clonePoint( nextState.wrenchTarget ),
 		};
 
 	}
 
-	reset() {
-
-		this._segmentHint = null;
-		this._stuckTimer = 0;
-		this._wallPinTimer = 0;
-		this._reverseTimer = 0;
-		this._reversing = false;
-		this._recovering = false;
-		this._reverseSteer = 0;
-		this._recoveryStableTimer = 0;
-		this._lastDistanceAlongTrack = null;
-		this._activeTurnSign = 0;
-		this._exitBlendRemaining = 0;
-		this._exitLaneStart = 0;
-		this._wrenchTarget = null;
-		this._input.x = 0;
-		this._input.z = 0;
-		this._input.touchActive = false;
-		this._input.boost = false;
-		this._input.drift = false;
-		this._input.useItem = false;
-		this._setDebugState( {
-			mode: 'follow',
-			segmentIndex: 0,
-			target: null,
-			cornerAngleDeg: 0,
-			desiredSpeedFactor: 1,
-			recoveryActive: false,
-		} );
-
-	}
-
-	/**
-	 * Set external references for combat decisions (called by AIManager).
-	 */
 	setCombatRefs( allVehicles, wrenchPositions ) {
 
 		this._allVehiclesRef = allVehicles;
@@ -486,20 +1068,18 @@ export class AIController {
 
 	getDebugState() {
 
+		if ( ! this._debugState ) return null;
+
 		return {
-			mode: this._debugState.mode,
-			segmentIndex: this._debugState.segmentIndex,
-			target: this._debugState.target
-				? {
-					x: this._debugState.target.x,
-					z: this._debugState.target.z,
-					laneOffset: this._debugState.target.laneOffset,
-					wrench: this._debugState.target.wrench,
-				}
-				: null,
-			cornerAngleDeg: this._debugState.cornerAngleDeg,
-			desiredSpeedFactor: this._debugState.desiredSpeedFactor,
-			recoveryActive: this._debugState.recoveryActive,
+			...this._debugState,
+			target: this._debugState.target ? {
+				...this._debugState.target,
+				wrench: clonePoint( this._debugState.target.wrench ),
+			} : null,
+			routeTarget: clonePoint( this._debugState.routeTarget ),
+			anchorTarget: clonePoint( this._debugState.anchorTarget ),
+			finalTarget: clonePoint( this._debugState.finalTarget ),
+			wrenchTarget: clonePoint( this._debugState.wrenchTarget ),
 		};
 
 	}

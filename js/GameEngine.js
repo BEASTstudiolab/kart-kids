@@ -7,7 +7,7 @@ import { loadModels } from './ModelLoader.js';
 import { Camera } from './Camera.js';
 import { Controls } from './Controls.js';
 import { buildTrack, transformCells, deriveRampCells, computeSpawnPosition, computeTrackBounds, TRACK_CELLS, CELL_RAW, GRID_SCALE, ORIENT_DEG } from './Track.js';
-import { V4_TYPE_NAMES, V4_TO_INTERNAL, ELEV_GROUND, CURVE_VARIANT_DECODE } from './track-editor/models/TrackProject.js';
+import { V4_TYPE_NAMES, V4_TO_INTERNAL, ELEV_GROUND, CURVE_VARIANT_DECODE } from './track-editor/models/TrackV4Format.js';
 import { RaceLobby } from './RaceLobby.js';
 import { AFKDetector } from './AFKDetector.js';
 import { buildTrackColliders, resetPhysicsWorld } from './Physics.js';
@@ -51,21 +51,10 @@ import { RearviewMirror } from './RearviewMirror.js';
 import { GhostRecorder } from './GhostRecorder.js';
 import { GhostPlayer } from './GhostPlayer.js';
 import { getTrackId } from './GhostStorage.js';
+import { ACCESSORY_DEFS, applyPlayerAppearanceToVehicle, getPlayerAppearanceFromSettings } from './PlayerAppearance.js';
 
 
 const SPECTATE_INPUT = { x: 0, z: 0, touchActive: false, boost: false, gas: false, brake: false };
-
-// ── Character accessories ────────────────────────────────────────────────────
-const ACCESSORY_DEFS = [
-	{ key: 'Balaclava_No_Ears', label: 'Balaclava', meshes: [ 'Balaclava_No_Ears' ] },
-	{ key: 'Baseball_Hat', label: 'Baseball Hat', meshes: [ 'Baseball_Hat_1', 'Baseball_Hat_2' ] },
-	{ key: 'Gold_Chain', label: 'Gold Chain', meshes: [ 'Gold_Chain' ] },
-	{ key: 'Jeans', label: 'Jeans', meshes: [ 'Jeans' ] },
-	{ key: 'Tshirt', label: 'T-Shirt', meshes: [ 'Tshirt' ] },
-	{ key: 'Mask_Basic', label: 'Mask', meshes: [ 'Mask_Basic' ] },
-];
-
-let _charMeshesLogged = false;
 
 /** Convert v4 JSON trackTiles to the cells array format the game expects. */
 function _v4TilesToCells( v4 ) {
@@ -99,155 +88,6 @@ function _v4TilesToCells( v4 ) {
 	return cells;
 
 }
-
-function applyCharacterCustomization( vehicle, settings ) {
-
-	if ( ! vehicle || ! vehicle.characterModel ) return;
-
-	const accessories = settings.get( 'charAccessories' ) || {};
-	const skinColor = settings.get( 'charSkinColor' );
-
-	vehicle.characterModel.traverse( ( child ) => {
-
-		if ( ! child.isMesh && ! child.isSkinnedMesh ) return;
-
-		if ( ! _charMeshesLogged ) {
-
-			const matNames = Array.isArray( child.material )
-				? child.material.map( ( m ) => m.name )
-				: [ child.material.name ];
-			console.log( `[Character] mesh: "${ child.name }" materials: [${ matNames.join( ', ' ) }]` );
-
-		}
-
-		const meshName = child.name;
-
-		const accDef = ACCESSORY_DEFS.find( ( d ) => d.meshes.includes( meshName ) );
-		if ( accDef ) {
-
-			const acc = accessories[ accDef.key ] || { visible: true, color: '' };
-			child.visible = acc.visible !== false;
-
-			if ( acc.color ) {
-
-				if ( ! child._originalMaterial ) child._originalMaterial = child.material;
-				if ( child.material !== child._originalMaterial ) child.material.dispose();
-				child.material = child._originalMaterial.clone();
-				child.material.color.set( acc.color );
-
-			} else if ( child._originalMaterial ) {
-
-				if ( child.material !== child._originalMaterial ) child.material.dispose();
-				child.material = child._originalMaterial;
-
-			}
-
-			return;
-
-		}
-
-		const mats = Array.isArray( child.material ) ? child.material : [ child.material ];
-		for ( let i = 0; i < mats.length; i ++ ) {
-
-			if ( mats[ i ].name !== 'Test Skin' ) continue;
-
-			const key = '_origSkinMat_' + i;
-			if ( ! child[ key ] ) child[ key ] = mats[ i ];
-
-			if ( skinColor ) {
-
-				if ( mats[ i ] !== child[ key ] ) mats[ i ].dispose();
-				mats[ i ] = child[ key ].clone();
-				mats[ i ].name = 'Test Skin';
-				mats[ i ].color.set( skinColor );
-
-			} else {
-
-				if ( mats[ i ] !== child[ key ] ) mats[ i ].dispose();
-				mats[ i ] = child[ key ];
-
-			}
-
-		}
-
-		if ( Array.isArray( child.material ) ) {
-
-			child.material = [ ...mats ];
-
-		} else {
-
-			child.material = mats[ 0 ];
-
-		}
-
-	} );
-
-	_charMeshesLogged = true;
-
-}
-
-function applyPlayerTints( vehicle, settings ) {
-
-	const vehColor = settings.get( 'vehicleColor' );
-	const charColor = settings.get( 'characterColor' );
-
-	if ( vehicle.bodyNode ) {
-
-		vehicle.bodyNode.traverse( ( child ) => {
-
-			if ( ! child.isMesh ) return;
-
-			if ( vehColor ) {
-
-				if ( ! child._originalMaterial ) child._originalMaterial = child.material;
-				if ( child.material !== child._originalMaterial ) child.material.dispose();
-				child.material = child._originalMaterial.clone();
-				child.material.color.set( vehColor );
-
-			} else if ( child._originalMaterial ) {
-
-				if ( child.material !== child._originalMaterial ) child.material.dispose();
-				child.material = child._originalMaterial;
-
-			}
-
-		} );
-
-	}
-
-	let charNode = null;
-	vehicle.container.traverse( ( child ) => {
-
-		if ( child.name.toLowerCase().includes( 'character' ) ) charNode = child;
-
-	} );
-
-	if ( charNode ) {
-
-		charNode.traverse( ( child ) => {
-
-			if ( ! child.isMesh ) return;
-
-			if ( charColor ) {
-
-				if ( ! child._originalMaterial ) child._originalMaterial = child.material;
-				if ( child.material !== child._originalMaterial ) child.material.dispose();
-				child.material = child._originalMaterial.clone();
-				child.material.color.set( charColor );
-
-			} else if ( child._originalMaterial ) {
-
-				if ( child.material !== child._originalMaterial ) child.material.dispose();
-				child.material = child._originalMaterial;
-
-			}
-
-		} );
-
-	}
-
-}
-
 
 /**
  * Factory that creates a startable/stoppable game engine.
@@ -441,6 +281,8 @@ export function createGameEngine( canvasContainer ) {
 	let _meshDebugGroup = null;
 	let _tileLabelsGroup = null;
 	let _heightLabelsGroup = null;
+	let _routePathDebugGroup = null;
+	let _aiTargetDebugGroup = null;
 
 
 	// ── Helper: register a listener that will be auto-removed on stop() ──────
@@ -449,6 +291,125 @@ export function createGameEngine( canvasContainer ) {
 
 		target.addEventListener( event, handler, options );
 		_listenerRegistry.push( { target, event, handler, options } );
+
+	}
+
+	function _disposeDebugGroupChildren( group ) {
+
+		if ( ! group ) return;
+
+		for ( const child of group.children ) {
+
+			if ( child.geometry ) child.geometry.dispose();
+
+			if ( child.material ) {
+
+				if ( Array.isArray( child.material ) ) {
+
+					for ( const mat of child.material ) mat.dispose();
+
+				} else {
+
+					child.material.dispose();
+
+				}
+
+			}
+
+		}
+
+		group.clear();
+
+	}
+
+	function _updateAITargetDebugOverlay() {
+
+		if ( ! _aiTargetDebugGroup ) return;
+
+		if ( ! _aiTargetDebugGroup.visible ) {
+
+			if ( _aiTargetDebugGroup.children.length > 0 ) _disposeDebugGroupChildren( _aiTargetDebugGroup );
+			return;
+
+		}
+
+		const debugEntries = _aiManager?.getAIDebugData ? _aiManager.getAIDebugData() : [];
+		const activeEntries = debugEntries.filter( ( entry ) => entry?.vehicle && entry?.debugState?.finalTarget );
+
+		if ( activeEntries.length === 0 ) {
+
+			if ( _aiTargetDebugGroup.children.length > 0 ) _disposeDebugGroupChildren( _aiTargetDebugGroup );
+			return;
+
+		}
+
+		_disposeDebugGroupChildren( _aiTargetDebugGroup );
+
+		const linePositions = new Float32Array( activeEntries.length * 6 );
+		const routePositions = new Float32Array( activeEntries.length * 3 );
+		const finalPositions = new Float32Array( activeEntries.length * 3 );
+
+		for ( let i = 0; i < activeEntries.length; i ++ ) {
+
+			const { vehicle, debugState } = activeEntries[ i ];
+			const lineOffset = i * 6;
+			const pointOffset = i * 3;
+			const routeTarget = debugState.routeTarget || debugState.anchorTarget || debugState.finalTarget;
+			const finalTarget = debugState.finalTarget;
+			const baseY = ( vehicle.vehPos.y || 0 ) + 1.0;
+
+			linePositions[ lineOffset ] = vehicle.vehPos.x;
+			linePositions[ lineOffset + 1 ] = baseY;
+			linePositions[ lineOffset + 2 ] = vehicle.vehPos.z;
+			linePositions[ lineOffset + 3 ] = finalTarget.x;
+			linePositions[ lineOffset + 4 ] = baseY;
+			linePositions[ lineOffset + 5 ] = finalTarget.z;
+
+			routePositions[ pointOffset ] = routeTarget.x;
+			routePositions[ pointOffset + 1 ] = baseY + 0.1;
+			routePositions[ pointOffset + 2 ] = routeTarget.z;
+
+			finalPositions[ pointOffset ] = finalTarget.x;
+			finalPositions[ pointOffset + 1 ] = baseY + 0.15;
+			finalPositions[ pointOffset + 2 ] = finalTarget.z;
+
+		}
+
+		const lineGeo = new THREE.BufferGeometry();
+		lineGeo.setAttribute( 'position', new THREE.BufferAttribute( linePositions, 3 ) );
+		const lineMat = new THREE.LineBasicMaterial( {
+			color: 0xffd54f,
+			depthTest: false,
+			transparent: true,
+			opacity: 0.9,
+		} );
+		const line = new THREE.LineSegments( lineGeo, lineMat );
+		line.renderOrder = 1001;
+		_aiTargetDebugGroup.add( line );
+
+		const routeGeo = new THREE.BufferGeometry();
+		routeGeo.setAttribute( 'position', new THREE.BufferAttribute( routePositions, 3 ) );
+		const routeMat = new THREE.PointsMaterial( {
+			color: 0x66ccff,
+			size: 1.8,
+			sizeAttenuation: true,
+			depthTest: false,
+		} );
+		const routePoints = new THREE.Points( routeGeo, routeMat );
+		routePoints.renderOrder = 1002;
+		_aiTargetDebugGroup.add( routePoints );
+
+		const finalGeo = new THREE.BufferGeometry();
+		finalGeo.setAttribute( 'position', new THREE.BufferAttribute( finalPositions, 3 ) );
+		const finalMat = new THREE.PointsMaterial( {
+			color: 0xff7b39,
+			size: 2.6,
+			sizeAttenuation: true,
+			depthTest: false,
+		} );
+		const finalPoints = new THREE.Points( finalGeo, finalMat );
+		finalPoints.renderOrder = 1003;
+		_aiTargetDebugGroup.add( finalPoints );
 
 	}
 
@@ -656,9 +617,17 @@ export function createGameEngine( canvasContainer ) {
 		_tileLabelsGroup.visible = false;
 		scene.add( _tileLabelsGroup );
 
-		_heightLabelsGroup = new THREE.Group();
-		_heightLabelsGroup.visible = false;
-		scene.add( _heightLabelsGroup );
+			_heightLabelsGroup = new THREE.Group();
+			_heightLabelsGroup.visible = false;
+			scene.add( _heightLabelsGroup );
+
+			_routePathDebugGroup = new THREE.Group();
+			_routePathDebugGroup.visible = false;
+			scene.add( _routePathDebugGroup );
+
+			_aiTargetDebugGroup = new THREE.Group();
+			_aiTargetDebugGroup.visible = false;
+			scene.add( _aiTargetDebugGroup );
 
 		// Safety-net ground
 		const roadHalf = groundSize / 2;
@@ -677,14 +646,17 @@ export function createGameEngine( canvasContainer ) {
 
 		_playerManager = new PlayerManager( scene, world, models, spawnPosition, spawnAngle );
 
+		_settings = new Settings();
+
 		// ── Multiplayer connection ───────────────────────────────────────────
+		const localDisplayName = ( config.displayName || _settings.getDisplayName() || '' ).trim();
 		_network = config.network || new NetworkClient();
-		if ( ! config.network && _settings ) _network.setDisplayName( _settings.getDisplayName() || '' );
+		if ( ! config.network ) _network.setDisplayName( localDisplayName );
 		const spectateBtn = document.getElementById( 'spectate-btn' );
 
 		if ( ( customCells || config.mode === 'solo' ) && ! config.network ) {
 
-			_playerManager.initSinglePlayer();
+			_playerManager.initSinglePlayer( config.vehicleId, localDisplayName );
 
 		} else try {
 
@@ -699,6 +671,7 @@ export function createGameEngine( canvasContainer ) {
 					...lastWelcome,
 					id: _network.localPlayerId,
 					vehicleId: config.vehicleId || lastWelcome.vehicleId,
+					displayName: localDisplayName,
 					existingPlayers: config.players || lastWelcome.existingPlayers || [],
 				};
 				_playerManager.initLocalPlayer( welcomeData );
@@ -716,7 +689,10 @@ export function createGameEngine( canvasContainer ) {
 
 						try {
 
-							_playerManager.initLocalPlayer( data );
+							_playerManager.initLocalPlayer( {
+								...data,
+								displayName: localDisplayName,
+							} );
 							if ( spectateBtn ) spectateBtn.style.display = 'block';
 							resolve();
 
@@ -733,9 +709,19 @@ export function createGameEngine( canvasContainer ) {
 			}
 
 			_network.onPlayerJoin = ( data ) => _playerManager.addRemotePlayer( data );
-			_network.onPlayerLeave = ( data ) => _playerManager.removeRemotePlayer( data.id );
+			_network.onPlayerLeave = ( data ) => {
+
+				_playerManager.removeRemotePlayer( data.id );
+				if ( _raceMode ) _raceMode.clearRemoteLap( data.id );
+
+			};
 			_network.onWorldUpdate = ( data ) => _playerManager.applyWorldUpdate( data );
-			_network.onPlayerSpectate = ( data ) => _playerManager.setSpectating( data.id, data.active );
+			_network.onPlayerSpectate = ( data ) => {
+
+				_playerManager.setSpectating( data.id, data.active );
+				if ( data.active && _raceMode ) _raceMode.clearRemoteLap( data.id );
+
+			};
 
 			_network.onDisconnect = () => {
 
@@ -748,7 +734,7 @@ export function createGameEngine( canvasContainer ) {
 		} catch ( e ) {
 
 			console.warn( 'Multiplayer failed, single-player mode:', e );
-			_playerManager.initSinglePlayer();
+			_playerManager.initSinglePlayer( config.vehicleId, localDisplayName );
 
 		}
 
@@ -838,6 +824,13 @@ export function createGameEngine( canvasContainer ) {
 			const playerCount = config.playerCount || 1;
 			aiCount = Math.max( 0, 8 - playerCount );
 
+		} else {
+
+			const storedAICount = Number( _settings?.get( 'aiCount' ) ?? 0 );
+			aiCount = Number.isFinite( storedAICount )
+				? Math.max( 0, Math.min( 8, Math.round( storedAICount ) ) )
+				: 0;
+
 		}
 
 		console.log( `[GameEngine] Race start: mode=${ mode }, multiplayer=${ _multiplayer }, aiCount=${ aiCount }, trackIntel=${ !! ( _trackIntel && _trackIntel.valid ) }` );
@@ -885,7 +878,12 @@ export function createGameEngine( canvasContainer ) {
 
 			};
 
-			_network.onPlayerLap = () => {};
+			_network.onPlayerLap = ( msg ) => {
+
+				if ( ! msg || msg.id === _playerManager.localId ) return;
+				_raceMode.setRemoteLap( msg.id, msg.lap );
+
+			};
 
 			_raceMode.onLapComplete = ( lap, time ) => {
 
@@ -938,27 +936,23 @@ export function createGameEngine( canvasContainer ) {
 		postFX = new PostProcessing( renderer, scene, _cam.camera, bloomPass );
 		postFX.setDirLight( dirLight );
 
-		_settings = new Settings();
 		_adaptiveQuality = new AdaptiveQuality( _settings );
 
-		applyPlayerTints( _vehicle, _settings );
+		applyPlayerAppearanceToVehicle( _vehicle, getPlayerAppearanceFromSettings( _settings ) );
 
 		_controls = new Controls( _settings, _cam );
 		_settingsMenu = new SettingsMenu( _settings, _controls, _audio );
 		_speedometer = new Speedometer( _settings );
 
-		// ── Listener registry: settings-changed for tints ────────────────────
+		// ── Listener registry: settings-changed for player appearance ────────
 		_addListener( window, 'settings-changed', ( e ) => {
 
-			if ( e.detail.key === 'vehicleColor' || e.detail.key === 'characterColor' ) {
+			if ( e.detail.key === 'vehicleColor' ||
+				e.detail.key === 'characterColor' ||
+				e.detail.key === 'charAccessories' ||
+				e.detail.key === 'charSkinColor' ) {
 
-				applyPlayerTints( _vehicle, _settings );
-
-			}
-
-			if ( e.detail.key === 'charAccessories' || e.detail.key === 'charSkinColor' ) {
-
-				applyCharacterCustomization( _playerManager.localVehicle, _settings );
+				applyPlayerAppearanceToVehicle( _playerManager.localVehicle, getPlayerAppearanceFromSettings( _settings ) );
 
 			}
 
@@ -966,7 +960,7 @@ export function createGameEngine( canvasContainer ) {
 
 		_addListener( window, 'character-attached', () => {
 
-			applyCharacterCustomization( _playerManager.localVehicle, _settings );
+			applyPlayerAppearanceToVehicle( _playerManager.localVehicle, getPlayerAppearanceFromSettings( _settings ) );
 
 		} );
 
@@ -978,19 +972,20 @@ export function createGameEngine( canvasContainer ) {
 
 		}
 
-		applyCharacterCustomization( _playerManager.localVehicle, _settings );
+		applyPlayerAppearanceToVehicle( _playerManager.localVehicle, getPlayerAppearanceFromSettings( _settings ) );
 
 		// ── Debug panel ──────────────────────────────────────────────────────
-		( { debugMenu, debugCollider, wheelDebug } = setupDebugPanel( {
-			scene, renderer, bloomPass, postFX,
-			vehicle: _vehicle, cam: _cam, aiManager: _aiManager,
-			controls: _controls,
-			dirLight, dirLightOffset: _dirLightOffset, hemiLight,
-			meshDebugGroup: _meshDebugGroup, colliderDebugGroup: _colliderDebugGroup, barrierDebugGroup: _barrierDebugGroup,
-			tileLabelsGroup: _tileLabelsGroup, heightLabelsGroup: _heightLabelsGroup,
-			renderCells, models,
-			groundIndicator: _groundIndicator, jitterDisplay: _jitterDisplay, draftIndicator: _draftIndicator,
-			applyLighting, LIGHTING_DAY, LIGHTING_NIGHT,
+			( { debugMenu, debugCollider, wheelDebug } = setupDebugPanel( {
+				scene, renderer, bloomPass, postFX,
+				vehicle: _vehicle, cam: _cam, aiManager: _aiManager,
+				trackIntel: _trackIntel.valid ? _trackIntel : null,
+				controls: _controls,
+				dirLight, dirLightOffset: _dirLightOffset, hemiLight,
+				meshDebugGroup: _meshDebugGroup, colliderDebugGroup: _colliderDebugGroup, barrierDebugGroup: _barrierDebugGroup,
+				tileLabelsGroup: _tileLabelsGroup, heightLabelsGroup: _heightLabelsGroup, routePathDebugGroup: _routePathDebugGroup, aiTargetDebugGroup: _aiTargetDebugGroup,
+				renderCells, models,
+				groundIndicator: _groundIndicator, jitterDisplay: _jitterDisplay, draftIndicator: _draftIndicator,
+				applyLighting, LIGHTING_DAY, LIGHTING_NIGHT,
 			fpsCapMs: _fpsCapMs, draftIndicatorEnabled: _draftIndicatorEnabled,
 		} ) );
 
@@ -1284,7 +1279,16 @@ export function createGameEngine( canvasContainer ) {
 
 			if ( key === 'aiCount' ) {
 
+				const previousCount = _aiManager.count;
 				_aiManager.setCount( value );
+
+				const raceState = _raceMode?.getDisplayState?.().state ?? null;
+				if ( _aiManager.count > 0 && _aiManager.count !== previousCount && raceState !== 'racing' ) {
+
+					_aiManager.teleportToGrid( _vehicle );
+					_aiManager.startRace();
+
+				}
 
 			}
 
@@ -1500,6 +1504,8 @@ export function createGameEngine( canvasContainer ) {
 		if ( _meshDebugGroup ) { scene.remove( _meshDebugGroup ); _meshDebugGroup = null; }
 		if ( _tileLabelsGroup ) { scene.remove( _tileLabelsGroup ); _tileLabelsGroup = null; }
 		if ( _heightLabelsGroup ) { scene.remove( _heightLabelsGroup ); _heightLabelsGroup = null; }
+		if ( _routePathDebugGroup ) { _disposeDebugGroupChildren( _routePathDebugGroup ); scene.remove( _routePathDebugGroup ); _routePathDebugGroup = null; }
+		if ( _aiTargetDebugGroup ) { _disposeDebugGroupChildren( _aiTargetDebugGroup ); scene.remove( _aiTargetDebugGroup ); _aiTargetDebugGroup = null; }
 		if ( _groundIndicator ) { scene.remove( _groundIndicator ); _groundIndicator = null; }
 		if ( _dirLightTarget ) { scene.remove( _dirLightTarget ); _dirLightTarget = null; }
 
@@ -1763,7 +1769,7 @@ export function createGameEngine( canvasContainer ) {
 		_draftingSystem.update( dt, _allActiveVehicles );
 		_draftLines.update( dt, _draftingSystem.getActiveDrafts(), _draftingSystem.getProximityLeads() );
 
-		_raceMode.update( dt, _vehicle, _allActiveVehicles, _aiManager.getAIRaceData() );
+		_raceMode.update( dt, _vehicle, _playerManager.getHumanRaceData(), _aiManager.getAIRaceData() );
 
 		// Ghost: update playback
 		if ( _ghostPlayer.hasGhost ) {
@@ -1805,6 +1811,8 @@ export function createGameEngine( canvasContainer ) {
 		}
 
 		// ── DEBUG updates ────────────────────────────────────────────────────
+		_updateAITargetDebugOverlay();
+
 		if ( _debugCollider && _vehicle ) {
 
 			// Position debug box at the actual physics body position
@@ -1988,6 +1996,27 @@ export function createGameEngine( canvasContainer ) {
 
 	}
 
+	function _getDebugAIState() {
+
+		if ( ! _aiManager || ! _trackIntel ) return [];
+
+		return ( _aiManager._racers || [] ).map( ( ai ) => ( {
+			id: ai.id,
+			profile: ai.profile?.name || 'Unknown',
+			x: Number( ai.vehicle.vehPos.x.toFixed( 2 ) ),
+			z: Number( ai.vehicle.vehPos.z.toFixed( 2 ) ),
+			speed: Number( ai.vehicle.linearSpeed.toFixed( 2 ) ),
+			yaw: Number( ai.vehicle.container.rotation.y.toFixed( 3 ) ),
+			hint: ai.controller?._waypointHint ?? null,
+			progress: Number( _trackIntel.getProgress( ai.vehicle.vehPos.x, ai.vehicle.vehPos.z ).toFixed( 4 ) ),
+			lap: ai.lap,
+			reversing: !! ai.controller?._reversing,
+			inputX: Number( ( ai.controller?._input?.x ?? 0 ).toFixed( 3 ) ),
+			inputZ: Number( ( ai.controller?._input?.z ?? 0 ).toFixed( 3 ) ),
+		} ) );
+
+	}
+
 
 	// ── Public API ───────────────────────────────────────────────────────────
 
@@ -1998,6 +2027,7 @@ export function createGameEngine( canvasContainer ) {
 		getRenderer: () => renderer,
 		getScene: () => scene,
 		isRunning: () => _running,
+		getDebugAIState: _getDebugAIState,
 	};
 
 }

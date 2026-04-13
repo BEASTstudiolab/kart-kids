@@ -4,3 +4,6 @@ _godot/
 node_modules/
 .superpowers/
 docs/superpowers/
+data/*.sqlite
+data/*.sqlite-shm
+data/*.sqlite-wal

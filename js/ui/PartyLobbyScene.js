@@ -22,7 +22,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 import { getVehicleById } from '../VehicleRegistry.js';
-import { Settings } from '../Settings.js';
+import { applyPlayerAppearanceToNodes, createDefaultPlayerAppearance, normalizePlayerAppearance } from '../PlayerAppearance.js';
 
 // ── Camera — elevated angle looking down at the starting grid ────────────
 const CAM_POS  = new THREE.Vector3( 15, 2, -9.5 );
@@ -360,9 +360,9 @@ export class PartyLobbyScene {
 	 * Load and display the local player's selected kart at center position.
 	 * @param {string} kartId  Vehicle ID from VehicleRegistry.
 	 */
-	setLocalKart( kartId ) {
+	setLocalKart( kartId, appearance = null ) {
 
-		this._loadKart( 'local', kartId, null );
+		this._loadKart( 'local', kartId, null, appearance );
 
 	}
 
@@ -371,14 +371,14 @@ export class PartyLobbyScene {
 	 * Uses the base vehicle model with a unique color.
 	 * @param {string} playerId
 	 */
-	addRemoteKart( playerId, kartId ) {
+	addRemoteKart( playerId, kartId, appearance = null ) {
 
 		if ( this._karts.has( playerId ) ) return;
 
 		const tint = REMOTE_TINTS[ this._nextTintIdx % REMOTE_TINTS.length ];
 		this._nextTintIdx ++;
 
-		this._loadKart( playerId, kartId || 'kart-1', tint );
+		this._loadKart( playerId, kartId || 'kart-1', tint, appearance );
 
 	}
 
@@ -413,9 +413,10 @@ export class PartyLobbyScene {
 	 * Internal: load a kart model with character and place it in a grid slot.
 	 * @param {string}            id     Player ID ('local' for local player)
 	 * @param {string}            kartId Vehicle registry ID
-	 * @param {THREE.Color|null}  tint   Optional color tint for the model
+	 * @param {THREE.Color|null}  tint   Optional fallback color tint for the model
+	 * @param {object|null}       appearance
 	 */
-	_loadKart( id, kartId, tint ) {
+	_loadKart( id, kartId, tint, appearance = null ) {
 
 		// Remove existing kart for this ID
 		this.removeKart( id );
@@ -431,6 +432,12 @@ export class PartyLobbyScene {
 
 		const entry = getVehicleById( kartId );
 		if ( ! entry ) return;
+		const effectiveAppearance = normalizePlayerAppearance( appearance || createDefaultPlayerAppearance() );
+		if ( ! effectiveAppearance.vehicleColor && tint ) {
+
+			effectiveAppearance.vehicleColor = '#' + tint.getHexString();
+
+		}
 
 		this._loader.load( `models/${ entry.path }`, ( kartGltf ) => {
 
@@ -440,26 +447,11 @@ export class PartyLobbyScene {
 			const kartModel = kartGltf.scene.clone();
 			kartModel.scale.setScalar( KART_SCALE );
 
-			// Apply color tint to all meshes if provided
-			if ( tint ) {
-
-				kartModel.traverse( ( child ) => {
-
-					if ( child.isMesh && child.material ) {
-
-						child.material = child.material.clone();
-						child.material.color.copy( tint );
-
-					}
-
-				} );
-
-			}
-
 			group.add( kartModel );
 
 			// Find seat_anchor node inside the kart model
 			let seatAnchor = null;
+			let bodyNode = null;
 			kartModel.traverse( ( child ) => {
 
 				const name = ( child.name || '' ).toLowerCase();
@@ -467,9 +459,18 @@ export class PartyLobbyScene {
 
 					seatAnchor = child;
 
+				} else if ( name === 'body' || name.startsWith( 'body.' ) ) {
+
+					bodyNode = child;
+
 				}
 
 			} );
+
+			applyPlayerAppearanceToNodes( {
+				bodyRoot: bodyNode || kartModel,
+				characterRoot: null,
+			}, effectiveAppearance );
 
 			// Load character mesh and attach to seat anchor
 			this._loader.load( `models/${ CHARACTER_MESH_PATH }`, ( meshGltf ) => {
@@ -492,6 +493,11 @@ export class PartyLobbyScene {
 					kartModel.add( character );
 
 				}
+
+				applyPlayerAppearanceToNodes( {
+					bodyRoot: bodyNode || kartModel,
+					characterRoot: character,
+				}, effectiveAppearance );
 
 				// Apply driving pose animation (snapped to first frame)
 				this._loader.load( `models/${ CHARACTER_ANIM_PATH }`, ( animGltf ) => {

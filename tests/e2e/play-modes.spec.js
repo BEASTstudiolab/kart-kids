@@ -1,279 +1,97 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * Play Modes E2E tests — Solo Race, Multiplayer, and race flow.
- *
- * Tests the Play Modes page (#/play), its sub-views (Solo track picker,
- * Multiplayer options), and related pages (Quick Play, Lobby).
- */
-
-/**
- * Seed localStorage so the first-run modal is skipped.
+ * Seed localStorage so the first-run name modal is skipped and the app lands
+ * on the returning-player shell flow.
  */
 async function seedSettings( page ) {
 
 	await page.addInitScript( () => {
 
-		const settings = {
+		localStorage.setItem( 'kart-kids-settings', JSON.stringify( {
+			_version: 4,
+			quality: 'low',
 			profile: { displayName: 'TestPlayer' },
-			gameplay: {},
-			controls: {},
-			audio: {},
-			video: {},
-		};
-		localStorage.setItem( 'kart-kids-settings', JSON.stringify( settings ) );
+			loadout: {
+				selectedKartId: 'kart-1',
+				selectedTrackId: 'starter-circuit',
+			},
+			stats: {
+				totalRaces: 0,
+				wins: 0,
+				bestTimes: {},
+			},
+		} ) );
 
 	} );
 
 }
 
-// ---------------------------------------------------------------------------
-// Play Modes page
-// ---------------------------------------------------------------------------
+async function gotoPlayTab( page ) {
 
-test.describe( 'Play Modes page', () => {
+	await seedSettings( page );
+	await page.goto( '/#/play' );
 
-	test.beforeEach( async ( { page } ) => {
+	const playTab = page.getByRole( 'tab', { name: 'PLAY' } );
+	const playPanel = page.getByRole( 'tabpanel', { name: 'PLAY' } );
 
-		await seedSettings( page );
+	await expect( playTab ).toHaveAttribute( 'aria-selected', 'true' );
+	await expect( playPanel ).toBeVisible( { timeout: 10000 } );
 
-	} );
+	return { playTab, playPanel };
 
-	test( 'renders at #/play', async ( { page } ) => {
+}
 
-		await page.goto( '/#/play' );
+test.describe( 'Play shell', () => {
 
-		const playPage = page.locator( '.page-play-modes' );
-		await expect( playPage ).toBeVisible( { timeout: 10000 } );
+	test( 'shows the current play-mode controls in the PLAY tab', async ( { page } ) => {
 
-	} );
+		const { playPanel } = await gotoPlayTab( page );
 
-	test( 'shows Solo Race and Multiplayer mode cards', async ( { page } ) => {
-
-		await page.goto( '/#/play' );
-
-		const cards = page.locator( '.kk-play-mode-card' );
-		await expect( cards ).toHaveCount( 2, { timeout: 10000 } );
-
-		// Verify card titles
-		const soloCard = page.locator( '.kk-play-mode-card[data-action="mode-solo"]' );
-		await expect( soloCard ).toBeVisible();
-		await expect( soloCard.locator( '.kk-play-mode-card__title' ) ).toHaveText( 'Solo Race' );
-
-		const multiCard = page.locator( '.kk-play-mode-card[data-action="mode-multiplayer"]' );
-		await expect( multiCard ).toBeVisible();
-		await expect( multiCard.locator( '.kk-play-mode-card__title' ) ).toHaveText( 'Multiplayer' );
+		await expect( playPanel.getByRole( 'button', { name: 'RACE' } ) ).toBeVisible();
+		await expect( playPanel.getByRole( 'button', { name: 'FREE PLAY' } ) ).toBeVisible();
+		await expect( playPanel.getByRole( 'button', { name: 'PARTY' } ) ).toBeVisible();
 
 	} );
 
-	test( 'shows card descriptions', async ( { page } ) => {
+	test( 'FREE PLAY opens and closes the track-select overlay', async ( { page } ) => {
 
-		await page.goto( '/#/play' );
+		const { playPanel } = await gotoPlayTab( page );
 
-		const soloDesc = page.locator( '.kk-play-mode-card[data-action="mode-solo"] .kk-play-mode-card__desc' );
-		await expect( soloDesc ).toBeVisible( { timeout: 10000 } );
-		await expect( soloDesc ).toContainText( 'Race against AI' );
+		await playPanel.getByRole( 'button', { name: 'FREE PLAY' } ).click();
 
-		const multiDesc = page.locator( '.kk-play-mode-card[data-action="mode-multiplayer"] .kk-play-mode-card__desc' );
-		await expect( multiDesc ).toBeVisible();
-		await expect( multiDesc ).toContainText( 'Race online' );
+		const trackOverlay = page.locator( '.kk-track-select' );
+		await expect( trackOverlay ).toBeVisible( { timeout: 10000 } );
+		await expect( trackOverlay.getByText( 'SELECT TRACK' ) ).toBeVisible();
+		await expect( trackOverlay.getByRole( 'button', { name: 'BACK' } ) ).toBeVisible();
+		await expect( trackOverlay.getByRole( 'button', { name: 'GO!' } ) ).toBeVisible();
 
-	} );
-
-	test( 'has a page header with back button', async ( { page } ) => {
-
-		await page.goto( '/#/play' );
-
-		const header = page.locator( '.kk-page-header' );
-		await expect( header ).toBeVisible( { timeout: 10000 } );
-
-		// Header should contain "PLAY MODES" title
-		await expect( header ).toContainText( 'PLAY MODES' );
+		await trackOverlay.getByRole( 'button', { name: 'BACK' } ).click();
+		await expect( trackOverlay ).toBeHidden( { timeout: 10000 } );
 
 	} );
 
-} );
-
-// ---------------------------------------------------------------------------
-// Solo Race track picker
-// ---------------------------------------------------------------------------
-
-test.describe( 'Solo Race track picker', () => {
-
-	test.beforeEach( async ( { page } ) => {
-
-		await seedSettings( page );
-
-	} );
-
-	test( 'clicking Solo Race shows track picker', async ( { page } ) => {
-
-		await page.goto( '/#/play' );
-
-		const soloCard = page.locator( '.kk-play-mode-card[data-action="mode-solo"]' );
-		await expect( soloCard ).toBeVisible( { timeout: 10000 } );
-		await soloCard.click();
-
-		// The solo track picker should become visible.
-		// It has a sub-header with "Solo Race" title and track items.
-		const subTitle = page.locator( '.page-play-modes__sub-title', { hasText: 'Solo Race' } );
-		await expect( subTitle ).toBeVisible( { timeout: 5000 } );
-
-		// Should show track list
-		const trackList = page.locator( '.page-play-modes__track-list' );
-		await expect( trackList ).toBeVisible();
-
-		// Should have at least one track item
-		const trackItems = page.locator( '.kk-track-item' );
-		const count = await trackItems.count();
-		expect( count ).toBeGreaterThanOrEqual( 1 );
-
-	} );
-
-	test( 'solo track picker has a back button', async ( { page } ) => {
-
-		await page.goto( '/#/play' );
-
-		const soloCard = page.locator( '.kk-play-mode-card[data-action="mode-solo"]' );
-		await expect( soloCard ).toBeVisible( { timeout: 10000 } );
-		await soloCard.click();
-
-		const backBtn = page.locator( '.page-play-modes__sub-back[data-action="back-to-modes"]' ).first();
-		await expect( backBtn ).toBeVisible( { timeout: 5000 } );
-
-		// Clicking back should return to mode selection
-		await backBtn.click();
-
-		// Mode cards should be visible again
-		await expect( page.locator( '.kk-play-mode-card' ).first() ).toBeVisible( { timeout: 5000 } );
-
-	} );
-
-	test( 'solo track picker has START RACE button', async ( { page } ) => {
-
-		await page.goto( '/#/play' );
-
-		const soloCard = page.locator( '.kk-play-mode-card[data-action="mode-solo"]' );
-		await expect( soloCard ).toBeVisible( { timeout: 10000 } );
-		await soloCard.click();
-
-		const startBtn = page.locator( '[data-action="start-solo-race"]' );
-		await expect( startBtn ).toBeVisible( { timeout: 5000 } );
-		await expect( startBtn ).toContainText( 'START RACE' );
-
-	} );
-
-} );
-
-// ---------------------------------------------------------------------------
-// Multiplayer options
-// ---------------------------------------------------------------------------
-
-test.describe( 'Multiplayer options', () => {
-
-	test.beforeEach( async ( { page } ) => {
-
-		await seedSettings( page );
-
-	} );
-
-	test( 'clicking Multiplayer shows Quick Play and Private Lobby', async ( { page } ) => {
-
-		await page.goto( '/#/play' );
-
-		const multiCard = page.locator( '.kk-play-mode-card[data-action="mode-multiplayer"]' );
-		await expect( multiCard ).toBeVisible( { timeout: 10000 } );
-		await multiCard.click();
-
-		// Should show multiplayer sub-cards
-		const quickPlayCard = page.locator( '.kk-play-mode-subcard[data-action="mp-quick-play"]' );
-		await expect( quickPlayCard ).toBeVisible( { timeout: 5000 } );
-
-		const lobbyCard = page.locator( '.kk-play-mode-subcard[data-action="mp-private-lobby"]' );
-		await expect( lobbyCard ).toBeVisible();
-
-		// Verify titles
-		await expect( quickPlayCard.locator( '.kk-play-mode-subcard__title' ) ).toHaveText( 'Quick Play' );
-		await expect( lobbyCard.locator( '.kk-play-mode-subcard__title' ) ).toHaveText( 'Private Lobby' );
-
-	} );
-
-	test( 'multiplayer view shows descriptions', async ( { page } ) => {
-
-		await page.goto( '/#/play' );
-
-		const multiCard = page.locator( '.kk-play-mode-card[data-action="mode-multiplayer"]' );
-		await expect( multiCard ).toBeVisible( { timeout: 10000 } );
-		await multiCard.click();
-
-		const qpDesc = page.locator( '.kk-play-mode-subcard[data-action="mp-quick-play"] .kk-play-mode-subcard__desc' );
-		await expect( qpDesc ).toContainText( 'Find an online match fast' );
-
-		const lobbyDesc = page.locator( '.kk-play-mode-subcard[data-action="mp-private-lobby"] .kk-play-mode-subcard__desc' );
-		await expect( lobbyDesc ).toContainText( 'Create or join' );
-
-	} );
-
-	test( 'multiplayer view has back button to return to mode selection', async ( { page } ) => {
-
-		await page.goto( '/#/play' );
-
-		const multiCard = page.locator( '.kk-play-mode-card[data-action="mode-multiplayer"]' );
-		await expect( multiCard ).toBeVisible( { timeout: 10000 } );
-		await multiCard.click();
-
-		const backBtn = page.locator( '.page-play-modes__sub-back[data-action="back-to-modes"]' );
-		await expect( backBtn ).toBeVisible( { timeout: 5000 } );
-		await backBtn.click();
-
-		// Mode selection cards should be visible again
-		await expect( page.locator( '.kk-play-mode-card' ).first() ).toBeVisible( { timeout: 5000 } );
-
-	} );
-
-} );
-
-// ---------------------------------------------------------------------------
-// Quick Play page
-// ---------------------------------------------------------------------------
-
-test.describe( 'Quick Play page', () => {
-
-	test.beforeEach( async ( { page } ) => {
-
-		await seedSettings( page );
-
-	} );
-
-	test( 'renders at #/quick-play', async ( { page } ) => {
-
-		await page.goto( '/#/quick-play' );
-
-		const qpPage = page.locator( '.page-quick-play' );
-		await expect( qpPage ).toBeVisible( { timeout: 10000 } );
-
-	} );
-
-} );
-
-// ---------------------------------------------------------------------------
-// Lobby page
-// ---------------------------------------------------------------------------
-
-test.describe( 'Lobby page', () => {
-
-	test.beforeEach( async ( { page } ) => {
-
-		await seedSettings( page );
-
-	} );
-
-	test( 'renders at #/lobby', async ( { page } ) => {
-
-		await page.goto( '/#/lobby' );
-
-		const lobbyPage = page.locator( '.page-lobby' );
-		await expect( lobbyPage ).toBeVisible( { timeout: 10000 } );
+	test( 'PARTY opens the private lobby overlay with a room code', async ( { page } ) => {
+
+		const { playPanel } = await gotoPlayTab( page );
+
+		await playPanel.getByRole( 'button', { name: 'PARTY' } ).click();
+
+		const trackOverlay = page.locator( '.kk-track-select' );
+		await expect( trackOverlay ).toBeVisible( { timeout: 10000 } );
+		await trackOverlay.getByRole( 'button', { name: 'GO!' } ).click();
+
+		const lobby = page.getByRole( 'region', { name: 'Private lobby' } );
+		await expect( lobby ).toBeVisible( { timeout: 10000 } );
+		await expect( lobby ).toContainText( 'PRIVATE LOBBY' );
+		await expect( lobby ).toContainText( 'Room Code' );
+		await expect( lobby ).toContainText( 'TestPlayer' );
+		await expect( lobby.getByRole( 'button', { name: 'START' } ) ).toBeVisible();
+		await expect( lobby.getByRole( 'button', { name: 'CANCEL' } ) ).toBeVisible();
+		await expect( lobby.locator( '.kk-lobby-overlay__code-value' ) ).not.toHaveText( '----', { timeout: 10000 } );
+
+		await lobby.getByRole( 'button', { name: 'CANCEL' } ).click();
+		await expect( lobby ).toBeHidden( { timeout: 10000 } );
 
 	} );
 

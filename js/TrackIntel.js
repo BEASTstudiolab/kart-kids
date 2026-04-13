@@ -16,6 +16,10 @@ import {
 // Verified against the default 16-cell track.
 
 const EDGES = { N: [ 0, -1 ], S: [ 0, 1 ], E: [ 1, 0 ], W: [ -1, 0 ] };
+// Keep route continuity when a racer drifts off-line, but fall back to a full
+// relock once the hinted branch is genuinely too far away.
+const NEAREST_WAYPOINT_WINDOW = 6;
+const NEAREST_WAYPOINT_ACCEPT_DIST_SQ = Math.pow( CELL_RAW * GRID_SCALE * 0.8, 2 );
 
 // Rotation per 90° step (Y-axis rotation):
 // S→E, E→N, N→W, W→S
@@ -307,7 +311,7 @@ export class TrackIntel {
 		const [ gx, gz, type, orient, flags ] = ordered[ anchorIndex ];
 		const curveVariant = flags?.curveVariant;
 		const curveSize = getCurveVariantSize( curveVariant );
-		if ( type !== 'trk-corner-1x1' || curveSize < 2 ) return null;
+		if ( curveSize < 2 ) return null;
 
 		const startIndex = anchorIndex - ( curveSize - 1 );
 		const endIndex = anchorIndex + ( curveSize - 1 );
@@ -630,7 +634,7 @@ export class TrackIntel {
 
 		if ( searchWindow ) {
 
-			for ( let offset = -windowSize; offset <= windowSize; offset ++ ) {
+			for ( let offset = - windowSize; offset <= windowSize; offset ++ ) {
 
 				const i = ( ( lastSegmentHint + offset ) % this.count + this.count ) % this.count;
 				const candidate = this._projectOntoSegmentDetailed( worldX, worldZ, i );
@@ -690,23 +694,136 @@ export class TrackIntel {
 
 	}
 
+	/**
+	 * Returns a route sample at a normalized progress value.
+	 * Sample shape: { x, z, forward: {x, z}, left: {x, z}, progress, distance, segmentIndex }
+	 */
+	sampleAtProgress( progress ) {
+
+		const distance = this.totalLength > 0
+			? ( ( progress % 1 ) + 1 ) % 1 * this.totalLength
+			: 0;
+
+		return this.sampleAtDistance( distance );
+
+	}
+
+	/**
+	 * Returns a route sample `distanceAhead` units ahead of `progress`.
+	 */
+	sampleAhead( progress, distanceAhead = 0 ) {
+
+		if ( ! this.valid || this.count === 0 || this.totalLength <= 0 ) {
+
+			return {
+				x: 0,
+				z: 0,
+				forward: { x: 0, z: 1 },
+				left: { x: - 1, z: 0 },
+				progress: 0,
+				distance: 0,
+				segmentIndex: 0,
+			};
+
+		}
+
+		const baseDistance = ( ( progress % 1 ) + 1 ) % 1 * this.totalLength;
+		return this.sampleAtDistance( baseDistance + distanceAhead );
+
+	}
+
+	/**
+	 * Returns a route sample at an arc-length distance along the loop.
+	 */
+	sampleAtDistance( distance ) {
+
+		if ( ! this.valid || this.count === 0 || this.totalLength <= 0 ) {
+
+			return {
+				x: 0,
+				z: 0,
+				forward: { x: 0, z: 1 },
+				left: { x: - 1, z: 0 },
+				progress: 0,
+				distance: 0,
+				segmentIndex: 0,
+			};
+
+		}
+
+		const sample = this.sampleRoute( distance, 0 );
+		if ( ! sample ) {
+
+			return {
+				x: 0,
+				z: 0,
+				forward: { x: 0, z: 1 },
+				left: { x: - 1, z: 0 },
+				progress: 0,
+				distance: 0,
+				segmentIndex: 0,
+			};
+
+		}
+
+		const wrappedDistance = sample.distanceAlongTrack ?? this._normalizeDistance( distance );
+		return {
+			x: sample.x,
+			z: sample.z,
+			forward: { x: sample.forward.x, z: sample.forward.z },
+			left: { x: - sample.forward.z, z: sample.forward.x },
+			progress: this.totalLength > 0 ? wrappedDistance / this.totalLength : 0,
+			distance: wrappedDistance,
+			segmentIndex: sample.segmentIndex,
+		};
+
+	}
+
+	/**
+	 * Returns 0.0–1.0 turn severity by comparing the current forward
+	 * direction with future samples along the route.
+	 */
+	estimateTurnSeverity( progress, lookAheadDistance = 20, sampleStepDistance = 6 ) {
+
+		if ( ! this.valid || this.count === 0 || this.totalLength <= 0 ) return 0;
+
+		const current = this.sampleAtProgress( progress );
+		const step = Math.max( sampleStepDistance, 1 );
+		let maxAngle = 0;
+
+		for ( let distance = step; distance <= lookAheadDistance; distance += step ) {
+
+			const sample = this.sampleAhead( progress, distance );
+			const dot = Math.max(
+				- 1,
+				Math.min( 1, current.forward.x * sample.forward.x + current.forward.z * sample.forward.z )
+			);
+			const angle = Math.acos( dot );
+
+			if ( angle > maxAngle ) maxAngle = angle;
+
+		}
+
+		return Math.min( 1, maxAngle / ( Math.PI / 3 ) );
+
+	}
 	// ─── Spatial Queries (R6, R7, R8) ────────────────────────
 
 	/**
 	 * Returns the index of the nearest waypoint to a world position (XZ distance).
+	 * Optional lastWaypointHint prefers the current route branch before a full relock.
 	 */
-	getNearestWaypoint( worldX, worldZ, lastWaypointHint ) {
+	getNearestWaypoint( worldX, worldZ, lastWaypointHint = null ) {
 
+		const n = this.count;
 		let bestIdx = 0;
 		let bestDist = Infinity;
-		const searchWindow = lastWaypointHint !== undefined && lastWaypointHint !== null;
-		const windowSize = 8;
 
-		if ( searchWindow ) {
+		if ( Number.isInteger( lastWaypointHint ) && n > 0 ) {
 
-			for ( let offset = -windowSize; offset <= windowSize; offset ++ ) {
+			for ( let offset = - NEAREST_WAYPOINT_WINDOW; offset <= NEAREST_WAYPOINT_WINDOW; offset ++ ) {
 
-				const i = ( ( lastWaypointHint + offset ) % this.count + this.count ) % this.count;
+				const i = ( ( lastWaypointHint + offset ) % n + n ) % n;
 				const w = this.waypoints[ i ];
 				const dx = w.x - worldX;
 				const dz = w.z - worldZ;
@@ -721,13 +838,17 @@ export class TrackIntel {
 
 			}
 
-			if ( bestDist < 400 ) return bestIdx;
+			if ( bestDist <= NEAREST_WAYPOINT_ACCEPT_DIST_SQ ) {
 
-			bestDist = Infinity;
+				return bestIdx;
+
+			}
 
 		}
 
-		for ( let i = 0; i < this.count; i ++ ) {
+		bestDist = Infinity;
+
+		for ( let i = 0; i < n; i ++ ) {
 
 			const w = this.waypoints[ i ];
 			const dx = w.x - worldX;
@@ -897,6 +1018,37 @@ export class TrackIntel {
 		}
 
 		return this._segmentInfo.length - 1;
+
+	}
+
+	_findSegmentIndexForDistance( targetDistance ) {
+
+		if ( this.count <= 1 ) return 0;
+		if ( targetDistance <= 0 ) return 0;
+
+		let lo = 0;
+		let hi = this.count - 1;
+		let best = 0;
+
+		while ( lo <= hi ) {
+
+			const mid = ( lo + hi ) >> 1;
+			const dist = this._cumDist[ mid ];
+
+			if ( dist <= targetDistance ) {
+
+				best = mid;
+				lo = mid + 1;
+
+			} else {
+
+				hi = mid - 1;
+
+			}
+
+		}
+
+		return best;
 
 	}
 

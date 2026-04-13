@@ -223,6 +223,7 @@ describe( 'Room creation', () => {
 		assert.match( welcome.roomCode, /^[A-Z0-9]{6}$/ );
 		assert.ok( welcome.id, 'welcome should include player id' );
 		assert.ok( welcome.sessionToken, 'welcome should include sessionToken' );
+		assert.strictEqual( welcome.spawnSlot, 0, 'host should receive the first spawn slot' );
 
 	} );
 
@@ -262,10 +263,69 @@ describe( 'Room joining', () => {
 
 		assert.strictEqual( welcomeB.roomCode, roomCode );
 		assert.ok( welcomeB.existingPlayers.length >= 1, 'joiner should see existing players' );
+		assert.strictEqual( welcomeA.spawnSlot, 0 );
+		assert.strictEqual( welcomeB.spawnSlot, 1 );
+		assert.strictEqual( welcomeB.existingPlayers[ 0 ].spawnSlot, 0 );
 
 		const joinMsg = await joinPromise;
 		assert.strictEqual( joinMsg.type, 'playerJoin' );
 		assert.strictEqual( joinMsg.id, welcomeB.id );
+		assert.strictEqual( joinMsg.spawnSlot, 1 );
+
+	} );
+
+	it( 'should round-trip normalized appearance data through welcome and playerJoin payloads', async () => {
+
+		const hostAppearance = {
+			vehicleColor: '#FFAA00',
+			characterColor: '#11AAFF',
+			charSkinColor: '#CC9966',
+			charAccessories: {
+				Balaclava_No_Ears: { visible: false, color: '#00FF11' },
+			},
+		};
+		const guestAppearance = {
+			vehicleColor: '#00FF88',
+			charAccessories: {
+				Baseball_Hat: { visible: true, color: '#1122FF' },
+			},
+		};
+
+		const wsA = trackClient( await connectClient() );
+		const welcomeA = await sendAndWait( wsA, {
+			type: 'createRoom',
+			appearance: hostAppearance,
+		}, 'welcome' );
+		const joinPromise = waitForMessage( wsA, 'playerJoin' );
+
+		assert.strictEqual( welcomeA.appearance.vehicleColor, '#ffaa00' );
+		assert.strictEqual( welcomeA.appearance.characterColor, '#11aaff' );
+		assert.strictEqual( welcomeA.appearance.charSkinColor, '#cc9966' );
+		assert.deepStrictEqual( welcomeA.appearance.charAccessories.Balaclava_No_Ears, {
+			visible: false,
+			color: '#00ff11',
+		} );
+
+		const wsB = trackClient( await connectClient() );
+		const welcomeB = await sendAndWait( wsB, {
+			type: 'joinRoom',
+			roomCode: welcomeA.roomCode,
+			appearance: guestAppearance,
+		}, 'welcome' );
+		const joinMsg = await joinPromise;
+
+		assert.strictEqual( welcomeB.appearance.vehicleColor, '#00ff88' );
+		assert.strictEqual( joinMsg.appearance.vehicleColor, '#00ff88' );
+		assert.deepStrictEqual( joinMsg.appearance.charAccessories.Baseball_Hat, {
+			visible: true,
+			color: '#1122ff',
+		} );
+		assert.strictEqual( welcomeB.existingPlayers.length, 1 );
+		assert.strictEqual( welcomeB.existingPlayers[ 0 ].appearance.vehicleColor, '#ffaa00' );
+		assert.deepStrictEqual( welcomeB.existingPlayers[ 0 ].appearance.charAccessories.Balaclava_No_Ears, {
+			visible: false,
+			color: '#00ff11',
+		} );
 
 	} );
 
@@ -366,11 +426,25 @@ describe( 'Host authority', () => {
 		const wsB = trackClient( await connectClient() );
 		await sendAndWait( wsB, { type: 'joinRoom', roomCode: welcomeA.roomCode }, 'welcome' );
 
-		// Both should receive raceCountdown
+		const loadingA = waitForMessage( wsA, 'raceLoading' );
+		const loadingB = waitForMessage( wsB, 'raceLoading' );
+
+		wsA.send( JSON.stringify( { type: 'startRace' } ) );
+
+		const [ loadingMsgA, loadingMsgB ] = await Promise.all( [ loadingA, loadingB ] );
+
+		assert.strictEqual( loadingMsgA.type, 'raceLoading' );
+		assert.strictEqual( loadingMsgB.type, 'raceLoading' );
+		assert.strictEqual( loadingMsgA.players.length, 1 );
+		assert.strictEqual( loadingMsgA.players[ 0 ].spawnSlot, 1 );
+		assert.strictEqual( loadingMsgB.players.length, 1 );
+		assert.strictEqual( loadingMsgB.players[ 0 ].spawnSlot, 0 );
+
 		const countdownA = waitForMessage( wsA, 'raceCountdown' );
 		const countdownB = waitForMessage( wsB, 'raceCountdown' );
 
-		wsA.send( JSON.stringify( { type: 'startRace' } ) );
+		wsA.send( JSON.stringify( { type: 'raceLoaded' } ) );
+		wsB.send( JSON.stringify( { type: 'raceLoaded' } ) );
 
 		const [ msgA, msgB ] = await Promise.all( [ countdownA, countdownB ] );
 
@@ -498,6 +572,7 @@ describe( 'Reconnect', () => {
 		assert.strictEqual( welcome2.id, playerId, 'should get same player id' );
 		assert.strictEqual( welcome2.roomCode, roomCode, 'should be in same room' );
 		assert.strictEqual( welcome2.reconnected, true );
+		assert.strictEqual( welcome2.spawnSlot, welcomeA.spawnSlot );
 
 		// B should get playerReconnect
 		const reconnMsg = await reconnectPromise;

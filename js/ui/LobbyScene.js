@@ -18,6 +18,7 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { getVehicleById } from '../VehicleRegistry.js';
+import { applyPlayerAppearanceToNodes, createDefaultPlayerAppearance, normalizePlayerAppearance } from '../PlayerAppearance.js';
 
 // Camera parameters — tuned from the lobby debug panel.
 const CAM_POS  = new THREE.Vector3( 0.00, 0.80, 7.90 );
@@ -174,6 +175,15 @@ export class LobbyScene {
 		/** @type {THREE.AnimationMixer | null} */
 		this._mixer = null;
 
+		/** @type {object} */
+		this._appearance = createDefaultPlayerAppearance();
+
+		/** @type {THREE.Object3D | null} */
+		this._currentBodyRoot = null;
+
+		/** @type {THREE.Object3D | null} */
+		this._currentCharacterRoot = null;
+
 		// Handle resize
 		this._onResize = () => {
 
@@ -251,6 +261,7 @@ export class LobbyScene {
 
 			// Find seat_anchor node inside the kart model
 			let seatAnchor = null;
+			let bodyNode = null;
 			kartModel.traverse( ( child ) => {
 
 				const name = ( child.name || '' ).toLowerCase();
@@ -258,9 +269,17 @@ export class LobbyScene {
 
 					seatAnchor = child;
 
+				} else if ( name === 'body' || name.startsWith( 'body.' ) ) {
+
+					bodyNode = child;
+
 				}
 
 			} );
+
+			this._currentBodyRoot = bodyNode || kartModel;
+			this._currentCharacterRoot = null;
+			this._applyAppearance();
 
 			// Load character mesh and attach to seat anchor
 			this._loader.load( `models/${ CHARACTER_MESH_PATH }`, ( meshGltf ) => {
@@ -284,6 +303,9 @@ export class LobbyScene {
 					kartModel.add( character );
 
 				}
+
+				this._currentCharacterRoot = character;
+				this._applyAppearance();
 
 				// Apply driving pose animation
 				this._loader.load( `models/${ CHARACTER_ANIM_PATH }`, ( animGltf ) => {
@@ -318,12 +340,30 @@ export class LobbyScene {
 
 		this._currentKartId = null;
 		this._mixer = null;
+		this._currentBodyRoot = null;
+		this._currentCharacterRoot = null;
 
 		while ( this._kartGroup.children.length > 0 ) {
 
 			this._kartGroup.remove( this._kartGroup.children[ 0 ] );
 
 		}
+
+	}
+
+	setAppearance( appearance ) {
+
+		this._appearance = normalizePlayerAppearance( appearance );
+		this._applyAppearance();
+
+	}
+
+	_applyAppearance() {
+
+		applyPlayerAppearanceToNodes( {
+			bodyRoot: this._currentBodyRoot,
+			characterRoot: this._currentCharacterRoot,
+		}, this._appearance );
 
 	}
 

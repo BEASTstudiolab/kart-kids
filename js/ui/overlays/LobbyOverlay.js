@@ -637,7 +637,7 @@ export class LobbyOverlay {
 
 				}
 
-				const roomCode = await this._network.createRoom( settings.getSelectedKartId() );
+				const roomCode = await this._network.createRoom( settings.getSelectedKartId(), settings.getPlayerAppearance() );
 				this._roomCode = roomCode;
 
 				if ( this._roomCodeEl ) {
@@ -811,7 +811,7 @@ export class LobbyOverlay {
 		this._renderMembers();
 
 		// Add remote kart to the 3D party lobby scene
-		this._partyLobbyScene?.addRemoteKart( pid, msg.vehicleId );
+		this._partyLobbyScene?.addRemoteKart( pid, msg.vehicleId, msg.appearance );
 
 	}
 
@@ -838,7 +838,7 @@ export class LobbyOverlay {
 		const fallbackTrack = getRandomTrack();
 
 		const trackCells = msg.trackData
-			?? ( this._trackData ? this._trackData.cells : null )
+			?? ( this._trackData ? ( this._trackData.trackData || this._trackData.cells ) : null )
 			?? fallbackTrack.cells;
 
 		const decoCells = msg.decoCells
@@ -932,7 +932,7 @@ export class LobbyOverlay {
 		}
 
 		// Host starts the race on the server — send track cell data
-		const trackCells = this._trackData ? this._trackData.cells : null;
+		const trackCells = this._trackData ? ( this._trackData.trackData || this._trackData.cells ) : null;
 		this._network.startRace( trackCells );
 
 	}
@@ -1023,7 +1023,7 @@ export class LobbyOverlay {
 			const vehicleId = settings.getSelectedKartId();
 			this._network.setDisplayName( settings.getDisplayName() || '' );
 
-			const joinResult = await this._network.joinRoom( code, vehicleId );
+			const joinResult = await this._network.joinRoom( code, vehicleId, settings.getPlayerAppearance() );
 
 			// Populate member list with existing players from welcome message
 			if ( joinResult && joinResult.existingPlayers ) {
@@ -1039,7 +1039,7 @@ export class LobbyOverlay {
 						} );
 
 						// Add remote kart to the 3D party lobby scene
-						this._partyLobbyScene?.addRemoteKart( p.id, p.vehicleId );
+						this._partyLobbyScene?.addRemoteKart( p.id, p.vehicleId, p.appearance );
 
 					}
 
@@ -1085,9 +1085,10 @@ export class LobbyOverlay {
 
 		if ( ! this._trackInfoEl || ! this._trackNameEl ) return;
 
-		if ( this._trackData && this._trackData.name ) {
+		const trackLabel = this._trackData?.title || this._trackData?.name || '';
+		if ( trackLabel ) {
 
-			this._trackNameEl.textContent = this._trackData.name;
+			this._trackNameEl.textContent = trackLabel;
 			this._trackInfoEl.style.display = '';
 
 			// Host gets interactive card with CHANGE indicator

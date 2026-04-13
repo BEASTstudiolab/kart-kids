@@ -5,65 +5,16 @@
 import * as THREE from 'three';
 import { TrackTile } from './TrackTile.js';
 import { getFinishRoadCells } from '../../TrackOrientation.js';
-
-// ── v4 format constants ──
-const ELEV_STEP = 2.5;
-const ELEV_GROUND = 12;
-
-// Tile type index (v4 ↔ type name)
-const V4_TYPE_NAMES = [
-	'trk-straight',            // 0
-	'trk-corner-1x1',         // 1
-	'trk-straight',            // 2 (reserved/legacy)
-	'trk-finish',              // 3
-	'trk-junction-y',          // 4
-	'trk-junction-t',          // 5
-	'trk-junction-4way',       // 6
-	'trk-bridge-entry',        // 7
-	'trk-bridge-mid',          // 8
-	'trk-tunnel-entry',        // 9
-	'trk-tunnel-mid',          // 10
-	'trk-tunnel-exit',         // 11
-	'trk-tunnel-open',         // 12
-	'trk-jump-short',          // 13
-	'trk-jump-long',           // 14
-	'trk-chicane-3x3-l',      // 15
-	// ── Elevation & ramp types ──
-	'trk-elev-2p5',            // 16
-	'trk-elev-5',              // 17
-	'trk-ramp-up-2p5',         // 18
-	'trk-ramp-up-5',           // 19
-	'trk-ramp-down-2p5',       // 20
-	'trk-ramp-down-5',         // 21
-	'trk-ramp-up-2p5-smooth',  // 22
-	'trk-ramp-up-5-smooth',    // 23
-	'trk-ramp-down-2p5-smooth', // 24
-	'trk-ramp-down-5-smooth',  // 25
-	// ── Curve types (saved directly) ──
-	'trk-curve-2x2-l',         // 26
-	'trk-curve-3x3-l',         // 27
-	'trk-curve-3x3-wide-l',   // 28
-];
-
-const V4_TYPE_INDEX = {};
-for ( let i = 0; i < V4_TYPE_NAMES.length; i ++ ) {
-
-	if ( i === 2 ) continue; // skip legacy alias
-	if ( V4_TYPE_INDEX[ V4_TYPE_NAMES[ i ] ] === undefined ) {
-
-		V4_TYPE_INDEX[ V4_TYPE_NAMES[ i ] ] = i;
-
-	}
-
-}
-
-// Orient: v4 quadrant (0-3) ↔ internal code (0, 16, 10, 22)
-const V4_TO_INTERNAL = [ 0, 16, 10, 22 ];
-const INTERNAL_TO_V4 = { 0: 0, 16: 1, 10: 2, 22: 3 };
-
-// Curve variant encoding
-const CURVE_VARIANT_ENCODE = { '2x2-wide': 1, '2x2-tight': 2, '3x3': 3, '3x3-wide': 4 };
-const CURVE_VARIANT_DECODE = { 1: '2x2-wide', 2: '2x2-tight', 3: '3x3', 4: '3x3-wide' };
+import {
+	ELEV_STEP,
+	ELEV_GROUND,
+	V4_TYPE_NAMES,
+	V4_TYPE_INDEX,
+	V4_TO_INTERNAL,
+	INTERNAL_TO_V4,
+	CURVE_VARIANT_ENCODE,
+	CURVE_VARIANT_DECODE,
+} from './TrackV4Format.js';
 
 
 export class TrackProject {
@@ -369,7 +320,6 @@ export class TrackProject {
 
 }
 
-// Export constants for use by other modules
 export {
 	ELEV_STEP, ELEV_GROUND,
 	V4_TYPE_NAMES, V4_TYPE_INDEX,

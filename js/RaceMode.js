@@ -10,6 +10,23 @@ const COUNTDOWN_DURATION = 3; // seconds
 const NETWORK_COUNTDOWN_TIMEOUT = 15; // seconds — fallback if server stops sending countdown
 const ZERO_INPUT = { x: 0, z: 0, touchActive: false, boost: false, drift: false, gas: false, brake: false };
 
+function formatOrdinalPosition( position ) {
+
+	const value = Math.max( 1, position | 0 );
+	const mod100 = value % 100;
+	if ( mod100 >= 11 && mod100 <= 13 ) return `${ value }TH`;
+
+	switch ( value % 10 ) {
+
+		case 1: return `${ value }ST`;
+		case 2: return `${ value }ND`;
+		case 3: return `${ value }RD`;
+		default: return `${ value }TH`;
+
+	}
+
+}
+
 export class RaceMode extends GameMode {
 
 	constructor( { totalLaps = 3, spawnPosition, spawnAngle, onCountdownTick } = {} ) {
@@ -36,7 +53,9 @@ export class RaceMode extends GameMode {
 		this.eliminationManager = null;
 		this._lastSegmentHint = null;
 		this._position = 1;
-		this._aiVehicleSet = new Set();
+		this._leaders = [];
+		this._rankedRacers = [];
+		this._remoteLapById = new Map();
 
 		this._state = STATE_IDLE;
 		this._countdownTime = 0;
@@ -80,12 +99,13 @@ export class RaceMode extends GameMode {
 		this._totalTime = 0;
 		this._prevPos = null;
 		this._passedHalfway = false;
+		this._resetLeaderboardState();
 
 		if ( this._finishLine ) this._finishLine.resetCooldown();
 
 	}
 
-	update( dt, vehicle, activeVehicles, aiRaceData ) {
+	update( dt, vehicle, humanRaceData, aiRaceData ) {
 
 		this._vehicle = vehicle;
 
@@ -137,7 +157,7 @@ export class RaceMode extends GameMode {
 			}
 
 			this._checkFinishLine( vehicle );
-			this._updatePosition( vehicle, activeVehicles, aiRaceData );
+			this._updatePosition( vehicle, humanRaceData, aiRaceData );
 
 		}
 
@@ -161,6 +181,7 @@ export class RaceMode extends GameMode {
 			this._totalTime = 0;
 			this._prevPos = null;
 			this._passedHalfway = false;
+			this._resetLeaderboardState();
 			if ( this._finishLine ) this._finishLine.resetCooldown();
 
 			this._state = STATE_COUNTDOWN;
@@ -211,6 +232,8 @@ export class RaceMode extends GameMode {
 		s.bestLap = this._bestLap === Infinity ? 0 : this._bestLap;
 		s.totalTime = this._totalTime;
 		s.position = this._position;
+		s.positionLabel = formatOrdinalPosition( this._position );
+		s.leaders = this._leaders;
 		s.boostMeter = v ? v.boostMeter : 0;
 		s.boostActive = v ? v.boostActive : false;
 		s.shieldActive = v ? v.shieldActive : false;
@@ -258,7 +281,7 @@ export class RaceMode extends GameMode {
 		this._prevPos = null;
 		this._passedHalfway = false;
 		this._lastSegmentHint = null;
-		this._position = 1;
+		this._resetLeaderboardState();
 
 		if ( this._finishLine ) this._finishLine.resetCooldown();
 
@@ -268,6 +291,24 @@ export class RaceMode extends GameMode {
 
 	get lap() { return this._lap; }
 
+	setRemoteLap( playerId, lap ) {
+
+		if ( ! playerId ) return;
+		if ( this._state !== STATE_RACING ) return;
+
+		const normalizedLap = Number.isFinite( lap ) ? Math.max( 0, Math.floor( lap ) ) : 0;
+		const currentLap = this._remoteLapById.get( playerId ) || 0;
+		if ( normalizedLap >= currentLap ) this._remoteLapById.set( playerId, normalizedLap );
+
+	}
+
+	clearRemoteLap( playerId ) {
+
+		if ( ! playerId ) return;
+		this._remoteLapById.delete( playerId );
+
+	}
+
 	_transitionToRacing() {
 
 		this._state = STATE_RACING;
@@ -276,18 +317,33 @@ export class RaceMode extends GameMode {
 		this._lap = 0;
 		this._prevPos = null;
 		this._passedHalfway = false;
+		this._resetLeaderboardState();
 
 	}
 
-	_updatePosition( vehicle, activeVehicles, aiRaceData ) {
+	_updatePosition( vehicle, humanRaceData, aiRaceData ) {
 
-		if ( ! this.trackIntel || ! vehicle || ! activeVehicles ) {
+		this._rankedRacers.length = 0;
+		this._leaders.length = 0;
+
+		if ( ! this.trackIntel || ! vehicle || ! humanRaceData ) {
 
 			this._position = 1;
+			const localRacer = humanRaceData && humanRaceData.find( ( entry ) => entry.isLocal || entry.vehicle === vehicle );
+			if ( localRacer ) {
+
+				this._leaders.push( {
+					position: 1,
+					name: localRacer.displayLabel,
+					isLocal: true,
+				} );
+
+			}
 			return;
 
 		}
 
+		const localRacer = humanRaceData.find( ( entry ) => entry.isLocal || entry.vehicle === vehicle );
 		const pos = vehicle.vehPos;
 		const myProgress = this._lap + this.trackIntel.getProgress(
 			pos.x, pos.z, this._lastSegmentHint
@@ -296,42 +352,68 @@ export class RaceMode extends GameMode {
 		// Update segment hint for windowed search next frame
 		this._lastSegmentHint = this.trackIntel.getNearestWaypoint( pos.x, pos.z );
 
-		let ahead = 0;
+		let sortIndex = 0;
+		this._rankedRacers.push( {
+			id: localRacer ? localRacer.id : '_local',
+			name: localRacer ? localRacer.displayLabel : 'YOU',
+			progress: myProgress,
+			isLocal: true,
+			sortIndex: sortIndex ++,
+		} );
 
-		// AI racers with known lap counts — use full race progress
-		this._aiVehicleSet.clear();
+		for ( const entry of humanRaceData ) {
+
+			const v = entry.vehicle;
+			if ( entry.isLocal || v === vehicle ) continue;
+			if ( this.eliminationManager && this.eliminationManager.isEliminated( v ) ) continue;
+
+			const vPos = v.vehPos;
+			this._rankedRacers.push( {
+				id: entry.id,
+				name: entry.displayLabel,
+				progress: ( this._remoteLapById.get( entry.id ) || 0 ) + this.trackIntel.getProgress( vPos.x, vPos.z ),
+				isLocal: false,
+				sortIndex: sortIndex ++,
+			} );
+
+		}
+
 		if ( aiRaceData ) {
 
 			for ( const ai of aiRaceData ) {
-
-				this._aiVehicleSet.add( ai.vehicle );
 
 				// Skip eliminated vehicles in position ranking
 				if ( this.eliminationManager && this.eliminationManager.isEliminated( ai.vehicle ) ) continue;
 
 				const vPos = ai.vehicle.vehPos;
-				const vProgress = ai.lap + this.trackIntel.getProgress( vPos.x, vPos.z );
-				if ( vProgress > myProgress ) ahead ++;
+				this._rankedRacers.push( {
+					id: ai.id || `ai-${ sortIndex }`,
+					name: ai.displayLabel || ai.name || 'CPU',
+					progress: ai.lap + this.trackIntel.getProgress( vPos.x, vPos.z ),
+					isLocal: false,
+					sortIndex: sortIndex ++,
+				} );
 
 			}
 
 		}
 
-		// Remote human players — intra-lap progress only (no network lap data)
-		for ( const entry of activeVehicles ) {
+		this._rankedRacers.sort( ( a, b ) => ( b.progress - a.progress ) || ( a.sortIndex - b.sortIndex ) );
 
-			const v = entry.vehicle;
-			if ( v === vehicle ) continue;
-			if ( this._aiVehicleSet.has( v ) ) continue;
+		this._position = 1;
+		for ( let i = 0; i < this._rankedRacers.length; i ++ ) {
 
-			const vPos = v.vehPos;
-			const vProgress = this.trackIntel.getProgress( vPos.x, vPos.z );
+			const racer = this._rankedRacers[ i ];
+			if ( racer.isLocal ) this._position = i + 1;
+			if ( i >= 3 ) continue;
 
-			if ( vProgress > myProgress ) ahead ++;
+			this._leaders.push( {
+				position: i + 1,
+				name: racer.name,
+				isLocal: racer.isLocal,
+			} );
 
 		}
-
-		this._position = ahead + 1;
 
 	}
 
@@ -378,6 +460,15 @@ export class RaceMode extends GameMode {
 			}
 
 		}
+
+	}
+
+	_resetLeaderboardState() {
+
+		this._position = 1;
+		this._leaders.length = 0;
+		this._rankedRacers.length = 0;
+		this._remoteLapById.clear();
 
 	}
 

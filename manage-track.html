@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Kart Kids — Manage Track</title>
+	<link rel="stylesheet" href="/js/ui/ui-theme.css">
+	<style>
+		html, body {
+			margin: 0;
+			min-height: 100%;
+			background:
+				radial-gradient(circle at top, rgba(0,212,232,0.18), transparent 35%),
+				linear-gradient(180deg, #08080c 0%, #11121a 100%);
+			color: #fff;
+			font-family: var(--font-ui, sans-serif);
+		}
+		#manage-track-page {
+			min-height: 100vh;
+			padding: 24px;
+			box-sizing: border-box;
+		}
+		.kk-public-track {
+			max-width: 980px;
+			margin: 0 auto;
+		}
+		.kk-public-track__hero {
+			padding: 24px;
+			border: 1px solid rgba(255,255,255,0.08);
+			border-radius: 28px;
+			background: rgba(14,16,24,0.88);
+			box-shadow: 0 24px 80px rgba(0,0,0,0.34);
+		}
+		.kk-public-track__eyebrow {
+			margin: 0 0 12px;
+			font-size: 0.78rem;
+			letter-spacing: 0.18em;
+			text-transform: uppercase;
+			color: #86efff;
+		}
+		.kk-public-track__title {
+			margin: 0 0 10px;
+			font-family: var(--font-display, sans-serif);
+			font-size: clamp(2rem, 6vw, 4.25rem);
+			line-height: 0.95;
+			text-transform: uppercase;
+		}
+		.kk-public-track__subtitle,
+		.kk-public-track__note {
+			margin: 0;
+			color: rgba(255,255,255,0.72);
+			line-height: 1.5;
+		}
+		.kk-public-track__note {
+			margin-top: 16px;
+		}
+		.kk-public-track__actions {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 12px;
+			margin-top: 24px;
+		}
+		.kk-public-track__button {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 52px;
+			padding: 0 20px;
+			border-radius: 999px;
+			border: 1px solid rgba(255,255,255,0.14);
+			background: linear-gradient(180deg, #8ee8f7 0%, #00d4e8 100%);
+			color: #060606;
+			font-weight: 800;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			text-decoration: none;
+			cursor: pointer;
+		}
+		.kk-public-track__button--link {
+			background: rgba(255,255,255,0.06);
+			color: #fff;
+		}
+		@media (max-width: 720px) {
+			#manage-track-page {
+				padding: 16px;
+			}
+			.kk-public-track__hero {
+				padding: 18px;
+				border-radius: 20px;
+			}
+			.kk-public-track__actions {
+				flex-direction: column;
+			}
+			.kk-public-track__button {
+				width: 100%;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div id="manage-track-page"></div>
+	<script type="module" src="/js/ui/public-track/ManagePublishedTrackPage.js"></script>
+</body>
+</html>
