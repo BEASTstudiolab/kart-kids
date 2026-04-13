@@ -1,51 +1,27 @@
-/**
- * TracksPanel — TRACKS tab content panel (track management workshop).
- *
- * Composes TrackBrowser for the browse/minimap UI and adds
- * workshop-specific features: CREATE TRACK card, delete/share/edit actions.
- * Clicking a card shows its details and management actions but does NOT
- * select the track for racing — race track selection lives on the PLAY screen.
- *
- * Lifecycle: constructor(container, services), show(), hide(), dispose().
- */
-
-import { getTracks }                          from '../../TrackRegistry.js';
-import { deleteNamedTrack }                   from '../../TrackSaves.js';
-import { Settings }                           from '../../Settings.js';
-import { TrackBrowser }                       from '../components/TrackBrowser.js';
+import { Settings } from '../../Settings.js';
+import { PublishedTrackApi } from '../../track-library/PublishedTrackApi.js';
+import { TrackLibraryStore } from '../../track-library/TrackLibraryStore.js';
+import { encodeV4ToUrlPayload, v4ToCells } from '../../track-library/TrackRecordMappers.js';
+import { TrackLibraryBrowser } from '../components/TrackLibraryBrowser.js';
 
 export class TracksPanel {
 
-	/**
-	 * @param {HTMLElement} container  The #kk-panel-tracks div created by AppShell.
-	 * @param {object}      services   AppShell service bag.
-	 */
 	constructor( container, services ) {
 
-		/** @type {HTMLElement} */
 		this._container = container;
-
-		/** @type {object} */
 		this._services = services;
-
-		/** @type {Settings} */
 		this._settings = new Settings();
-
-		/** @type {HTMLElement|null} */
+		this._api = new PublishedTrackApi();
+		this._library = new TrackLibraryStore();
 		this._root = null;
-
-		/** @type {TrackBrowser|null} */
 		this._browser = null;
+		this._browserMount = null;
 
 		this._injectCSS();
 		this._build();
 		this._container.appendChild( this._root );
 
 	}
-
-	// ---------------------------------------------------------------------------
-	// CSS
-	// ---------------------------------------------------------------------------
 
 	_injectCSS() {
 
@@ -54,332 +30,270 @@ export class TracksPanel {
 
 		const style = document.createElement( 'style' );
 		style.textContent = `
-
-			/* ===================================================
-			   Tracks panel root — full page, opaque background
-			   =================================================== */
-
 			.kk-tracks {
 				width: 100%;
 				height: 100%;
-				overflow-y: auto;
-				overflow-x: hidden;
-				background: rgba( 10, 10, 10, 1.0 );
-				padding: var(--space-6, 1.5rem);
 				box-sizing: border-box;
-				-webkit-overflow-scrolling: touch;
+				padding: 24px;
+				background: rgba(10,10,10,1);
 			}
-
-			/* ===================================================
-			   Create card — dashed border, big +
-			   =================================================== */
-
-			.kk-tracks__card--create {
-				border-style: dashed;
-				border-color: rgba( 255, 255, 255, 0.2 );
-				background: rgba( 20, 20, 30, 0.4 );
+			.kk-tracks__toolbar {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 12px;
+				align-items: center;
+				justify-content: space-between;
+				margin-bottom: 20px;
+			}
+			.kk-tracks__heading {
 				display: flex;
 				flex-direction: column;
-				align-items: center;
-				justify-content: center;
-				gap: var(--space-2, 0.5rem);
+				gap: 4px;
 			}
-
-			.kk-tracks__card--create:hover {
-				border-color: var(--color-accent-orange, #f97316);
-				box-shadow: 0 0 14px rgba( 249, 115, 22, 0.25 );
-			}
-
-			.kk-tracks__create-plus {
-				font-size: 2.5rem;
-				font-weight: 300;
-				line-height: 1;
-				color: var(--color-ink-300, #aaa);
-				transition: color var(--duration-fast, 100ms) var(--ease-standard, ease);
-			}
-
-			.kk-tracks__card--create:hover .kk-tracks__create-plus {
-				color: var(--color-accent-orange, #f97316);
-			}
-
-			.kk-tracks__create-label {
+			.kk-tracks__heading h1 {
+				margin: 0;
 				font-family: var(--font-display, sans-serif);
-				font-size: var(--text-xs, 0.75rem);
-				font-weight: var(--weight-bold, 700);
+				font-size: clamp(1.6rem, 4vw, 2.6rem);
 				text-transform: uppercase;
-				letter-spacing: var(--tracking-widest, 0.14em);
-				color: var(--color-ink-300, #aaa);
+				letter-spacing: 0.12em;
+				color: #fff;
 			}
-
-			@media ( max-width: 480px ) {
-
+			.kk-tracks__heading p {
+				margin: 0;
+				color: rgba(255,255,255,0.64);
+			}
+			.kk-tracks__toolbar-actions {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 10px;
+			}
+			.kk-tracks__toolbar-btn {
+				border: 1px solid rgba(255,255,255,0.12);
+				background: rgba(255,255,255,0.06);
+				color: #fff;
+				border-radius: 999px;
+				padding: 12px 16px;
+				font-weight: 800;
+				font-size: 0.78rem;
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+				cursor: pointer;
+				text-decoration: none;
+			}
+			.kk-tracks__toolbar-btn--primary {
+				background: linear-gradient(180deg, #ff9a3d 0%, #ff6b00 100%);
+				color: #060606;
+			}
+			.kk-tracks__browser {
+				height: calc(100% - 110px);
+			}
+			@media (max-width: 720px) {
 				.kk-tracks {
-					padding: var(--space-4, 1rem);
+					padding: 16px;
 				}
-
+				.kk-tracks__browser {
+					height: calc(100% - 140px);
+				}
 			}
-
 		`;
 		document.head.appendChild( style );
 
 	}
 
-	// ---------------------------------------------------------------------------
-	// Build
-	// ---------------------------------------------------------------------------
-
 	_build() {
 
-		const root = document.createElement( 'div' );
-		root.className = 'kk-tracks';
-		root.setAttribute( 'role', 'region' );
-		root.setAttribute( 'aria-label', 'Tracks — track management' );
+		this._root = document.createElement( 'div' );
+		this._root.className = 'kk-tracks';
+		this._root.innerHTML = `
+			<div class="kk-tracks__toolbar">
+				<div class="kk-tracks__heading">
+					<h1>Tracks</h1>
+					<p>Official picks, curated spotlight, your live publishes, and playable saved snapshots.</p>
+				</div>
+				<div class="kk-tracks__toolbar-actions">
+					<a class="kk-tracks__toolbar-btn kk-tracks__toolbar-btn--primary" href="/track-editor.html" target="_blank" rel="noopener">Open Track Editor</a>
+					<button type="button" class="kk-tracks__toolbar-btn" data-action="refresh">Refresh Library</button>
+				</div>
+			</div>
+			<div class="kk-tracks__browser"></div>
+		`;
 
-		// Create the TrackBrowser with manage actions enabled.
-		this._browser = new TrackBrowser( root, {
-			onTrackSelected: ( trackId ) => this._onTrackSelected( trackId ),
-			showManageActions: true,
+		this._browserMount = this._root.querySelector( '.kk-tracks__browser' );
+		this._browser = new TrackLibraryBrowser( this._browserMount, {
+			onTrackSelected: ( trackId ) => {
+
+				this._settings.setSelectedTrackId( trackId );
+
+			},
 		} );
 
-		// Wire up manage actions (share/edit/delete).
-		this._browser.setManageActionHandler( ( action, track ) => {
+		this._root.querySelector( '[data-action="refresh"]' ).addEventListener( 'click', () => this.refresh() );
 
-			if ( action === 'share' ) this._shareTrack( track );
-			else if ( action === 'edit' ) this._editTrack( track );
-			else if ( action === 'delete' ) this._deleteTrack( track );
+	}
 
-		} );
+	async refresh() {
 
-		// Append CREATE TRACK card to the my tracks carousel.
-		const myTracksRow = this._browser.getMyTracksRow();
-		if ( myTracksRow ) {
+		this._settings = new Settings();
+		const selectedId = this._settings.getSelectedTrackId();
+		const officialTracks = this._library.getOfficialTracks();
+		const spotlightTracks = await this._loadSpotlightTracks();
+		const myPublished = await this._loadPublishedTracks();
+		const mySaved = this._loadSavedTracks();
 
-			myTracksRow.appendChild( this._buildCreateCard() );
+		const sections = [
+			{ id: 'official', label: 'Official', items: officialTracks, emptyText: 'No official tracks yet.' },
+			{ id: 'spotlight', label: 'Spotlight', items: spotlightTracks, emptyText: 'Spotlight is empty for now.' },
+			{ id: 'published', label: 'My Published', items: myPublished, emptyText: 'Publish a track to manage it here.' },
+			{ id: 'saved', label: 'My Saved', items: mySaved, emptyText: 'Save a public track or create one in the editor.' },
+		];
+
+		const validIds = new Set( [
+			...officialTracks.map( ( t ) => t.trackId ),
+			...spotlightTracks.map( ( t ) => t.trackId ),
+			...mySaved.map( ( t ) => t.trackId ),
+		] );
+		const nextSelectedId = validIds.has( selectedId ) ? selectedId : officialTracks[ 0 ]?.trackId ?? null;
+		if ( nextSelectedId && nextSelectedId !== selectedId ) {
+
+			this._settings.setSelectedTrackId( nextSelectedId );
 
 		}
 
-		this._root = root;
+		this._browser.setSections( sections, nextSelectedId );
 
 	}
 
-	// ---------------------------------------------------------------------------
-	// Track selection callback
-	// ---------------------------------------------------------------------------
+	async _loadSpotlightTracks() {
 
-	/**
-	 * Handle track card click — update the detail panel only.
-	 *
-	 * This is a workshop view: clicking a card shows its details and
-	 * management actions, but does NOT select the track for racing.
-	 * Race track selection is handled by the PLAY screen's TrackBrowser.
-	 *
-	 * @param {string} _trackId
-	 */
-	_onTrackSelected( trackId ) {
+		try {
 
-		// Workshop mode: persist selection to Settings so TrackBrowser's
-		// highlight and detail panel update correctly on re-render.
-		// This does NOT affect the PLAY screen — RacePanel has its own
-		// TrackBrowser instance with its own onTrackSelected callback.
-		this._settings.setSelectedTrackId( trackId );
+			const response = await this._api.getSpotlightTracks();
+			return ( response.tracks || [] ).map( ( track ) => ( {
+				...this._library.mapSpotlightTrack( track ),
+				actions: [
+					{ label: 'Open Public Page', href: `/t/${ track.publicId }`, target: '_blank' },
+				],
+			} ) );
 
-		// Re-append CREATE TRACK card (TrackBrowser.re-render clears the row).
-		this._reappendCreateCard();
+		} catch {
 
-	}
-
-	/**
-	 * Re-append the CREATE TRACK card to the my tracks carousel row.
-	 * Called after any TrackBrowser re-render that clears the row.
-	 */
-	_reappendCreateCard() {
-
-		const myTracksRow = this._browser.getMyTracksRow();
-		if ( myTracksRow ) {
-
-			myTracksRow.appendChild( this._buildCreateCard() );
+			return [];
 
 		}
 
 	}
 
-	// ---------------------------------------------------------------------------
-	// Workshop-specific cards
-	// ---------------------------------------------------------------------------
+	async _loadPublishedTracks() {
 
-	/**
-	 * Build the "CREATE TRACK" card with a big + icon.
-	 *
-	 * @returns {HTMLElement}
-	 */
-	_buildCreateCard() {
+		const ownerships = this._library.getOwnerships();
 
-		const card = document.createElement( 'div' );
-		card.className = 'kk-tracks__card kk-tracks__card--create';
+		const tracks = await Promise.all( ownerships.map( async ( ownership ) => {
 
-		const plus = document.createElement( 'div' );
-		plus.className = 'kk-tracks__create-plus';
-		plus.textContent = '+';
-		card.appendChild( plus );
+			try {
 
-		const label = document.createElement( 'div' );
-		label.className = 'kk-tracks__create-label';
-		label.textContent = 'CREATE TRACK';
-		card.appendChild( label );
+				const managed = await this._api.getManagedTrack( ownership.manageToken );
+				return {
+					trackId: ownership.trackId,
+					publicId: managed.publicId,
+					title: managed.title,
+					creatorName: managed.creatorName,
+					status: managed.status,
+					trackData: managed.trackData,
+					cells: managed.trackData ? v4ToCells( managed.trackData ) : [],
+					source: 'published',
+					selectable: false,
+					actions: [
+						{ label: 'Open Manage', href: `/m/${ ownership.manageToken }`, target: '_blank' },
+						{ label: 'Open in Editor', href: `/track-editor.html?manage=${ ownership.manageToken }`, target: '_blank' },
+						{ label: 'Copy Public Link', onClick: () => this._copyText( `${ window.location.origin }/t/${ managed.publicId }`, 'Public link copied.' ) },
+					],
+				};
 
-		card.addEventListener( 'click', () => {
+			} catch {
 
-			window.open( 'track-editor.html', '_blank', 'noopener' );
+				return {
+					trackId: ownership.trackId,
+					publicId: ownership.publicId,
+					title: ownership.title,
+					creatorName: ownership.creatorName,
+					status: ownership.status || 'unknown',
+					cells: [],
+					source: 'published',
+					selectable: false,
+					actions: [
+						{ label: 'Open Manage', href: `/m/${ ownership.manageToken }`, target: '_blank' },
+					],
+				};
+
+			}
+
+		} ) );
+
+		return tracks;
+
+	}
+
+	_loadSavedTracks() {
+
+		return this._library.getSavedTracks().map( ( track ) => {
+
+			const actions = [];
+			if ( track.trackData ) {
+
+				actions.push( {
+					label: 'Open in Editor',
+					href: `/track-editor.html#track=v4:${ encodeV4ToUrlPayload( track.trackData ) }`,
+					target: '_blank',
+				} );
+
+			}
+
+			return {
+				...track,
+				title: track.title || track.name,
+				selectable: true,
+				actions,
+			};
 
 		} );
 
-		return card;
-
 	}
 
-	// ---------------------------------------------------------------------------
-	// Workshop actions
-	// ---------------------------------------------------------------------------
+	async _copyText( value, message ) {
 
-	/** @private Encode track data as v4 base64url for URLs. */
-	_encodeV4Url( track ) {
+		try {
 
-		// track.cells may be a v4 JSON object or a raw cells array
-		const v4 = track.trackData || ( Array.isArray( track.cells ) ? { v: 4, trackTiles: [], meta: {}, cells: track.cells } : null );
-		if ( ! v4 ) return null;
-
-		const json = JSON.stringify( v4 );
-		const bytes = new TextEncoder().encode( json );
-		let binary = '';
-		for ( let i = 0; i < bytes.length; i ++ ) binary += String.fromCharCode( bytes[ i ] );
-		return btoa( binary ).replace( /\+/g, '-' ).replace( /\//g, '_' ).replace( /=+$/, '' );
-
-	}
-
-	/**
-	 * Copy the share URL for a user track to the clipboard.
-	 *
-	 * @param {object} track  User track object.
-	 */
-	_shareTrack( track ) {
-
-		const encoded = this._encodeV4Url( track );
-		if ( ! encoded ) return;
-
-		const url = window.location.origin + '/index.html#track=v4:' + encoded;
-
-		navigator.clipboard.writeText( url ).then( () => {
-
+			await navigator.clipboard.writeText( value );
 			this._services.notification?.show( {
-				message: 'Link copied!',
+				message,
 				variant: 'success',
 				duration: 2000,
 			} );
 
-		} ).catch( () => {
+		} catch {
 
 			this._services.notification?.show( {
-				message: 'Failed to copy link',
-				variant: 'error',
-				duration: 2000,
+				message: value,
+				variant: 'info',
+				duration: 3500,
 			} );
 
-		} );
-
-	}
-
-	/**
-	 * Open the editor for a user track.
-	 *
-	 * @param {object} track  User track object.
-	 */
-	_editTrack( track ) {
-
-		const encoded = this._encodeV4Url( track );
-		if ( ! encoded ) return;
-		window.open( `track-editor.html#track=v4:${ encoded }`, '_blank', 'noopener' );
-
-	}
-
-	/**
-	 * Delete a user track after confirmation.
-	 *
-	 * @param {object} track  User track object.
-	 */
-	_deleteTrack( track ) {
-
-		const confirmed = window.confirm( `Delete "${ track.name }"? This cannot be undone.` );
-		if ( ! confirmed ) return;
-
-		deleteNamedTrack( track.name );
-
-		// If the deleted track was selected, fall back to default.
-		const selectedId = this._settings.getSelectedTrackId();
-		if ( selectedId === 'user:' + track.name ) {
-
-			const builtIn = getTracks();
-			const fallback = builtIn.length > 0 ? builtIn[ 0 ].id : 'starter-circuit';
-			this._settings.setSelectedTrackId( fallback );
-
 		}
 
-		// Refresh the browser to reflect deletion.
-		this._browser.refresh();
-		this._reappendCreateCard();
-
-		this._services.notification?.show( {
-			message: `"${ track.name }" deleted`,
-			variant: 'info',
-			duration: 2000,
-		} );
-
 	}
 
-	// ---------------------------------------------------------------------------
-	// Panel lifecycle
-	// ---------------------------------------------------------------------------
-
-	/**
-	 * Called when the TRACKS tab becomes active.
-	 * Re-reads user tracks and refreshes the display.
-	 */
 	show() {
 
-		// Re-read settings for delete fallback checks.
-		this._settings = new Settings();
-
-		this._browser.show();
-		this._reappendCreateCard();
+		this.refresh();
 
 	}
 
-	/**
-	 * Called when the TRACKS tab becomes inactive.
-	 */
-	hide() {
+	hide() {}
 
-		this._browser.hide();
-
-	}
-
-	/**
-	 * Full teardown. Called only if AppShell itself is destroyed.
-	 */
 	dispose() {
 
-		if ( this._browser ) {
-
-			this._browser.dispose();
-			this._browser = null;
-
-		}
-
-		if ( this._root && this._root.parentNode ) {
-
-			this._root.parentNode.removeChild( this._root );
-
-		}
-
+		this._browser?.dispose();
+		if ( this._root?.parentNode ) this._root.parentNode.removeChild( this._root );
 		this._root = null;
 
 	}

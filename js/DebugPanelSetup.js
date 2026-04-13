@@ -60,10 +60,10 @@ export function setupDebugPanel( ctx ) {
 
 	const {
 		scene, renderer, bloomPass, postFX,
-		vehicle, cam, aiManager, controls,
+		vehicle, cam, aiManager, trackIntel, controls,
 		dirLight, dirLightOffset, hemiLight,
 		meshDebugGroup, colliderDebugGroup, barrierDebugGroup,
-		tileLabelsGroup, heightLabelsGroup,
+		tileLabelsGroup, heightLabelsGroup, routePathDebugGroup, aiTargetDebugGroup,
 		renderCells, models,
 		groundIndicator, jitterDisplay, draftIndicator,
 		applyLighting, LIGHTING_DAY, LIGHTING_NIGHT,
@@ -165,6 +165,56 @@ export function setupDebugPanel( ctx ) {
 			}
 
 		}
+
+	}
+
+	function buildRoutePathOverlay() {
+
+		if ( ! routePathDebugGroup || routePathDebugGroup.children.length > 0 ) return;
+		if ( ! trackIntel || ! trackIntel.valid || trackIntel.count === 0 ) return;
+
+		const points = [];
+		for ( let i = 0; i < trackIntel.count; i ++ ) {
+
+			const w = trackIntel.waypoints[ i ];
+			points.push( new THREE.Vector3( w.x, ( w.y || 0 ) + 1.0, w.z ) );
+
+		}
+
+		points.push( points[ 0 ].clone() );
+
+		const lineGeo = new THREE.BufferGeometry().setFromPoints( points );
+		const lineMat = new THREE.LineBasicMaterial( {
+			color: 0x00ff00,
+			depthTest: false,
+			transparent: true,
+			opacity: 0.85,
+		} );
+		const line = new THREE.Line( lineGeo, lineMat );
+		line.renderOrder = 999;
+		routePathDebugGroup.add( line );
+
+		const dotPositions = new Float32Array( trackIntel.count * 3 );
+		for ( let i = 0; i < trackIntel.count; i ++ ) {
+
+			const w = trackIntel.waypoints[ i ];
+			dotPositions[ i * 3 ] = w.x;
+			dotPositions[ i * 3 + 1 ] = ( w.y || 0 ) + 1.2;
+			dotPositions[ i * 3 + 2 ] = w.z;
+
+		}
+
+		const dotGeo = new THREE.BufferGeometry();
+		dotGeo.setAttribute( 'position', new THREE.BufferAttribute( dotPositions, 3 ) );
+		const dotMat = new THREE.PointsMaterial( {
+			color: 0x00ff88,
+			size: 1.5,
+			sizeAttenuation: true,
+			depthTest: false,
+		} );
+		const dots = new THREE.Points( dotGeo, dotMat );
+		dots.renderOrder = 1000;
+		routePathDebugGroup.add( dots );
 
 	}
 
@@ -386,6 +436,19 @@ export function setupDebugPanel( ctx ) {
 
 	} );
 
+	debugMenu.addCheckbox( generalTab, 'Show AI route path (green)', false, ( v ) => {
+
+		if ( v ) buildRoutePathOverlay();
+		if ( routePathDebugGroup ) routePathDebugGroup.visible = v;
+
+	} );
+
+	debugMenu.addCheckbox( generalTab, 'Show AI steering targets', false, ( v ) => {
+
+		if ( aiTargetDebugGroup ) aiTargetDebugGroup.visible = v;
+
+	} );
+
 	debugMenu.addCheckbox( generalTab, 'Jitter diagnostic overlay', false, ( v ) => {
 
 		jitterDisplay.style.display = v ? 'block' : 'none';
@@ -459,29 +522,29 @@ export function setupDebugPanel( ctx ) {
 	debugMenu.addSlider( generalTab, 'AI count', 0, 8, 1, 0, ( v ) => { aiManager.setCount( v ); } );
 	debugMenu.addSlider( generalTab, 'Rubber band %', 0, 100, 1, 50, ( v ) => { aiManager.rubberBandIntensity = v / 100; } );
 
-	const aiPersonalityLabel = document.createElement( 'div' );
-	aiPersonalityLabel.style.cssText = 'margin:4px 0;font-size:11px;color:#0f08';
-	aiPersonalityLabel.textContent = '';
-	generalTab.appendChild( aiPersonalityLabel );
+	const aiRosterLabel = document.createElement( 'div' );
+	aiRosterLabel.style.cssText = 'margin:4px 0;font-size:11px;color:#0f08';
+	aiRosterLabel.textContent = '';
+	generalTab.appendChild( aiRosterLabel );
 
-	// Update personality display when AI count changes
-	const updatePersonalityLabel = () => {
+	// Update AI roster summary when AI count changes
+	const updateAIRosterLabel = () => {
 
 		const data = aiManager.getAIRaceData();
 		if ( data.length === 0 ) {
 
-			aiPersonalityLabel.textContent = '';
+			aiRosterLabel.textContent = '';
 
 		} else {
 
-			aiPersonalityLabel.textContent = 'Personalities: ' + data.map( ( d ) => d.profileName ).join( ', ' );
+			aiRosterLabel.textContent = `AI roster: ${data.length} x ${data[ 0 ].displayLabel || 'CPU'}`;
 
 		}
 
 	};
 
 	// Poll every 500ms (lightweight, only when debug visible)
-	setInterval( () => { if ( debugMenu.visible ) updatePersonalityLabel(); }, 500 );
+	setInterval( () => { if ( debugMenu.visible ) updateAIRosterLabel(); }, 500 );
 
 	// ── Tab: Post FX ─────────────────────────────────────────────────────────
 	const postFXTab = debugMenu.addTab( 'postprocessing', 'Post FX' );

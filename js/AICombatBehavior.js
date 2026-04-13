@@ -14,6 +14,9 @@ export class AICombatBehavior {
 		this._seekWrenchHP = 50;       // seek wrench when any quadrant below this
 		this._disengageHP = 30;        // disengage from combat below this global HP
 		this._itemUseDistMax = 12;     // max distance to use targeted items
+		this._seekWrenchTurnSeverityMax = 0.12;
+		this._seekWrenchTrafficOccupancyMax = 0.25;
+		this._seekWrenchWallEscapeMax = 0.05;
 
 	}
 
@@ -21,49 +24,54 @@ export class AICombatBehavior {
 	 * Should this AI seek a wrench pickup?
 	 *
 	 * @param {object} vehicle - AI's vehicle
-	 * @param {string} profileName - 'aggressive', 'cautious', etc.
 	 * @returns {boolean}
 	 */
-	shouldSeekWrench( vehicle, profileName ) {
+	shouldSeekWrench( vehicle ) {
 
 		if ( ! vehicle.health ) return false;
 
 		const health = vehicle.health;
 
-		// Aggressive: only seek wrench when RED or worse
-		if ( profileName === 'aggressive' ) {
-
-			return health.quadrants.some( q => q.state >= DAMAGE_STATE.RED );
-
-		}
-
-		// Cautious: seek when any quadrant is ORANGE or worse
-		if ( profileName === 'cautious' ) {
-
-			return health.quadrants.some( q => q.state >= DAMAGE_STATE.ORANGE ) ||
-				health.globalHP < 60;
-
-		}
-
-		// Default: seek when globalHP < 50 or any quadrant ORANGE
 		return health.globalHP < this._seekWrenchHP ||
 			health.quadrants.some( q => q.state >= DAMAGE_STATE.ORANGE );
 
 	}
 
 	/**
-	 * Should this AI disengage from aggressive racing?
+	 * Should this AI actively divert from the route for a wrench right now?
+	 *
+	 * Damage can create desire for a repair pickup, but route fidelity should
+	 * still win during sharp corners, wall recovery, and heavy local traffic.
 	 *
 	 * @param {object} vehicle
-	 * @param {string} profileName
+	 * @param {{turnSeverity?: number, trafficOccupancy?: number, wallEscapeFactor?: number}} [context]
 	 * @returns {boolean}
 	 */
-	shouldDisengage( vehicle, profileName ) {
+	shouldPursueWrench( vehicle, context = {} ) {
+
+		if ( ! this.shouldSeekWrench( vehicle ) ) return false;
+
+		const turnSeverity = context.turnSeverity ?? 0;
+		const trafficOccupancy = context.trafficOccupancy ?? 0;
+		const wallEscapeFactor = context.wallEscapeFactor ?? 0;
+
+		if ( turnSeverity > this._seekWrenchTurnSeverityMax ) return false;
+		if ( trafficOccupancy > this._seekWrenchTrafficOccupancyMax ) return false;
+		if ( wallEscapeFactor > this._seekWrenchWallEscapeMax ) return false;
+
+		return true;
+
+	}
+
+	/**
+	 * Should this AI disengage from risky racing?
+	 *
+	 * @param {object} vehicle
+	 * @returns {boolean}
+	 */
+	shouldDisengage( vehicle ) {
 
 		if ( ! vehicle.health ) return false;
-
-		// Aggressive AIs never disengage
-		if ( profileName === 'aggressive' ) return false;
 
 		return vehicle.health.globalHP < this._disengageHP;
 
@@ -74,10 +82,9 @@ export class AICombatBehavior {
 	 *
 	 * @param {object} vehicle - AI's vehicle
 	 * @param {Array} allVehicles - all active vehicles
-	 * @param {string} profileName
 	 * @returns {boolean}
 	 */
-	shouldUseItem( vehicle, allVehicles, profileName ) {
+	shouldUseItem( vehicle, allVehicles ) {
 
 		if ( ! vehicle.itemSlot || ! vehicle.itemSlot.hasItem() ) return false;
 
@@ -118,17 +125,6 @@ export class AICombatBehavior {
 
 			if ( dx * dx + dz * dz < rangeSq ) {
 
-				// Aggressive: fire immediately
-				if ( profileName === 'aggressive' ) return true;
-
-				// Conservative: only on straights (high dot with forward)
-				if ( profileName === 'strategist' ) {
-
-					// Simple check: use if we're going roughly straight
-					return Math.abs( vehicle.angularSpeed ) < 1.0;
-
-				}
-
 				return true;
 
 			}
@@ -136,39 +132,6 @@ export class AICombatBehavior {
 		}
 
 		return false;
-
-	}
-
-	/**
-	 * Find the nearest available wrench position.
-	 *
-	 * @param {object} vehicle
-	 * @param {Array<{x:number, z:number}>} wrenchPositions
-	 * @returns {{x:number, z:number}|null}
-	 */
-	getNearestWrench( vehicle, wrenchPositions ) {
-
-		if ( ! wrenchPositions || wrenchPositions.length === 0 ) return null;
-
-		let bestDist = Infinity;
-		let best = null;
-
-		for ( const wp of wrenchPositions ) {
-
-			const dx = wp.x - vehicle.vehPos.x;
-			const dz = wp.z - vehicle.vehPos.z;
-			const distSq = dx * dx + dz * dz;
-
-			if ( distSq < bestDist ) {
-
-				bestDist = distSq;
-				best = wp;
-
-			}
-
-		}
-
-		return best;
 
 	}
 

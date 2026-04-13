@@ -360,12 +360,12 @@ export class NetworkClient {
 	 * Create a new room. Resolves with the room code string.
 	 * @returns {Promise<string>}
 	 */
-	createRoom( vehicleId ) {
+	createRoom( vehicleId, appearance = null ) {
 
 		return new Promise( ( resolve, reject ) => {
 
 			this._pendingCreateRoom = { resolve, reject };
-			this._transport.send( { type: 'createRoom', name: this._displayName, vehicleId } );
+			this._transport.send( { type: 'createRoom', name: this._displayName, vehicleId, appearance } );
 
 			// Timeout after 5s
 			setTimeout( () => {
@@ -389,12 +389,12 @@ export class NetworkClient {
 	 * @param {string} vehicleId
 	 * @returns {Promise<object>}  Resolves with roomJoined message.
 	 */
-	joinRoom( code, vehicleId ) {
+	joinRoom( code, vehicleId, appearance = null ) {
 
 		return new Promise( ( resolve, reject ) => {
 
 			this._pendingJoinRoom = { resolve, reject };
-			this._transport.send( { type: 'joinRoom', roomCode: code, vehicleId, name: this._displayName } );
+			this._transport.send( { type: 'joinRoom', roomCode: code, vehicleId, name: this._displayName, appearance } );
 
 			setTimeout( () => {
 
@@ -416,12 +416,12 @@ export class NetworkClient {
 	 * @param {string} vehicleId
 	 * @returns {Promise<object>}  Resolves with roomJoined message.
 	 */
-	findRoom( vehicleId ) {
+	findRoom( vehicleId, appearance = null ) {
 
 		return new Promise( ( resolve, reject ) => {
 
 			this._pendingFindRoom = { resolve, reject };
-			this._transport.send( { type: 'findRoom', vehicleId, name: this._displayName } );
+			this._transport.send( { type: 'findRoom', vehicleId, name: this._displayName, appearance } );
 
 			setTimeout( () => {
 

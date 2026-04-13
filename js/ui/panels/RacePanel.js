@@ -22,7 +22,6 @@ import { LoadingOverlay }       from '../components/LoadingOverlay.js';
 import { LobbyOverlay }        from '../overlays/LobbyOverlay.js';
 import { TrackSelectOverlay }   from '../overlays/TrackSelectOverlay.js';
 import { Settings }             from '../../Settings.js';
-import { getRandomTrack }       from '../../TrackRegistry.js';
 import { NetworkClient }        from '../../Network.js';
 
 export class RacePanel {
@@ -189,7 +188,7 @@ export class RacePanel {
 
 			this._services.startRace( {
 				mode:      'solo',
-				trackData: track.cells,
+				trackData: track.trackData || track.cells,
 				decoCells: track.decoCells,
 				vehicleId,
 			} );
@@ -203,18 +202,19 @@ export class RacePanel {
 	 */
 	async _handleParty() {
 
-		const track = getRandomTrack();
+		this._openTrackSelect( async ( track ) => {
 
-		// Create the 3D party lobby scene with the local player's kart
-		this._partyScene = this._services.showPartyLobby?.() || null;
-		if ( this._partyScene ) {
+			this._partyScene = this._services.showPartyLobby?.() || null;
+			if ( this._partyScene ) {
 
-			const settings = new Settings();
-			this._partyScene.setLocalKart( settings.getSelectedKartId() );
+				const settings = new Settings();
+				this._partyScene.setLocalKart( settings.getSelectedKartId(), settings.getPlayerAppearance() );
 
-		}
+			}
 
-		await this._startPrivateLobby( track );
+			await this._startPrivateLobby( track );
+
+		} );
 
 	}
 
@@ -267,7 +267,7 @@ export class RacePanel {
 			const settings = new Settings();
 			const vehicleId = settings.getSelectedKartId();
 			this._network.setDisplayName( settings.getDisplayName() || '' );
-			const result = await this._network.findRoom( vehicleId );
+			const result = await this._network.findRoom( vehicleId, settings.getPlayerAppearance() );
 
 			// Hide and dispose overlay, then start the race
 			this._matchmakingOverlay.hide();
@@ -276,7 +276,7 @@ export class RacePanel {
 
 			this._services.startRace( {
 				mode:        'online',
-				trackData:   result.trackData ?? getRandomTrack().cells,
+				trackData:   result.trackData ?? null,
 				vehicleId,
 				playerCount: result.playerCount || 1,
 				roomCode:    result.roomCode,

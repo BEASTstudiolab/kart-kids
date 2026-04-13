@@ -6,6 +6,30 @@
 
 import { TRACK_CELLS, DECO_CELLS } from './TrackData.js';
 
+const ROTATE_180 = {
+	0: 10,
+	10: 0,
+	16: 22,
+	22: 16,
+};
+
+function rotateCells180( cells ) {
+
+	return cells.map( ( cell ) => {
+
+		const [ gx, gz, type, orient, flags ] = cell;
+		return [
+			- gx,
+			- gz,
+			type,
+			ROTATE_180[ orient ] ?? orient,
+			flags ? { ...flags } : undefined,
+		];
+
+	} );
+
+}
+
 /**
  * @typedef {Object} Track
  * @property {string} id - Unique identifier
@@ -22,6 +46,13 @@ const TRACKS = Object.freeze( [
 		difficulty: 'easy',
 		cells: TRACK_CELLS,
 		decoCells: DECO_CELLS,
+	} ),
+	Object.freeze( {
+		id: 'reverse-rush',
+		name: 'Reverse Rush',
+		difficulty: 'medium',
+		cells: rotateCells180( TRACK_CELLS ),
+		decoCells: rotateCells180( DECO_CELLS ),
 	} ),
 ] );
 

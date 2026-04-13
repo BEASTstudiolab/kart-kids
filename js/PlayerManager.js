@@ -1,4 +1,3 @@
-import * as THREE from 'three';
 import { Vehicle } from './Vehicle.js';
 import { createVehicleBody, removeVehicleBody } from './Physics.js';
 import { SmokeTrails } from './Particles.js';
@@ -6,6 +5,7 @@ import { DriftSparks } from './DriftSparks.js';
 import { BoostFlame } from './BoostFlame.js';
 import { TireMarks } from './TireMarks.js';
 import { PLAYER_VEHICLES, PLAYER_CHARACTER_ID, getVehicleById } from './VehicleRegistry.js';
+import { applyPlayerAppearanceToVehicle, createDefaultPlayerAppearance, normalizeAppearanceColor, normalizePlayerAppearance } from './PlayerAppearance.js';
 
 const REMOTE_ZERO_INPUT = { x: 0, z: 0, touchActive: false };
 
@@ -19,6 +19,12 @@ const VEHICLE_MODEL_NAMES = [
 const CHARACTER_MODEL_NAMES = [
 	'character-default',
 ];
+const LOCAL_FALLBACK_LABEL = 'YOU';
+const REMOTE_FALLBACK_LABEL_PREFIX = 'PLAYER ';
+const START_GRID_COLUMNS = 3;
+const START_GRID_LANE_OFFSETS = [ 0, - 3.0, 3.0 ];
+const START_GRID_LANE_SPACING = 3.0;
+const START_GRID_ROW_SPACING = 4.0;
 
 export class PlayerManager {
 
@@ -34,24 +40,31 @@ export class PlayerManager {
 		this.localVehicle = null;
 		this.players = new Map(); // id → { vehicle, smokeTrails, spectating }
 		this._activeVehiclesCache = [];
+		this._humanRaceDataCache = [];
+		this._nextFallbackLabelNumber = 2;
 
 	}
 
 	// ── Single-player fallback ───────────────────────────────────────────────
 
-	initSinglePlayer( vehicleId ) {
+	initSinglePlayer( vehicleId, displayName = '', appearance = null ) {
 
-		const vehicle = this._createVehicle( 0, 0, null, this.spawnPosition, this.spawnAngle, false, vehicleId );
+		const spawnPose = this._computeSpawnPose( 0 );
+		const vehicle = this._createVehicle( 0, 0, null, spawnPose.position, spawnPose.angle, false, vehicleId, appearance );
 		this.localVehicle = vehicle;
 		this.localId = '_local';
-		this.players.set( this.localId, {
+		this.players.set( this.localId, this._createPlayerEntry( {
 			vehicle,
 			smokeTrails: new SmokeTrails( this.scene ),
 			driftSparks: new DriftSparks( this.scene ),
 			boostFlame: new BoostFlame( this.scene ),
 			tireMarks: new TireMarks( this.scene ),
 			spectating: false,
-		} );
+			displayName,
+			fallbackLabel: LOCAL_FALLBACK_LABEL,
+			spawnSlot: spawnPose.slot,
+			appearance,
+		} ) );
 
 	}
 
@@ -78,16 +91,21 @@ export class PlayerManager {
 	initLocalPlayer( welcomeData ) {
 
 		this.localId = welcomeData.id;
-		const vehicle = this._createVehicle( welcomeData.vehicleIndex, welcomeData.characterIndex, welcomeData.tint, this.spawnPosition, this.spawnAngle, false, welcomeData.vehicleId );
+		const spawnPose = this._computeSpawnPose( welcomeData.spawnSlot );
+		const vehicle = this._createVehicle( welcomeData.vehicleIndex, welcomeData.characterIndex, welcomeData.tint, spawnPose.position, spawnPose.angle, false, welcomeData.vehicleId, welcomeData.appearance );
 		this.localVehicle = vehicle;
-		this.players.set( this.localId, {
+		this.players.set( this.localId, this._createPlayerEntry( {
 			vehicle,
 			smokeTrails: new SmokeTrails( this.scene ),
 			driftSparks: new DriftSparks( this.scene ),
 			boostFlame: new BoostFlame( this.scene ),
 			tireMarks: new TireMarks( this.scene ),
 			spectating: false,
-		} );
+			displayName: welcomeData.displayName || welcomeData.name || '',
+			fallbackLabel: LOCAL_FALLBACK_LABEL,
+			spawnSlot: spawnPose.slot,
+			appearance: welcomeData.appearance,
+		} ) );
 
 		// Add existing players
 		if ( welcomeData.existingPlayers ) {
@@ -106,16 +124,18 @@ export class PlayerManager {
 
 	addRemotePlayer( joinData ) {
 
-		if ( this.players.has( joinData.id ) ) return;
+		const existing = this.players.get( joinData.id );
+		if ( existing ) {
 
-		const offset = this._computeSpawnOffset( this.players.size );
-		const spawnPos = [
-			this.spawnPosition[ 0 ] + offset[ 0 ],
-			this.spawnPosition[ 1 ],
-			this.spawnPosition[ 2 ] + offset[ 1 ],
-		];
+			this._updatePlayerDisplayName( existing, joinData.name );
+			this._updatePlayerAppearance( existing, joinData.appearance, joinData.tint );
+			if ( typeof joinData.spectating === 'boolean' ) existing.spectating = joinData.spectating;
+			return;
 
-		const vehicle = this._createVehicle( joinData.vehicleIndex, joinData.characterIndex, joinData.tint, spawnPos, this.spawnAngle, true, joinData.vehicleId );
+		}
+
+		const spawnPose = this._computeSpawnPose( joinData.spawnSlot );
+		const vehicle = this._createVehicle( joinData.vehicleIndex, joinData.characterIndex, joinData.tint, spawnPose.position, spawnPose.angle, true, joinData.vehicleId, joinData.appearance );
 		vehicle.remote = true;
 
 		// Remove SpotLights/PointLight to avoid Three.js shader recompilation
@@ -135,14 +155,18 @@ export class PlayerManager {
 
 		}
 
-		this.players.set( joinData.id, {
+		this.players.set( joinData.id, this._createPlayerEntry( {
 			vehicle,
 			smokeTrails: new SmokeTrails( this.scene ),
 			driftSparks: new DriftSparks( this.scene ),
 			boostFlame: new BoostFlame( this.scene ),
 			tireMarks: new TireMarks( this.scene ),
 			spectating: joinData.spectating || false,
-		} );
+			displayName: joinData.name || '',
+			fallbackLabel: this._allocateRemoteFallbackLabel(),
+			spawnSlot: spawnPose.slot,
+			appearance: joinData.appearance,
+		} ) );
 
 	}
 
@@ -225,7 +249,7 @@ export class PlayerManager {
 			entry.vehicle.container.visible = true;
 
 			// Restore physics body at spawn position
-			const pos = this.spawnPosition;
+			const pos = this._computeSpawnPose( entry.spawnSlot ).position;
 			entry.vehicle.rigidBody = createVehicleBody( this.world, pos );
 			entry.vehicle.physicsWorld = this.world;
 			if ( ! entry.vehicle.remote ) entry.vehicle.initRaycast( this.world );
@@ -233,6 +257,9 @@ export class PlayerManager {
 			const [ sx, sy, sz ] = pos;
 			entry.vehicle.vehPos.set( sx, sy, sz );
 			entry.vehicle.groundHeight = sy;
+			entry.vehicle.prevModelPos.set( sx, sy, sz );
+			entry.vehicle.container.position.set( sx, sy, sz );
+			entry.vehicle.container.rotation.y = this.spawnAngle;
 			entry.vehicle.linearSpeed = 0;
 			entry.vehicle.angularSpeed = 0;
 			entry.vehicle.shieldActive = false;
@@ -312,7 +339,85 @@ export class PlayerManager {
 
 	}
 
-	_createVehicle( vehicleIndex, characterIndex, tint, position, angle, isRemote, vehicleId ) {
+	getHumanRaceData() {
+
+		this._humanRaceDataCache.length = 0;
+
+		for ( const [ id, entry ] of this.players ) {
+
+			if ( entry.spectating ) continue;
+
+			this._humanRaceDataCache.push( {
+				id,
+				vehicle: entry.vehicle,
+				displayLabel: this._getPlayerDisplayLabel( entry ),
+				isLocal: id === this.localId,
+			} );
+
+		}
+
+		return this._humanRaceDataCache;
+
+	}
+
+	_createPlayerEntry( { vehicle, smokeTrails, driftSparks, boostFlame, tireMarks, spectating, displayName, fallbackLabel, spawnSlot = 0, appearance = null } ) {
+
+		return {
+			vehicle,
+			smokeTrails,
+			driftSparks,
+			boostFlame,
+			tireMarks,
+			spectating,
+			displayName: this._normalizeRaceLabel( displayName ),
+			fallbackLabel,
+			spawnSlot: this._normalizeSpawnSlot( spawnSlot ),
+			appearance: normalizePlayerAppearance( appearance || createDefaultPlayerAppearance() ),
+		};
+
+	}
+
+	_updatePlayerDisplayName( entry, displayName ) {
+
+		const normalized = this._normalizeRaceLabel( displayName );
+		if ( normalized ) entry.displayName = normalized;
+
+	}
+
+	_updatePlayerAppearance( entry, appearance, tint = null ) {
+
+		entry.appearance = normalizePlayerAppearance( appearance || entry.appearance || createDefaultPlayerAppearance() );
+
+		if ( ! entry.appearance.vehicleColor && tint ) {
+
+			entry.appearance.vehicleColor = normalizeAppearanceColor( tint );
+
+		}
+
+		applyPlayerAppearanceToVehicle( entry.vehicle, entry.appearance );
+
+	}
+
+	_getPlayerDisplayLabel( entry ) {
+
+		return entry.displayName || entry.fallbackLabel || LOCAL_FALLBACK_LABEL;
+
+	}
+
+	_allocateRemoteFallbackLabel() {
+
+		return REMOTE_FALLBACK_LABEL_PREFIX + this._nextFallbackLabelNumber ++;
+
+	}
+
+	_normalizeRaceLabel( displayName ) {
+
+		if ( typeof displayName !== 'string' ) return '';
+		return displayName.trim().slice( 0, 20 );
+
+	}
+
+	_createVehicle( vehicleIndex, characterIndex, tint, position, angle, isRemote, vehicleId, appearance = null ) {
 
 		// Local player gets a kart from the registry; AI/remote get trucks
 		let modelName, charName, characterOffset, bodyHeight;
@@ -361,20 +466,13 @@ export class PlayerManager {
 
 		const group = vehicle.init( model, characterModel, characterOffset, bodyHeight );
 		if ( ! isRemote ) vehicle.initRaycast( this.world );
+		const normalizedAppearance = normalizePlayerAppearance( appearance || createDefaultPlayerAppearance() );
+		if ( ! normalizedAppearance.vehicleColor && tint ) {
 
-		// Apply tint to body mesh for players 5+
-		if ( tint && vehicle.bodyNode ) {
-
-			const tintColor = new THREE.Color( tint );
-			vehicle.bodyNode.traverse( ( child ) => {
-
-				if ( ! child.isMesh ) return;
-				child.material = child.material.clone();
-				child.material.color.multiply( tintColor );
-
-			} );
+			normalizedAppearance.vehicleColor = normalizeAppearanceColor( tint );
 
 		}
+		applyPlayerAppearanceToVehicle( vehicle, normalizedAppearance );
 
 		// Enable headlights (night mode is default)
 		for ( const hl of vehicle.headlights ) hl.visible = true;
@@ -385,13 +483,35 @@ export class PlayerManager {
 
 	}
 
-	_computeSpawnOffset( playerIndex ) {
+	_normalizeSpawnSlot( spawnSlot ) {
 
-		// Offset laterally perpendicular to the spawn direction
-		const laneOffset = ( playerIndex % 4 ) * 3.0 - 4.5;
-		const perpX = - Math.sin( this.spawnAngle ) * laneOffset;
-		const perpZ = Math.cos( this.spawnAngle ) * laneOffset;
-		return [ perpX, perpZ ];
+		if ( typeof spawnSlot !== 'number' || ! Number.isFinite( spawnSlot ) ) return 0;
+		return Math.max( 0, Math.floor( spawnSlot ) );
+
+	}
+
+	_computeSpawnPose( spawnSlot = 0 ) {
+
+		const slot = this._normalizeSpawnSlot( spawnSlot );
+		const column = slot % START_GRID_COLUMNS;
+		const row = Math.floor( slot / START_GRID_COLUMNS );
+		const lateral = START_GRID_LANE_OFFSETS[ column ] ?? ( column * START_GRID_LANE_SPACING );
+		const longitudinal = - row * START_GRID_ROW_SPACING;
+
+		const fwdX = - Math.sin( this.spawnAngle );
+		const fwdZ = - Math.cos( this.spawnAngle );
+		const rightX = - fwdZ;
+		const rightZ = fwdX;
+
+		return {
+			slot,
+			angle: this.spawnAngle,
+			position: [
+				this.spawnPosition[ 0 ] + rightX * lateral + fwdX * longitudinal,
+				this.spawnPosition[ 1 ],
+				this.spawnPosition[ 2 ] + rightZ * lateral + fwdZ * longitudinal,
+			],
+		};
 
 	}
 

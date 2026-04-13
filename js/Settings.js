@@ -1,4 +1,5 @@
 import { detectTier, VALID_TIERS } from './QualityTiers.js';
+import { createDefaultCharacterAccessories, getPlayerAppearanceFromSettings } from './PlayerAppearance.js';
 
 const STORAGE_KEY = 'kart-kids-settings';
 const SCHEMA_VERSION = 4;
@@ -18,14 +19,7 @@ const DEFAULTS = {
 	vehicleColor: '',
 	characterColor: '',
 	charSkinColor: '',
-	charAccessories: {
-		'Balaclava_No_Ears': { visible: true, color: '' },
-		'Baseball_Hat': { visible: true, color: '' },
-		'Gold_Chain': { visible: true, color: '' },
-		'Jeans': { visible: true, color: '' },
-		'Tshirt': { visible: true, color: '' },
-		'Mask_Basic': { visible: true, color: '' },
-	},
+	charAccessories: createDefaultCharacterAccessories(),
 	ghostEnabled: true,
 	profile: {
 		displayName: null,
@@ -181,6 +175,12 @@ export class Settings {
 		this._data.loadout.selectedTrackId = trackId;
 		this._save();
 		window.dispatchEvent( new CustomEvent( 'settings-changed', { detail: { key: 'loadout.selectedTrackId', value: trackId } } ) );
+
+	}
+
+	getPlayerAppearance() {
+
+		return getPlayerAppearanceFromSettings( this );
 
 	}
 

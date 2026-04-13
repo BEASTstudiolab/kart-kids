@@ -8,6 +8,8 @@ export const TRACK_INTEL_BASE_CONNECTIVITY = {
 	'trk-straight': [ 'N', 'S' ],
 	'trk-finish': [ 'N', 'S' ],
 	'trk-corner-1x1': [ 'S', 'W' ],
+	'trk-curve-3x3-proxy': [ 'S', 'W' ],
+	'trk-curve-3x3-wide-proxy': [ 'S', 'W' ],
 
 	// Multi-tile curves are calibrated separately from the 1x1 pieces.
 	'trk-curve-2x2-l': [ 'S', 'E' ],
@@ -85,7 +87,7 @@ function isLegacyCenterCurve3x3Type( type ) {
 
 }
 
-export function expandLegacyCenterCurve3x3( gx, gz, orient, flags ) {
+export function expandLegacyCenterCurve3x3( gx, gz, type, orient, flags ) {
 
 	const legacy = LEGACY_CENTER_CURVE_3X3[ orient ];
 	if ( ! legacy ) return null;
@@ -93,8 +95,11 @@ export function expandLegacyCenterCurve3x3( gx, gz, orient, flags ) {
 	const anchorGx = gx + legacy.anchorDx;
 	const anchorGz = gz + legacy.anchorDz;
 	const cornerFlags = cloneFlags( flags );
+	const proxyType = type === 'trk-curve-3x3-wide-l'
+		? 'trk-curve-3x3-wide-proxy'
+		: 'trk-curve-3x3-proxy';
 	const expanded = [
-		[ anchorGx, anchorGz, 'trk-corner-1x1', legacy.anchorOrient, cornerFlags ],
+		[ anchorGx, anchorGz, proxyType, legacy.anchorOrient, cornerFlags ],
 	];
 
 	for ( const edge of CORNER_OPEN_EDGES[ legacy.anchorOrient ] ?? [] ) {
@@ -135,7 +140,7 @@ export function normalizeLegacyTrackIntelCells( cells ) {
 
 		}
 
-		const expanded = expandLegacyCenterCurve3x3( gx, gz, orient, flags );
+		const expanded = expandLegacyCenterCurve3x3( gx, gz, type, orient, flags );
 		if ( ! expanded ) {
 
 			normalized.push( cell );

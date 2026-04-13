@@ -26,6 +26,7 @@ import { PlacementController } from '../services/PlacementController.js';
 import { SelectionController } from '../services/SelectionController.js';
 import { TransformController } from '../services/TransformController.js';
 import { ValidationService } from '../services/ValidationService.js';
+import { PublishValidationService } from '../services/PublishValidationService.js';
 import { DebugOverlayService } from '../services/DebugOverlayService.js';
 import { ShareLinkService } from '../services/ShareLinkService.js';
 import { TestDriveController } from '../services/TestDriveController.js';
@@ -50,6 +51,9 @@ import { TileThumbnailRenderer } from '../ui/TileThumbnailRenderer.js';
 import { RadialMenu } from '../ui/RadialMenu.js';
 import { CompassOverlay } from '../ui/CompassOverlay.js';
 import { RouteAnalysisService } from '../services/RouteAnalysisService.js';
+import { PublishedTrackApi } from '../../track-library/PublishedTrackApi.js';
+import { TrackLibraryStore } from '../../track-library/TrackLibraryStore.js';
+import { Settings } from '../../Settings.js';
 
 // ── Grid helper settings ──
 const GRID_LINES = 40;
@@ -62,6 +66,8 @@ class EditorApp {
 
 		this._running = false;
 		this._animFrameId = null;
+		this._manageToken = null;
+		this._managedTrack = null;
 
 	}
 
@@ -182,10 +188,13 @@ class EditorApp {
 		);
 
 		this._validation = new ValidationService( this._project, this._eventBus );
+		this._publishValidation = new PublishValidationService( this._validation, this._project );
 		this._debugOverlay = new DebugOverlayService( this._project, this._camera, this._eventBus );
 		this._scene.add( this._debugOverlay.labelGroup );
 		this._shareLink = new ShareLinkService( this._project );
 		this._testDrive = new TestDriveController( this._shareLink, this._validation );
+		this._publishedTrackApi = new PublishedTrackApi();
+		this._trackLibrary = new TrackLibraryStore();
 		this._themeService = new ThemeService( this._project );
 		this._routeAnalysis = new RouteAnalysisService( this._project );
 		this._routeTrace = new RouteTraceController( {
@@ -270,7 +279,7 @@ class EditorApp {
 		this._stats = new StatsPanel( statsEl, this._project, this._eventBus );
 
 		// ── Load saved project ──
-		const loaded = this._storage.loadSaved();
+		const loaded = await this._loadInitialProject();
 		if ( ! loaded ) {
 
 			console.log( '[EditorApp] No saved track. Starting empty.' );
@@ -303,6 +312,9 @@ class EditorApp {
 			}
 
 		}
+
+		this._syncTopbarProjectState();
+		this._syncPublishUi();
 
 		// ── Resize handling ──
 		this._onResize();
@@ -587,12 +599,7 @@ class EditorApp {
 
 		topbar.querySelector( '#topbar-publish' ).addEventListener( 'click', () => {
 
-			const url = this._shareLink.generatePlayUrl();
-			navigator.clipboard.writeText( url ).then( () => {
-
-				topbar.querySelector( '#topbar-save-status' ).textContent = 'LINK COPIED';
-
-			} );
+			this._handlePublish();
 
 		} );
 
@@ -678,6 +685,156 @@ class EditorApp {
 			this._eventBus.emit( 'project:cleared' );
 
 		} );
+
+	}
+
+	async _loadInitialProject() {
+
+		const params = new URLSearchParams( window.location.search );
+		const manageToken = params.get( 'manage' );
+
+		if ( manageToken ) {
+
+			try {
+
+				const track = await this._publishedTrackApi.getManagedTrack( manageToken );
+				if ( track?.trackData ) {
+
+					this._manageToken = manageToken;
+					this._managedTrack = track;
+					this._project.loadFromV4JSON( track.trackData );
+					this._trackLibrary.saveOwnedPublishedTrack( track, manageToken );
+					console.log( '[EditorApp] Loaded published track from manage link.' );
+					return true;
+
+				}
+
+			} catch ( err ) {
+
+				console.warn( '[EditorApp] Failed to load manage track:', err );
+				alert( 'Manage link could not be loaded. Opening local draft instead.' );
+
+			}
+
+		}
+
+		return this._storage.loadSaved();
+
+	}
+
+	_syncTopbarProjectState() {
+
+		const nameInput = document.getElementById( 'topbar-name' );
+		if ( nameInput ) {
+
+			nameInput.value = this._project.meta.name || '';
+
+		}
+
+	}
+
+	_syncPublishUi() {
+
+		const publishBtn = document.getElementById( 'topbar-publish' );
+		if ( publishBtn ) {
+
+			publishBtn.textContent = this._manageToken ? 'Update' : 'Publish';
+
+		}
+
+	}
+
+	async _handlePublish() {
+
+		const topbar = document.getElementById( 'editor-topbar' );
+		if ( ! topbar ) return;
+
+		const nameInput = topbar.querySelector( '#topbar-name' );
+		const statusEl = topbar.querySelector( '#topbar-save-status' );
+		const publishBtn = topbar.querySelector( '#topbar-publish' );
+		const title = ( nameInput?.value ?? this._project.meta.name ?? '' ).trim();
+		const creatorName = ( new Settings() ).getDisplayName() || '';
+		const gameplayMode = this._input._modes.get( 'gameplay' );
+		const readiness = this._publishValidation.evaluate( gameplayMode, { title, creatorName } );
+
+		this._project.meta.name = title;
+		if ( nameInput ) nameInput.value = title;
+
+		if ( ! readiness.ok ) {
+
+			statusEl.textContent = 'FIX ISSUES';
+			alert( `Publish blocked:\n\n- ${ readiness.blockers.join( '\n- ' ) }` );
+			if ( this._validationPanel && readiness.result.issues.length > 0 ) {
+
+				this._validationPanel.classList.remove( 'kk-validation-panel--hidden' );
+
+			}
+			return;
+
+		}
+
+		const wasUpdate = !! this._manageToken;
+		const trackData = this._project.toV4JSON();
+
+		publishBtn.disabled = true;
+		statusEl.textContent = wasUpdate ? 'UPDATING...' : 'PUBLISHING...';
+
+		try {
+
+			let published;
+			if ( this._manageToken ) {
+
+				published = await this._publishedTrackApi.updateManagedTrack( this._manageToken, {
+					title,
+					trackData,
+				} );
+
+			} else {
+
+				published = await this._publishedTrackApi.publishTrack( {
+					title,
+					creatorName,
+					trackData,
+				} );
+
+				this._manageToken = published.manageToken;
+
+			}
+
+			if ( ! this._manageToken ) {
+
+				throw new Error( 'Missing manage link token from publish response.' );
+
+			}
+
+			this._managedTrack = published;
+			this._trackLibrary.saveOwnedPublishedTrack( published, this._manageToken );
+			history.replaceState( {}, '', `/track-editor.html?manage=${ encodeURIComponent( this._manageToken ) }` );
+			this._syncPublishUi();
+
+			const publicUrl = `${ window.location.origin }${ published.publicUrl }`;
+			const manageUrl = `${ window.location.origin }${ published.manageUrl || `/m/${ this._manageToken }` }`;
+			statusEl.textContent = wasUpdate ? 'UPDATED' : 'PUBLISHED';
+
+			try {
+
+				await navigator.clipboard.writeText( publicUrl );
+
+			} catch { /* clipboard unavailable */ }
+
+			alert( `${ wasUpdate ? 'Track updated.' : 'Track published.' }\n\nPublic link:\n${ publicUrl }\n\nManage link:\n${ manageUrl }` );
+
+		} catch ( err ) {
+
+			console.error( '[EditorApp] Publish failed:', err );
+			statusEl.textContent = 'PUBLISH FAILED';
+			alert( err.message || 'Unable to publish track right now.' );
+
+		} finally {
+
+			publishBtn.disabled = false;
+
+		}
 
 	}
 

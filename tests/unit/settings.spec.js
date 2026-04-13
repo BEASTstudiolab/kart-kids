@@ -1,5 +1,6 @@
 import { describe, it, beforeEach } from 'node:test';
 import assert from 'node:assert';
+import { ACCESSORY_DEFS } from '../../js/PlayerAppearance.js';
 
 // ── Mock browser globals before importing Settings ─────────────────────────
 
@@ -104,6 +105,19 @@ describe( 'Settings', () => {
 
 	} );
 
+	it( 'getPlayerAppearance returns normalized default appearance', () => {
+
+		const s = new Settings();
+		const appearance = s.getPlayerAppearance();
+
+		assert.deepStrictEqual( Object.keys( appearance.charAccessories ).sort(), ACCESSORY_DEFS.map( ( def ) => def.key ).sort() );
+		assert.strictEqual( appearance.vehicleColor, '' );
+		assert.strictEqual( appearance.characterColor, '' );
+		assert.strictEqual( appearance.charSkinColor, '' );
+		assert.ok( ACCESSORY_DEFS.every( ( def ) => appearance.charAccessories[ def.key ].visible === true ) );
+
+	} );
+
 	it( 'schema migration: v2 data gets profile/loadout/stats namespaces', () => {
 
 		mockLocalStorage.setItem( STORAGE_KEY, JSON.stringify( {
@@ -167,6 +181,33 @@ describe( 'Settings', () => {
 		// Verify via new instance reading from localStorage
 		const s2 = new Settings();
 		assert.strictEqual( s2.getSelectedKartId(), 'kart-2' );
+
+	} );
+
+	it( 'getPlayerAppearance normalizes saved color and accessory values', () => {
+
+		const s = new Settings();
+		s.set( 'vehicleColor', '#ABCDEF' );
+		s.set( 'characterColor', 'oops' );
+		s.set( 'charSkinColor', '#123456' );
+		s.set( 'charAccessories', {
+			Balaclava_No_Ears: { visible: false, color: '#FFAA00' },
+			Baseball_Hat: { visible: true, color: 'invalid' },
+		} );
+
+		const appearance = s.getPlayerAppearance();
+
+		assert.strictEqual( appearance.vehicleColor, '#abcdef' );
+		assert.strictEqual( appearance.characterColor, '' );
+		assert.strictEqual( appearance.charSkinColor, '#123456' );
+		assert.deepStrictEqual( appearance.charAccessories.Balaclava_No_Ears, {
+			visible: false,
+			color: '#ffaa00',
+		} );
+		assert.deepStrictEqual( appearance.charAccessories.Baseball_Hat, {
+			visible: true,
+			color: '',
+		} );
 
 	} );
 

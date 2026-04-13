@@ -54,6 +54,92 @@ export class HUD {
 		this._raceHud.appendChild( this._timeLine );
 		document.body.appendChild( this._raceHud );
 
+		// ── Player position badge (top-right) ────────────────────────────────
+		this._playerPlaceBadge = document.createElement( 'div' );
+		this._playerPlaceBadge.style.cssText = [
+			'position:fixed', 'top:16px', 'right:16px',
+			'background:rgba(6,10,18,0.78)', 'color:#fff',
+			'border:1px solid rgba(79,195,247,0.45)', 'border-radius:12px',
+			'box-shadow:0 10px 28px rgba(0,0,0,0.24)',
+			'backdrop-filter:blur(8px)', 'z-index:1000',
+			'pointer-events:none', 'user-select:none', 'display:none',
+			'text-align:center', 'text-transform:uppercase',
+		].join( ';' );
+
+		this._playerPlaceLabel = document.createElement( 'div' );
+		this._playerPlaceLabel.textContent = 'YOU';
+		this._playerPlaceLabel.style.cssText = [
+			'font:bold 10px/1.1 monospace', 'letter-spacing:1.2px',
+			'color:rgba(255,255,255,0.65)', 'margin-bottom:4px',
+		].join( ';' );
+
+		this._playerPlaceValue = document.createElement( 'div' );
+		this._playerPlaceValue.style.cssText = [
+			'font:bold 28px/1 monospace', 'letter-spacing:1px',
+			'color:#ffffff',
+		].join( ';' );
+
+		this._playerPlaceBadge.appendChild( this._playerPlaceLabel );
+		this._playerPlaceBadge.appendChild( this._playerPlaceValue );
+		document.body.appendChild( this._playerPlaceBadge );
+
+		// ── Top-three leaderboard (top-right) ────────────────────────────────
+		this._leaderboardEl = document.createElement( 'div' );
+		this._leaderboardEl.style.cssText = [
+			'position:fixed', 'top:86px', 'right:16px',
+			'background:rgba(6,10,18,0.74)', 'color:#fff',
+			'border:1px solid rgba(255,255,255,0.12)', 'border-radius:14px',
+			'box-shadow:0 14px 34px rgba(0,0,0,0.26)',
+			'backdrop-filter:blur(8px)', 'z-index:1000',
+			'pointer-events:none', 'user-select:none', 'display:none',
+			'text-transform:uppercase',
+		].join( ';' );
+
+		this._leaderboardTitle = document.createElement( 'div' );
+		this._leaderboardTitle.textContent = 'Top 3';
+		this._leaderboardTitle.style.cssText = [
+			'font:bold 11px/1 monospace', 'letter-spacing:1.4px',
+			'color:rgba(255,255,255,0.62)', 'margin-bottom:8px',
+		].join( ';' );
+		this._leaderboardEl.appendChild( this._leaderboardTitle );
+
+		this._leaderboardList = document.createElement( 'div' );
+		this._leaderboardList.style.cssText = 'display:flex;flex-direction:column;gap:6px;';
+		this._leaderboardEl.appendChild( this._leaderboardList );
+
+		this._leaderboardRows = [];
+		for ( let i = 0; i < 3; i ++ ) {
+
+			const row = document.createElement( 'div' );
+			row.style.cssText = [
+				'display:none', 'align-items:center', 'gap:10px',
+				'border:1px solid rgba(255,255,255,0.08)', 'border-radius:10px',
+				'background:rgba(255,255,255,0.04)', 'padding:7px 9px',
+			].join( ';' );
+
+			const placeEl = document.createElement( 'div' );
+			placeEl.style.cssText = [
+				'font:bold 14px/1 monospace', 'min-width:34px',
+				'color:#ffffff',
+			].join( ';' );
+
+			const nameEl = document.createElement( 'div' );
+			nameEl.style.cssText = [
+				'font:bold 13px/1.1 monospace', 'color:#ffffff', 'flex:1',
+			].join( ';' );
+			nameEl.style.overflow = 'hidden';
+			nameEl.style.textOverflow = 'ellipsis';
+			nameEl.style.whiteSpace = 'nowrap';
+
+			row.appendChild( placeEl );
+			row.appendChild( nameEl );
+			this._leaderboardList.appendChild( row );
+			this._leaderboardRows.push( { root: row, placeEl, nameEl } );
+
+		}
+
+		document.body.appendChild( this._leaderboardEl );
+
 		// ── Results overlay (centered panel) ─────────────────────────────────
 		this._resultsEl = document.createElement( 'div' );
 		this._resultsEl.style.cssText = [
@@ -188,6 +274,8 @@ export class HUD {
 		this._lobbyPanel.appendChild( this._readyBtn );
 		document.body.appendChild( this._lobbyPanel );
 
+		this._applyRacePositionLayout();
+
 	}
 
 	update( dt, displayState, lobbyState ) {
@@ -203,6 +291,8 @@ export class HUD {
 				this._boostContainer.style.display = 'none';
 				this._powerupEl.style.display = 'none';
 				this._aerialHintEl.style.display = 'none';
+				this._playerPlaceBadge.style.display = 'none';
+				this._leaderboardEl.style.display = 'none';
 				this._updateLobby( lobbyState );
 				break;
 
@@ -212,6 +302,8 @@ export class HUD {
 				this._raceHud.style.display = 'none';
 				this._boostContainer.style.display = 'none';
 				this._aerialHintEl.style.display = 'none';
+				this._playerPlaceBadge.style.display = 'none';
+				this._leaderboardEl.style.display = 'none';
 				this._countdownEl.style.display = 'block';
 
 				const countText = displayState.countdown > 0
@@ -265,6 +357,7 @@ export class HUD {
 				this._updateDriftIndicator( displayState );
 				this._updatePowerupIndicator( dt, displayState );
 				this._updateAerialHint( displayState );
+				this._updateRacePositionHud( displayState );
 				break;
 
 			case 'finished':
@@ -274,6 +367,8 @@ export class HUD {
 				this._boostContainer.style.display = 'none';
 				this._powerupEl.style.display = 'none';
 				this._aerialHintEl.style.display = 'none';
+				this._playerPlaceBadge.style.display = 'none';
+				this._leaderboardEl.style.display = 'none';
 				this._resultsEl.style.display = 'block';
 				this._resultsTotalLine.textContent = `Total: ${ this._formatTime( displayState.totalTime ) }`;
 				this._resultsBestLine.textContent = `Best Lap: ${ this._formatTime( displayState.bestLap ) }`;
@@ -433,6 +528,93 @@ export class HUD {
 
 		this._aerialHintEl.style.display = 'block';
 		this._aerialHintEl.textContent = displayState.aerialHintText || 'HOLD DRIFT + TAP A DIRECTION';
+
+	}
+
+	_updateRacePositionHud( displayState ) {
+
+		this._applyRacePositionLayout();
+		this._playerPlaceBadge.style.display = 'block';
+		this._leaderboardEl.style.display = 'block';
+		this._playerPlaceValue.textContent = displayState.positionLabel || '1ST';
+
+		const leaders = Array.isArray( displayState.leaders ) ? displayState.leaders : [];
+		if ( leaders.length === 0 ) this._leaderboardEl.style.display = 'none';
+
+		for ( let i = 0; i < this._leaderboardRows.length; i ++ ) {
+
+			const row = this._leaderboardRows[ i ];
+			const leader = leaders[ i ];
+
+			if ( ! leader ) {
+
+				row.root.style.display = 'none';
+				continue;
+
+			}
+
+			row.root.style.display = 'flex';
+			row.placeEl.textContent = `#${ leader.position }`;
+			row.nameEl.textContent = leader.name || 'PLAYER';
+			this._applyLeaderboardRowStyle( row, leader.position, leader.isLocal );
+
+		}
+
+	}
+
+	_applyRacePositionLayout() {
+
+		const narrow = typeof window !== 'undefined' && window.innerWidth > 0 && window.innerWidth <= 900;
+		const inset = narrow ? 12 : 16;
+		const badgeWidth = narrow ? 86 : 102;
+		const badgeTop = narrow ? 12 : 16;
+		const panelTop = narrow ? 72 : 86;
+		const panelWidth = narrow ? 180 : 220;
+		const badgePadding = narrow ? '8px 10px' : '10px 12px';
+		const panelPadding = narrow ? '8px 10px 10px' : '10px 12px 12px';
+		const valueSize = narrow ? '24px' : '28px';
+		const rowNameWidth = narrow ? '112px' : '148px';
+
+		this._playerPlaceBadge.style.top = `${ badgeTop }px`;
+		this._playerPlaceBadge.style.right = `${ inset }px`;
+		this._playerPlaceBadge.style.width = `${ badgeWidth }px`;
+		this._playerPlaceBadge.style.padding = badgePadding;
+		this._playerPlaceValue.style.fontSize = valueSize;
+
+		this._leaderboardEl.style.top = `${ panelTop }px`;
+		this._leaderboardEl.style.right = `${ inset }px`;
+		this._leaderboardEl.style.width = `${ panelWidth }px`;
+		this._leaderboardEl.style.padding = panelPadding;
+
+		for ( const row of this._leaderboardRows ) {
+
+			row.nameEl.style.maxWidth = rowNameWidth;
+
+		}
+
+	}
+
+	_applyLeaderboardRowStyle( row, position, isLocal ) {
+
+		const podiumColors = {
+			1: '#f6c445',
+			2: '#cdd6e3',
+			3: '#d98a4e',
+		};
+		const accent = podiumColors[ position ] || '#ffffff';
+		const border = isLocal ? '#4fc3f7' : accent;
+		const background = isLocal
+			? 'rgba(79,195,247,0.14)'
+			: position === 1
+				? 'rgba(246,196,69,0.12)'
+				: position === 2
+					? 'rgba(205,214,227,0.10)'
+					: 'rgba(217,138,78,0.10)';
+
+		row.root.style.borderColor = border;
+		row.root.style.background = background;
+		row.placeEl.style.color = accent;
+		row.nameEl.style.color = isLocal ? '#9fe6ff' : '#ffffff';
 
 	}
 

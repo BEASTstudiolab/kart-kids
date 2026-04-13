@@ -7,7 +7,7 @@ import { BoostFlame } from './BoostFlame.js';
 import { TireMarks } from './TireMarks.js';
 import { FinishLine } from './FinishLine.js';
 import { AIController } from './AIController.js';
-import { AI_PROFILES } from './AIProfiles.js';
+import { AI_LABEL, CPU_AI_PROFILE } from './AIProfiles.js';
 import { ItemSlotManager } from './ItemSlotManager.js';
 import { PLAYER_VEHICLES, PLAYER_CHARACTER_ID } from './VehicleRegistry.js';
 import { rigidBody } from 'crashcat';
@@ -45,8 +45,8 @@ function shuffleArray( arr ) {
 
 const ZERO_INPUT = { x: 0, z: 0, touchActive: false, boost: false, drift: false, gas: false, brake: false };
 
-const COL_OFFSETS = [ - 2.5, 0, 2.5 ];
-const ROW_OFFSETS = [ 0, - 3.0, - 6.0 ];
+const COL_OFFSETS = [ 0, - 3.0, 3.0 ];
+const ROW_OFFSETS = [ 0, - 4.0, - 8.0 ];
 
 const { clamp, lerp } = THREE.MathUtils;
 
@@ -69,6 +69,7 @@ export class AIManager {
 		this._racers = [];
 		this._activeVehiclesCache = [];
 		this._raceDataCache = [];
+		this._debugDataCache = [];
 		this._aiColors = generateAIColors( 8 );
 		this._shuffledKarts = shuffleArray( PLAYER_VEHICLES );
 
@@ -117,6 +118,11 @@ export class AIManager {
 			options: { forceWheelCorrection: true },
 		} );
 
+		// AI benefits from the same centerline correction the player assist uses,
+		// especially when physics pushes a kart wide in tighter corners.
+		vehicle.setTrackIntel( this.trackIntel );
+		vehicle.setSteeringAssist( !! this.trackIntel );
+
 		// Disable headlights on AI vehicles to save GPU
 		for ( const hl of vehicle.headlights ) hl.visible = false;
 
@@ -136,7 +142,7 @@ export class AIManager {
 
 		this.scene.add( vehicle.container );
 
-		const profile = AI_PROFILES[ index % AI_PROFILES.length ];
+		const profile = CPU_AI_PROFILE;
 		vehicle.weight = profile.weight || 5;
 		vehicle.itemSlot = new ItemSlotManager( vehicle );
 		const controller = new AIController( this.trackIntel, index, profile );
@@ -150,7 +156,7 @@ export class AIManager {
 			id: 'ai_' + index,
 			vehicle,
 			controller,
-			profile,
+			label: AI_LABEL,
 			smokeTrails: new SmokeTrails( this.scene ),
 			driftSparks: new DriftSparks( this.scene ),
 			boostFlame: new BoostFlame( this.scene ),
@@ -205,11 +211,11 @@ export class AIManager {
 			const rbFactor = this._computeRubberBand( ai );
 			ai.vehicle.externalTopSpeedMultiplier = rbFactor;
 
-			// AI controller input
-			const aiInput = ai.controller.update( dt, ai.vehicle );
-
-			// Freeze during countdown
-			const input = ( raceState === 'countdown' ) ? ZERO_INPUT : aiInput;
+			// Keep the controller dormant during countdown so the stuck-recovery
+			// logic does not arm itself while racers are intentionally frozen.
+			const input = ( raceState === 'racing' )
+				? ai.controller.update( dt, ai.vehicle )
+				: ZERO_INPUT;
 
 			// Update vehicle physics
 			ai.vehicle.update( dt, input );
@@ -357,6 +363,7 @@ export class AIManager {
 			if ( aiIdx < this._racers.length ) {
 
 				this._teleportVehicle( this._racers[ aiIdx ].vehicle, gridPositions[ slot ] );
+				this._racers[ aiIdx ].controller.reset();
 				aiIdx ++;
 
 			}
@@ -379,8 +386,10 @@ export class AIManager {
 		if ( vehicle.rigidBody && vehicle.physicsWorld ) {
 
 			rigidBody.setPosition( vehicle.physicsWorld, vehicle.rigidBody, [ gridPos.x, gridPos.y + 0.5, gridPos.z ], false );
+			rigidBody.setQuaternion( vehicle.physicsWorld, vehicle.rigidBody, [ 0, Math.sin( this.spawnAngle / 2 ), 0, Math.cos( this.spawnAngle / 2 ) ], false );
 			rigidBody.setLinearVelocity( vehicle.physicsWorld, vehicle.rigidBody, [ 0, 0, 0 ] );
 			rigidBody.setAngularVelocity( vehicle.physicsWorld, vehicle.rigidBody, [ 0, 0, 0 ] );
+			rigidBody.wake( vehicle.physicsWorld, vehicle.rigidBody );
 
 		}
 
@@ -392,6 +401,7 @@ export class AIManager {
 
 		for ( const ai of this._racers ) {
 
+			ai.controller.reset();
 			ai.lap = 0;
 			ai.finished = false;
 			ai.prevPos = null;
@@ -406,6 +416,7 @@ export class AIManager {
 
 		for ( const ai of this._racers ) {
 
+			ai.controller.reset();
 			ai.lap = 0;
 			ai.finished = false;
 			ai.prevPos = null;
@@ -441,11 +452,29 @@ export class AIManager {
 
 		for ( const ai of this._racers ) {
 
-			this._raceDataCache.push( { vehicle: ai.vehicle, lap: ai.lap, profileName: ai.profile.name } );
+			this._raceDataCache.push( { id: ai.id, vehicle: ai.vehicle, lap: ai.lap, displayLabel: ai.label } );
 
 		}
 
 		return this._raceDataCache;
+
+	}
+
+	getAIDebugData() {
+
+		this._debugDataCache.length = 0;
+
+		for ( const ai of this._racers ) {
+
+			this._debugDataCache.push( {
+				id: ai.id,
+				vehicle: ai.vehicle,
+				debugState: ai.controller?.getDebugState ? ai.controller.getDebugState() : null,
+			} );
+
+		}
+
+		return this._debugDataCache;
 
 	}
 

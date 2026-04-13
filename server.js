@@ -4,6 +4,12 @@ import { join, extname } from 'path';
 import { gzipSync } from 'zlib';
 import { WebSocketServer } from 'ws';
 import { randomUUID, randomInt } from 'crypto';
+import { TrackDatabase } from './server/tracks/TrackDatabase.js';
+import { ManageTokenService } from './server/tracks/ManageTokenService.js';
+import { PublishedTrackRepository } from './server/tracks/PublishedTrackRepository.js';
+import { SpotlightRepository } from './server/tracks/SpotlightRepository.js';
+import { TrackRoutes } from './server/tracks/TrackRoutes.js';
+import { normalizePlayerAppearance } from './js/PlayerAppearance.js';
 
 const PORT = process.env.PORT || 3000;
 const TICK_RATE = 20;
@@ -30,9 +36,25 @@ const MIME = {
 const COMPRESSIBLE = new Set( [ '.html', '.js', '.css', '.json', '.gltf', '.svg' ] );
 const LONG_CACHE = new Set( [ '.glb', '.gltf', '.bin', '.png', '.jpg', '.ktx2', '.mp3', '.ogg', '.wav' ] );
 
+const trackDatabase = new TrackDatabase( process.env.TRACKS_DB_PATH || join( ROOT, 'data', 'tracks.sqlite' ) );
+const manageTokens = new ManageTokenService();
+const publishedTracks = new PublishedTrackRepository( trackDatabase, manageTokens );
+const spotlight = new SpotlightRepository( trackDatabase, publishedTracks );
+const trackRoutes = new TrackRoutes( {
+	root: ROOT,
+	publishedTracks,
+	spotlight,
+} );
+
 // ── Static file server ───────────────────────────────────────────────────────
 
 const httpServer = createServer( async ( req, res ) => {
+
+	if ( await trackRoutes.handle( req, res ) ) {
+
+		return;
+
+	}
 
 	let urlPath = decodeURIComponent( new URL( req.url, 'http://localhost' ).pathname );
 	if ( urlPath === '/' ) urlPath = '/index.html';
@@ -109,6 +131,25 @@ const disconnectedSessions = new Map();
 // Map<ws, { playerId, roomCode, sessionToken }>
 const connectedClients = new Map();
 
+
+function allocateSpawnSlot( room ) {
+
+	const usedSlots = new Set();
+	for ( const player of room.players.values() ) {
+
+		if ( Number.isInteger( player.spawnSlot ) && player.spawnSlot >= 0 ) {
+
+			usedSlots.add( player.spawnSlot );
+
+		}
+
+	}
+
+	let slot = 0;
+	while ( usedSlots.has( slot ) ) slot ++;
+	return slot;
+
+}
 
 
 function generateRoomCode() {
@@ -343,13 +384,15 @@ function hslToHex( h, s, l ) {
 
 // ── Room join/leave helpers ─────────────────────────────────────────────────
 
-function addPlayerToRoom( room, playerId, ws, vehicleId, name ) {
+function addPlayerToRoom( room, playerId, ws, vehicleId, name, appearance ) {
 
 	const index = room.joinCounter ++;
+	const spawnSlot = allocateSpawnSlot( room );
 	const vehicleIndex = vehicleId != null ? vehicleId : ( index % 4 );
 	const characterIndex = 0;
 	const tint = computeTint( index );
 	const playerName = typeof name === 'string' ? name.slice( 0, 20 ) : '';
+	const playerAppearance = normalizePlayerAppearance( appearance );
 
 	const player = {
 		ws,
@@ -358,6 +401,8 @@ function addPlayerToRoom( room, playerId, ws, vehicleId, name ) {
 		characterIndex,
 		tint,
 		name: playerName,
+		spawnSlot,
+		appearance: playerAppearance,
 		lastState: null,
 		spectating: false,
 	};
@@ -380,6 +425,8 @@ function addPlayerToRoom( room, playerId, ws, vehicleId, name ) {
 			characterIndex: p.characterIndex,
 			tint: p.tint,
 			name: p.name,
+			spawnSlot: p.spawnSlot,
+			appearance: p.appearance,
 			spectating: p.spectating,
 		} );
 
@@ -399,6 +446,8 @@ function addPlayerToRoom( room, playerId, ws, vehicleId, name ) {
 		vehicleId: player.vehicleId,
 		characterIndex,
 		tint,
+		spawnSlot,
+		appearance: player.appearance,
 		sessionToken,
 		roomCode: room.code,
 		host: room.host,
@@ -414,6 +463,8 @@ function addPlayerToRoom( room, playerId, ws, vehicleId, name ) {
 		characterIndex,
 		tint,
 		name: playerName,
+		spawnSlot,
+		appearance: player.appearance,
 	}, playerId );
 
 	console.log( `Player ${ playerId } joined room ${ room.code } (vehicle ${ vehicleIndex }, tint ${ tint || 'none' })` );
@@ -554,7 +605,7 @@ wss.on( 'connection', ( ws ) => {
 
 				const code = generateRoomCode();
 				const room = createRoom( code );
-				addPlayerToRoom( room, playerId, ws, msg.vehicleId, msg.name );
+				addPlayerToRoom( room, playerId, ws, msg.vehicleId, msg.name, msg.appearance );
 
 				console.log( `Room created: ${ code } by ${ playerId }` );
 				break;
@@ -601,7 +652,7 @@ wss.on( 'connection', ( ws ) => {
 
 				}
 
-				addPlayerToRoom( room, playerId, ws, msg.vehicleId, msg.name );
+				addPlayerToRoom( room, playerId, ws, msg.vehicleId, msg.name, msg.appearance );
 				break;
 
 			}
@@ -648,7 +699,7 @@ wss.on( 'connection', ( ws ) => {
 
 				}
 
-				addPlayerToRoom( foundRoom, playerId, ws, msg.vehicleId, msg.name );
+				addPlayerToRoom( foundRoom, playerId, ws, msg.vehicleId, msg.name, msg.appearance );
 				break;
 
 			}
@@ -727,6 +778,8 @@ wss.on( 'connection', ( ws ) => {
 							characterIndex: p.characterIndex,
 							tint: p.tint,
 							name: p.name,
+							spawnSlot: p.spawnSlot,
+							appearance: p.appearance,
 							spectating: p.spectating,
 						} );
 
@@ -739,6 +792,8 @@ wss.on( 'connection', ( ws ) => {
 						vehicleId: existingPlayer.vehicleId,
 						characterIndex: existingPlayer.characterIndex,
 						tint: existingPlayer.tint,
+						spawnSlot: existingPlayer.spawnSlot,
+						appearance: existingPlayer.appearance,
 						sessionToken: msg.sessionToken,
 						roomCode: room.code,
 						host: room.host,
@@ -817,6 +872,8 @@ wss.on( 'connection', ( ws ) => {
 							characterIndex: op.characterIndex,
 							tint: op.tint,
 							name: op.name,
+							spawnSlot: op.spawnSlot,
+							appearance: op.appearance,
 						} );
 
 					}

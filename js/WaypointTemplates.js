@@ -64,10 +64,14 @@ const STRAIGHT_N_S = [
 ];
 
 // Corner 1x1: S+W at orient 0 — enters from south, exits west
-// Arc offset toward inside (NE quadrant for S→W turn)
+// Use a denser quarter-arc so AI can thread stacked 1x1 bends without
+// over-committing to a single apex point and clipping the wall.
 const CORNER_S_W = [
 	{ x: 0, z: NEAR },         // entry near south edge
-	{ x: - 2.0, z: 2.0 },     // apex — offset toward inside of turn
+	{ x: - 0.8, z: 3.6 },
+	{ x: - 1.8, z: 2.8 },
+	{ x: - 2.8, z: 1.8 },
+	{ x: - 3.6, z: 0.8 },
 	{ x: - NEAR, z: 0 },       // exit near west edge
 ];
 
@@ -76,6 +80,33 @@ const CORNER_W_S = [
 	{ x: - 2.0, z: 2.0 },
 	{ x: 0, z: NEAR },
 ];
+
+// Legacy 3x3 curve tiles are normalized to proxy corner cells for TrackIntel
+// only. These arcs span the full 3x3 footprint so AI sees the same wide bend
+// the player drives visually instead of a tight 1x1 elbow.
+const CURVE_PROXY_3x3_S_W = [
+	{ x: 0, z: 10 },
+	{ x: - 1.5, z: 9.7 },
+	{ x: - 3.8, z: 8.9 },
+	{ x: - 6.2, z: 7.3 },
+	{ x: - 8.1, z: 5.1 },
+	{ x: - 9.4, z: 2.6 },
+	{ x: - 10, z: 0 },
+];
+
+const CURVE_PROXY_3x3_W_S = [ ...CURVE_PROXY_3x3_S_W ].reverse();
+
+const CURVE_PROXY_3x3_WIDE_S_W = [
+	{ x: 0, z: 10 },
+	{ x: - 2.1, z: 9.9 },
+	{ x: - 4.6, z: 9.2 },
+	{ x: - 6.9, z: 7.8 },
+	{ x: - 8.7, z: 5.8 },
+	{ x: - 9.7, z: 3.1 },
+	{ x: - 10, z: 0 },
+];
+
+const CURVE_PROXY_3x3_WIDE_W_S = [ ...CURVE_PROXY_3x3_WIDE_S_W ].reverse();
 
 // ─── Multi-cell curve waypoints ──────────────────────────────────────
 // Defined relative to the ANCHOR CELL center (the corner cell).
@@ -167,6 +198,8 @@ const TEMPLATES = {
 
 	// Corner
 	'trk-corner-1x1': { 'S>W': CORNER_S_W, 'W>S': CORNER_W_S },
+	'trk-curve-3x3-proxy': { 'S>W': CURVE_PROXY_3x3_S_W, 'W>S': CURVE_PROXY_3x3_W_S },
+	'trk-curve-3x3-wide-proxy': { 'S>W': CURVE_PROXY_3x3_WIDE_S_W, 'W>S': CURVE_PROXY_3x3_WIDE_W_S },
 
 	// Multi-cell curves (S+E at orient 0)
 	'trk-curve-2x2-l':      { 'S>E': CURVE_2x2_S_E, 'E>S': CURVE_2x2_E_S },
