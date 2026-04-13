@@ -27,16 +27,18 @@ export class ExplosionFXManager {
 
 		const preset = getExplosionPreset( request.type );
 		if ( ! preset ) return null;
+		const selectedLayers = this._selectLayers( preset );
 
 		const effect = {
 			preset,
 			age: 0,
 			lifetime: this._getLifetime( preset ),
+			layerIds: selectedLayers.map( ( layer ) => layer.id ),
 			meshes: [],
 			particles: [],
 		};
 
-		for ( const layer of preset.layers ) {
+		for ( const layer of selectedLayers ) {
 
 			if ( layer.kind === 'mesh' ) {
 
@@ -53,6 +55,75 @@ export class ExplosionFXManager {
 		this._activeEffects.push( effect );
 		this._refreshCounts();
 		return effect;
+
+	}
+
+	_selectLayers( preset ) {
+
+		const layers = [ ...preset.layers ];
+		const renderableLayers = layers.filter( ( layer ) => this._isRenderableLayer( layer ) );
+		const qualityRatio = this._qualityRatio();
+		const targetRenderableCount = Math.max( 1, Math.ceil( renderableLayers.length * qualityRatio ) );
+		const dropCount = Math.max( 0, renderableLayers.length - targetRenderableCount );
+		const dropIds = new Set();
+		const dropPriority = this._buildDropPriority( preset, renderableLayers );
+
+		for ( let i = 0; i < dropPriority.length && dropIds.size < dropCount; i ++ ) {
+
+			dropIds.add( dropPriority[ i ] );
+
+		}
+
+		const filtered = [];
+		let meshCount = 0;
+		let particleCount = 0;
+
+		for ( const layer of layers ) {
+
+			if ( dropIds.has( layer.id ) ) continue;
+
+			if ( layer.kind === 'mesh' ) {
+
+				if ( meshCount >= preset.budgets.mesh ) continue;
+				meshCount ++;
+				filtered.push( layer );
+				continue;
+
+			}
+
+			if ( layer.kind === 'particles' ) {
+
+				const layerCount = layer.count || 0;
+				if ( particleCount + layerCount > preset.budgets.particles ) continue;
+				particleCount += layerCount;
+				filtered.push( layer );
+				continue;
+
+			}
+
+			filtered.push( layer );
+
+		}
+
+		return filtered;
+
+	}
+
+	_buildDropPriority( preset, renderableLayers ) {
+
+		const explicitOrder = preset.layerDropOrder.filter( ( layerId ) => renderableLayers.some( ( layer ) => layer.id === layerId ) );
+		const fallbackOrder = [ ...renderableLayers ]
+			.sort( ( a, b ) => b.weight - a.weight )
+			.map( ( layer ) => layer.id )
+			.filter( ( layerId ) => ! explicitOrder.includes( layerId ) );
+
+		return [ ...explicitOrder, ...fallbackOrder ];
+
+	}
+
+	_isRenderableLayer( layer ) {
+
+		return layer.kind === 'mesh' || layer.kind === 'particles';
 
 	}
 
@@ -162,6 +233,19 @@ export class ExplosionFXManager {
 		this.activeEffectCount = this._activeEffects.length;
 		this.activeMeshCount = this._activeEffects.reduce( ( total, effect ) => total + effect.meshes.length, 0 );
 		this.activeParticleCount = this._activeEffects.reduce( ( total, effect ) => total + effect.particles.length, 0 );
+
+	}
+
+	_qualityRatio() {
+
+		switch ( this.quality ) {
+			case 'low': return 0.6;
+			case 'medium': return 0.8;
+			case 'ultra': return 1;
+			case 'high':
+			default:
+				return 1;
+		}
 
 	}
 

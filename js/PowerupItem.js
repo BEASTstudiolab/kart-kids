@@ -125,7 +125,7 @@ export const ITEMS = {
 		id: 'magnet_pulse',
 		name: 'Magnet Pulse',
 		weight: 8,
-		use( owner, allVehicles, trackIntel, projectileManager, combatManager ) {
+		use( owner, allVehicles, trackIntel, projectileManager, combatManager, explosionFXManager ) {
 
 			// AOE: damage + pull all vehicles within 8m
 			const range = 8;
@@ -156,6 +156,19 @@ export const ITEMS = {
 					}
 
 				}
+
+			}
+
+			if ( explosionFXManager ) {
+
+				explosionFXManager.spawnEffect( {
+					type: 'pulseShockwave',
+					position: owner.vehPos.clone(),
+					normal: new THREE.Vector3( 0, 1, 0 ),
+					direction: new THREE.Vector3( 0, 0, 1 ).applyQuaternion( owner.container.quaternion ),
+					intensity: 1,
+					localPlayerInvolved: owner.isLocalPlayer === true,
+				} );
 
 			}
 
