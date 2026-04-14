@@ -10,6 +10,8 @@ import { AIController } from './AIController.js';
 import { AI_LABEL, CPU_AI_PROFILE } from './AIProfiles.js';
 import { ItemSlotManager } from './ItemSlotManager.js';
 import { PLAYER_VEHICLES, PLAYER_CHARACTER_ID } from './VehicleRegistry.js';
+import { getRandomBalaclavaId } from './CharacterCustomization.js';
+import { applyPlayerAppearanceToVehicle, createDefaultAIAppearance } from './PlayerAppearance.js';
 import { rigidBody } from 'crashcat';
 
 // Golden-angle hue distribution — ensures no two adjacent AIs share similar colors
@@ -117,6 +119,8 @@ export class AIManager {
 			angle: this.spawnAngle,
 			options: { forceWheelCorrection: true },
 		} );
+
+		applyPlayerAppearanceToVehicle( vehicle, createDefaultAIAppearance( getRandomBalaclavaId() ) );
 
 		// AI benefits from the same centerline correction the player assist uses,
 		// especially when physics pushes a kart wide in tighter corners.

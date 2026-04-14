@@ -45,6 +45,9 @@
 				"metallicRoughnessTexture": {
 					"index": 3
 				}
+			},
+			"occlusionTexture": {
+					"index": 3
 			}
 		},
 		{
@@ -60,6 +63,9 @@
 				"metallicRoughnessTexture": {
 					"index": 6
 				}
+			},
+			"occlusionTexture": {
+					"index": 6
 			}
 		}
 	],

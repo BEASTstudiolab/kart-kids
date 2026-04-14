@@ -1,0 +1,21 @@
+{
+  "innerRect": {
+    "width": 693.21875,
+    "height": 866.515625,
+    "top": 230.5,
+    "left": 469.390625
+  },
+  "canvasRect": {
+    "width": 693.21875,
+    "height": 866.515625,
+    "top": 230.5,
+    "left": 469.390625
+  },
+  "canvasStyle": {
+    "objectFit": "contain",
+    "objectPosition": "50% 50%",
+    "width": "693.219px",
+    "height": "866.516px",
+    "position": "absolute"
+  }
+}

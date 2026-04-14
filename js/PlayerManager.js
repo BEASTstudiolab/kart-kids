@@ -81,8 +81,8 @@ export class PlayerManager {
 		const characterModel = this.models[ PLAYER_CHARACTER_ID ] || null;
 
 		// Swap only the visual model — keeps physics, position, camera target intact
-		this.localVehicle.swapModel( newModel, characterModel, config.characterOffset, config.bodyHeight );
 		this.localVehicle._vehicleId = config.id;
+		this.localVehicle.swapModel( newModel, characterModel, config.characterOffset, config.bodyHeight );
 
 	}
 
@@ -92,7 +92,8 @@ export class PlayerManager {
 
 		this.localId = welcomeData.id;
 		const spawnPose = this._computeSpawnPose( welcomeData.spawnSlot );
-		const vehicle = this._createVehicle( welcomeData.vehicleIndex, welcomeData.characterIndex, welcomeData.tint, spawnPose.position, spawnPose.angle, false, welcomeData.vehicleId, welcomeData.appearance );
+		const localAppearance = this._composeAppearancePayload( welcomeData.appearance, welcomeData.selectedBalaclavaId );
+		const vehicle = this._createVehicle( welcomeData.vehicleIndex, welcomeData.characterIndex, welcomeData.tint, spawnPose.position, spawnPose.angle, false, welcomeData.vehicleId, localAppearance );
 		this.localVehicle = vehicle;
 		this.players.set( this.localId, this._createPlayerEntry( {
 			vehicle,
@@ -104,7 +105,7 @@ export class PlayerManager {
 			displayName: welcomeData.displayName || welcomeData.name || '',
 			fallbackLabel: LOCAL_FALLBACK_LABEL,
 			spawnSlot: spawnPose.slot,
-			appearance: welcomeData.appearance,
+			appearance: localAppearance,
 		} ) );
 
 		// Add existing players
@@ -124,18 +125,19 @@ export class PlayerManager {
 
 	addRemotePlayer( joinData ) {
 
+		const remoteAppearance = this._composeAppearancePayload( joinData.appearance, joinData.selectedBalaclavaId );
 		const existing = this.players.get( joinData.id );
 		if ( existing ) {
 
 			this._updatePlayerDisplayName( existing, joinData.name );
-			this._updatePlayerAppearance( existing, joinData.appearance, joinData.tint );
+			this._updatePlayerAppearance( existing, remoteAppearance, joinData.tint );
 			if ( typeof joinData.spectating === 'boolean' ) existing.spectating = joinData.spectating;
 			return;
 
 		}
 
 		const spawnPose = this._computeSpawnPose( joinData.spawnSlot );
-		const vehicle = this._createVehicle( joinData.vehicleIndex, joinData.characterIndex, joinData.tint, spawnPose.position, spawnPose.angle, true, joinData.vehicleId, joinData.appearance );
+		const vehicle = this._createVehicle( joinData.vehicleIndex, joinData.characterIndex, joinData.tint, spawnPose.position, spawnPose.angle, true, joinData.vehicleId, remoteAppearance );
 		vehicle.remote = true;
 
 		// Remove SpotLights/PointLight to avoid Three.js shader recompilation
@@ -165,7 +167,7 @@ export class PlayerManager {
 			displayName: joinData.name || '',
 			fallbackLabel: this._allocateRemoteFallbackLabel(),
 			spawnSlot: spawnPose.slot,
-			appearance: joinData.appearance,
+			appearance: remoteAppearance,
 		} ) );
 
 	}
@@ -395,6 +397,15 @@ export class PlayerManager {
 		}
 
 		applyPlayerAppearanceToVehicle( entry.vehicle, entry.appearance );
+
+	}
+
+	_composeAppearancePayload( appearance, selectedBalaclavaId ) {
+
+		return {
+			...( appearance && typeof appearance === 'object' ? appearance : {} ),
+			...( selectedBalaclavaId !== undefined ? { selectedBalaclavaId } : {} ),
+		};
 
 	}
 

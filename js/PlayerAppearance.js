@@ -1,22 +1,26 @@
+import {
+	CHARACTER_ACCESSORY_DEFS,
+	DEFAULT_BALACLAVA_ID,
+	applyBalaclavaSelection,
+	getBalaclavaOptionById,
+	normalizeCharacterMeshName,
+	normalizeSelectedBalaclavaId,
+	resolveBalaclavaOptionByMeshName,
+} from './CharacterCustomization.js';
+
 const COLOR_HEX_RE = /^#[0-9a-f]{6}$/i;
 const SKIN_MATERIAL_NAME = 'Test Skin';
 const ORIGINAL_MATERIAL_KEY = '_kkOriginalMaterial';
+export const DEFAULT_MASK_TINT_COLOR = '#ffffff';
 
-export const ACCESSORY_DEFS = Object.freeze( [
-	Object.freeze( { key: 'Balaclava_No_Ears', label: 'Balaclava', meshes: Object.freeze( [ 'Balaclava_No_Ears' ] ) } ),
-	Object.freeze( { key: 'Baseball_Hat', label: 'Baseball Hat', meshes: Object.freeze( [ 'Baseball_Hat_1', 'Baseball_Hat_2' ] ) } ),
-	Object.freeze( { key: 'Gold_Chain', label: 'Gold Chain', meshes: Object.freeze( [ 'Gold_Chain' ] ) } ),
-	Object.freeze( { key: 'Jeans', label: 'Jeans', meshes: Object.freeze( [ 'Jeans' ] ) } ),
-	Object.freeze( { key: 'Tshirt', label: 'T-Shirt', meshes: Object.freeze( [ 'Tshirt' ] ) } ),
-	Object.freeze( { key: 'Mask_Basic', label: 'Mask', meshes: Object.freeze( [ 'Mask_Basic' ] ) } ),
-] );
+export const ACCESSORY_DEFS = CHARACTER_ACCESSORY_DEFS;
 
 const ACCESSORY_BY_MESH = new Map();
 for ( const def of ACCESSORY_DEFS ) {
 
 	for ( const meshName of def.meshes ) {
 
-		ACCESSORY_BY_MESH.set( meshName, def );
+		ACCESSORY_BY_MESH.set( normalizeCharacterMeshName( meshName ), def );
 
 	}
 
@@ -51,8 +55,32 @@ export function createDefaultPlayerAppearance() {
 		vehicleColor: '',
 		characterColor: '',
 		charSkinColor: '',
+		maskTintMainColor: '',
+		maskTintSecondaryColor: '',
+		selectedBalaclavaId: DEFAULT_BALACLAVA_ID,
 		charAccessories: createDefaultCharacterAccessories(),
 	};
+
+}
+
+export function createDefaultAIAppearance( selectedBalaclavaId = DEFAULT_BALACLAVA_ID ) {
+
+	const appearance = createDefaultPlayerAppearance();
+	appearance.selectedBalaclavaId = normalizeSelectedBalaclavaId( selectedBalaclavaId );
+
+	if ( appearance.charAccessories.Baseball_Hat ) {
+
+		appearance.charAccessories.Baseball_Hat.visible = false;
+
+	}
+
+	return appearance;
+
+}
+
+export function normalizeMaskTintColor( value ) {
+
+	return normalizeAppearanceColor( value );
 
 }
 
@@ -84,6 +112,9 @@ export function normalizePlayerAppearance( rawAppearance = {} ) {
 		vehicleColor: normalizeAppearanceColor( sourceAppearance.vehicleColor ),
 		characterColor: normalizeAppearanceColor( sourceAppearance.characterColor ),
 		charSkinColor: normalizeAppearanceColor( sourceAppearance.charSkinColor ),
+		maskTintMainColor: normalizeMaskTintColor( sourceAppearance.maskTintMainColor ),
+		maskTintSecondaryColor: normalizeMaskTintColor( sourceAppearance.maskTintSecondaryColor ),
+		selectedBalaclavaId: normalizeSelectedBalaclavaId( sourceAppearance.selectedBalaclavaId ),
 		charAccessories: normalizedAccessories,
 	};
 
@@ -95,6 +126,9 @@ export function getPlayerAppearanceFromSettings( settings ) {
 		vehicleColor: settings.get( 'vehicleColor' ),
 		characterColor: settings.get( 'characterColor' ),
 		charSkinColor: settings.get( 'charSkinColor' ),
+		maskTintMainColor: settings.get( 'maskTintMainColor' ),
+		maskTintSecondaryColor: settings.get( 'maskTintSecondaryColor' ),
+		selectedBalaclavaId: settings.get( 'selectedBalaclavaId' ),
 		charAccessories: settings.get( 'charAccessories' ),
 	} );
 
@@ -103,10 +137,20 @@ export function getPlayerAppearanceFromSettings( settings ) {
 export function getVisibleAccessoryLabels( appearance ) {
 
 	const normalized = normalizePlayerAppearance( appearance );
+	const selectedBalaclava = getBalaclavaOptionById( normalized.selectedBalaclavaId );
+	const visibleLabels = [];
 
-	return ACCESSORY_DEFS
+	if ( selectedBalaclava ) {
+
+		visibleLabels.push( selectedBalaclava.label );
+
+	}
+
+	visibleLabels.push( ...ACCESSORY_DEFS
 		.filter( ( def ) => normalized.charAccessories[ def.key ]?.visible !== false )
-		.map( ( def ) => def.label );
+		.map( ( def ) => def.label ) );
+
+	return visibleLabels;
 
 }
 
@@ -220,13 +264,15 @@ export function applyCharacterAppearance( characterRoot, appearance ) {
 	if ( ! characterRoot ) return;
 
 	const normalized = normalizePlayerAppearance( appearance );
+	applyBalaclavaSelection( characterRoot, normalized.selectedBalaclavaId );
 
 	characterRoot.traverse( ( child ) => {
 
 		if ( ! _isMeshNode( child ) ) return;
 
-		const accessoryDef = ACCESSORY_BY_MESH.get( child.name );
+		const accessoryDef = ACCESSORY_BY_MESH.get( normalizeCharacterMeshName( child.name ) );
 		const accessoryState = accessoryDef ? normalized.charAccessories[ accessoryDef.key ] : null;
+		const balaclavaOption = resolveBalaclavaOptionByMeshName( child.name );
 		if ( accessoryState ) {
 
 			child.visible = accessoryState.visible !== false;
@@ -242,6 +288,13 @@ export function applyCharacterAppearance( characterRoot, appearance ) {
 
 				if ( ! normalized.charSkinColor || ! originalMaterial?.color ) return originalMaterial;
 				return _cloneMaterialWithColor( originalMaterial, normalized.charSkinColor );
+
+			}
+
+			if ( balaclavaOption ) {
+
+				if ( ! normalized.maskTintMainColor || ! originalMaterial?.color ) return originalMaterial;
+				return _cloneMaterialWithColor( originalMaterial, normalized.maskTintMainColor );
 
 			}
 

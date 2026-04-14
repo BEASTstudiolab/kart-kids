@@ -18,20 +18,70 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { getVehicleById } from '../VehicleRegistry.js';
+import { CHARACTER_MODEL_PATH } from '../CharacterCustomization.js';
 import { applyPlayerAppearanceToNodes, createDefaultPlayerAppearance, normalizePlayerAppearance } from '../PlayerAppearance.js';
 
 // Camera parameters — tuned from the lobby debug panel.
-const CAM_POS  = new THREE.Vector3( 0.00, 0.80, 7.90 );
-const LOOK_AT  = new THREE.Vector3( 0.00, 2.10, -0.30 );
-const CAM_FOV  = 65;
+const CAM_POS  = new THREE.Vector3( 0.00, 1.70, 4.50 );
+const LOOK_AT  = new THREE.Vector3( 0.00, 0.00, 0.40 );
+const CAM_FOV  = 75;
 
 // Kart placement
-const KART_POS   = new THREE.Vector3( 0.00, 0.40, 1.30 );
+const KART_POS   = new THREE.Vector3( 0.00, 0.40, 2.10 );
 const KART_SCALE = 1.15;
+const KART_ROT_Y_DEG = 2447;
+const LOBBY_FOG_DENSITY = 0.0000;
+const LOBBY_AMBIENT_INTENSITY = 0.00;
+const LOBBY_DIR_LIGHT_INTENSITY = 2.50;
+const LOBBY_DIR_LIGHT_POS = new THREE.Vector3( - 0.49, 0.02, 0.09 );
+const LOBBY_RIM_LIGHT_INTENSITY = 1.90;
+const LOBBY_RIM_LIGHT_POS = new THREE.Vector3( 2.04, 2.45, 1.54 );
+const LOBBY_BLOOM_STRENGTH = 0.10;
+const LOBBY_BLOOM_RADIUS = 0.59;
+const LOBBY_BLOOM_THRESHOLD = 1.41;
+const DEFAULT_SEAT_OFFSET = Object.freeze( { x: 0, y: 0, z: 0 } );
+const DEFAULT_KART_OFFSET = Object.freeze( { x: 0, y: - 0.5, z: 0.3 } );
+const LOBBY_CHARACTER_OFFSET_ADJUSTMENTS = Object.freeze( {
+	'kart-1': Object.freeze( { y: - 0.06, z: - 0.07 } ),
+	'kart-3': Object.freeze( { y: 0.19, z: - 0.03 } ),
+	'kart-4': Object.freeze( { y: - 0.06, z: 0.02 } ),
+	'kart-7': Object.freeze( { y: 0.11, z: - 0.03 } ),
+	'kart-8': Object.freeze( { y: 0.14, z: 0.00 } ),
+} );
 
 // Character model — rest armature has meshes, driving has the seated animation.
-const CHARACTER_MESH_PATH = 'characters/Kart_Beast_Rest-Armature.glb';
+const CHARACTER_MESH_PATH = CHARACTER_MODEL_PATH;
 const CHARACTER_ANIM_PATH = 'characters/Kart_Beast_Driving.glb';
+const LOBBY_MODEL_PATH = 'models/environments/Lobby.gltf';
+const LOBBY_MATERIAL_CONFIGS = Object.freeze( {
+	'Lobby Props': Object.freeze( {
+		debugLabel: 'Lobby Props (Lobby2)',
+		ormPath: 'models/environments/textures/Lobby2_OcclusionRoughnessMetallic.png',
+		emissiveIntensity: 10.0,
+		emissiveColor: Object.freeze( { r: 0.07, g: 0.34, b: 1.00 } ),
+		normalScale: Object.freeze( { x: 0.00, y: 0.00 } ),
+		aoMapIntensity: 1.50,
+		roughness: 0.65,
+		metalness: 1.00,
+		envMapIntensity: 1.80,
+		baseColor: Object.freeze( { r: 1.00, g: 1.00, b: 1.00 } ),
+		opacity: 1.00,
+	} ),
+	'LobbyRoom_Atlas': Object.freeze( {
+		debugLabel: 'LobbyRoom Atlas (Lobby1)',
+		ormPath: 'models/environments/textures/Lobby1_OcclusionRoughnessMetallic.png',
+		emissiveIntensity: 10.0,
+		emissiveColor: Object.freeze( { r: 0.11, g: 0.00, b: 1.00 } ),
+		normalScale: Object.freeze( { x: 3.00, y: 3.00 } ),
+		aoMapIntensity: 3.00,
+		roughness: 0.90,
+		metalness: 1.00,
+		envMapIntensity: 1.10,
+		baseColor: Object.freeze( { r: 1.00, g: 1.00, b: 1.00 } ),
+		opacity: 1.00,
+	} ),
+} );
+const LOBBY_MATERIAL_ORDER = Object.freeze( Object.keys( LOBBY_MATERIAL_CONFIGS ) );
 
 export class LobbyScene {
 
@@ -51,18 +101,18 @@ export class LobbyScene {
 		this._scene.background = new THREE.Color( 0x1a1a2e );
 
 		// Fog for depth
-		this._scene.fog = new THREE.FogExp2( 0x1a1a2e, 0.0 );
+		this._scene.fog = new THREE.FogExp2( 0x1a1a2e, LOBBY_FOG_DENSITY );
 
 		// ── Lights ───────────────────────────────────────────────────────
-		const ambient = new THREE.AmbientLight( 0xffffff, 4.3 );
+		const ambient = new THREE.AmbientLight( 0xffffff, LOBBY_AMBIENT_INTENSITY );
 		this._scene.add( ambient );
 
-		const dir = new THREE.DirectionalLight( 0xffffff, 5.6 );
-		dir.position.set( 0.1, -2.8, 5.3 );
+		const dir = new THREE.DirectionalLight( 0xffffff, LOBBY_DIR_LIGHT_INTENSITY );
+		dir.position.copy( LOBBY_DIR_LIGHT_POS );
 		this._scene.add( dir );
 
-		const rim = new THREE.DirectionalLight( 0x4488ff, 3.4 );
-		rim.position.set( -0.0, 3.5, -0.5 );
+		const rim = new THREE.DirectionalLight( 0x4488ff, LOBBY_RIM_LIGHT_INTENSITY );
+		rim.position.copy( LOBBY_RIM_LIGHT_POS );
 		this._scene.add( rim );
 
 		// ── Camera (static — no orbit) ───────────────────────────────────
@@ -81,89 +131,39 @@ export class LobbyScene {
 
 		this._bloomPass = new UnrealBloomPass(
 			new THREE.Vector2( window.innerWidth, window.innerHeight ),
-			0.03,  // strength
-			0.22,  // radius
-			1.04   // threshold
+			LOBBY_BLOOM_STRENGTH,
+			LOBBY_BLOOM_RADIUS,
+			LOBBY_BLOOM_THRESHOLD
 		);
 		this._composer.addPass( this._bloomPass );
 
 		// ── Lobby materials (populated on load) ─────────────────────────
 		/** @type {THREE.MeshStandardMaterial[]} */
 		this._lobbyMaterials = [];
+		/** @type {THREE.TextureLoader} */
+		this._lobbyTextureLoader = new THREE.TextureLoader();
+		/** @type {Map<string, Promise<THREE.Texture>>} */
+		this._lobbyOrmTextureCache = new Map();
 
 		// ── Lobby environment ────────────────────────────────────────────
 		this._loader = new GLTFLoader();
-		this._loader.load( 'models/environments/Lobby.gltf', ( gltf ) => {
+		this._loader.load( LOBBY_MODEL_PATH, ( gltf ) => {
 
 			const lobbyModel = gltf.scene;
-
-			// Remove placeholder objects (e.g. "Mirror" / Cube.006)
-			const toRemove = [];
-			lobbyModel.traverse( ( child ) => {
-
-				const name = ( child.name || '' ).toLowerCase();
-				if ( name === 'mirror' || name.includes( 'cube' ) || name.includes( 'placeholder' ) ) {
-
-					toRemove.push( child );
-
-				}
-
-				// Capture materials with emissive maps and apply per-material defaults
-				if ( child.isMesh && child.material ) {
-
-					const mats = Array.isArray( child.material ) ? child.material : [ child.material ];
-					for ( const mat of mats ) {
-
-						if ( mat.emissiveMap && ! this._lobbyMaterials.includes( mat ) ) {
-
-							const idx = this._lobbyMaterials.length;
-							this._lobbyMaterials.push( mat );
-
-							if ( idx === 0 ) {
-
-								// Lobby Props (Lobby2)
-								mat.emissiveIntensity = 6.1;
-								mat.emissive.setRGB( 0.00, 0.14, 1.00 );
-								mat.normalScale.set( - 0.45, - 1.85 );
-								mat.aoMapIntensity = 0.65;
-								mat.roughness = 0.92;
-								mat.metalness = 0.94;
-								mat.envMapIntensity = 1.80;
-
-							} else if ( idx === 1 ) {
-
-								// LobbyRoom Atlas (Lobby1)
-								mat.emissiveIntensity = 4.2;
-								mat.emissive.setRGB( 0.00, 0.14, 1.00 );
-								mat.normalScale.set( 0.75, - 1.00 );
-								mat.aoMapIntensity = 1.45;
-								mat.roughness = 0.85;
-								mat.metalness = 0.99;
-								mat.envMapIntensity = 1.10;
-
-							}
-
-						}
-
-					}
-
-				}
-
-			} );
-
-			for ( const obj of toRemove ) {
-
-				obj.removeFromParent();
-
-			}
+			this._prepareLobbyEnvironment( lobbyModel );
 
 			this._scene.add( lobbyModel );
+
+		}, undefined, ( err ) => {
+
+			console.error( `[LobbyScene] Failed to load lobby model: ${ LOBBY_MODEL_PATH }`, err );
 
 		} );
 
 		// ── Kart + character container ───────────────────────────────────
 		this._kartGroup = new THREE.Group();
 		this._kartGroup.position.copy( KART_POS );
+		this._kartGroup.rotation.y = THREE.MathUtils.degToRad( KART_ROT_Y_DEG );
 		this._scene.add( this._kartGroup );
 
 		/** @type {string | null} */
@@ -183,6 +183,21 @@ export class LobbyScene {
 
 		/** @type {THREE.Object3D | null} */
 		this._currentCharacterRoot = null;
+
+		/** @type {Map<string, { x: number, y: number, z: number }>} */
+		this._characterOffsetOverrides = new Map();
+
+		/** @type {{ input: HTMLInputElement, valueEl: HTMLSpanElement, setValue: Function } | null} */
+		this._driverOffsetXControl = null;
+
+		/** @type {{ input: HTMLInputElement, valueEl: HTMLSpanElement, setValue: Function } | null} */
+		this._driverOffsetYControl = null;
+
+		/** @type {{ input: HTMLInputElement, valueEl: HTMLSpanElement, setValue: Function } | null} */
+		this._driverOffsetZControl = null;
+
+		/** @type {HTMLDivElement | null} */
+		this._driverOffsetLabel = null;
 
 		// Handle resize
 		this._onResize = () => {
@@ -237,6 +252,7 @@ export class LobbyScene {
 
 		if ( kartId === this._currentKartId ) return;
 		this._currentKartId = kartId;
+		this._syncDriverOffsetDebugControls();
 		const gen = ++ this._loadGen;
 
 		// Clear previous kart + character
@@ -288,23 +304,26 @@ export class LobbyScene {
 
 				const character = meshGltf.scene;
 				character.scale.setScalar( 1.0 );
+				const offset = this._getResolvedCharacterOffset(
+					kartId,
+					seatAnchor ? DEFAULT_SEAT_OFFSET : DEFAULT_KART_OFFSET
+				);
 
 				// Position: use seat_anchor if found, otherwise use characterOffset
 				if ( seatAnchor ) {
 
-					const offset = entry.characterOffset || { x: 0, y: 0, z: 0 };
 					character.position.set( offset.x, offset.y, offset.z );
 					seatAnchor.add( character );
 
 				} else {
 
-					const offset = entry.characterOffset || { x: 0, y: - 0.5, z: 0.3 };
 					character.position.set( offset.x, offset.y, offset.z );
 					kartModel.add( character );
 
 				}
 
 				this._currentCharacterRoot = character;
+				this._syncDriverOffsetDebugControls( offset );
 				this._applyAppearance();
 
 				// Apply driving pose animation
@@ -342,6 +361,7 @@ export class LobbyScene {
 		this._mixer = null;
 		this._currentBodyRoot = null;
 		this._currentCharacterRoot = null;
+		this._syncDriverOffsetDebugControls( DEFAULT_SEAT_OFFSET );
 
 		while ( this._kartGroup.children.length > 0 ) {
 
@@ -367,6 +387,105 @@ export class LobbyScene {
 
 	}
 
+	_getVehicleEntry( kartId ) {
+
+		if ( ! kartId ) return null;
+
+		const entry = getVehicleById( kartId );
+		return entry?.id === kartId ? entry : null;
+
+	}
+
+	_cloneCharacterOffset( offset = DEFAULT_SEAT_OFFSET ) {
+
+		return {
+			x: Number( offset?.x ) || 0,
+			y: Number( offset?.y ) || 0,
+			z: Number( offset?.z ) || 0,
+		};
+
+	}
+
+	_applyLobbyCharacterOffsetAdjustment( kartId, offset ) {
+
+		const adjustment = kartId ? LOBBY_CHARACTER_OFFSET_ADJUSTMENTS[ kartId ] : null;
+		if ( ! adjustment ) return offset;
+
+		return {
+			x: Number.isFinite( adjustment.x ) ? adjustment.x : offset.x,
+			y: Number.isFinite( adjustment.y ) ? adjustment.y : offset.y,
+			z: Number.isFinite( adjustment.z ) ? adjustment.z : offset.z,
+		};
+
+	}
+
+	_getResolvedCharacterOffset( kartId = this._currentKartId, fallbackOffset = DEFAULT_SEAT_OFFSET ) {
+
+		if ( kartId && this._characterOffsetOverrides.has( kartId ) ) {
+
+			return this._cloneCharacterOffset( this._characterOffsetOverrides.get( kartId ) );
+
+		}
+
+		const entry = this._getVehicleEntry( kartId );
+		if ( entry?.characterOffset ) {
+
+			return this._applyLobbyCharacterOffsetAdjustment(
+				kartId,
+				this._cloneCharacterOffset( entry.characterOffset )
+			);
+
+		}
+
+		return this._applyLobbyCharacterOffsetAdjustment(
+			kartId,
+			this._cloneCharacterOffset( fallbackOffset )
+		);
+
+	}
+
+	_applyCharacterOffset( offset ) {
+
+		if ( ! this._currentCharacterRoot ) return;
+
+		this._currentCharacterRoot.position.set( offset.x, offset.y, offset.z );
+
+	}
+
+	_setCharacterOffsetOverride( axis, value ) {
+
+		if ( ! this._currentKartId ) return;
+
+		const nextOffset = this._getResolvedCharacterOffset( this._currentKartId );
+		nextOffset[ axis ] = value;
+		this._characterOffsetOverrides.set( this._currentKartId, nextOffset );
+		this._applyCharacterOffset( nextOffset );
+		this._syncDriverOffsetDebugControls( nextOffset );
+
+	}
+
+	_syncDriverOffsetDebugControls( offset = null ) {
+
+		if ( ! this._driverOffsetLabel &&
+			! this._driverOffsetXControl &&
+			! this._driverOffsetYControl &&
+			! this._driverOffsetZControl ) return;
+
+		const currentOffset = offset || this._getResolvedCharacterOffset( this._currentKartId );
+		const kartId = this._currentKartId || 'none';
+
+		if ( this._driverOffsetLabel ) {
+
+			this._driverOffsetLabel.textContent = `Kart: ${ kartId } | offset: (${ currentOffset.x.toFixed( 2 ) }, ${ currentOffset.y.toFixed( 2 ) }, ${ currentOffset.z.toFixed( 2 ) })`;
+
+		}
+
+		this._driverOffsetXControl?.setValue( currentOffset.x );
+		this._driverOffsetYControl?.setValue( currentOffset.y );
+		this._driverOffsetZControl?.setValue( currentOffset.z );
+
+	}
+
 	/**
 	 * Per-frame update — rotate kart on turntable, render.
 	 * @param {number} dt  Delta time in seconds.
@@ -382,6 +501,136 @@ export class LobbyScene {
 		if ( this._camHelper.visible ) this._camHelper.update();
 
 		this._composer.render( dt );
+
+	}
+
+	_prepareLobbyEnvironment( lobbyModel ) {
+
+		const toRemove = [];
+		const materialsByName = new Map();
+
+		lobbyModel.traverse( ( child ) => {
+
+			const name = ( child.name || '' ).toLowerCase();
+			if ( name === 'mirror' || name.includes( 'cube' ) || name.includes( 'placeholder' ) ) {
+
+				toRemove.push( child );
+
+			}
+
+			if ( ! child.isMesh || ! child.material ) return;
+
+			const mats = Array.isArray( child.material ) ? child.material : [ child.material ];
+			for ( const mat of mats ) {
+
+				if ( ! mat?.isMeshStandardMaterial ) continue;
+				if ( ! LOBBY_MATERIAL_CONFIGS[ mat.name ] ) continue;
+				if ( materialsByName.has( mat.name ) ) continue;
+
+				materialsByName.set( mat.name, mat );
+
+			}
+
+		} );
+
+		for ( const obj of toRemove ) {
+
+			obj.removeFromParent();
+
+		}
+
+		this._lobbyMaterials.length = 0;
+
+		for ( const materialName of LOBBY_MATERIAL_ORDER ) {
+
+			const config = LOBBY_MATERIAL_CONFIGS[ materialName ];
+			const mat = materialsByName.get( materialName );
+
+			if ( ! mat ) {
+
+				console.warn( `[LobbyScene] Expected lobby material not found: ${ materialName }` );
+				continue;
+
+			}
+
+			this._applyLobbyMaterialConfig( mat, config );
+			this._lobbyMaterials.push( mat );
+			void this._ensureLobbyOrmMaps( mat, config );
+
+		}
+
+	}
+
+	_applyLobbyMaterialConfig( mat, config ) {
+
+		mat.userData.lobbyDebugLabel = config.debugLabel;
+		mat.emissiveIntensity = config.emissiveIntensity;
+		mat.emissive.setRGB( config.emissiveColor.r, config.emissiveColor.g, config.emissiveColor.b );
+		mat.normalScale.set( config.normalScale.x, config.normalScale.y );
+		mat.aoMapIntensity = config.aoMapIntensity;
+		mat.roughness = config.roughness;
+		mat.metalness = config.metalness;
+		mat.envMapIntensity = config.envMapIntensity;
+		mat.color.setRGB( config.baseColor.r, config.baseColor.g, config.baseColor.b );
+		mat.opacity = config.opacity;
+		mat.transparent = config.opacity < 1;
+
+	}
+
+	_hasCompleteLobbyOrmMaps( mat ) {
+
+		return !! ( mat.aoMap && mat.roughnessMap && mat.metalnessMap );
+
+	}
+
+	async _ensureLobbyOrmMaps( mat, config ) {
+
+		if ( this._hasCompleteLobbyOrmMaps( mat ) ) return;
+
+		try {
+
+			const ormTexture = await this._loadLobbyOrmTexture( config.ormPath );
+
+			mat.aoMap = ormTexture;
+			mat.roughnessMap = ormTexture;
+			mat.metalnessMap = ormTexture;
+			mat.needsUpdate = true;
+
+		} catch ( err ) {
+
+			console.error( `[LobbyScene] Failed to load lobby ORM fallback: ${ config.ormPath }`, err );
+
+		}
+
+	}
+
+	_loadLobbyOrmTexture( texturePath ) {
+
+		if ( this._lobbyOrmTextureCache.has( texturePath ) ) {
+
+			return this._lobbyOrmTextureCache.get( texturePath );
+
+		}
+
+		const texturePromise = this._lobbyTextureLoader.loadAsync( texturePath )
+			.then( ( texture ) => {
+
+				texture.flipY = false;
+				texture.colorSpace = THREE.NoColorSpace;
+				texture.channel = 0;
+				texture.needsUpdate = true;
+				return texture;
+
+			} )
+			.catch( ( err ) => {
+
+				this._lobbyOrmTextureCache.delete( texturePath );
+				throw err;
+
+			} );
+
+		this._lobbyOrmTextureCache.set( texturePath, texturePromise );
+		return texturePromise;
 
 	}
 
@@ -524,6 +773,19 @@ export class LobbyScene {
 			row.appendChild( val );
 			container.appendChild( row );
 
+			return {
+				row,
+				input,
+				valueEl: val,
+				setValue: ( nextValue ) => {
+
+					const numericValue = Number( nextValue ) || 0;
+					input.value = String( numericValue );
+					val.textContent = numericValue.toFixed( 2 );
+
+				},
+			};
+
 		};
 
 		const addToggle = ( container, label, icon, initiallyOn, onChange ) => {
@@ -577,7 +839,33 @@ export class LobbyScene {
 			kg.children.forEach( ( c ) => c.scale.setScalar( v ) );
 
 		} );
-		addSlider( sceneTab, 'Rotate Y', - 180, 180, 1, THREE.MathUtils.radToDeg( kg.rotation.y ), ( v ) => { kg.rotation.y = THREE.MathUtils.degToRad( v ); } );
+		addSlider( sceneTab, 'Rotate Y', - 10000, 10000, 1, THREE.MathUtils.radToDeg( kg.rotation.y ), ( v ) => { kg.rotation.y = THREE.MathUtils.degToRad( v ); } );
+
+		// ── Driver Offset ──
+		addSection( sceneTab, 'DRIVER OFFSET' );
+
+		const driverOffsetLabel = document.createElement( 'div' );
+		driverOffsetLabel.style.cssText = 'color:#bbb;font-size:11px;line-height:1.5;margin:2px 0 6px;';
+		sceneTab.appendChild( driverOffsetLabel );
+		this._driverOffsetLabel = driverOffsetLabel;
+
+		const initialDriverOffset = this._getResolvedCharacterOffset();
+		this._driverOffsetXControl = addSlider( sceneTab, 'X', - 2, 2, 0.01, initialDriverOffset.x, ( v ) => {
+
+			self._setCharacterOffsetOverride( 'x', v );
+
+		} );
+		this._driverOffsetYControl = addSlider( sceneTab, 'Y', - 2, 2, 0.01, initialDriverOffset.y, ( v ) => {
+
+			self._setCharacterOffsetOverride( 'y', v );
+
+		} );
+		this._driverOffsetZControl = addSlider( sceneTab, 'Z', - 2, 2, 0.01, initialDriverOffset.z, ( v ) => {
+
+			self._setCharacterOffsetOverride( 'z', v );
+
+		} );
+		this._syncDriverOffsetDebugControls( initialDriverOffset );
 
 		// ── Camera Position ──
 		addSection( sceneTab, 'CAMERA POSITION' );
@@ -671,10 +959,14 @@ export class LobbyScene {
 
 			const emI = self._lobbyMaterials.length > 0 ? self._lobbyMaterials[ 0 ].emissiveIntensity : 1;
 			const emC = self._lobbyMaterials.length > 0 ? self._lobbyMaterials[ 0 ].emissive : { r: 1, g: 1, b: 1 };
+			const currentKartId = self._currentKartId || 'kart-id';
+			const currentDriverOffset = self._getResolvedCharacterOffset( self._currentKartId );
 			const text = [
 				`KART_POS = new THREE.Vector3( ${ kg.position.x.toFixed( 2 ) }, ${ kg.position.y.toFixed( 2 ) }, ${ kg.position.z.toFixed( 2 ) } );`,
 				`KART_SCALE = ${ kg.children[ 0 ] ? kg.children[ 0 ].scale.x.toFixed( 2 ) : KART_SCALE };`,
 				`Kart rotation Y = ${ THREE.MathUtils.radToDeg( kg.rotation.y ).toFixed( 0 ) }`,
+				`Vehicle: ${ currentKartId }`,
+				`characterOffset: { x: ${ currentDriverOffset.x.toFixed( 2 ) }, y: ${ currentDriverOffset.y.toFixed( 2 ) }, z: ${ currentDriverOffset.z.toFixed( 2 ) } },`,
 				`CAM_POS  = new THREE.Vector3( ${ cam.position.x.toFixed( 2 ) }, ${ cam.position.y.toFixed( 2 ) }, ${ cam.position.z.toFixed( 2 ) } );`,
 				`LOOK_AT  = new THREE.Vector3( ${ lookAt.x.toFixed( 2 ) }, ${ lookAt.y.toFixed( 2 ) }, ${ lookAt.z.toFixed( 2 ) } );`,
 				`CAM_FOV  = ${ cam.fov };`,
@@ -696,8 +988,11 @@ export class LobbyScene {
 		// TEXTURES TAB
 		// ══════════════════════════════════════════════════════════════════
 
-		// Material names from the GLTF — maps[0] = "Lobby Props", maps[1] = "LobbyRoom_Atlas"
-		const matNames = [ 'Lobby Props (Lobby2)', 'LobbyRoom Atlas (Lobby1)' ];
+		const getLobbyMaterialDebugName = ( mat, index ) => (
+			mat?.userData?.lobbyDebugLabel ||
+			mat?.name ||
+			`Material ${ index }`
+		);
 
 		// Build per-material texture controls once materials are loaded.
 		// We poll briefly since the GLTF loads async.
@@ -732,7 +1027,7 @@ export class LobbyScene {
 			for ( let i = 0; i < self._lobbyMaterials.length; i ++ ) {
 
 				const mat = self._lobbyMaterials[ i ];
-				const name = matNames[ i ] || `Material ${ i }`;
+				const name = getLobbyMaterialDebugName( mat, i );
 
 				// ── Material header ──
 				const header = document.createElement( 'div' );
@@ -846,7 +1141,7 @@ export class LobbyScene {
 				for ( let i = 0; i < self._lobbyMaterials.length; i ++ ) {
 
 					const mat = self._lobbyMaterials[ i ];
-					const name = matNames[ i ] || `Material ${ i }`;
+					const name = getLobbyMaterialDebugName( mat, i );
 					lines.push( `--- ${ name } ---` );
 					lines.push( `Emissive: intensity=${ mat.emissiveIntensity.toFixed( 2 ) } color=(${ mat.emissive.r.toFixed( 2 ) }, ${ mat.emissive.g.toFixed( 2 ) }, ${ mat.emissive.b.toFixed( 2 ) })` );
 					lines.push( `Normal: scale=(${ mat.normalScale ? mat.normalScale.x.toFixed( 2 ) : 'n/a' }, ${ mat.normalScale ? mat.normalScale.y.toFixed( 2 ) : 'n/a' })` );
@@ -900,6 +1195,10 @@ export class LobbyScene {
 			this._debugPanel = null;
 
 		}
+		this._driverOffsetXControl = null;
+		this._driverOffsetYControl = null;
+		this._driverOffsetZControl = null;
+		this._driverOffsetLabel = null;
 		if ( this._debugToggleBtn ) {
 
 			this._debugToggleBtn.remove();

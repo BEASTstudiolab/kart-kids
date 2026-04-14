@@ -1,8 +1,9 @@
 import { detectTier, VALID_TIERS } from './QualityTiers.js';
-import { createDefaultCharacterAccessories, getPlayerAppearanceFromSettings } from './PlayerAppearance.js';
+import { DEFAULT_MASK_TINT_COLOR, createDefaultCharacterAccessories, getPlayerAppearanceFromSettings, normalizePlayerAppearance } from './PlayerAppearance.js';
+import { DEFAULT_BALACLAVA_ID, normalizeSelectedBalaclavaId } from './CharacterCustomization.js';
 
 const STORAGE_KEY = 'kart-kids-settings';
-const SCHEMA_VERSION = 4;
+const SCHEMA_VERSION = 7;
 
 const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
@@ -19,6 +20,9 @@ const DEFAULTS = {
 	vehicleColor: '',
 	characterColor: '',
 	charSkinColor: '',
+	maskTintMainColor: '',
+	maskTintSecondaryColor: '',
+	selectedBalaclavaId: DEFAULT_BALACLAVA_ID,
 	charAccessories: createDefaultCharacterAccessories(),
 	ghostEnabled: true,
 	profile: {
@@ -83,6 +87,40 @@ export class Settings {
 
 					if ( ! parsed.loadout ) parsed.loadout = {};
 					if ( ! parsed.loadout.selectedTrackId ) parsed.loadout.selectedTrackId = DEFAULTS.loadout.selectedTrackId;
+
+				}
+
+				// v4 → v5: Add selectedBalaclavaId and drop legacy accessory keys
+				if ( version < 5 ) {
+
+					const normalizedAppearance = normalizePlayerAppearance( {
+						selectedBalaclavaId: parsed.selectedBalaclavaId,
+						charAccessories: parsed.charAccessories,
+					} );
+
+					parsed.selectedBalaclavaId = normalizedAppearance.selectedBalaclavaId;
+					parsed.charAccessories = normalizedAppearance.charAccessories;
+
+				}
+
+				// v5 → v6: Add mask tint colors
+				if ( version < 6 ) {
+
+					const normalizedAppearance = normalizePlayerAppearance( {
+						maskTintMainColor: parsed.maskTintMainColor,
+						maskTintSecondaryColor: parsed.maskTintSecondaryColor,
+					} );
+
+					parsed.maskTintMainColor = normalizedAppearance.maskTintMainColor;
+					parsed.maskTintSecondaryColor = normalizedAppearance.maskTintSecondaryColor;
+
+				}
+
+				// v6 → v7: Separate white tint from "unset" for mask colors
+				if ( version < 7 ) {
+
+					if ( parsed.maskTintMainColor === DEFAULT_MASK_TINT_COLOR ) parsed.maskTintMainColor = '';
+					if ( parsed.maskTintSecondaryColor === DEFAULT_MASK_TINT_COLOR ) parsed.maskTintSecondaryColor = '';
 
 				}
 
@@ -175,6 +213,21 @@ export class Settings {
 		this._data.loadout.selectedTrackId = trackId;
 		this._save();
 		window.dispatchEvent( new CustomEvent( 'settings-changed', { detail: { key: 'loadout.selectedTrackId', value: trackId } } ) );
+
+	}
+
+	getSelectedBalaclavaId() {
+
+		return normalizeSelectedBalaclavaId( this._data.selectedBalaclavaId );
+
+	}
+
+	setSelectedBalaclavaId( balaclavaId ) {
+
+		const normalized = normalizeSelectedBalaclavaId( balaclavaId );
+		this._data.selectedBalaclavaId = normalized;
+		this._save();
+		window.dispatchEvent( new CustomEvent( 'settings-changed', { detail: { key: 'selectedBalaclavaId', value: normalized } } ) );
 
 	}
 

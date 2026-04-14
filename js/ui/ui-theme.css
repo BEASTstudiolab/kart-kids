@@ -563,7 +563,7 @@ html[data-ui-scale="xlarge"] {
 
 /* ============================================================
    16. BOTTOM TAB BAR
-   Fixed bottom navigation for RACE / GARAGE / CREATE / PROFILE.
+   Fixed top navigation for PLAY / CHARACTER / GARAGE / TRACKS / PROFILE.
    z-index 50 sits between content (0-10) and modals (500).
    ============================================================ */
 
@@ -575,15 +575,23 @@ html[data-ui-scale="xlarge"] {
   z-index: var(--z-tabbar);
   display: flex;
   flex-direction: row;
+  flex-wrap: nowrap;
   justify-content: center;
   align-items: stretch;
-  gap: var(--space-6);
+  gap: clamp(0.5rem, 2vw, 1.5rem);
   background: rgba(10, 10, 10, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: var(--border-thin) solid var(--color-panel-border);
   padding-top: env(safe-area-inset-top, 0px);
   padding-left: 3.5rem; /* space for settings gear */
+  padding-right: var(--space-3);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.kk-tab-bar::-webkit-scrollbar {
+  display: none;
 }
 
 .kk-tab-bar__btn {
@@ -665,6 +673,24 @@ html[data-ui-scale="xlarge"] {
 .kk-tab-bar__gear svg {
   width: 1.25rem;
   height: 1.25rem;
+}
+
+@media (max-width: 720px) {
+  .kk-tab-bar {
+    justify-content: flex-start;
+    gap: var(--space-2);
+    padding-left: 2.75rem;
+  }
+
+  .kk-tab-bar__btn {
+    min-height: 3rem;
+    padding: var(--space-2) var(--space-2);
+    font-size: var(--text-sm);
+  }
+
+  .kk-tab-bar__gear {
+    left: var(--space-2);
+  }
 }
 
 /* ============================================================

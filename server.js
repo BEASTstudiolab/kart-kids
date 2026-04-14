@@ -384,7 +384,7 @@ function hslToHex( h, s, l ) {
 
 // ── Room join/leave helpers ─────────────────────────────────────────────────
 
-function addPlayerToRoom( room, playerId, ws, vehicleId, name, appearance ) {
+function addPlayerToRoom( room, playerId, ws, vehicleId, name, appearance, selectedBalaclavaId ) {
 
 	const index = room.joinCounter ++;
 	const spawnSlot = allocateSpawnSlot( room );
@@ -392,7 +392,10 @@ function addPlayerToRoom( room, playerId, ws, vehicleId, name, appearance ) {
 	const characterIndex = 0;
 	const tint = computeTint( index );
 	const playerName = typeof name === 'string' ? name.slice( 0, 20 ) : '';
-	const playerAppearance = normalizePlayerAppearance( appearance );
+	const playerAppearance = normalizePlayerAppearance( {
+		...( appearance && typeof appearance === 'object' ? appearance : {} ),
+		selectedBalaclavaId,
+	} );
 
 	const player = {
 		ws,
@@ -403,6 +406,7 @@ function addPlayerToRoom( room, playerId, ws, vehicleId, name, appearance ) {
 		name: playerName,
 		spawnSlot,
 		appearance: playerAppearance,
+		selectedBalaclavaId: playerAppearance.selectedBalaclavaId,
 		lastState: null,
 		spectating: false,
 	};
@@ -427,6 +431,7 @@ function addPlayerToRoom( room, playerId, ws, vehicleId, name, appearance ) {
 			name: p.name,
 			spawnSlot: p.spawnSlot,
 			appearance: p.appearance,
+			selectedBalaclavaId: p.selectedBalaclavaId,
 			spectating: p.spectating,
 		} );
 
@@ -448,6 +453,7 @@ function addPlayerToRoom( room, playerId, ws, vehicleId, name, appearance ) {
 		tint,
 		spawnSlot,
 		appearance: player.appearance,
+		selectedBalaclavaId: player.selectedBalaclavaId,
 		sessionToken,
 		roomCode: room.code,
 		host: room.host,
@@ -465,6 +471,7 @@ function addPlayerToRoom( room, playerId, ws, vehicleId, name, appearance ) {
 		name: playerName,
 		spawnSlot,
 		appearance: player.appearance,
+		selectedBalaclavaId: player.selectedBalaclavaId,
 	}, playerId );
 
 	console.log( `Player ${ playerId } joined room ${ room.code } (vehicle ${ vehicleIndex }, tint ${ tint || 'none' })` );
@@ -605,7 +612,7 @@ wss.on( 'connection', ( ws ) => {
 
 				const code = generateRoomCode();
 				const room = createRoom( code );
-				addPlayerToRoom( room, playerId, ws, msg.vehicleId, msg.name, msg.appearance );
+				addPlayerToRoom( room, playerId, ws, msg.vehicleId, msg.name, msg.appearance, msg.selectedBalaclavaId );
 
 				console.log( `Room created: ${ code } by ${ playerId }` );
 				break;
@@ -652,7 +659,7 @@ wss.on( 'connection', ( ws ) => {
 
 				}
 
-				addPlayerToRoom( room, playerId, ws, msg.vehicleId, msg.name, msg.appearance );
+				addPlayerToRoom( room, playerId, ws, msg.vehicleId, msg.name, msg.appearance, msg.selectedBalaclavaId );
 				break;
 
 			}
@@ -699,7 +706,7 @@ wss.on( 'connection', ( ws ) => {
 
 				}
 
-				addPlayerToRoom( foundRoom, playerId, ws, msg.vehicleId, msg.name, msg.appearance );
+				addPlayerToRoom( foundRoom, playerId, ws, msg.vehicleId, msg.name, msg.appearance, msg.selectedBalaclavaId );
 				break;
 
 			}
@@ -780,6 +787,7 @@ wss.on( 'connection', ( ws ) => {
 							name: p.name,
 							spawnSlot: p.spawnSlot,
 							appearance: p.appearance,
+							selectedBalaclavaId: p.selectedBalaclavaId,
 							spectating: p.spectating,
 						} );
 
@@ -794,6 +802,7 @@ wss.on( 'connection', ( ws ) => {
 						tint: existingPlayer.tint,
 						spawnSlot: existingPlayer.spawnSlot,
 						appearance: existingPlayer.appearance,
+						selectedBalaclavaId: existingPlayer.selectedBalaclavaId,
 						sessionToken: msg.sessionToken,
 						roomCode: room.code,
 						host: room.host,
@@ -874,6 +883,7 @@ wss.on( 'connection', ( ws ) => {
 							name: op.name,
 							spawnSlot: op.spawnSlot,
 							appearance: op.appearance,
+							selectedBalaclavaId: op.selectedBalaclavaId,
 						} );
 
 					}

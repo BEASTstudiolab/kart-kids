@@ -7,8 +7,8 @@
  *   - Create and configure Page03QuickPlayView.
  *   - Populate character, kart, and track data from real registries.
  *   - Wire back button → RouteIds.HOME.
- *   - Wire character card → RouteIds.CHARACTERS.
- *   - Wire kart card → RouteIds.KARTS.
+ *   - Wire character card → CHARACTER tab / RouteIds.CHARACTERS.
+ *   - Wire kart card → GARAGE tab / RouteIds.KARTS.
  *   - Wire track thumbnail clicks → open track picker modal (stubbed with toast).
  *   - Wire race rules panel → open rules config modal (stubbed with toast).
  *   - Wire match type tab change → update internal state.
@@ -92,6 +92,13 @@ export class Page03QuickPlayController extends PageControllerBase {
 		this._addListener( view.characterCardEl, 'click', () => {
 
 			this._analytics?.track( EventIds.CHARACTER_SELECTED, { source: ButtonIds.QUICK_PLAY_SELECTED_CHARACTER } );
+			if ( this._services.switchTab ) {
+
+				this._services.switchTab( 'character' );
+				return;
+
+			}
+
 			this.navigate( RouteIds.CHARACTERS );
 
 		} );
@@ -109,6 +116,12 @@ export class Page03QuickPlayController extends PageControllerBase {
 		this._addListener( view.kartCardEl, 'click', () => {
 
 			this._analytics?.track( EventIds.KART_SELECTED, { source: ButtonIds.QUICK_PLAY_SELECTED_KART } );
+			if ( this._services.switchTab ) {
+
+				this._services.switchTab( 'garage' );
+				return;
+
+			}
 			this.navigate( RouteIds.KARTS );
 
 		} );

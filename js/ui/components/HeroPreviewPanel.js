@@ -89,6 +89,13 @@ export class HeroPreviewPanel {
 				inset: 0;
 				width: 100%;
 				height: 100%;
+			}
+
+			.kk-hero-preview-panel__inner canvas {
+				object-fit: contain;
+			}
+
+			.kk-hero-preview-panel__inner img {
 				object-fit: cover;
 			}
 

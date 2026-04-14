@@ -1,3 +1,5 @@
+import { normalizePlayerAppearance } from './PlayerAppearance.js';
+
 // ── Transport abstraction ─────────────────────────────────────────────────────
 
 class WebSocketTransport {
@@ -364,8 +366,15 @@ export class NetworkClient {
 
 		return new Promise( ( resolve, reject ) => {
 
+			const normalizedAppearance = normalizePlayerAppearance( appearance || {} );
 			this._pendingCreateRoom = { resolve, reject };
-			this._transport.send( { type: 'createRoom', name: this._displayName, vehicleId, appearance } );
+			this._transport.send( {
+				type: 'createRoom',
+				name: this._displayName,
+				vehicleId,
+				appearance: normalizedAppearance,
+				selectedBalaclavaId: normalizedAppearance.selectedBalaclavaId,
+			} );
 
 			// Timeout after 5s
 			setTimeout( () => {
@@ -393,8 +402,16 @@ export class NetworkClient {
 
 		return new Promise( ( resolve, reject ) => {
 
+			const normalizedAppearance = normalizePlayerAppearance( appearance || {} );
 			this._pendingJoinRoom = { resolve, reject };
-			this._transport.send( { type: 'joinRoom', roomCode: code, vehicleId, name: this._displayName, appearance } );
+			this._transport.send( {
+				type: 'joinRoom',
+				roomCode: code,
+				vehicleId,
+				name: this._displayName,
+				appearance: normalizedAppearance,
+				selectedBalaclavaId: normalizedAppearance.selectedBalaclavaId,
+			} );
 
 			setTimeout( () => {
 
@@ -420,8 +437,15 @@ export class NetworkClient {
 
 		return new Promise( ( resolve, reject ) => {
 
+			const normalizedAppearance = normalizePlayerAppearance( appearance || {} );
 			this._pendingFindRoom = { resolve, reject };
-			this._transport.send( { type: 'findRoom', vehicleId, name: this._displayName, appearance } );
+			this._transport.send( {
+				type: 'findRoom',
+				vehicleId,
+				name: this._displayName,
+				appearance: normalizedAppearance,
+				selectedBalaclavaId: normalizedAppearance.selectedBalaclavaId,
+			} );
 
 			setTimeout( () => {
 

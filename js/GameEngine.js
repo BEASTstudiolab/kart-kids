@@ -950,7 +950,10 @@ export function createGameEngine( canvasContainer ) {
 			if ( e.detail.key === 'vehicleColor' ||
 				e.detail.key === 'characterColor' ||
 				e.detail.key === 'charAccessories' ||
-				e.detail.key === 'charSkinColor' ) {
+				e.detail.key === 'charSkinColor' ||
+				e.detail.key === 'maskTintMainColor' ||
+				e.detail.key === 'maskTintSecondaryColor' ||
+				e.detail.key === 'selectedBalaclavaId' ) {
 
 				applyPlayerAppearanceToVehicle( _playerManager.localVehicle, getPlayerAppearanceFromSettings( _settings ) );
 

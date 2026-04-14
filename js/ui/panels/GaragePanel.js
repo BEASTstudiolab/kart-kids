@@ -9,7 +9,7 @@
  * Lifecycle: constructor(container, services), show(), hide(), dispose().
  *
  * Data sources:
- *   - VehicleRegistry  — getAllVehicles(), getVehicleById()
+ *   - VehicleRegistry  — getAllVehicles()
  *   - Settings         — getSelectedKartId(), setSelectedKartId()
  *   - services.garagePreview.setKart()  — 3D turntable sync
  *   - services.selectedMode             — mode for RACE shortcut
@@ -17,13 +17,12 @@
  *   - services.notification.show()      — toast feedback
  */
 
-import { getAllVehicles, getVehicleById, PLAYER_CHARACTERS } from '../../VehicleRegistry.js';
+import { getAllVehicles }               from '../../VehicleRegistry.js';
 import { Settings }                      from '../../Settings.js';
 import { ProgressBar }                   from '../components/ProgressBar.js';
 import { CTAButton }                     from '../components/CTAButton.js';
 import { HudButton }                     from '../components/HudButton.js';
 import { HyperText }                     from '../effects/HyperText.js';
-import { ACCESSORY_DEFS, getVisibleAccessoryLabels } from '../../PlayerAppearance.js';
 
 /** Stat definitions — order matches the stats panel top-to-bottom. */
 const STAT_DEFS = [
@@ -35,8 +34,6 @@ const STAT_DEFS = [
 ];
 
 const COLOR_CONTROL_DEFS = [
-	{ key: 'charSkinColor', label: 'SKIN', fallback: '#d9a37f' },
-	{ key: 'characterColor', label: 'SUIT', fallback: '#00d4e8' },
 	{ key: 'vehicleColor', label: 'KART PAINT', fallback: '#f97316' },
 ];
 
@@ -89,9 +86,6 @@ export class GaragePanel {
 
 		/** @type {Map<string, { input: HTMLInputElement, row: HTMLElement }>} */
 		this._colorControls = new Map();
-
-		/** @type {Map<string, { row: HTMLElement, toggle: HTMLButtonElement, input: HTMLInputElement }>} */
-		this._accessoryControls = new Map();
 
 		/** @type {HTMLElement|null} */
 		this._styleSummaryEl = null;
@@ -366,6 +360,29 @@ export class GaragePanel {
 				font-size: var(--text-sm, 0.875rem);
 				line-height: 1.4;
 				color: var(--color-ink-200, #d9d9d9);
+			}
+
+			.kk-garage__character-page-btn {
+				border: 1px solid rgba( 0, 212, 232, 0.45 );
+				border-radius: 999px;
+				background: linear-gradient( 135deg, rgba( 0, 212, 232, 0.16 ), rgba( 249, 115, 22, 0.18 ) );
+				color: var(--color-white, #fff );
+				font-family: var(--font-display, sans-serif);
+				font-size: var(--text-sm, 0.875rem);
+				font-weight: var(--weight-black, 900);
+				letter-spacing: var(--tracking-wider, 0.12em);
+				text-transform: uppercase;
+				padding: 0.9rem 1rem;
+				cursor: pointer;
+				transition: transform var(--duration-fast, 150ms) var(--ease-standard, ease),
+					box-shadow var(--duration-fast, 150ms) var(--ease-standard, ease),
+					border-color var(--duration-fast, 150ms) var(--ease-standard, ease);
+			}
+
+			.kk-garage__character-page-btn:hover {
+				transform: translateY( -1px );
+				border-color: rgba( 255, 255, 255, 0.36 );
+				box-shadow: 0 14px 28px rgba( 0, 212, 232, 0.16 );
 			}
 
 			.kk-garage__style-group {
@@ -814,10 +831,10 @@ export class GaragePanel {
 		this._equipWrap.appendChild( this._equipBtn.el );
 		root.appendChild( this._equipWrap );
 
-		// Character builder panel
+		// Kart builder panel
 		const stylePanel = document.createElement( 'section' );
 		stylePanel.className = 'kk-garage__style';
-		stylePanel.setAttribute( 'aria-label', 'Character builder' );
+		stylePanel.setAttribute( 'aria-label', 'Kart builder' );
 
 		const styleEyebrow = document.createElement( 'div' );
 		styleEyebrow.className = 'kk-garage__style-eyebrow';
@@ -826,12 +843,12 @@ export class GaragePanel {
 
 		const styleTitle = document.createElement( 'div' );
 		styleTitle.className = 'kk-garage__style-title';
-		styleTitle.textContent = PLAYER_CHARACTERS[ 0 ]?.label || 'Driver';
+		styleTitle.textContent = 'Kart Paint';
 		stylePanel.appendChild( styleTitle );
 
 		const styleCopy = document.createElement( 'div' );
 		styleCopy.className = 'kk-garage__style-copy';
-		styleCopy.textContent = 'Tune your driver look here. Every change is saved instantly and carries into the party lineup.';
+		styleCopy.textContent = 'Dial in your kart finish here. Driver customization now lives in the CHARACTER tab.';
 		stylePanel.appendChild( styleCopy );
 
 		const paletteGroup = document.createElement( 'div' );
@@ -850,27 +867,11 @@ export class GaragePanel {
 
 		stylePanel.appendChild( paletteGroup );
 
-		const gearGroup = document.createElement( 'div' );
-		gearGroup.className = 'kk-garage__style-group';
-
-		const gearLabel = document.createElement( 'div' );
-		gearLabel.className = 'kk-garage__style-label';
-		gearLabel.textContent = 'Gear';
-		gearGroup.appendChild( gearLabel );
-
-		for ( const def of ACCESSORY_DEFS ) {
-
-			gearGroup.appendChild( this._buildAccessoryControl( def ) );
-
-		}
-
-		stylePanel.appendChild( gearGroup );
-
 		const summary = document.createElement( 'div' );
 		summary.className = 'kk-garage__style-summary';
 
 		const summaryTitle = document.createElement( 'strong' );
-		summaryTitle.textContent = 'Current Loadout';
+		summaryTitle.textContent = 'Current Finish';
 		summary.appendChild( summaryTitle );
 
 		const summaryText = document.createElement( 'span' );
@@ -962,11 +963,9 @@ export class GaragePanel {
 
 		this._settingsChangedHandler = ( e ) => {
 
-			if ( e.detail.key === 'charSkinColor' ||
-				e.detail.key === 'characterColor' ||
-				e.detail.key === 'vehicleColor' ||
-				e.detail.key === 'charAccessories' ) {
+			if ( e.detail.key === 'vehicleColor' ) {
 
+				this._settings = new Settings();
 				this._syncStyleControls();
 
 			}
@@ -1021,80 +1020,6 @@ export class GaragePanel {
 
 	}
 
-	_buildAccessoryControl( def ) {
-
-		const row = document.createElement( 'div' );
-		row.className = 'kk-garage__accessory-row';
-
-		const label = document.createElement( 'span' );
-		label.className = 'kk-garage__accessory-label';
-		label.textContent = def.label;
-		row.appendChild( label );
-
-		const toggle = document.createElement( 'button' );
-		toggle.type = 'button';
-		toggle.className = 'kk-garage__accessory-toggle';
-		toggle.addEventListener( 'click', () => {
-
-			const current = this._settings.get( 'charAccessories' ) || {};
-			const nextAccessory = {
-				...( current[ def.key ] || { visible: true, color: '' } ),
-			};
-			nextAccessory.visible = nextAccessory.visible === false;
-			this._settings.set( 'charAccessories', {
-				...current,
-				[ def.key ]: nextAccessory,
-			} );
-			this._syncStyleControls();
-
-		} );
-		row.appendChild( toggle );
-
-		const input = document.createElement( 'input' );
-		input.type = 'color';
-		input.className = 'kk-garage__color-input';
-		input.value = '#ffffff';
-		input.setAttribute( 'aria-label', `${def.label} accent color` );
-		input.addEventListener( 'input', () => {
-
-			const current = this._settings.get( 'charAccessories' ) || {};
-			this._settings.set( 'charAccessories', {
-				...current,
-				[ def.key ]: {
-					...( current[ def.key ] || { visible: true, color: '' } ),
-					color: input.value,
-				},
-			} );
-			this._syncStyleControls();
-
-		} );
-		row.appendChild( input );
-
-		const reset = document.createElement( 'button' );
-		reset.type = 'button';
-		reset.className = 'kk-garage__mini-btn';
-		reset.textContent = 'CLEAR';
-		reset.addEventListener( 'click', () => {
-
-			const current = this._settings.get( 'charAccessories' ) || {};
-			this._settings.set( 'charAccessories', {
-				...current,
-				[ def.key ]: {
-					...( current[ def.key ] || { visible: true, color: '' } ),
-					color: '',
-				},
-			} );
-			input.value = '#ffffff';
-			this._syncStyleControls();
-
-		} );
-		row.appendChild( reset );
-
-		this._accessoryControls.set( def.key, { row, toggle, input } );
-		return row;
-
-	}
-
 	_syncStyleControls() {
 
 		for ( const def of COLOR_CONTROL_DEFS ) {
@@ -1108,21 +1033,6 @@ export class GaragePanel {
 
 		}
 
-		const accessories = this._settings.get( 'charAccessories' ) || {};
-		for ( const def of ACCESSORY_DEFS ) {
-
-			const control = this._accessoryControls.get( def.key );
-			if ( ! control ) continue;
-
-			const value = accessories[ def.key ] || { visible: true, color: '' };
-			const isVisible = value.visible !== false;
-			control.toggle.textContent = isVisible ? 'ON' : 'OFF';
-			control.toggle.classList.toggle( 'kk-garage__accessory-toggle--active', isVisible );
-			control.row.classList.toggle( 'kk-garage__accessory-row--off', ! isVisible );
-			control.input.value = value.color || '#ffffff';
-
-		}
-
 		this._updateStyleSummary();
 
 	}
@@ -1131,15 +1041,10 @@ export class GaragePanel {
 
 		if ( ! this._styleSummaryEl ) return;
 
-		const visibleAccessories = getVisibleAccessoryLabels( this._settings.getPlayerAppearance() );
-		const skinState = this._settings.get( 'charSkinColor' ) ? 'custom skin' : 'default skin';
-		const suitState = this._settings.get( 'characterColor' ) ? 'custom suit' : 'default suit';
 		const kartState = this._settings.get( 'vehicleColor' ) ? 'custom paint' : 'factory paint';
-		const gearState = visibleAccessories.length > 0
-			? visibleAccessories.join( ', ' )
-			: 'No visible accessories';
+		const kartLabel = this._currentVehicle()?.label || 'Kart';
 
-		this._styleSummaryEl.textContent = `${skinState}, ${suitState}, ${kartState}. Gear: ${gearState}.`;
+		this._styleSummaryEl.textContent = `${ kartLabel } with ${ kartState }.`;
 
 	}
 
@@ -1483,8 +1388,6 @@ export class GaragePanel {
 	 * Called when the GARAGE tab becomes inactive.
 	 */
 	hide() {
-
-		// No teardown needed — panel persists.
 
 	}
 

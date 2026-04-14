@@ -1,0 +1,80 @@
+{
+  "root": "E:\\Vibe Projects\\kart-kids",
+  "artifactsDir": "E:\\Vibe Projects\\kart-kids\\test-results",
+  "desktopCanvasPath": "E:\\Vibe Projects\\kart-kids\\test-results\\character-preview-canvas-desktop.png",
+  "mobileCanvasPath": "E:\\Vibe Projects\\kart-kids\\test-results\\character-preview-canvas-mobile.png",
+  "desktopPagePath": "E:\\Vibe Projects\\kart-kids\\test-results\\character-preview-page-desktop.png",
+  "mobilePagePath": "E:\\Vibe Projects\\kart-kids\\test-results\\character-preview-page-mobile.png",
+  "metricsPath": "E:\\Vibe Projects\\kart-kids\\test-results\\character-preview-verification.json",
+  "before": {
+    "orbitAngle": -0.22,
+    "zoomScale": 1,
+    "camera": [
+      0.17781927373307416,
+      0.9108405668893022,
+      6.925935655391199
+    ],
+    "lookTarget": [
+      0.17781927373307416,
+      1.0350460987378434,
+      0
+    ],
+    "boundsSize": [
+      1.2853799952363407,
+      2.0700921974756867,
+      1.8133878439769595
+    ],
+    "panelRect": {
+      "width": 693.21875,
+      "height": 866.515625
+    }
+  },
+  "after": {
+    "orbitAngle": -0.22,
+    "zoomScale": 1,
+    "camera": [
+      0.17781927373307416,
+      0.9108405668893022,
+      6.925935655391199
+    ],
+    "lookTarget": [
+      0.17781927373307416,
+      1.0350460987378434,
+      0
+    ],
+    "boundsSize": [
+      1.2853799952363407,
+      2.0700921974756867,
+      1.8133878439769595
+    ],
+    "panelRect": {
+      "width": 693.21875,
+      "height": 866.515625
+    }
+  },
+  "mobile": {
+    "orbitAngle": -0.22,
+    "zoomScale": 1,
+    "camera": [
+      0.17781927373307416,
+      0.9108405668893022,
+      6.927140144269998
+    ],
+    "lookTarget": [
+      0.17781927373307416,
+      1.0350460987378434,
+      0
+    ],
+    "boundsSize": [
+      1.2853799952363407,
+      2.0700921974756867,
+      1.8133878439769595
+    ],
+    "panelRect": {
+      "width": 577.21875,
+      "height": 721.515625
+    }
+  },
+  "idleOrbitDelta": 0,
+  "mobileOrbitDelta": 0
+}

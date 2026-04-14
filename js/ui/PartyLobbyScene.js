@@ -22,6 +22,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 import { getVehicleById } from '../VehicleRegistry.js';
+import { CHARACTER_MODEL_PATH } from '../CharacterCustomization.js';
 import { applyPlayerAppearanceToNodes, createDefaultPlayerAppearance, normalizePlayerAppearance } from '../PlayerAppearance.js';
 
 // ── Camera — elevated angle looking down at the starting grid ────────────
@@ -30,7 +31,7 @@ const LOOK_AT  = new THREE.Vector3( 15, 0, 5 );
 const CAM_FOV  = 21;
 
 // ── Character model paths ────────────────────────────────────────────────
-const CHARACTER_MESH_PATH = 'characters/Kart_Beast_Rest-Armature.glb';
+const CHARACTER_MESH_PATH = CHARACTER_MODEL_PATH;
 const CHARACTER_ANIM_PATH = 'characters/Kart_Beast_Driving.glb';
 
 // ── Grid placement — karts line up across the tile width ─────────────────

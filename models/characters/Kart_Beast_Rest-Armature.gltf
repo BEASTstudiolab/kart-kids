@@ -32289,6 +32289,9 @@
 				"metallicRoughnessTexture":{
 					"index":2
 				}
+			},
+			"occlusionTexture":{
+				"index":2
 			}
 		},
 		{

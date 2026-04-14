@@ -1,0 +1,29 @@
+{
+  "controllerDebugState": {
+    "lookTargetX": -0.2,
+    "lookTargetY": -1.37,
+    "cameraOffsetX": 0.4,
+    "cameraOffsetY": 1.5,
+    "cameraOffsetZ": 3
+  },
+  "sceneDebugOffsets": {
+    "lookTargetX": -0.2,
+    "lookTargetY": -1.37,
+    "cameraOffsetX": 0.4,
+    "cameraOffsetY": 1.5,
+    "cameraOffsetZ": 3
+  },
+  "lookTarget": [
+    -0.022180726266925854,
+    -0.33495390126215674,
+    0
+  ],
+  "camera": [
+    0.37781927373307417,
+    1.0408405668893022,
+    9.9259356553912
+  ],
+  "orbitAngle": -0.22,
+  "zoomScale": 1,
+  "desktopReadout": "Look X: -0.20 | Look Y: -1.37 | Cam X: 0.40 | Cam Y: 1.50 | Cam Z: 3.00"
+}

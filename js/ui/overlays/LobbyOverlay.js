@@ -811,7 +811,10 @@ export class LobbyOverlay {
 		this._renderMembers();
 
 		// Add remote kart to the 3D party lobby scene
-		this._partyLobbyScene?.addRemoteKart( pid, msg.vehicleId, msg.appearance );
+		this._partyLobbyScene?.addRemoteKart( pid, msg.vehicleId, {
+			...( msg.appearance || {} ),
+			selectedBalaclavaId: msg.selectedBalaclavaId,
+		} );
 
 	}
 
@@ -1039,7 +1042,10 @@ export class LobbyOverlay {
 						} );
 
 						// Add remote kart to the 3D party lobby scene
-						this._partyLobbyScene?.addRemoteKart( p.id, p.vehicleId, p.appearance );
+						this._partyLobbyScene?.addRemoteKart( p.id, p.vehicleId, {
+							...( p.appearance || {} ),
+							selectedBalaclavaId: p.selectedBalaclavaId,
+						} );
 
 					}
 

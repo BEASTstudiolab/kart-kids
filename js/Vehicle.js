@@ -384,7 +384,7 @@ export class Vehicle {
 		}
 
 		// Init damage deformation morph targets
-		this.damageDeform.init( this.container );
+		this.damageDeform.init( this.container, this._vehicleId );
 
 		// Store original Y for the 4 named wheel nodes (used for suspension)
 		this._namedWheelOrigY = [
@@ -594,7 +594,7 @@ export class Vehicle {
 		} );
 
 		// Re-init damage deformation morph targets on new model
-		this.damageDeform.reinit( this.container );
+		this.damageDeform.reinit( this.container, this._vehicleId );
 
 		// Re-store wheel Y origins for suspension
 		this._namedWheelOrigY = [

@@ -1,0 +1,112 @@
+import { test, expect } from '@playwright/test';
+
+async function seedSettings( page, overrides = {} ) {
+
+	await page.addInitScript( ( overrides ) => {
+
+		const settings = {
+			profile: {
+				displayName: overrides.displayName || 'TestPlayer',
+			},
+			gameplay: {},
+			controls: {},
+			audio: {},
+			video: {},
+			maskTintMainColor: overrides.maskTintMainColor || '#ff5500',
+			maskTintSecondaryColor: overrides.maskTintSecondaryColor || '#00aaff',
+			selectedBalaclavaId: overrides.selectedBalaclavaId || 'balaclava-basic',
+		};
+		localStorage.setItem( 'kart-kids-settings', JSON.stringify( settings ) );
+
+	}, overrides );
+
+}
+
+test.describe( 'Character tab', () => {
+
+	test.beforeEach( async ( { page } ) => {
+
+		await seedSettings( page );
+
+	} );
+
+	test( 'hides the redundant Main Tab and Character title copy in tab mode', async ( { page } ) => {
+
+		await page.goto( '/#/characters' );
+
+		const characterPage = page.locator( '.page-character-select' );
+		await expect( characterPage ).toBeVisible( { timeout: 10000 } );
+		await expect( page.locator( '.page-character-select__header' ) ).toHaveCount( 0 );
+		await expect( characterPage ).not.toContainText( 'MAIN TAB' );
+		await expect( characterPage ).not.toContainText( 'CHARACTER' );
+
+	} );
+
+	test( 'preserves the masks carousel scroll position when selecting a new mask', async ( { page } ) => {
+
+		await page.goto( '/#/characters' );
+
+		const masksToggle = page.locator( '.page-character-select__category-toggle' ).filter( { hasText: 'Masks' } );
+		await masksToggle.click();
+
+		const carousel = page.locator( '.page-character-select__carousel[data-category-id="masks"]' );
+		await expect( carousel ).toBeVisible( { timeout: 10000 } );
+
+		const beforeScrollLeft = await carousel.evaluate( ( element ) => {
+
+			element.scrollLeft = 640;
+			return element.scrollLeft;
+
+		} );
+
+		await page.evaluate( () => {
+
+			const carousel = document.querySelector( '.page-character-select__carousel[data-category-id="masks"]' );
+			if ( ! carousel ) throw new Error( 'Missing masks carousel' );
+
+			const items = carousel.querySelectorAll( '.page-character-select__item' );
+			if ( items.length < 8 ) throw new Error( 'Expected enough mask items to test scroll retention' );
+
+			items[ 7 ].click();
+
+		} );
+
+		await page.waitForTimeout( 120 );
+
+		const afterScrollLeft = await carousel.evaluate( ( element ) => element.scrollLeft );
+		expect( afterScrollLeft ).toBeGreaterThan( beforeScrollLeft - 40 );
+
+	} );
+
+test( 'shows only the main tint control in the masks drawer', async ( { page } ) => {
+
+		await page.goto( '/#/characters' );
+
+		const masksToggle = page.locator( '.page-character-select__category-toggle' ).filter( { hasText: 'Masks' } );
+		await masksToggle.click();
+
+		const colorLabels = await page.locator( '.page-character-select__color-label' ).allTextContents();
+		expect( colorLabels ).toContain( 'Main Tint' );
+		expect( colorLabels ).not.toContain( 'Secondary Tint' );
+
+	} );
+
+	test( 'shows live camera debug sliders in Character tab mode', async ( { page } ) => {
+
+		await page.goto( '/#/characters' );
+
+		const cameraDebug = page.locator( '.page-character-select__detail-card', { hasText: 'Camera Debug' } );
+		await expect( cameraDebug ).toBeVisible( { timeout: 10000 } );
+
+		const sliders = cameraDebug.locator( '.page-character-select__camera-debug-slider' );
+		await expect( sliders ).toHaveCount( 5 );
+
+		const readout = cameraDebug.locator( '.page-character-select__camera-debug-readout' );
+		await expect( readout ).toContainText( 'Look X: 0.00' );
+
+		await sliders.nth( 0 ).fill( '0.25' );
+		await expect( readout ).toContainText( 'Look X: 0.25' );
+
+	} );
+
+} );

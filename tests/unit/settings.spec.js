@@ -1,6 +1,7 @@
 import { describe, it, beforeEach } from 'node:test';
 import assert from 'node:assert';
 import { ACCESSORY_DEFS } from '../../js/PlayerAppearance.js';
+import { DEFAULT_BALACLAVA_ID } from '../../js/CharacterCustomization.js';
 
 // ── Mock browser globals before importing Settings ─────────────────────────
 
@@ -114,6 +115,9 @@ describe( 'Settings', () => {
 		assert.strictEqual( appearance.vehicleColor, '' );
 		assert.strictEqual( appearance.characterColor, '' );
 		assert.strictEqual( appearance.charSkinColor, '' );
+		assert.strictEqual( appearance.maskTintMainColor, '' );
+		assert.strictEqual( appearance.maskTintSecondaryColor, '' );
+		assert.strictEqual( appearance.selectedBalaclavaId, DEFAULT_BALACLAVA_ID );
 		assert.ok( ACCESSORY_DEFS.every( ( def ) => appearance.charAccessories[ def.key ].visible === true ) );
 
 	} );
@@ -131,7 +135,33 @@ describe( 'Settings', () => {
 		// Profile namespace should exist with defaults
 		assert.strictEqual( s.isFirstRun(), true );
 		assert.strictEqual( s.getSelectedKartId(), 'kart-1' );
+		assert.strictEqual( s.getSelectedBalaclavaId(), DEFAULT_BALACLAVA_ID );
 		assert.strictEqual( s.getStats().totalRaces, 0 );
+
+	} );
+
+	it( 'schema migration: v4 data gets balaclava default and legacy accessories are dropped', () => {
+
+		mockLocalStorage.setItem( STORAGE_KEY, JSON.stringify( {
+			_version: 4,
+			charAccessories: {
+				Balaclava_No_Ears: { visible: false, color: '#FFAA00' },
+				Mask_Basic: { visible: false, color: '#00FF11' },
+				Baseball_Hat: { visible: false, color: '#123456' },
+			},
+		} ) );
+
+		const s = new Settings();
+		const appearance = s.getPlayerAppearance();
+
+		assert.strictEqual( s.getSelectedBalaclavaId(), DEFAULT_BALACLAVA_ID );
+		assert.strictEqual( appearance.maskTintMainColor, '' );
+		assert.strictEqual( appearance.maskTintSecondaryColor, '' );
+		assert.deepStrictEqual( appearance.charAccessories.Baseball_Hat, {
+			visible: false,
+			color: '#123456',
+		} );
+		assert.deepStrictEqual( Object.keys( appearance.charAccessories ).sort(), ACCESSORY_DEFS.map( ( def ) => def.key ).sort() );
 
 	} );
 
@@ -190,9 +220,12 @@ describe( 'Settings', () => {
 		s.set( 'vehicleColor', '#ABCDEF' );
 		s.set( 'characterColor', 'oops' );
 		s.set( 'charSkinColor', '#123456' );
+		s.set( 'maskTintMainColor', '#00FF00' );
+		s.set( 'maskTintSecondaryColor', 'oops' );
+		s.setSelectedBalaclavaId( 'balaclava-wolf' );
 		s.set( 'charAccessories', {
-			Balaclava_No_Ears: { visible: false, color: '#FFAA00' },
 			Baseball_Hat: { visible: true, color: 'invalid' },
+			Gold_Chain: { visible: false, color: '#FFAA00' },
 		} );
 
 		const appearance = s.getPlayerAppearance();
@@ -200,14 +233,70 @@ describe( 'Settings', () => {
 		assert.strictEqual( appearance.vehicleColor, '#abcdef' );
 		assert.strictEqual( appearance.characterColor, '' );
 		assert.strictEqual( appearance.charSkinColor, '#123456' );
-		assert.deepStrictEqual( appearance.charAccessories.Balaclava_No_Ears, {
-			visible: false,
-			color: '#ffaa00',
-		} );
+		assert.strictEqual( appearance.maskTintMainColor, '#00ff00' );
+		assert.strictEqual( appearance.maskTintSecondaryColor, '' );
+		assert.strictEqual( appearance.selectedBalaclavaId, 'balaclava-wolf' );
 		assert.deepStrictEqual( appearance.charAccessories.Baseball_Hat, {
 			visible: true,
 			color: '',
 		} );
+		assert.deepStrictEqual( appearance.charAccessories.Gold_Chain, {
+			visible: false,
+			color: '#ffaa00',
+		} );
+
+	} );
+
+	it( 'setSelectedBalaclavaId persists normalized values', () => {
+
+		const s = new Settings();
+		s.setSelectedBalaclavaId( 'BALACLAVA-ROBOT' );
+
+		assert.strictEqual( s.getSelectedBalaclavaId(), 'balaclava-robot' );
+
+		const s2 = new Settings();
+		assert.strictEqual( s2.getSelectedBalaclavaId(), 'balaclava-robot' );
+
+	} );
+
+	it( 'schema migration: v5 data gets default mask tint colors', () => {
+
+		mockLocalStorage.setItem( STORAGE_KEY, JSON.stringify( {
+			_version: 5,
+			selectedBalaclavaId: 'balaclava-robot',
+		} ) );
+
+		const s = new Settings();
+		const appearance = s.getPlayerAppearance();
+		assert.strictEqual( appearance.maskTintMainColor, '' );
+		assert.strictEqual( appearance.maskTintSecondaryColor, '' );
+
+	} );
+
+	it( 'schema migration: v6 white sentinel mask colors become unset', () => {
+
+		mockLocalStorage.setItem( STORAGE_KEY, JSON.stringify( {
+			_version: 6,
+			maskTintMainColor: '#ffffff',
+			maskTintSecondaryColor: '#ffffff',
+		} ) );
+
+		const s = new Settings();
+		const appearance = s.getPlayerAppearance();
+		assert.strictEqual( appearance.maskTintMainColor, '' );
+		assert.strictEqual( appearance.maskTintSecondaryColor, '' );
+
+	} );
+
+	it( 'getPlayerAppearance preserves an intentionally saved white mask tint', () => {
+
+		const s = new Settings();
+		s.set( 'maskTintMainColor', '#FFFFFF' );
+		s.set( 'maskTintSecondaryColor', '#ff0000' );
+
+		const appearance = s.getPlayerAppearance();
+		assert.strictEqual( appearance.maskTintMainColor, '#ffffff' );
+		assert.strictEqual( appearance.maskTintSecondaryColor, '#ff0000' );
 
 	} );
 

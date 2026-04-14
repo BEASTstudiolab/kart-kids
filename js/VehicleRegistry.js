@@ -1,3 +1,5 @@
+import { CHARACTER_MODEL_PATH } from './CharacterCustomization.js';
+
 /**
  * Central registry of all player-selectable vehicles and characters.
  * To add a new vehicle: add an entry to PLAYER_VEHICLES and its GLTF to models/vehicles/.
@@ -84,12 +86,12 @@ export const PLAYER_CHARACTERS = Object.freeze( [
 	Object.freeze( {
 		id: 'kart-beast',
 		label: 'The Beast',
-		path: 'characters/Kart_Beast_Rest-Armature.glb',
+		path: CHARACTER_MODEL_PATH,
 	} ),
 ] );
 
 export const PLAYER_CHARACTER_ID = 'kart-beast';
-export const PLAYER_CHARACTER_PATH = 'characters/Kart_Beast_Rest-Armature.glb';
+export const PLAYER_CHARACTER_PATH = CHARACTER_MODEL_PATH;
 
 /**
  * Look up a vehicle entry by id. Falls back to the first vehicle if not found.

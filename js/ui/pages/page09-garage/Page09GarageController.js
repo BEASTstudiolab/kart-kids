@@ -6,7 +6,7 @@
  * Responsibilities:
  *   - Create and configure Page09GarageView.
  *   - Populate kart stats from VehicleRegistry, loadout from Settings.
- *   - Handle tab navigation: CHARACTERS and KARTS tabs navigate out;
+ *   - Handle tab navigation: CHARACTERS and KARTS tabs switch to shell tabs or navigate out;
  *     PAINT, WHEELS, ACCESSORIES, EMOTES, LOADOUT show stubs.
  *   - Handle bottom ButtonBar: ROTATE, INSPECT, LOADOUT (toast), SAVE (toast).
  *   - Handle SAVE PRESET action.
@@ -220,6 +220,12 @@ export class Page09GarageController extends PageControllerBase {
 
 		if ( tabId === ButtonIds.GARAGE_TAB_CHARACTERS ) {
 
+			if ( this._services.switchTab ) {
+
+				this._services.switchTab( 'character' );
+				return;
+
+			}
 			this.navigate( RouteIds.CHARACTERS );
 			return;
 
@@ -227,6 +233,12 @@ export class Page09GarageController extends PageControllerBase {
 
 		if ( tabId === ButtonIds.GARAGE_TAB_KARTS ) {
 
+			if ( this._services.switchTab ) {
+
+				this._services.switchTab( 'garage' );
+				return;
+
+			}
 			this.navigate( RouteIds.KARTS );
 			return;
 

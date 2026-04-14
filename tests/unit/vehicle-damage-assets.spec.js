@@ -77,6 +77,40 @@ function analyzeDamageMorphSupport( gltf ) {
 
 }
 
+function getTextureImageUri( gltf, textureIndex ) {
+
+	const textureDef = gltf?.textures?.[ textureIndex ];
+	const imageIndex = textureDef?.source;
+	return gltf?.images?.[ imageIndex ]?.uri || '';
+
+}
+
+function analyzeOrmOcclusionSupport( gltf ) {
+
+	const materials = Array.isArray( gltf?.materials ) ? gltf.materials : [];
+	const reports = [];
+
+	for ( let i = 0; i < materials.length; i ++ ) {
+
+		const material = materials[ i ];
+		const ormTextureIndex = material?.pbrMetallicRoughness?.metallicRoughnessTexture?.index;
+		if ( ormTextureIndex === undefined ) continue;
+
+		const occlusionTextureIndex = material?.occlusionTexture?.index;
+		reports.push( {
+			materialName: material?.name || `material-${ i }`,
+			ormTextureIndex,
+			occlusionTextureIndex,
+			ormUri: getTextureImageUri( gltf, ormTextureIndex ),
+			occlusionUri: getTextureImageUri( gltf, occlusionTextureIndex ),
+		} );
+
+	}
+
+	return reports;
+
+}
+
 describe( 'Vehicle damage morph asset audit', () => {
 
 	it( 'requires full support for all player karts except the explicit fallback allowlist', async () => {
@@ -113,6 +147,39 @@ describe( 'Vehicle damage morph asset audit', () => {
 		assert.equal( kart8.status, 'none' );
 		assert.equal( kart8.meshName, 'Body.003' );
 		assert.deepEqual( kart8.missingMorphNames, REQUIRED_DAMAGE_MORPHS );
+
+	} );
+
+	it( 'requires player kart ORM materials to also declare occlusionTexture on the same packed image', async () => {
+
+		const reports = await Promise.all( PLAYER_VEHICLES.map( async ( vehicle ) => {
+
+			const text = await readFile( new URL( `../../models/${ vehicle.path }`, import.meta.url ), 'utf8' );
+			const gltf = JSON.parse( text );
+			return {
+				id: vehicle.id,
+				materials: analyzeOrmOcclusionSupport( gltf ),
+			};
+
+		} ) );
+
+		const unexpectedFailures = reports.flatMap( ( report ) =>
+			report.materials
+				.filter( ( material ) =>
+					material.occlusionTextureIndex === undefined ||
+					material.occlusionTextureIndex !== material.ormTextureIndex ||
+					material.occlusionUri !== material.ormUri
+				)
+				.map( ( material ) =>
+					`${ report.id}: ${ material.materialName } orm=${ material.ormUri || 'missing' } ao=${ material.occlusionUri || 'missing' }`
+				)
+		);
+
+		assert.deepEqual(
+			unexpectedFailures,
+			[],
+			'Unexpected ORM/occlusion metadata gaps:\n' + unexpectedFailures.join( '\n' )
+		);
 
 	} );
 

@@ -1215,6 +1215,42 @@ export function setupDebugPanel( ctx ) {
 
 	const damageTab = debugMenu.addTab( 'bodyDamage', 'Body Damage' );
 
+	debugMenu.addHeader( damageTab, 'Damage Support' );
+
+	const damageSupportStatus = document.createElement( 'div' );
+	damageSupportStatus.style.cssText = 'margin:4px 0 2px; font-weight:bold';
+	damageTab.appendChild( damageSupportStatus );
+
+	const damageSupportDetails = document.createElement( 'div' );
+	damageSupportDetails.style.cssText = 'margin:0 0 2px; color:#9f9';
+	damageTab.appendChild( damageSupportDetails );
+
+	const damageSupportMissing = document.createElement( 'div' );
+	damageSupportMissing.style.cssText = 'margin:0 0 8px; color:#9f9; white-space:normal';
+	damageTab.appendChild( damageSupportMissing );
+
+	const updateDamageSupportStatus = () => {
+
+		const report = vehicle.damageDeform.getSupportReport();
+		const statusColor = report.status === 'full' ? '#0f0' : report.status === 'partial' ? '#ff0' : '#f66';
+		damageSupportStatus.style.color = statusColor;
+		damageSupportStatus.textContent = `Status: ${ report.status.toUpperCase() } (${ report.modelKey })`;
+
+		const meshLabel = report.meshName ? report.meshName : 'none';
+		damageSupportDetails.textContent = `Mesh: ${ meshLabel } | Matched: ${ report.matchedMorphCount }/${ report.matchedMorphNames.length + report.missingMorphNames.length }`;
+		damageSupportMissing.textContent = report.missingMorphNames.length === 0 ?
+			'Missing: none' :
+			`Missing: ${ report.missingMorphNames.join( ', ' ) }`;
+
+	};
+
+	updateDamageSupportStatus();
+	setInterval( () => {
+
+		if ( debugMenu.visible && debugMenu.activeTab === 'bodyDamage' ) updateDamageSupportStatus();
+
+	}, 250 );
+
 	debugMenu.addHeader( damageTab, 'Morph Target Override' );
 
 	const quadrantLabels = [ 'Front-Left', 'Front-Right', 'Rear-Left', 'Rear-Right' ];

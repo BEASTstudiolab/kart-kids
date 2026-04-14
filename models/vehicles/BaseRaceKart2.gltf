@@ -126,6 +126,9 @@
 				"metallicRoughnessTexture":{
 					"index":3
 				}
+			},
+			"occlusionTexture":{
+				"index":3
 			}
 		}
 	],

@@ -3,7 +3,7 @@
  *
  * Responsibilities:
  *   - Create the shell DOM: bottom tab bar, route-announcement region,
- *     page container with 4 tab panels, toast region.
+ *     page container with 5 tab panels, toast region.
  *   - Instantiate and wire all core services:
  *       RouterService, NavigationService, ModalService,
  *       NotificationService, AnalyticsService.
@@ -15,7 +15,7 @@
  * Architecture decisions:
  *   - AppShell is a class (not a singleton module) so it can be unit-tested
  *     by constructing a fresh instance with a test container.
- *   - Bottom tab bar (RACE, GARAGE, TRACKS, PROFILE) replaces the old TopNav.
+ *   - Bottom tab bar (PLAY, CHARACTER, GARAGE, TRACKS, PROFILE) replaces the old TopNav.
  *     Tab panels are persistent — show/hide via CSS, never destroyed on switch.
  *   - RouterService still handles overlay routes (Pause, Results) but tab
  *     navigation bypasses it entirely via switchTab().
@@ -28,6 +28,7 @@
  *     <div aria-live="polite" aria-atomic="true" class="kk-sr-announcer"></div>
  *     <main class="kk-page-container" id="kk-page-container">
  *       <div class="kk-panel kk-panel--active" data-panel="race"></div>
+ *       <div class="kk-panel" data-panel="character"></div>
  *       <div class="kk-panel" data-panel="garage"></div>
  *       <div class="kk-panel" data-panel="tracks"></div>
  *       <div class="kk-panel" data-panel="profile"></div>
@@ -56,6 +57,7 @@ import { PartyLobbyScene }    from '../PartyLobbyScene.js';
 import { Settings }           from '../../Settings.js';
 import { showNameEntryModal } from '../components/NameEntryModal.js';
 import { RacePanel }         from '../panels/RacePanel.js';
+import { CharacterPanel }    from '../panels/CharacterPanel.js';
 import { ProfilePanel }      from '../panels/ProfilePanel.js';
 import { GaragePanel }       from '../panels/GaragePanel.js';
 import { TracksPanel }       from '../panels/TracksPanel.js';
@@ -64,6 +66,7 @@ import { ResultsOverlay }    from '../overlays/ResultsOverlay.js';
 // Tab definitions — order matches the tab bar left-to-right.
 const TAB_DEFS = [
 	{ id: 'race',    label: 'PLAY' },
+	{ id: 'character', label: 'CHARACTER' },
 	{ id: 'garage',  label: 'GARAGE' },
 	{ id: 'tracks',  label: 'TRACKS' },
 	{ id: 'profile', label: 'PROFILE' },
@@ -72,6 +75,7 @@ const TAB_DEFS = [
 // Render mode per tab — lobby for most tabs, idle for opaque TRACKS page.
 const TAB_RENDER_MODES = {
 	race:    'lobby',
+	character: 'lobby',
 	garage:  'lobby',
 	tracks:  'idle',
 	profile: 'lobby',
@@ -127,6 +131,7 @@ export class AppShell {
 			garagePreview:  null,  // populated in bootstrap() after engine creation
 			selectedMode:   'solo',
 			switchTab:      ( name ) => this.switchTab( name ),
+			shell:          null,
 		};
 
 		// -----------------------------------------------------------------------
@@ -206,6 +211,9 @@ export class AppShell {
 		/** @type {import('../panels/ProfilePanel.js').ProfilePanel | null} */
 		this._profilePanel = null;
 
+		/** @type {import('../panels/CharacterPanel.js').CharacterPanel | null} */
+		this._characterPanel = null;
+
 		/** @type {import('../panels/GaragePanel.js').GaragePanel | null} */
 		this._garagePanel = null;
 
@@ -235,6 +243,14 @@ export class AppShell {
 		if ( raceContainer ) {
 
 			this._racePanel = new RacePanel( raceContainer, this._services );
+
+		}
+
+		// Mount CharacterPanel into the CHARACTER tab container.
+		const characterContainer = this._panels.get( 'character' );
+		if ( characterContainer ) {
+
+			this._characterPanel = new CharacterPanel( characterContainer, this._services );
 
 		}
 
@@ -317,7 +333,10 @@ export class AppShell {
 				if ( e.detail.key === 'vehicleColor' ||
 					e.detail.key === 'characterColor' ||
 					e.detail.key === 'charSkinColor' ||
-					e.detail.key === 'charAccessories' ) {
+					e.detail.key === 'charAccessories' ||
+					e.detail.key === 'maskTintMainColor' ||
+					e.detail.key === 'maskTintSecondaryColor' ||
+					e.detail.key === 'selectedBalaclavaId' ) {
 
 					const nextSettings = new Settings();
 					this._lobbyScene.setAppearance( nextSettings.getPlayerAppearance() );
@@ -429,7 +448,7 @@ export class AppShell {
 		shell.appendChild( pageContainer );
 		this._pageContainer = pageContainer;
 
-		// Create the 4 tab panels inside the page container.
+		// Create the tab panels inside the page container.
 		this._createTabPanels( pageContainer );
 
 		// Bottom tab bar.
@@ -450,6 +469,7 @@ export class AppShell {
 
 		this._mountEl.appendChild( shell );
 		this._shell = shell;
+		this._services.shell = shell;
 
 	}
 
@@ -458,7 +478,7 @@ export class AppShell {
 	// ---------------------------------------------------------------------------
 
 	/**
-	 * Create the bottom tab bar with RACE, GARAGE, TRACKS, PROFILE buttons.
+	 * Create the bottom tab bar with PLAY, CHARACTER, GARAGE, TRACKS, PROFILE buttons.
 	 *
 	 * @returns {HTMLElement}
 	 */
@@ -561,7 +581,7 @@ export class AppShell {
 	// ---------------------------------------------------------------------------
 
 	/**
-	 * Create 4 panel container divs inside the page container.
+	 * Create tab panel container divs inside the page container.
 	 *
 	 * @param {HTMLElement} container
 	 */
@@ -598,7 +618,7 @@ export class AppShell {
 	 * Switch to a tab by id. Hides all panels, shows the target, updates
 	 * tab bar active state, render mode, and analytics.
 	 *
-	 * @param {string} name  Tab id: 'race' | 'garage' | 'tracks' | 'profile'
+	 * @param {string} name  Tab id: 'race' | 'character' | 'garage' | 'tracks' | 'profile'
 	 */
 	switchTab( name ) {
 
@@ -641,6 +661,20 @@ export class AppShell {
 			} else {
 
 				this._racePanel.hide();
+
+			}
+
+		}
+
+		if ( this._characterPanel ) {
+
+			if ( name === 'character' ) {
+
+				this._characterPanel.show();
+
+			} else {
+
+				this._characterPanel.hide();
 
 			}
 
@@ -771,9 +805,13 @@ export class AppShell {
 		// TITLE → Tab bar handles initial load (switchTab('race') in bootstrap).
 		// HOME → RacePanel, QUICK_PLAY → RacePanel, PLAY → RacePanel
 		// LOBBY → LobbyOverlay, RESULTS → ResultsOverlay
-		// PROFILE → ProfilePanel, GARAGE → GaragePanel, KARTS → GaragePanel
+		// CHARACTER → CharacterPanel, PROFILE → ProfilePanel, GARAGE → GaragePanel, KARTS → GaragePanel
 		// TRACKS → TracksPanel
 		// Page controllers remain in repo for reference.
+
+		r.register( RouteIds.CHARACTERS, () => _makeTabAliasController( 'character', s ) );
+		r.register( RouteIds.GARAGE, () => _makeTabAliasController( 'garage', s ) );
+		r.register( RouteIds.KARTS, () => _makeTabAliasController( 'garage', s ) );
 
 		r.register( RouteIds.PAUSE, async () => {
 
@@ -790,7 +828,7 @@ export class AppShell {
 		} );
 
 		// ── CUT v1: Routes removed ───────────────────────────────────────
-		// Party (06), Events (07), Ranked (08), Characters (10),
+		// Party (06), Events (07), Ranked (08),
 		// Challenges (13), Season (14), Shop (15), Editor (17),
 		// Discover (18), Inbox (20), Tutorial (23)
 		// Code remains in repo for future re-enablement.
@@ -1217,6 +1255,28 @@ function _makePlaceholderController( label, services ) {
 
 			el.appendChild( inner );
 			container.appendChild( el );
+
+		},
+
+		dispose() {},
+
+	};
+
+}
+
+function _makeTabAliasController( tabId, services ) {
+
+	return {
+
+		initialize() {},
+
+		bindEvents() {},
+
+		loadData() { return Promise.resolve(); },
+
+		render() {
+
+			services.switchTab?.( tabId );
 
 		},
 

@@ -1,3 +1,5 @@
+import { CHARACTER_MODEL_PATH } from './CharacterCustomization.js';
+
 export function getTrackTileSet( search = '' ) {
 
 	const params = new URLSearchParams( search.startsWith( '?' ) ? search.slice( 1 ) : search );
@@ -78,7 +80,7 @@ export function getTrackModelConfig( name, tileSet = 'standard' ) {
 	if ( name === 'kart-6' ) return { path: 'vehicles/BaseRaceKart6.gltf', rotationY: 0 };
 	if ( name === 'kart-7' ) return { path: 'vehicles/BaseRaceKart7.gltf', rotationY: 0 };
 	if ( name === 'kart-8' ) return { path: 'vehicles/BaseRaceKart8.gltf', rotationY: 0 };
-	if ( name === 'kart-beast' ) return { path: 'characters/Kart_Beast_Rest-Armature.glb', rotationY: 0 };
+	if ( name === 'kart-beast' ) return { path: CHARACTER_MODEL_PATH, rotationY: 0 };
 
 	// ─── Decoration / Props (moved to props/ folder) ────────
 	if ( name === 'decoration-buildings-1' ) return { path: 'props/decoration-buildings-1.glb', rotationY: 0 };

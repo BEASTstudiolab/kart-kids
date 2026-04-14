@@ -1,75 +1,51 @@
-/**
- * Page10CharacterSelectView — Character Select.
- *
- * Route: RouteIds.CHARACTERS ("/characters")
- *
- * Layout: 3-column — card grid left, large preview center, stats/ability right.
- *
- * Columns:
- *   col-1 (left)   — "CHARACTER SKINS" label + 2-column CardGrid (6 characters)
- *   col-2 (center) — Large HeroPreviewPanel + STATUS badge
- *   col-3 (right)  — CHARACTER STATS ProgressBars + SPECIAL ABILITY panel
- *   bottom          — SELECT CTA
- *
- * Card events:
- *   Cards dispatch a custom 'kk:character:select' event (bubbles) on click
- *   so the controller can delegate from a single listener on the grid root.
- *
- * Public API consumed by Page10CharacterSelectController:
- *   setCharacters(characters[], equippedId)
- *   setSelectedCharacter(character, equippedId)
- *   setCardSelected(characterId)
- *   get backBtn()
- *   get cardGrid()
- *   get selectBtn()
- */
+import { PageViewBase } from '../../core/PageViewBase.js';
+import { CTAButton } from '../../components/CTAButton.js';
+import { HeroPreviewPanel } from '../../components/HeroPreviewPanel.js';
+import { ButtonIds } from '../../enums/ButtonIds.js';
 
-import { PageViewBase }      from '../../core/PageViewBase.js';
-import { CTAButton }         from '../../components/CTAButton.js';
-import { ProgressBar }       from '../../components/ProgressBar.js';
-import { HeroPreviewPanel }  from '../../components/HeroPreviewPanel.js';
-import { ButtonIds }         from '../../enums/ButtonIds.js';
-
-/** Stat definitions shown in the right panel. */
-const STAT_DEFS = [
-	{ key: 'speed',    label: 'Speed' },
-	{ key: 'drift',    label: 'Drift' },
-	{ key: 'handling', label: 'Handling' },
-	{ key: 'accel',    label: 'Accel' },
-];
+const CAMERA_DEBUG_SLIDER_DEFS = Object.freeze( [
+	Object.freeze( { id: 'lookTargetX', label: 'Look X', min: - 1.5, max: 1.5, step: 0.01 } ),
+	Object.freeze( { id: 'lookTargetY', label: 'Look Y', min: - 1.5, max: 1.5, step: 0.01 } ),
+	Object.freeze( { id: 'cameraOffsetX', label: 'Cam X', min: - 1.5, max: 1.5, step: 0.01 } ),
+	Object.freeze( { id: 'cameraOffsetY', label: 'Cam Y', min: - 1.5, max: 1.5, step: 0.01 } ),
+	Object.freeze( { id: 'cameraOffsetZ', label: 'Cam Z', min: - 3, max: 3, step: 0.01 } ),
+] );
 
 export class Page10CharacterSelectView extends PageViewBase {
 
-	constructor() {
+	constructor( config = {} ) {
 
 		super( 'page-character-select' );
+		this._config = {
+			showBackButton: true,
+			showBrandHeader: true,
+			showCameraDebugControls: false,
+			rootAriaLabel: 'Character Page',
+			eyebrowText: 'Garage Overlay',
+			titleText: 'Character Page',
+			sidebarCopy: 'Open one drawer at a time, swipe through the carousel items, dial in colors, and save when the draft looks right.',
+			secondaryActionLabel: 'Cancel',
+			secondaryActionAriaLabel: 'Discard character draft',
+			secondaryActionMode: 'close',
+			...config,
+		};
 
-		/** @type {HTMLButtonElement} */
 		this._backBtn = null;
-
-		/** @type {HTMLElement} — the card grid container, used for event delegation */
-		this._cardGrid = null;
-
-		/** @type {CTAButton} */
-		this._selectBtn = null;
-
-		/** @type {HeroPreviewPanel} */
-		this._heroPanel = null;
-
-		/** @type {Map<string, ProgressBar>} */
-		this._statBars = new Map();
-
-		/** @type {string | null} Currently selected card id */
-		this._selectedCardId = null;
+		this._categoryStack = null;
+		this._previewPanel = null;
+		this._cancelBtn = null;
+		this._saveBtn = null;
+		this._carouselScrollLeftByCategory = new Map();
+		this._carouselInteractionCleanups = [];
+		this._cameraDebugInputs = new Map();
+		this._cameraDebugValueEls = new Map();
+		this._cameraDebugReadoutEl = null;
+		this._cameraDebugResetBtn = null;
 
 		this._injectCSS();
 		this._build();
 
 	}
-
-	// ---------------------------------------------------------------------------
-	// CSS
-	// ---------------------------------------------------------------------------
 
 	_injectCSS() {
 
@@ -78,445 +54,529 @@ export class Page10CharacterSelectView extends PageViewBase {
 
 		const style = document.createElement( 'style' );
 		style.textContent = `
-
-			/* ===================================================
-			   Page root
-			   =================================================== */
-
 			.page-character-select {
 				display: grid;
-				grid-template-rows: auto 1fr auto;
-				grid-template-areas:
-					"header"
-					"content"
-					"footer";
-				min-height: 100vh;
-				background: var(--color-bg-base, #0a0a0a);
+				grid-template-rows: auto minmax( 0, 1fr ) auto;
+				height: 100%;
+				min-height: 100%;
+				padding: 1.5rem;
 				box-sizing: border-box;
+				color: #f8fbff;
+				gap: 1rem;
+				overflow: hidden;
 			}
 
-			/* ===================================================
-			   Header
-			   =================================================== */
+			.page-character-select--no-header {
+				grid-template-rows: minmax( 0, 1fr ) auto;
+			}
 
 			.page-character-select__header {
-				grid-area: header;
 				display: flex;
 				align-items: center;
+				justify-content: space-between;
+				gap: 1rem;
+			}
+
+			.page-character-select__header--centered {
 				justify-content: center;
-				position: relative;
-				padding: var(--space-4) var(--space-6);
-				background: rgba(0, 0, 0, 0.5);
-				border-bottom: var(--border-thin, 1px) solid var(--color-panel-border, rgba(255,255,255,0.1));
 			}
 
 			.page-character-select__back-btn {
-				position: absolute;
-				left: var(--space-6);
-				top: 50%;
-				transform: translateY(-50%);
-				background: transparent;
-				border: var(--border-base, 1px) solid var(--color-panel-border, rgba(255,255,255,0.15));
-				border-radius: var(--radius-sm, 4px);
-				color: var(--color-ink-300, #aaa);
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-xs, 0.75rem);
-				font-weight: var(--weight-bold, 700);
-				text-transform: uppercase;
-				letter-spacing: var(--tracking-wider, 0.1em);
-				padding: var(--space-2) var(--space-4);
-				cursor: pointer;
-				display: flex;
+				display: inline-flex;
 				align-items: center;
-				gap: var(--space-2);
-				transition: border-color var(--duration-fast) var(--ease-standard),
-				            color var(--duration-fast) var(--ease-standard);
-				min-height: var(--hit-target-min, 44px);
+				gap: 0.55rem;
+				border: 1px solid rgba( 255, 255, 255, 0.16 );
+				border-radius: 999px;
+				background: rgba( 255, 255, 255, 0.04 );
+				color: #f8fbff;
+				font: 700 0.8rem/1 var( --font-ui, sans-serif );
+				letter-spacing: 0.12em;
+				text-transform: uppercase;
+				padding: 0.9rem 1.1rem;
+				cursor: pointer;
 			}
 
 			.page-character-select__back-btn:hover {
-				border-color: var(--color-ink-200, #ccc);
-				color: var(--color-white, #fff);
-			}
 
-			.page-character-select__back-btn:focus-visible {
-				outline: 2px solid var(--color-accent-cyan, #22d3ee);
-				outline-offset: 2px;
+				border-color: rgba( 255, 255, 255, 0.28 );
+				background: rgba( 255, 255, 255, 0.08 );
+
 			}
 
 			.page-character-select__brand {
 				display: flex;
 				flex-direction: column;
-				align-items: center;
-				gap: 0;
+				gap: 0.35rem;
 				text-align: center;
+				margin: 0 auto;
 			}
 
-			.page-character-select__brand-sub {
-				font-family: var(--font-display, sans-serif);
-				font-size: var(--text-sm, 0.875rem);
-				font-weight: var(--weight-black, 900);
+			.page-character-select__eyebrow {
+				font: 700 0.75rem/1 var( --font-ui, sans-serif );
+				letter-spacing: 0.18em;
 				text-transform: uppercase;
-				letter-spacing: var(--tracking-widest, 0.2em);
-				color: var(--color-ink-300, #aaa);
-				line-height: 1;
+				color: #85efff;
 			}
 
 			.page-character-select__title {
-				font-family: var(--font-display, sans-serif);
-				font-size: var(--text-4xl, 2.5rem);
-				font-weight: var(--weight-black, 900);
-				text-transform: uppercase;
-				letter-spacing: var(--tracking-wide, 0.05em);
-				color: var(--color-white, #fff);
 				margin: 0;
-				line-height: 1;
-				background: linear-gradient(180deg, #fff 55%, #aaa 100%);
-				-webkit-background-clip: text;
-				-webkit-text-fill-color: transparent;
-				background-clip: text;
+				font: 900 clamp( 2rem, 4vw, 3.2rem )/0.95 var( --font-display, sans-serif );
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+				color: #ffffff;
 			}
-
-			/* ===================================================
-			   Content — 3-column
-			   =================================================== */
 
 			.page-character-select__content {
-				grid-area: content;
 				display: grid;
-				grid-template-columns: 260px 1fr 280px;
-				grid-template-areas: "grid preview stats";
-				gap: var(--space-4);
-				padding: var(--space-4) var(--space-6);
-				align-items: start;
+				grid-template-columns: minmax( 18rem, 24rem ) minmax( 0, 1fr ) minmax( 16rem, 22rem );
+				gap: 1.5rem;
+				min-height: 0;
+				align-items: stretch;
 			}
 
-			/* ===================================================
-			   Left — Character grid
-			   =================================================== */
-
-			.page-character-select__grid-col {
-				grid-area: grid;
-				display: flex;
-				flex-direction: column;
-				gap: var(--space-3);
-			}
-
-			.page-character-select__col-label {
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-xs, 0.75rem);
-				font-weight: var(--weight-bold, 700);
-				text-transform: uppercase;
-				letter-spacing: var(--tracking-wider, 0.1em);
-				color: var(--color-ink-400, #666);
-				border-bottom: var(--border-thin, 1px) solid var(--color-panel-border, rgba(255,255,255,0.1));
-				padding-bottom: var(--space-2);
-			}
-
-			.page-character-select__card-grid {
-				display: grid;
-				grid-template-columns: 1fr 1fr;
-				gap: var(--space-2);
-			}
-
-			/* Character card */
-
-			.page-character-select__card {
-				position: relative;
-				aspect-ratio: 3/4;
-				background: var(--color-ink-800, #1a1a1a);
-				border: 2px solid var(--color-panel-border, rgba(255,255,255,0.1));
-				border-radius: var(--radius-md, 8px);
-				cursor: pointer;
+			.page-character-select__panel {
+				background: rgba( 10, 18, 28, 0.78 );
+				border: 1px solid rgba( 255, 255, 255, 0.1 );
+				border-radius: 1.4rem;
+				box-shadow: 0 24px 60px rgba( 0, 0, 0, 0.28 );
+				backdrop-filter: blur( 16px );
+				min-height: 0;
 				overflow: hidden;
+			}
+
+			.page-character-select__sidebar,
+			.page-character-select__details {
 				display: flex;
 				flex-direction: column;
-				align-items: center;
-				justify-content: flex-end;
-				padding: var(--space-2);
-				transition: border-color var(--duration-fast) var(--ease-standard),
-				            transform var(--duration-fast) var(--ease-standard),
-				            box-shadow var(--duration-fast) var(--ease-standard);
-			}
-
-			.page-character-select__card:hover {
-				border-color: var(--color-ink-300, #aaa);
-				transform: translateY(-2px);
-			}
-
-			.page-character-select__card:focus-visible {
-				outline: 2px solid var(--color-accent-cyan, #22d3ee);
-				outline-offset: 2px;
-			}
-
-			.page-character-select__card--selected {
-				border-color: var(--color-accent-cyan, #22d3ee);
-				box-shadow: 0 0 18px rgba(34, 211, 238, 0.35);
-			}
-
-			.page-character-select__card--locked {
-				opacity: 0.65;
-			}
-
-			.page-character-select__card-avatar {
-				position: absolute;
-				inset: 0;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				font-size: 3rem;
-				color: var(--color-ink-600, #444);
-				user-select: none;
-			}
-
-			.page-character-select__card-name {
-				position: relative;
-				z-index: 1;
-				font-family: var(--font-ui, sans-serif);
-				font-size: 0.65rem;
-				font-weight: var(--weight-bold, 700);
-				text-transform: uppercase;
-				letter-spacing: var(--tracking-wide, 0.08em);
-				color: var(--color-ink-200, #ddd);
-				text-align: center;
-				white-space: nowrap;
+				gap: 1rem;
+				padding: 1.25rem;
+				min-height: 0;
 				overflow: hidden;
-				text-overflow: ellipsis;
-				width: 100%;
-			}
-
-			.page-character-select__card-badge {
-				position: absolute;
-				top: var(--space-1);
-				right: var(--space-1);
-				z-index: 2;
-				padding: 2px 6px;
-				border-radius: var(--radius-sm, 4px);
-				font-family: var(--font-ui, sans-serif);
-				font-size: 0.625rem;
-				font-weight: var(--weight-bold, 700);
-				text-transform: uppercase;
-				letter-spacing: var(--tracking-wide);
-				line-height: 1.4;
-			}
-
-			.page-character-select__card-badge--owned {
-				background: rgba(34, 197, 94, 0.2);
-				color: var(--color-success, #22c55e);
-				border: 1px solid rgba(34, 197, 94, 0.4);
-			}
-
-			.page-character-select__card-badge--locked {
-				background: rgba(239, 68, 68, 0.15);
-				color: var(--color-error, #ef4444);
-				border: 1px solid rgba(239, 68, 68, 0.35);
-				display: flex;
-				align-items: center;
-				gap: 3px;
-			}
-
-			/* ===================================================
-			   Center — Preview + status
-			   =================================================== */
-
-			.page-character-select__preview-col {
-				grid-area: preview;
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				gap: var(--space-3);
-			}
-
-			.page-character-select__preview-label {
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-xs, 0.75rem);
-				font-weight: var(--weight-bold, 700);
-				text-transform: uppercase;
-				letter-spacing: var(--tracking-wider, 0.1em);
-				color: var(--color-ink-400, #666);
-				align-self: flex-start;
-				border-bottom: var(--border-thin, 1px) solid var(--color-panel-border, rgba(255,255,255,0.1));
-				padding-bottom: var(--space-2);
-				width: 100%;
-			}
-
-			.page-character-select__preview-wrap {
-				width: 100%;
-				max-width: 380px;
-			}
-
-			.page-character-select__status-bar {
-				display: flex;
-				align-items: center;
-				gap: var(--space-3);
-				width: 100%;
-				max-width: 380px;
-			}
-
-			.page-character-select__status-label {
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-xs, 0.75rem);
-				font-weight: var(--weight-bold, 700);
-				text-transform: uppercase;
-				letter-spacing: var(--tracking-wider, 0.1em);
-				color: var(--color-ink-400, #666);
-				flex-shrink: 0;
-			}
-
-			.page-character-select__status-badge {
-				padding: var(--space-1) var(--space-3);
-				border-radius: var(--radius-sm, 4px);
-				font-family: var(--font-display, sans-serif);
-				font-size: var(--text-sm, 0.875rem);
-				font-weight: var(--weight-bold, 700);
-				text-transform: uppercase;
-				letter-spacing: var(--tracking-wider, 0.1em);
-			}
-
-			.page-character-select__status-badge--owned {
-				background: rgba(34, 197, 94, 0.2);
-				color: var(--color-success, #22c55e);
-				border: 1px solid rgba(34, 197, 94, 0.4);
-			}
-
-			.page-character-select__status-badge--locked {
-				background: rgba(239, 68, 68, 0.15);
-				color: var(--color-error, #ef4444);
-				border: 1px solid rgba(239, 68, 68, 0.35);
-			}
-
-			/* ===================================================
-			   Right — Stats + Special Ability
-			   =================================================== */
-
-			.page-character-select__stats-col {
-				grid-area: stats;
-				display: flex;
-				flex-direction: column;
-				gap: var(--space-4);
-			}
-
-			.page-character-select__stats-panel {
-				background: var(--color-panel-bg, rgba(0,0,0,0.55));
-				border: var(--border-base, 1px) solid var(--color-panel-border, rgba(255,255,255,0.12));
-				border-radius: var(--radius-md, 8px);
-				padding: var(--space-4);
-				display: flex;
-				flex-direction: column;
-				gap: var(--space-3);
-				backdrop-filter: blur(8px);
 			}
 
 			.page-character-select__panel-label {
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-xs, 0.75rem);
-				font-weight: var(--weight-bold, 700);
+				font: 700 0.72rem/1 var( --font-ui, sans-serif );
+				letter-spacing: 0.16em;
 				text-transform: uppercase;
-				letter-spacing: var(--tracking-wider, 0.1em);
-				color: var(--color-ink-400, #666);
-				border-bottom: var(--border-thin, 1px) solid var(--color-panel-border, rgba(255,255,255,0.1));
-				padding-bottom: var(--space-2);
+				color: #9bb4c9;
 			}
 
-			.page-character-select__stat-row {
+			.page-character-select__panel-copy {
+				margin: 0;
+				font: 500 0.94rem/1.5 var( --font-ui, sans-serif );
+				color: rgba( 248, 251, 255, 0.8 );
+			}
+
+			.page-character-select__category-stack {
 				display: flex;
 				flex-direction: column;
-				gap: var(--space-1);
+				gap: 0.75rem;
+				overflow-y: auto;
+				padding-right: 0.2rem;
 			}
 
-			.page-character-select__stat-header {
-				display: flex;
+			.page-character-select__category {
+				border-radius: 1rem;
+				border: 1px solid rgba( 255, 255, 255, 0.08 );
+				background:
+					linear-gradient( 180deg, rgba( 255, 255, 255, 0.06 ), rgba( 255, 255, 255, 0.02 ) ),
+					rgba( 255, 255, 255, 0.03 );
+				overflow: hidden;
+			}
+
+			.page-character-select__category-toggle {
+				width: 100%;
+				border: none;
+				background: transparent;
+				color: inherit;
+				display: grid;
+				grid-template-columns: minmax( 0, 1fr ) auto;
+				gap: 0.6rem;
+				padding: 0.95rem 1rem;
+				cursor: pointer;
+				text-align: left;
 				align-items: center;
-				justify-content: space-between;
 			}
 
-			.page-character-select__stat-name {
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-xs, 0.75rem);
-				font-weight: var(--weight-bold, 700);
-				text-transform: uppercase;
-				letter-spacing: var(--tracking-wider, 0.1em);
-				color: var(--color-ink-200, #ddd);
+			.page-character-select__category-toggle:hover {
+				background: rgba( 255, 255, 255, 0.04 );
 			}
 
-			.page-character-select__stat-value {
-				font-family: var(--font-mono, monospace);
-				font-size: var(--text-xs, 0.75rem);
-				color: var(--color-accent-orange, #f97316);
-				font-weight: var(--weight-bold, 700);
+			.page-character-select__category-toggle[aria-expanded="true"] {
+				background: rgba( 255, 255, 255, 0.04 );
 			}
 
-			/* Special ability panel */
-
-			.page-character-select__ability-panel {
-				background: var(--color-panel-bg, rgba(0,0,0,0.55));
-				border: var(--border-base, 1px) solid var(--color-panel-border, rgba(255,255,255,0.12));
-				border-radius: var(--radius-md, 8px);
-				padding: var(--space-4);
+			.page-character-select__category-title {
 				display: flex;
 				flex-direction: column;
-				gap: var(--space-3);
-				backdrop-filter: blur(8px);
+				gap: 0.22rem;
 			}
 
-			.page-character-select__ability-name {
-				font-family: var(--font-display, sans-serif);
-				font-size: var(--text-md, 1rem);
-				font-weight: var(--weight-black, 900);
+			.page-character-select__category-name {
+				font: 900 0.9rem/1 var( --font-display, sans-serif );
+				letter-spacing: 0.08em;
 				text-transform: uppercase;
-				letter-spacing: var(--tracking-wider, 0.1em);
-				color: var(--color-accent-orange, #f97316);
-				line-height: 1.2;
 			}
 
-			.page-character-select__ability-desc {
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-sm, 0.875rem);
-				color: var(--color-ink-200, #ddd);
-				line-height: 1.5;
+			.page-character-select__category-summary {
+				font: 500 0.82rem/1.45 var( --font-ui, sans-serif );
+				color: rgba( 248, 251, 255, 0.7 );
 			}
 
-			/* ===================================================
-			   Footer — SELECT button
-			   =================================================== */
+			.page-character-select__category-chevron {
+				font: 900 0.88rem/1 var( --font-display, sans-serif );
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+				color: #85efff;
+			}
+
+			.page-character-select__category-drawer {
+				display: grid;
+				gap: 0.55rem;
+				padding: 0 1rem 1rem;
+				border-top: 1px solid rgba( 255, 255, 255, 0.06 );
+			}
+
+			.page-character-select__drawer-copy {
+				font: 600 0.72rem/1.4 var( --font-ui, sans-serif );
+				letter-spacing: 0.12em;
+				text-transform: uppercase;
+				color: rgba( 133, 239, 255, 0.72 );
+				padding-top: 0.8rem;
+			}
+
+			.page-character-select__drawer-controls {
+				display: grid;
+				gap: 0.65rem;
+			}
+
+			.page-character-select__color-row {
+				display: grid;
+				grid-template-columns: minmax( 0, 1fr ) auto auto;
+				gap: 0.65rem;
+				align-items: center;
+				padding: 0.8rem 0.9rem;
+				border-radius: 0.9rem;
+				border: 1px solid rgba( 255, 255, 255, 0.08 );
+				background: rgba( 255, 255, 255, 0.03 );
+			}
+
+			.page-character-select__color-copy {
+				display: flex;
+				flex-direction: column;
+				gap: 0.18rem;
+				min-width: 0;
+			}
+
+			.page-character-select__color-label {
+				font: 800 0.8rem/1 var( --font-ui, sans-serif );
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+				color: #f8fbff;
+			}
+
+			.page-character-select__color-meta {
+				font: 600 0.72rem/1.3 var( --font-ui, sans-serif );
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+				color: rgba( 248, 251, 255, 0.58 );
+			}
+
+			.page-character-select__color-input {
+				width: 2.8rem;
+				height: 2.8rem;
+				padding: 0;
+				border: none;
+				border-radius: 0.7rem;
+				background: transparent;
+				cursor: pointer;
+			}
+
+			.page-character-select__color-reset {
+				border: 1px solid rgba( 255, 255, 255, 0.12 );
+				border-radius: 999px;
+				background: rgba( 255, 255, 255, 0.04 );
+				color: #f8fbff;
+				font: 700 0.7rem/1 var( --font-ui, sans-serif );
+				letter-spacing: 0.12em;
+				text-transform: uppercase;
+				padding: 0.75rem 0.95rem;
+				cursor: pointer;
+			}
+
+			.page-character-select__color-reset:hover {
+				border-color: rgba( 255, 255, 255, 0.24 );
+				background: rgba( 255, 255, 255, 0.08 );
+			}
+
+			.page-character-select__carousel {
+				display: grid;
+				grid-auto-flow: column;
+				grid-auto-columns: minmax( 8.8rem, 9.6rem );
+				gap: 0.7rem;
+				overflow-x: auto;
+				scroll-snap-type: x proximity;
+				padding-bottom: 0.2rem;
+				touch-action: none;
+				user-select: none;
+				cursor: grab;
+				overscroll-behavior-x: contain;
+				scrollbar-width: thin;
+				scrollbar-color: rgba( 133, 239, 255, 0.45 ) rgba( 255, 255, 255, 0.06 );
+			}
+
+			.page-character-select__carousel::-webkit-scrollbar {
+				height: 0.42rem;
+			}
+
+			.page-character-select__carousel::-webkit-scrollbar-track {
+				background: rgba( 255, 255, 255, 0.06 );
+				border-radius: 999px;
+			}
+
+			.page-character-select__carousel::-webkit-scrollbar-thumb {
+				background: rgba( 133, 239, 255, 0.42 );
+				border-radius: 999px;
+			}
+
+			.page-character-select__carousel--dragging {
+				cursor: grabbing;
+				scroll-snap-type: none;
+			}
+
+			.page-character-select__item {
+				scroll-snap-align: start;
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				justify-content: flex-end;
+				gap: 0.35rem;
+				min-height: 6.4rem;
+				padding: 0.95rem;
+				border: 1px solid rgba( 255, 255, 255, 0.12 );
+				border-radius: 1rem;
+				background:
+					linear-gradient( 180deg, rgba( 255, 255, 255, 0.07 ), rgba( 255, 255, 255, 0.02 ) ),
+					rgba( 255, 255, 255, 0.03 );
+				color: #f8fbff;
+				text-align: left;
+				cursor: pointer;
+				transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+			}
+
+			.page-character-select__item:hover {
+				transform: translateY( - 2px );
+				border-color: rgba( 255, 255, 255, 0.28 );
+			}
+
+			.page-character-select__item--active {
+				border-color: rgba( 0, 212, 232, 0.85 );
+				box-shadow: 0 0 0 1px rgba( 0, 212, 232, 0.2 ), 0 14px 30px rgba( 0, 212, 232, 0.14 );
+				background:
+					linear-gradient( 160deg, rgba( 0, 212, 232, 0.22 ), rgba( 255, 122, 61, 0.12 ) ),
+					rgba( 255, 255, 255, 0.04 );
+			}
+
+			.page-character-select__item--saved {
+				border-style: solid;
+			}
+
+			.page-character-select__item-name {
+				font: 900 0.92rem/1.15 var( --font-display, sans-serif );
+				letter-spacing: 0.04em;
+				text-transform: uppercase;
+			}
+
+			.page-character-select__item-meta {
+				font: 600 0.74rem/1.35 var( --font-ui, sans-serif );
+				letter-spacing: 0.1em;
+				text-transform: uppercase;
+				color: rgba( 248, 251, 255, 0.62 );
+			}
+
+			.page-character-select__preview {
+				display: grid;
+				grid-template-rows: auto 1fr;
+				padding: 1.25rem;
+				gap: 1rem;
+				min-height: 0;
+			}
+
+			.page-character-select__preview-card {
+				display: flex;
+				flex-direction: column;
+				gap: 0.85rem;
+				padding: 0.9rem;
+				border-radius: 1.2rem;
+				background: linear-gradient( 180deg, rgba( 255, 255, 255, 0.08 ), rgba( 255, 255, 255, 0.03 ) );
+				border: 1px solid rgba( 255, 255, 255, 0.08 );
+				min-height: 0;
+			}
+
+			.page-character-select__preview-title {
+				display: flex;
+				flex-direction: column;
+				gap: 0.3rem;
+			}
+
+			.page-character-select__preview-selected {
+				font: 900 clamp( 1.2rem, 2vw, 1.9rem )/1 var( --font-display, sans-serif );
+				letter-spacing: 0.06em;
+				text-transform: uppercase;
+			}
+
+			.page-character-select__preview-copy {
+				margin: 0;
+				font: 500 0.95rem/1.5 var( --font-ui, sans-serif );
+				color: rgba( 248, 251, 255, 0.76 );
+			}
+
+			.page-character-select__hero-wrap {
+				display: flex;
+				min-height: 0;
+			}
+
+			.page-character-select__details-grid {
+				display: grid;
+				gap: 0.9rem;
+				min-height: 0;
+				overflow-y: auto;
+				padding-right: 0.2rem;
+			}
+
+			.page-character-select__detail-card {
+				padding: 0.95rem 1rem;
+				border-radius: 1rem;
+				background: rgba( 255, 255, 255, 0.04 );
+				border: 1px solid rgba( 255, 255, 255, 0.08 );
+			}
+
+			.page-character-select__detail-label {
+				display: block;
+				margin-bottom: 0.35rem;
+				font: 700 0.72rem/1 var( --font-ui, sans-serif );
+				letter-spacing: 0.15em;
+				text-transform: uppercase;
+				color: #9bb4c9;
+			}
+
+			.page-character-select__detail-value {
+				font: 800 0.95rem/1.35 var( --font-display, sans-serif );
+				letter-spacing: 0.05em;
+				text-transform: uppercase;
+				color: #ffffff;
+			}
+
+			.page-character-select__detail-copy {
+				font: 500 0.92rem/1.55 var( --font-ui, sans-serif );
+				color: rgba( 248, 251, 255, 0.78 );
+			}
+
+			.page-character-select__camera-debug-copy {
+				margin-bottom: 0.85rem;
+			}
+
+			.page-character-select__camera-debug-grid {
+				display: grid;
+				gap: 0.7rem;
+			}
+
+			.page-character-select__camera-debug-row {
+				display: grid;
+				grid-template-columns: 4.4rem minmax( 0, 1fr ) 3.7rem;
+				gap: 0.65rem;
+				align-items: center;
+			}
+
+			.page-character-select__camera-debug-name {
+				font: 700 0.75rem/1 var( --font-ui, sans-serif );
+				letter-spacing: 0.12em;
+				text-transform: uppercase;
+				color: rgba( 248, 251, 255, 0.72 );
+			}
+
+			.page-character-select__camera-debug-slider {
+				width: 100%;
+				accent-color: #85efff;
+			}
+
+			.page-character-select__camera-debug-value {
+				font: 700 0.74rem/1 var( --font-ui, sans-serif );
+				letter-spacing: 0.06em;
+				text-align: right;
+				color: #f8fbff;
+			}
+
+			.page-character-select__camera-debug-actions {
+				display: flex;
+				justify-content: flex-end;
+				margin-top: 0.85rem;
+			}
+
+			.page-character-select__camera-debug-reset {
+				border: 1px solid rgba( 255, 255, 255, 0.12 );
+				border-radius: 999px;
+				background: rgba( 255, 255, 255, 0.04 );
+				color: #f8fbff;
+				font: 700 0.7rem/1 var( --font-ui, sans-serif );
+				letter-spacing: 0.12em;
+				text-transform: uppercase;
+				padding: 0.72rem 0.95rem;
+				cursor: pointer;
+			}
+
+			.page-character-select__camera-debug-reset:hover {
+				border-color: rgba( 255, 255, 255, 0.24 );
+				background: rgba( 255, 255, 255, 0.08 );
+			}
+
+			.page-character-select__camera-debug-readout {
+				margin-top: 0.9rem;
+				font: 600 0.74rem/1.5 var( --font-ui, sans-serif );
+				letter-spacing: 0.04em;
+				color: rgba( 133, 239, 255, 0.82 );
+				word-break: break-word;
+			}
 
 			.page-character-select__footer {
-				grid-area: footer;
 				display: flex;
+				justify-content: flex-end;
+				gap: 0.9rem;
 				align-items: center;
-				justify-content: center;
-				padding: var(--space-4) var(--space-6);
-				background: rgba(0, 0, 0, 0.6);
-				border-top: var(--border-thin, 1px) solid var(--color-panel-border, rgba(255,255,255,0.1));
-				gap: var(--space-4);
+				padding: 0.9rem 1rem;
+				border: 1px solid rgba( 255, 255, 255, 0.1 );
+				border-radius: 1.2rem;
+				background: rgba( 10, 18, 28, 0.78 );
+				box-shadow: 0 18px 40px rgba( 0, 0, 0, 0.22 );
+				backdrop-filter: blur( 16px );
 			}
 
 			.page-character-select__footer .kk-cta-button {
-				min-width: 240px;
-				font-size: var(--text-lg, 1.125rem);
-				letter-spacing: var(--tracking-widest, 0.2em);
+				min-width: 11rem;
 			}
 
-			/* ===================================================
-			   Responsive
-			   =================================================== */
-
-			@media (max-width: 1024px) {
+			@media ( max-width: 1180px ) {
 				.page-character-select__content {
-					grid-template-columns: 220px 1fr;
-					grid-template-areas:
-						"grid preview"
-						"grid stats";
+					grid-template-columns: 1fr;
 				}
 			}
 
-			@media (max-width: 640px) {
-				.page-character-select__content {
-					grid-template-columns: 1fr;
-					grid-template-areas:
-						"preview"
-						"grid"
-						"stats";
+			@media ( max-width: 640px ) {
+				.page-character-select {
+					padding: 1rem;
+				}
+
+				.page-character-select__header {
+					flex-wrap: wrap;
+					justify-content: center;
+				}
+
+				.page-character-select__footer {
+					flex-direction: column-reverse;
+				}
+
+				.page-character-select__footer .kk-cta-button {
+					width: 100%;
 				}
 			}
 		`;
@@ -524,422 +584,866 @@ export class Page10CharacterSelectView extends PageViewBase {
 
 	}
 
-	// ---------------------------------------------------------------------------
-	// Build
-	// ---------------------------------------------------------------------------
-
 	_build() {
 
 		const root = this._root;
 		root.setAttribute( 'role', 'main' );
-		root.setAttribute( 'aria-label', 'Character Select' );
+		root.setAttribute( 'aria-label', this._config.rootAriaLabel );
 
-		// --- Header ---
-		const header = document.createElement( 'div' );
-		header.className = 'page-character-select__header';
+		const shouldRenderHeader = this._config.showBackButton || this._config.showBrandHeader;
+		root.classList.toggle( 'page-character-select--no-header', ! shouldRenderHeader );
+		if ( shouldRenderHeader ) {
 
-		this._backBtn = document.createElement( 'button' );
-		this._backBtn.type = 'button';
-		this._backBtn.className = 'page-character-select__back-btn';
-		this._backBtn.setAttribute( 'data-action', ButtonIds.GLOBAL_BACK );
-		this._backBtn.setAttribute( 'aria-label', 'Back' );
-		this._backBtn.innerHTML = `
-			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-			     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-				<polyline points="15 18 9 12 15 6"/>
-			</svg>
-			<span>BACK</span>
-		`;
-		header.appendChild( this._backBtn );
+			const header = document.createElement( 'div' );
+			header.className = 'page-character-select__header';
+			if ( ! this._config.showBackButton ) {
 
-		const brand = document.createElement( 'div' );
-		brand.className = 'page-character-select__brand';
+				header.classList.add( 'page-character-select__header--centered' );
 
-		const brandSub = document.createElement( 'div' );
-		brandSub.className = 'page-character-select__brand-sub';
-		brandSub.textContent = 'KART KIDS';
-		brand.appendChild( brandSub );
+			}
 
-		const title = document.createElement( 'h1' );
-		title.className = 'page-character-select__title';
-		title.textContent = 'CHARACTER SELECT';
-		brand.appendChild( title );
+			if ( this._config.showBackButton ) {
 
-		header.appendChild( brand );
-		root.appendChild( header );
+				this._backBtn = document.createElement( 'button' );
+				this._backBtn.type = 'button';
+				this._backBtn.className = 'page-character-select__back-btn';
+				this._backBtn.setAttribute( 'data-action', ButtonIds.GLOBAL_BACK );
+				this._backBtn.innerHTML = `
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"
+						stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<polyline points="15 18 9 12 15 6"/>
+					</svg>
+					<span>Back</span>
+				`;
+				header.appendChild( this._backBtn );
 
-		// --- Content ---
-		const content = document.createElement( 'div' );
-		content.className = 'page-character-select__content';
+			}
 
-		// Left: card grid
-		const gridCol = document.createElement( 'div' );
-		gridCol.className = 'page-character-select__grid-col';
+			if ( this._config.showBrandHeader ) {
 
-		const gridLabel = document.createElement( 'div' );
-		gridLabel.className = 'page-character-select__col-label';
-		gridLabel.textContent = 'CHARACTER SKINS';
-		gridCol.appendChild( gridLabel );
+				const brand = document.createElement( 'div' );
+				brand.className = 'page-character-select__brand';
 
-		this._cardGrid = document.createElement( 'div' );
-		this._cardGrid.className = 'page-character-select__card-grid';
-		this._cardGrid.setAttribute( 'role', 'grid' );
-		this._cardGrid.setAttribute( 'aria-label', 'Character selection' );
-		gridCol.appendChild( this._cardGrid );
-		this._registerSection( 'cardGrid', this._cardGrid );
+				const eyebrow = document.createElement( 'div' );
+				eyebrow.className = 'page-character-select__eyebrow';
+				eyebrow.textContent = this._config.eyebrowText;
+				brand.appendChild( eyebrow );
 
-		content.appendChild( gridCol );
+				const title = document.createElement( 'h1' );
+				title.className = 'page-character-select__title';
+				title.textContent = this._config.titleText;
+				brand.appendChild( title );
 
-		// Center: preview
-		const previewCol = document.createElement( 'div' );
-		previewCol.className = 'page-character-select__preview-col';
+				header.appendChild( brand );
 
-		const previewLabel = document.createElement( 'div' );
-		previewLabel.className = 'page-character-select__preview-label';
-		previewLabel.textContent = 'SELECTED CHARACTER';
-		previewCol.appendChild( previewLabel );
+			}
 
-		this._heroPanel = new HeroPreviewPanel( {
-			sceneId:     'character_preview',
-			ariaLabel:   'Selected character preview',
-			aspectRatio: '3/4',
-			loading:     true,
-		} );
-
-		const previewWrap = document.createElement( 'div' );
-		previewWrap.className = 'page-character-select__preview-wrap';
-		previewWrap.appendChild( this._heroPanel.el );
-		previewCol.appendChild( previewWrap );
-
-		// Status bar
-		const statusBar = document.createElement( 'div' );
-		statusBar.className = 'page-character-select__status-bar';
-		statusBar.setAttribute( 'aria-live', 'polite' );
-		statusBar.setAttribute( 'aria-atomic', 'true' );
-
-		const statusLabel = document.createElement( 'div' );
-		statusLabel.className = 'page-character-select__status-label';
-		statusLabel.textContent = 'STATUS';
-		statusBar.appendChild( statusLabel );
-
-		const statusBadge = document.createElement( 'div' );
-		statusBadge.className = 'page-character-select__status-badge page-character-select__status-badge--owned';
-		statusBadge.textContent = 'OWNED';
-		statusBar.appendChild( statusBadge );
-		this._registerSection( 'statusBadge', statusBadge );
-
-		previewCol.appendChild( statusBar );
-		content.appendChild( previewCol );
-
-		// Right: stats + ability
-		const statsCol = document.createElement( 'div' );
-		statsCol.className = 'page-character-select__stats-col';
-
-		// CHARACTER STATS panel
-		const statsPanel = document.createElement( 'section' );
-		statsPanel.className = 'page-character-select__stats-panel';
-		statsPanel.setAttribute( 'aria-label', 'Character statistics' );
-
-		const statsLabel = document.createElement( 'div' );
-		statsLabel.className = 'page-character-select__panel-label';
-		statsLabel.textContent = 'CHARACTER STATS';
-		statsPanel.appendChild( statsLabel );
-
-		for ( const def of STAT_DEFS ) {
-
-			const row = document.createElement( 'div' );
-			row.className = 'page-character-select__stat-row';
-
-			const statHeader = document.createElement( 'div' );
-			statHeader.className = 'page-character-select__stat-header';
-
-			const statName = document.createElement( 'div' );
-			statName.className = 'page-character-select__stat-name';
-			statName.textContent = def.label.toUpperCase();
-			statHeader.appendChild( statName );
-
-			const statVal = document.createElement( 'div' );
-			statVal.className = 'page-character-select__stat-value';
-			statVal.textContent = '—';
-			statVal.dataset.statKey = def.key;
-			statHeader.appendChild( statVal );
-
-			row.appendChild( statHeader );
-
-			const bar = new ProgressBar( {
-				label:   def.label,
-				value:   0,
-				min:     0,
-				max:     100,
-				variant: 'stat',
-				animated: true,
-				showEndLabel: false,
-			} );
-			row.appendChild( bar.el );
-			this._statBars.set( def.key, bar );
-
-			statsPanel.appendChild( row );
+			root.appendChild( header );
 
 		}
 
-		statsCol.appendChild( statsPanel );
+		const content = document.createElement( 'div' );
+		content.className = 'page-character-select__content';
 
-		// SPECIAL ABILITY panel
-		const abilityPanel = document.createElement( 'section' );
-		abilityPanel.className = 'page-character-select__ability-panel';
-		abilityPanel.setAttribute( 'aria-label', 'Special ability' );
+		const sidebar = document.createElement( 'section' );
+		sidebar.className = 'page-character-select__panel page-character-select__sidebar';
 
-		const abilityPanelLabel = document.createElement( 'div' );
-		abilityPanelLabel.className = 'page-character-select__panel-label';
-		abilityPanelLabel.textContent = 'SPECIAL ABILITY';
-		abilityPanel.appendChild( abilityPanelLabel );
+		const sidebarLabel = document.createElement( 'div' );
+		sidebarLabel.className = 'page-character-select__panel-label';
+		sidebarLabel.textContent = 'Customizer';
+		sidebar.appendChild( sidebarLabel );
 
-		const abilityName = document.createElement( 'div' );
-		abilityName.className = 'page-character-select__ability-name';
-		abilityName.textContent = '—';
-		abilityPanel.appendChild( abilityName );
-		this._registerSection( 'abilityName', abilityName );
+		const sidebarCopy = document.createElement( 'p' );
+		sidebarCopy.className = 'page-character-select__panel-copy';
+		sidebarCopy.textContent = this._config.sidebarCopy;
+		sidebar.appendChild( sidebarCopy );
 
-		const abilityDesc = document.createElement( 'div' );
-		abilityDesc.className = 'page-character-select__ability-desc';
-		abilityDesc.textContent = '—';
-		abilityPanel.appendChild( abilityDesc );
-		this._registerSection( 'abilityDesc', abilityDesc );
+		this._categoryStack = document.createElement( 'div' );
+		this._categoryStack.className = 'page-character-select__category-stack';
+		sidebar.appendChild( this._categoryStack );
+		content.appendChild( sidebar );
 
-		statsCol.appendChild( abilityPanel );
-		content.appendChild( statsCol );
+		const previewPanel = document.createElement( 'section' );
+		previewPanel.className = 'page-character-select__panel page-character-select__preview';
+
+		const previewTitle = document.createElement( 'div' );
+		previewTitle.className = 'page-character-select__preview-title';
+
+		const previewLabel = document.createElement( 'div' );
+		previewLabel.className = 'page-character-select__panel-label';
+		previewLabel.textContent = 'Live Preview';
+		previewTitle.appendChild( previewLabel );
+
+		const selectedValue = document.createElement( 'div' );
+		selectedValue.className = 'page-character-select__preview-selected';
+		previewTitle.appendChild( selectedValue );
+		this._registerSection( 'selectedValue', selectedValue );
+
+		const previewCopy = document.createElement( 'p' );
+		previewCopy.className = 'page-character-select__preview-copy';
+		previewTitle.appendChild( previewCopy );
+		this._registerSection( 'previewCopy', previewCopy );
+
+		previewPanel.appendChild( previewTitle );
+
+		const heroWrap = document.createElement( 'div' );
+		heroWrap.className = 'page-character-select__hero-wrap page-character-select__preview-card';
+
+		this._previewPanel = new HeroPreviewPanel( {
+			sceneId: 'character_page_preview',
+			ariaLabel: 'Character preview',
+			aspectRatio: '4/5',
+			loading: true,
+		} );
+		heroWrap.appendChild( this._previewPanel.el );
+		previewPanel.appendChild( heroWrap );
+		content.appendChild( previewPanel );
+
+		const detailsPanel = document.createElement( 'section' );
+		detailsPanel.className = 'page-character-select__panel page-character-select__details';
+
+		const detailsLabel = document.createElement( 'div' );
+		detailsLabel.className = 'page-character-select__panel-label';
+		detailsLabel.textContent = 'Save State';
+		detailsPanel.appendChild( detailsLabel );
+
+		const detailsGrid = document.createElement( 'div' );
+		detailsGrid.className = 'page-character-select__details-grid';
+
+		detailsGrid.appendChild( this._buildDetailCard( 'Saved', 'savedValue' ) );
+		detailsGrid.appendChild( this._buildDetailCard( 'Draft', 'draftValue' ) );
+		detailsGrid.appendChild( this._buildDetailCard( 'Status', 'statusValue' ) );
+
+		const summaryCard = document.createElement( 'div' );
+		summaryCard.className = 'page-character-select__detail-card';
+
+		const summaryLabel = document.createElement( 'span' );
+		summaryLabel.className = 'page-character-select__detail-label';
+		summaryLabel.textContent = 'Current Style';
+		summaryCard.appendChild( summaryLabel );
+
+		const summaryCopy = document.createElement( 'div' );
+		summaryCopy.className = 'page-character-select__detail-copy';
+		summaryCard.appendChild( summaryCopy );
+		this._registerSection( 'summaryCopy', summaryCopy );
+
+		detailsGrid.appendChild( summaryCard );
+
+		if ( this._config.showCameraDebugControls ) {
+
+			detailsGrid.appendChild( this._buildCameraDebugCard() );
+
+		}
+
+		detailsPanel.appendChild( detailsGrid );
+		content.appendChild( detailsPanel );
+
 		root.appendChild( content );
 
-		// --- Footer ---
 		const footer = document.createElement( 'div' );
 		footer.className = 'page-character-select__footer';
 
-		this._selectBtn = new CTAButton( {
-			label:    'SELECT',
-			variant:  'primary',
-			actionId: ButtonIds.CHARACTER_SELECT_CONFIRM,
-			ariaLabel: 'Equip selected character',
+		this._cancelBtn = new CTAButton( {
+			label: this._config.secondaryActionLabel,
+			variant: 'ghost',
+			ariaLabel: this._config.secondaryActionAriaLabel,
 		} );
-		footer.appendChild( this._selectBtn.el );
+		footer.appendChild( this._cancelBtn.el );
+
+		this._saveBtn = new CTAButton( {
+			label: 'Save',
+			variant: 'primary',
+			actionId: ButtonIds.CHARACTER_SELECT_CONFIRM,
+			ariaLabel: 'Save character draft',
+		} );
+		footer.appendChild( this._saveBtn.el );
 
 		root.appendChild( footer );
 
 	}
 
-	// ---------------------------------------------------------------------------
-	// Lifecycle override
-	// ---------------------------------------------------------------------------
+	_buildDetailCard( label, sectionName ) {
 
-	_onMounted() {
+		const card = document.createElement( 'div' );
+		card.className = 'page-character-select__detail-card';
 
-		// Focus the first card so keyboard navigation starts there.
-		const firstCard = this._cardGrid?.querySelector( '.page-character-select__card' );
-		firstCard?.focus( { preventScroll: true } );
+		const cardLabel = document.createElement( 'span' );
+		cardLabel.className = 'page-character-select__detail-label';
+		cardLabel.textContent = label;
+		card.appendChild( cardLabel );
+
+		const cardValue = document.createElement( 'div' );
+		cardValue.className = 'page-character-select__detail-value';
+		card.appendChild( cardValue );
+		this._registerSection( sectionName, cardValue );
+
+		return card;
 
 	}
 
-	// ---------------------------------------------------------------------------
-	// Public API
-	// ---------------------------------------------------------------------------
+	_buildCameraDebugCard() {
 
-	/**
-	 * Render the full character card grid.
-	 *
-	 * @param {Array<{id:string, name:string, owned:boolean}>} characters
-	 * @param {string} equippedId  Currently equipped character id.
-	 */
-	setCharacters( characters, equippedId ) {
+		const card = document.createElement( 'div' );
+		card.className = 'page-character-select__detail-card';
 
-		const grid = this._cardGrid;
-		if ( ! grid ) return;
+		const label = document.createElement( 'span' );
+		label.className = 'page-character-select__detail-label';
+		label.textContent = 'Camera Debug';
+		card.appendChild( label );
 
-		grid.innerHTML = '';
+		const copy = document.createElement( 'div' );
+		copy.className = 'page-character-select__detail-copy page-character-select__camera-debug-copy';
+		copy.textContent = 'Use these live offsets to center the character preview, then send the values back.';
+		card.appendChild( copy );
 
-		for ( const char of characters ) {
+		const grid = document.createElement( 'div' );
+		grid.className = 'page-character-select__camera-debug-grid';
 
-			const card = document.createElement( 'button' );
-			card.type = 'button';
-			card.role = 'gridcell';
-			card.className = 'page-character-select__card';
-			if ( ! char.owned ) card.classList.add( 'page-character-select__card--locked' );
-			card.dataset.characterId = char.id;
-			card.setAttribute( 'aria-label', `${char.name} — ${char.owned ? 'Owned' : 'Locked'}` );
-			card.setAttribute( 'aria-pressed', String( char.id === equippedId ) );
+		for ( const sliderDef of CAMERA_DEBUG_SLIDER_DEFS ) {
 
-			// Placeholder avatar
-			const avatar = document.createElement( 'div' );
-			avatar.className = 'page-character-select__card-avatar';
-			avatar.setAttribute( 'aria-hidden', 'true' );
-			avatar.innerHTML = `<svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor" aria-hidden="true">
-				<circle cx="12" cy="8" r="4"/>
-				<path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-			</svg>`;
-			card.appendChild( avatar );
+			const row = document.createElement( 'label' );
+			row.className = 'page-character-select__camera-debug-row';
 
-			// Name
-			const name = document.createElement( 'div' );
-			name.className = 'page-character-select__card-name';
-			name.textContent = char.name;
-			card.appendChild( name );
+			const name = document.createElement( 'span' );
+			name.className = 'page-character-select__camera-debug-name';
+			name.textContent = sliderDef.label;
+			row.appendChild( name );
 
-			// Owned / locked badge
-			const badge = document.createElement( 'div' );
-			if ( char.owned ) {
+			const input = document.createElement( 'input' );
+			input.type = 'range';
+			input.className = 'page-character-select__camera-debug-slider';
+			input.min = String( sliderDef.min );
+			input.max = String( sliderDef.max );
+			input.step = String( sliderDef.step );
+			input.value = '0';
+			input.setAttribute( 'aria-label', `${ sliderDef.label } camera debug slider` );
+			input.addEventListener( 'input', () => {
 
-				badge.className = 'page-character-select__card-badge page-character-select__card-badge--owned';
-				badge.textContent = 'OWNED';
-
-			} else {
-
-				badge.className = 'page-character-select__card-badge page-character-select__card-badge--locked';
-				badge.setAttribute( 'data-action', ButtonIds.CHARACTER_SELECT_LOCKED );
-				badge.innerHTML = `
-					<svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
-					     aria-hidden="true">
-						<rect x="3" y="11" width="18" height="11" rx="2"/>
-						<path d="M7 11V7a5 5 0 0110 0v4" stroke-linecap="round"/>
-					</svg>
-					LOCKED
-				`;
-
-			}
-
-			card.appendChild( badge );
-
-			// Click fires a delegated custom event
-			card.addEventListener( 'click', () => {
-
-				grid.dispatchEvent( new CustomEvent( 'kk:character:select', {
-					bubbles:  true,
+				this._root.dispatchEvent( new CustomEvent( 'kk:character:camera-debug', {
+					bubbles: true,
 					composed: true,
-					detail:   { characterId: char.id },
+					detail: {
+						controlId: sliderDef.id,
+						value: Number( input.value ),
+					},
+				} ) );
+
+			} );
+			row.appendChild( input );
+			this._cameraDebugInputs.set( sliderDef.id, input );
+
+			const value = document.createElement( 'span' );
+			value.className = 'page-character-select__camera-debug-value';
+			value.textContent = '0.00';
+			row.appendChild( value );
+			this._cameraDebugValueEls.set( sliderDef.id, value );
+
+			grid.appendChild( row );
+
+		}
+
+		card.appendChild( grid );
+
+		const actions = document.createElement( 'div' );
+		actions.className = 'page-character-select__camera-debug-actions';
+
+		this._cameraDebugResetBtn = document.createElement( 'button' );
+		this._cameraDebugResetBtn.type = 'button';
+		this._cameraDebugResetBtn.className = 'page-character-select__camera-debug-reset';
+		this._cameraDebugResetBtn.textContent = 'Reset Camera';
+		this._cameraDebugResetBtn.addEventListener( 'click', () => {
+
+			this._root.dispatchEvent( new CustomEvent( 'kk:character:camera-debug-reset', {
+				bubbles: true,
+				composed: true,
+			} ) );
+
+		} );
+		actions.appendChild( this._cameraDebugResetBtn );
+		card.appendChild( actions );
+
+		this._cameraDebugReadoutEl = document.createElement( 'div' );
+		this._cameraDebugReadoutEl.className = 'page-character-select__camera-debug-readout';
+		card.appendChild( this._cameraDebugReadoutEl );
+
+		this.setCameraDebugState( {} );
+
+		return card;
+
+	}
+
+	_onMounted() {
+
+		( this._categoryStack?.querySelector( '.page-character-select__category-toggle' ) || this._backBtn )?.focus( { preventScroll: true } );
+
+	}
+
+	renderCategories( categories ) {
+
+		if ( ! this._categoryStack ) return;
+		this._rememberCarouselScrollPositions();
+		this._teardownCarouselInteractions();
+		this._categoryStack.innerHTML = '';
+
+		for ( const category of categories ) {
+
+			const section = document.createElement( 'section' );
+			section.className = 'page-character-select__category';
+
+			const toggle = document.createElement( 'button' );
+			toggle.type = 'button';
+			toggle.className = 'page-character-select__category-toggle';
+			toggle.setAttribute( 'aria-expanded', String( category.isOpen ) );
+			toggle.setAttribute( 'aria-label', `${ category.label } category` );
+			toggle.addEventListener( 'click', () => {
+
+				this._root.dispatchEvent( new CustomEvent( 'kk:character:category', {
+					bubbles: true,
+					composed: true,
+					detail: { categoryId: category.id },
 				} ) );
 
 			} );
 
-			grid.appendChild( card );
+			const titleWrap = document.createElement( 'span' );
+			titleWrap.className = 'page-character-select__category-title';
+
+			const title = document.createElement( 'span' );
+			title.className = 'page-character-select__category-name';
+			title.textContent = category.label;
+			titleWrap.appendChild( title );
+
+			const summary = document.createElement( 'span' );
+			summary.className = 'page-character-select__category-summary';
+			summary.textContent = category.summary;
+			titleWrap.appendChild( summary );
+			toggle.appendChild( titleWrap );
+
+			const chevron = document.createElement( 'span' );
+			chevron.className = 'page-character-select__category-chevron';
+			chevron.textContent = category.isOpen ? 'Close' : 'Open';
+			toggle.appendChild( chevron );
+
+			section.appendChild( toggle );
+
+			if ( category.isOpen ) {
+
+				const drawer = document.createElement( 'div' );
+				drawer.className = 'page-character-select__category-drawer';
+
+				let carousel = null;
+				if ( Array.isArray( category.items ) && category.items.length > 0 ) {
+
+					const drawerCopy = document.createElement( 'div' );
+					drawerCopy.className = 'page-character-select__drawer-copy';
+					drawerCopy.textContent = 'Swipe, drag, or mouse-wheel to browse this category.';
+					drawer.appendChild( drawerCopy );
+
+					carousel = document.createElement( 'div' );
+					carousel.className = 'page-character-select__carousel';
+					carousel.dataset.categoryId = category.id;
+
+					for ( const item of category.items ) {
+
+						const dispatchItemActivate = () => {
+
+							this._rememberCarouselScrollPositions();
+							this._root.dispatchEvent( new CustomEvent( 'kk:character:item', {
+								bubbles: true,
+								composed: true,
+								detail: {
+									categoryId: category.id,
+									itemId: item.id,
+								},
+							} ) );
+
+						};
+
+						const button = document.createElement( 'button' );
+						button.type = 'button';
+						button.className = 'page-character-select__item';
+						button.classList.toggle( 'page-character-select__item--active', !! item.active );
+						button.classList.toggle( 'page-character-select__item--saved', !! item.savedActive );
+						button.setAttribute( 'aria-pressed', String( !! item.active ) );
+						button.setAttribute( 'aria-label', `${ item.label } ${ item.metaText }` );
+						button.addEventListener( 'pointerup', ( event ) => {
+
+							if ( event.button !== undefined && event.button !== 0 ) return;
+
+							const interactionState = carousel._kkInteractionState;
+							if ( interactionState?.dragged ) return;
+							if ( performance.now() < ( interactionState?.suppressClickUntil || 0 ) ) return;
+
+							event.preventDefault();
+							dispatchItemActivate();
+
+						} );
+						button.addEventListener( 'click', ( event ) => {
+
+							if ( event.detail !== 0 ) return;
+							dispatchItemActivate();
+
+						} );
+
+						const itemName = document.createElement( 'div' );
+						itemName.className = 'page-character-select__item-name';
+						itemName.textContent = item.label;
+						button.appendChild( itemName );
+
+						const itemMeta = document.createElement( 'div' );
+						itemMeta.className = 'page-character-select__item-meta';
+						itemMeta.textContent = item.metaText;
+						button.appendChild( itemMeta );
+
+						carousel.appendChild( button );
+
+					}
+
+					drawer.appendChild( carousel );
+
+				}
+
+				if ( Array.isArray( category.colorControls ) && category.colorControls.length > 0 ) {
+
+					const controls = document.createElement( 'div' );
+					controls.className = 'page-character-select__drawer-controls';
+
+					for ( const control of category.colorControls ) {
+
+						const row = document.createElement( 'div' );
+						row.className = 'page-character-select__color-row';
+
+						const copy = document.createElement( 'div' );
+						copy.className = 'page-character-select__color-copy';
+
+						const label = document.createElement( 'div' );
+						label.className = 'page-character-select__color-label';
+						label.textContent = control.label;
+						copy.appendChild( label );
+
+						const meta = document.createElement( 'div' );
+						meta.className = 'page-character-select__color-meta';
+						meta.textContent = control.isCustom ? 'Custom Color' : 'Default Color';
+						copy.appendChild( meta );
+						row.appendChild( copy );
+
+						const input = document.createElement( 'input' );
+						input.type = 'color';
+						input.className = 'page-character-select__color-input';
+						input.value = control.value;
+						input.setAttribute( 'aria-label', `${ control.label } picker` );
+						input.addEventListener( 'input', () => {
+
+							this._rememberCarouselScrollPositions();
+							this._root.dispatchEvent( new CustomEvent( 'kk:character:color', {
+								bubbles: true,
+								composed: true,
+								detail: {
+									categoryId: category.id,
+									controlId: control.id,
+									value: input.value,
+								},
+							} ) );
+
+						} );
+						row.appendChild( input );
+
+						const reset = document.createElement( 'button' );
+						reset.type = 'button';
+						reset.className = 'page-character-select__color-reset';
+						reset.textContent = 'Reset';
+						reset.addEventListener( 'click', () => {
+
+							this._rememberCarouselScrollPositions();
+							this._root.dispatchEvent( new CustomEvent( 'kk:character:color', {
+								bubbles: true,
+								composed: true,
+								detail: {
+									categoryId: category.id,
+									controlId: control.id,
+									value: control.resetValue ?? '',
+								},
+							} ) );
+
+						} );
+						row.appendChild( reset );
+						controls.appendChild( row );
+
+					}
+
+					drawer.appendChild( controls );
+
+				}
+
+				section.appendChild( drawer );
+				if ( carousel ) {
+
+					this._setupCarouselInteractions( category.id, carousel );
+					this._restoreCarouselScrollPosition( category.id, carousel );
+
+				}
+
+			}
+
+			this._categoryStack.appendChild( section );
 
 		}
 
 	}
 
-	/**
-	 * Update the hero preview, stats bars, ability panel, and status badge
-	 * to reflect the newly selected character.
-	 *
-	 * @param {{ id:string, name:string, owned:boolean, speed:number, drift:number,
-	 *           handling:number, accel:number, ability:string, abilityDesc:string }} character
-	 * @param {string} equippedId  The currently equipped character id.
-	 */
-	setSelectedCharacter( character, equippedId ) {
+	setSelectionState( { selectedLabel, savedLabel, dirty, summaryText } ) {
 
-		// Hero caption
-		this._heroPanel?.setCaption( character.name.toUpperCase() );
-		this._heroPanel?.setAriaLabel( `${character.name} character preview` );
+		this._previewPanel?.setCaption( selectedLabel.toUpperCase() );
+		this._previewPanel?.setAriaLabel( `${ selectedLabel } preview` );
 
-		// Status badge
-		const badge = this.getSection( 'statusBadge' );
-		if ( badge ) {
+		const selectedValue = this.getSection( 'selectedValue' );
+		if ( selectedValue ) selectedValue.textContent = selectedLabel;
 
-			const isOwned = character.owned;
-			badge.textContent = isOwned ? 'OWNED' : 'LOCKED';
-			badge.className = `page-character-select__status-badge page-character-select__status-badge--${isOwned ? 'owned' : 'locked'}`;
+		const previewCopy = this.getSection( 'previewCopy' );
+		if ( previewCopy ) {
+
+			previewCopy.textContent = dirty
+				? 'Drag the preview to rotate, pinch or mouse-wheel to zoom, and only the selected gear should remain visible.'
+				: 'This draft matches the version already saved on your driver. Drag to rotate and use pinch or mouse-wheel to zoom.';
 
 		}
 
-		// Stat bars
-		const statKeys = [ 'speed', 'drift', 'handling', 'accel' ];
-		for ( const key of statKeys ) {
+		const savedValue = this.getSection( 'savedValue' );
+		if ( savedValue ) savedValue.textContent = savedLabel;
 
-			const bar = this._statBars.get( key );
-			const val = character[ key ] ?? 0;
-			bar?.setValue( val, `${val}%` );
+		const draftValue = this.getSection( 'draftValue' );
+		if ( draftValue ) draftValue.textContent = selectedLabel;
 
-			// Also update the numeric label
-			const valEl = this._root.querySelector( `[data-stat-key="${key}"]` );
-			if ( valEl ) valEl.textContent = `${val}%`;
+		const statusValue = this.getSection( 'statusValue' );
+		if ( statusValue ) statusValue.textContent = dirty ? 'Unsaved Changes' : 'Ready To Race';
 
-		}
+		const summaryCopy = this.getSection( 'summaryCopy' );
+		if ( summaryCopy ) summaryCopy.textContent = summaryText;
 
-		// Ability panel
-		const abilityName = this.getSection( 'abilityName' );
-		if ( abilityName ) abilityName.textContent = character.ability ?? '—';
+		this._saveBtn?.setLabel( dirty ? 'Save' : 'Saved' );
+		this._saveBtn?.setDisabled( ! dirty );
 
-		const abilityDesc = this.getSection( 'abilityDesc' );
-		if ( abilityDesc ) abilityDesc.textContent = character.abilityDesc ?? '—';
+		if ( this._config.secondaryActionMode === 'reset' ) {
 
-		// Update select button label
-		if ( character.id === equippedId ) {
-
-			this._selectBtn?.setLabel( 'EQUIPPED' );
-			this._selectBtn?.setDisabled( false );
-
-		} else if ( ! character.owned ) {
-
-			this._selectBtn?.setLabel( 'LOCKED' );
-			this._selectBtn?.setDisabled( true );
-
-		} else {
-
-			this._selectBtn?.setLabel( 'SELECT' );
-			this._selectBtn?.setDisabled( false );
+			this._cancelBtn?.setDisabled( ! dirty );
 
 		}
 
 	}
 
-	/**
-	 * Update visual selected state on the card grid.
-	 *
-	 * @param {string} characterId
-	 */
-	setCardSelected( characterId ) {
+	setPreviewLoading( loading ) {
 
-		this._selectedCardId = characterId;
+		this._previewPanel?.setLoading( loading );
 
-		for ( const card of this._cardGrid.querySelectorAll( '.page-character-select__card' ) ) {
+	}
 
-			const isSelected = card.dataset.characterId === characterId;
-			card.classList.toggle( 'page-character-select__card--selected', isSelected );
-			card.setAttribute( 'aria-pressed', String( isSelected ) );
+	setCameraDebugState( cameraDebugState = {} ) {
+
+		if ( this._cameraDebugInputs.size === 0 ) return;
+
+		for ( const sliderDef of CAMERA_DEBUG_SLIDER_DEFS ) {
+
+			const value = Number( cameraDebugState?.[ sliderDef.id ] );
+			const nextValue = Number.isFinite( value ) ? value : 0;
+			const input = this._cameraDebugInputs.get( sliderDef.id );
+			const valueEl = this._cameraDebugValueEls.get( sliderDef.id );
+
+			if ( input ) input.value = String( nextValue );
+			if ( valueEl ) valueEl.textContent = nextValue.toFixed( 2 );
+
+		}
+
+		if ( this._cameraDebugReadoutEl ) {
+
+			this._cameraDebugReadoutEl.textContent = CAMERA_DEBUG_SLIDER_DEFS
+				.map( ( sliderDef ) => {
+
+					const rawValue = Number( cameraDebugState?.[ sliderDef.id ] );
+					const nextValue = Number.isFinite( rawValue ) ? rawValue : 0;
+					return `${ sliderDef.label }: ${ nextValue.toFixed( 2 ) }`;
+
+				} )
+				.join( ' | ' );
 
 		}
 
 	}
 
-	// ---------------------------------------------------------------------------
-	// Getters
-	// ---------------------------------------------------------------------------
+	get backBtn() {
 
-	/** @returns {HTMLButtonElement} */
-	get backBtn() { return this._backBtn; }
+		return this._backBtn;
 
-	/** @returns {HTMLElement} */
-	get cardGrid() { return this._cardGrid; }
+	}
 
-	/** @returns {CTAButton} */
-	get selectBtn() { return this._selectBtn; }
+	get categoryStack() {
 
-	// ---------------------------------------------------------------------------
-	// Dispose
-	// ---------------------------------------------------------------------------
+		return this._categoryStack;
+
+	}
+
+	get cancelBtn() {
+
+		return this._cancelBtn;
+
+	}
+
+	get saveBtn() {
+
+		return this._saveBtn;
+
+	}
+
+	get previewPanel() {
+
+		return this._previewPanel;
+
+	}
+
+	_rememberCarouselScrollPositions() {
+
+		for ( const carousel of this._categoryStack?.querySelectorAll( '.page-character-select__carousel[data-category-id]' ) || [] ) {
+
+			this._carouselScrollLeftByCategory.set( carousel.dataset.categoryId, carousel.scrollLeft || 0 );
+
+		}
+
+	}
+
+	_restoreCarouselScrollPosition( categoryId, carousel ) {
+
+		if ( ! carousel ) return;
+
+		const applySavedScroll = () => {
+
+			if ( ! carousel.isConnected ) return;
+
+			const scrollLeft = this._carouselScrollLeftByCategory.get( categoryId ) || 0;
+			carousel.scrollLeft = scrollLeft;
+			this._carouselScrollLeftByCategory.set( categoryId, carousel.scrollLeft || scrollLeft );
+
+		};
+
+		applySavedScroll();
+		requestAnimationFrame( applySavedScroll );
+
+	}
+
+	_teardownCarouselInteractions() {
+
+		for ( const cleanup of this._carouselInteractionCleanups ) {
+
+			cleanup();
+
+		}
+
+		this._carouselInteractionCleanups = [];
+
+	}
+
+	_setupCarouselInteractions( categoryId, carousel ) {
+
+		let activePointerId = null;
+		let dragStartX = 0;
+		let dragStartScrollLeft = 0;
+		let lastX = 0;
+		let lastTime = 0;
+		let velocity = 0;
+		let suppressClickUntil = 0;
+		let inertiaFrameId = 0;
+		let dragged = false;
+		const interactionState = {
+			dragged: false,
+			suppressClickUntil: 0,
+		};
+		carousel._kkInteractionState = interactionState;
+
+		const stopInertia = () => {
+
+			if ( ! inertiaFrameId ) return;
+			cancelAnimationFrame( inertiaFrameId );
+			inertiaFrameId = 0;
+
+		};
+
+		const rememberScroll = () => {
+
+			this._carouselScrollLeftByCategory.set( categoryId, carousel.scrollLeft || 0 );
+
+		};
+
+		const runInertia = () => {
+
+			stopInertia();
+
+			const tick = () => {
+
+				velocity *= 0.94;
+				if ( Math.abs( velocity ) < 0.18 ) {
+
+					inertiaFrameId = 0;
+					rememberScroll();
+					return;
+
+				}
+
+				carousel.scrollLeft += velocity;
+				rememberScroll();
+				inertiaFrameId = requestAnimationFrame( tick );
+
+			};
+
+			inertiaFrameId = requestAnimationFrame( tick );
+
+		};
+
+		const endDrag = ( pointerId ) => {
+
+			if ( activePointerId !== pointerId ) return;
+
+			activePointerId = null;
+			carousel.classList.remove( 'page-character-select__carousel--dragging' );
+			if ( dragged ) {
+
+				suppressClickUntil = performance.now() + 180;
+				interactionState.suppressClickUntil = suppressClickUntil;
+				runInertia();
+
+			} else {
+
+				suppressClickUntil = 0;
+				interactionState.suppressClickUntil = 0;
+
+			}
+
+			dragged = false;
+			interactionState.dragged = false;
+
+		};
+
+		const handlePointerDown = ( event ) => {
+
+			if ( event.button !== undefined && event.button !== 0 ) return;
+
+			stopInertia();
+			activePointerId = event.pointerId;
+			dragStartX = event.clientX;
+			dragStartScrollLeft = carousel.scrollLeft;
+			lastX = event.clientX;
+			lastTime = performance.now();
+			velocity = 0;
+			dragged = false;
+			suppressClickUntil = 0;
+			interactionState.dragged = false;
+			interactionState.suppressClickUntil = 0;
+
+		};
+
+		const handlePointerMove = ( event ) => {
+
+			if ( activePointerId !== event.pointerId ) return;
+
+			const now = performance.now();
+			const dx = event.clientX - dragStartX;
+			const stepDx = event.clientX - lastX;
+			const dt = Math.max( now - lastTime, 8 );
+
+			if ( ! dragged ) {
+
+				if ( Math.abs( dx ) <= 6 ) return;
+				dragged = true;
+				interactionState.dragged = true;
+				carousel.classList.add( 'page-character-select__carousel--dragging' );
+				carousel.setPointerCapture?.( event.pointerId );
+
+			}
+
+			carousel.scrollLeft = dragStartScrollLeft - dx * 1.35;
+			velocity = - stepDx * 0.92;
+			lastX = event.clientX;
+			lastTime = now;
+			rememberScroll();
+			event.preventDefault();
+
+		};
+
+		const handlePointerUp = ( event ) => {
+
+			if ( activePointerId !== event.pointerId ) return;
+			if ( dragged ) carousel.releasePointerCapture?.( event.pointerId );
+			endDrag( event.pointerId );
+
+		};
+
+		const handlePointerCancel = ( event ) => {
+
+			if ( activePointerId !== event.pointerId ) return;
+			endDrag( event.pointerId );
+
+		};
+
+		const handleWheel = ( event ) => {
+
+			const delta = Math.abs( event.deltaX ) > Math.abs( event.deltaY ) ? event.deltaX : event.deltaY;
+			if ( delta === 0 ) return;
+
+			event.preventDefault();
+			stopInertia();
+			carousel.scrollLeft += delta * 1.08;
+			rememberScroll();
+
+		};
+
+		const handleClickCapture = ( event ) => {
+
+			if ( performance.now() >= suppressClickUntil ) return;
+			event.preventDefault();
+			event.stopPropagation();
+
+		};
+
+		const handleScroll = () => rememberScroll();
+
+		carousel.addEventListener( 'pointerdown', handlePointerDown );
+		carousel.addEventListener( 'pointermove', handlePointerMove );
+		carousel.addEventListener( 'pointerup', handlePointerUp );
+		carousel.addEventListener( 'pointercancel', handlePointerCancel );
+		carousel.addEventListener( 'wheel', handleWheel, { passive: false } );
+		carousel.addEventListener( 'click', handleClickCapture, true );
+		carousel.addEventListener( 'scroll', handleScroll, { passive: true } );
+
+		this._carouselInteractionCleanups.push( () => {
+
+			stopInertia();
+			carousel.removeEventListener( 'pointerdown', handlePointerDown );
+			carousel.removeEventListener( 'pointermove', handlePointerMove );
+			carousel.removeEventListener( 'pointerup', handlePointerUp );
+			carousel.removeEventListener( 'pointercancel', handlePointerCancel );
+			carousel.removeEventListener( 'wheel', handleWheel );
+			carousel.removeEventListener( 'click', handleClickCapture, true );
+			carousel.removeEventListener( 'scroll', handleScroll );
+			delete carousel._kkInteractionState;
+
+		} );
+
+	}
 
 	dispose() {
 
-		this._heroPanel?.dispose();
-		this._heroPanel = null;
-
-		for ( const bar of this._statBars.values() ) {
-
-			bar.dispose();
-
-		}
-
-		this._statBars.clear();
-
-		this._selectBtn = null;
-		this._backBtn   = null;
-		this._cardGrid  = null;
+		this._rememberCarouselScrollPositions();
+		this._teardownCarouselInteractions();
+		this._previewPanel?.dispose();
+		this._previewPanel = null;
+		this._cancelBtn?.dispose();
+		this._saveBtn?.dispose();
+		this._cancelBtn = null;
+		this._saveBtn = null;
+		this._backBtn = null;
+		this._categoryStack = null;
+		this._carouselScrollLeftByCategory.clear();
+		this._cameraDebugInputs.clear();
+		this._cameraDebugValueEls.clear();
+		this._cameraDebugReadoutEl = null;
+		this._cameraDebugResetBtn = null;
 
 		super.dispose();
 

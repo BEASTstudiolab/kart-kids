@@ -1,11 +1,13 @@
 import { describe, it, before, after, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert';
 import { spawn } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { WebSocket } from 'ws';
 
 const TEST_PORT = 9876;
 const WS_URL = `ws://localhost:${ TEST_PORT }`;
 const TIMEOUT = 5000;
+const TEST_CWD = fileURLToPath( new URL( '../../', import.meta.url ) );
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -136,7 +138,7 @@ before( async () => {
 	await new Promise( ( resolve, reject ) => {
 
 		serverProcess = spawn( 'node', [ 'server.js' ], {
-			cwd: '/Users/calebsmiler/Desktop/OS/kart-kids',
+			cwd: TEST_CWD,
 			env: { ...process.env, PORT: String( TEST_PORT ) },
 			stdio: [ 'ignore', 'pipe', 'pipe' ],
 		} );
@@ -280,12 +282,16 @@ describe( 'Room joining', () => {
 			vehicleColor: '#FFAA00',
 			characterColor: '#11AAFF',
 			charSkinColor: '#CC9966',
+			maskTintMainColor: '#ff00aa',
+			maskTintSecondaryColor: '#00ffaa',
+			selectedBalaclavaId: 'balaclava-wolf',
 			charAccessories: {
-				Balaclava_No_Ears: { visible: false, color: '#00FF11' },
+				Gold_Chain: { visible: false, color: '#00FF11' },
 			},
 		};
 		const guestAppearance = {
 			vehicleColor: '#00FF88',
+			selectedBalaclavaId: 'balaclava-robot',
 			charAccessories: {
 				Baseball_Hat: { visible: true, color: '#1122FF' },
 			},
@@ -301,7 +307,11 @@ describe( 'Room joining', () => {
 		assert.strictEqual( welcomeA.appearance.vehicleColor, '#ffaa00' );
 		assert.strictEqual( welcomeA.appearance.characterColor, '#11aaff' );
 		assert.strictEqual( welcomeA.appearance.charSkinColor, '#cc9966' );
-		assert.deepStrictEqual( welcomeA.appearance.charAccessories.Balaclava_No_Ears, {
+		assert.strictEqual( welcomeA.appearance.maskTintMainColor, '#ff00aa' );
+		assert.strictEqual( welcomeA.appearance.maskTintSecondaryColor, '#00ffaa' );
+		assert.strictEqual( welcomeA.appearance.selectedBalaclavaId, 'balaclava-wolf' );
+		assert.strictEqual( welcomeA.selectedBalaclavaId, 'balaclava-wolf' );
+		assert.deepStrictEqual( welcomeA.appearance.charAccessories.Gold_Chain, {
 			visible: false,
 			color: '#00ff11',
 		} );
@@ -315,14 +325,19 @@ describe( 'Room joining', () => {
 		const joinMsg = await joinPromise;
 
 		assert.strictEqual( welcomeB.appearance.vehicleColor, '#00ff88' );
+		assert.strictEqual( welcomeB.appearance.selectedBalaclavaId, 'balaclava-robot' );
+		assert.strictEqual( welcomeB.selectedBalaclavaId, 'balaclava-robot' );
 		assert.strictEqual( joinMsg.appearance.vehicleColor, '#00ff88' );
+		assert.strictEqual( joinMsg.selectedBalaclavaId, 'balaclava-robot' );
 		assert.deepStrictEqual( joinMsg.appearance.charAccessories.Baseball_Hat, {
 			visible: true,
 			color: '#1122ff',
 		} );
 		assert.strictEqual( welcomeB.existingPlayers.length, 1 );
 		assert.strictEqual( welcomeB.existingPlayers[ 0 ].appearance.vehicleColor, '#ffaa00' );
-		assert.deepStrictEqual( welcomeB.existingPlayers[ 0 ].appearance.charAccessories.Balaclava_No_Ears, {
+		assert.strictEqual( welcomeB.existingPlayers[ 0 ].appearance.maskTintMainColor, '#ff00aa' );
+		assert.strictEqual( welcomeB.existingPlayers[ 0 ].selectedBalaclavaId, 'balaclava-wolf' );
+		assert.deepStrictEqual( welcomeB.existingPlayers[ 0 ].appearance.charAccessories.Gold_Chain, {
 			visible: false,
 			color: '#00ff11',
 		} );
