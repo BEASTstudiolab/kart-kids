@@ -90,7 +90,7 @@ test( 'character tab disables the embedded preview panel in tab mode', () => {
 	assert.deepEqual( controller._buildViewConfig(), {
 		showBackButton: false,
 		showBrandHeader: false,
-		showCameraDebugControls: true,
+		showCameraDebugControls: false,
 		showEmbeddedPreview: false,
 		rootAriaLabel: 'Character tab',
 		sidebarCopy: 'Tune suit, skin, masks, and gear here. Selections apply instantly to your driver.',
@@ -98,7 +98,7 @@ test( 'character tab disables the embedded preview panel in tab mode', () => {
 
 } );
 
-test( 'character camera tuning updates the shared menu preview service', () => {
+test( 'character render clears stale shared preview tuning back to baked defaults', () => {
 
 	const tuningCalls = [];
 	const viewCalls = [];
@@ -113,20 +113,30 @@ test( 'character camera tuning updates the shared menu preview service', () => {
 		} ),
 	} );
 
+	controller._cameraDebugState = {
+		lookTargetX: 0.21,
+		lookTargetY: - 0.14,
+		cameraOffsetX: 0.33,
+		cameraOffsetY: 0.42,
+		cameraOffsetZ: - 0.28,
+	};
 	controller._view = {
+		mount: () => {},
 		setCameraDebugState: ( tuning, previewPose ) => {
 
 			viewCalls.push( { tuning, previewPose } );
 
 		},
 	};
-	controller._handleCameraDebugChange( 'cameraOffsetY', 0.42 );
+	controller._syncView = () => {};
+	controller._trackPageView = false;
+	controller.render( {} );
 
 	assert.deepEqual( tuningCalls, [ {
 		lookTargetX: 0,
 		lookTargetY: 0,
 		cameraOffsetX: 0,
-		cameraOffsetY: 0.42,
+		cameraOffsetY: 0,
 		cameraOffsetZ: 0,
 	} ] );
 	assert.deepEqual( viewCalls, [ {
@@ -134,7 +144,7 @@ test( 'character camera tuning updates the shared menu preview service', () => {
 			lookTargetX: 0,
 			lookTargetY: 0,
 			cameraOffsetX: 0,
-			cameraOffsetY: 0.42,
+			cameraOffsetY: 0,
 			cameraOffsetZ: 0,
 		},
 		previewPose: {

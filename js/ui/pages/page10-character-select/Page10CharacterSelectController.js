@@ -103,7 +103,7 @@ export class Page10CharacterSelectController extends PageControllerBase {
 			return {
 				showBackButton: false,
 				showBrandHeader: false,
-				showCameraDebugControls: true,
+				showCameraDebugControls: false,
 				showEmbeddedPreview: false,
 				rootAriaLabel: 'Character tab',
 				sidebarCopy: 'Tune suit, skin, masks, and gear here. Selections apply instantly to your driver.',
@@ -112,7 +112,7 @@ export class Page10CharacterSelectController extends PageControllerBase {
 		}
 
 		return {
-			showCameraDebugControls: true,
+			showCameraDebugControls: false,
 			showEmbeddedPreview: false,
 			sidebarCopy: 'Tune suit, skin, masks, and gear here. Selections apply instantly to your driver.',
 		};
@@ -163,8 +163,7 @@ export class Page10CharacterSelectController extends PageControllerBase {
 	render( container ) {
 
 		this._view.mount( container );
-		const sharedTuning = this._services.getMenuPreviewTuning?.();
-		if ( sharedTuning ) this._cameraDebugState = { ...this._cameraDebugState, ...sharedTuning };
+		this._cameraDebugState = this._createDefaultCameraDebugState();
 		this._applyCameraDebugState();
 		this._syncView();
 		if ( this._trackPageView ) {

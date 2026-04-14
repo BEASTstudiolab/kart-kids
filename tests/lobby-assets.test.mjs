@@ -99,6 +99,16 @@ test( 'LobbyScene supports contextual menu preview presets', () => {
 	assert.ok( source.includes( '[ MENU_PREVIEW_PRESET_IDS.CHARACTER_ACCESSORIES ]: Object.freeze( {' ) );
 	assert.ok( source.includes( '[ MENU_PREVIEW_PRESET_IDS.CHARACTER_SHIRT ]: Object.freeze( {' ) );
 	assert.ok( source.includes( '[ MENU_PREVIEW_PRESET_IDS.CHARACTER_PANTS ]: Object.freeze( {' ) );
+	assert.ok( source.includes( 'cameraPos: Object.freeze( { x: - 1.50, y: 1.63, z: 5.82 } ),' ) );
+	assert.ok( source.includes( 'lookAt: Object.freeze( { x: - 1.06, y: 1.00, z: 0.05 } ),' ) );
+	assert.ok( source.includes( 'cameraPos: Object.freeze( { x: - 1.50, y: 1.80, z: 5.04 } ),' ) );
+	assert.ok( source.includes( 'lookAt: Object.freeze( { x: 0.18, y: 2.06, z: - 0.02 } ),' ) );
+	assert.ok( source.includes( 'cameraPos: Object.freeze( { x: - 1.50, y: 1.72, z: 4.92 } ),' ) );
+	assert.ok( source.includes( 'lookAt: Object.freeze( { x: 0.17, y: 1.05, z: 0.04 } ),' ) );
+	assert.ok( source.includes( 'cameraPos: Object.freeze( { x: - 1.50, y: 1.32, z: 4.59 } ),' ) );
+	assert.ok( source.includes( 'lookAt: Object.freeze( { x: 0.56, y: 1.71, z: 0.14 } ),' ) );
+	assert.ok( source.includes( 'cameraPos: Object.freeze( { x: - 1.31, y: 0.93, z: 4.67 } ),' ) );
+	assert.ok( source.includes( 'lookAt: Object.freeze( { x: 0.56, y: 1.22, z: 0.52 } ),' ) );
 	assert.ok( source.includes( 'setPreviewPreset( presetId, { immediate = false } = {} ) {' ) );
 	assert.ok( source.includes( 'setPreviewTuning( nextTuning = {}, { immediate = false } = {} ) {' ) );
 	assert.ok( source.includes( 'resetPreviewTuning( options = {} ) {' ) );

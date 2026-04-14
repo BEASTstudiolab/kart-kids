@@ -18,10 +18,6 @@ test( 'character select view supports a shared-stage layout without the embedded
 	assert.ok( source.includes( "grid-template-columns: repeat( 3, minmax( 0, 1fr ) );" ) );
 	assert.ok( source.includes( "grid.className = 'page-character-select__option-grid';" ) );
 	assert.ok( source.includes( "grid-template-columns: repeat( 4, minmax( 0, 1fr ) );" ) );
-	assert.ok( source.includes( "label.textContent = 'Camera Tuning';" ) );
-	assert.ok( source.includes( "this._cameraDebugPoseEl.className = 'page-character-select__camera-debug-pose';" ) );
-	assert.ok( source.includes( '`Preset: ${ presetId }`' ) );
-	assert.ok( source.includes( '`FOV: ${ fov } | Kart Y: ${ kartRotYDeg }`' ) );
 	assert.ok( source.includes( "root.classList.toggle( 'page-character-select--shared-stage', ! this._config.showEmbeddedPreview );" ) );
 	assert.doesNotMatch( source, /page-character-select__stage-hint/ );
 	assert.doesNotMatch( source, /Live Preview/ );
