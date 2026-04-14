@@ -994,8 +994,14 @@ export class GaragePanel {
 		input.className = 'kk-garage__color-input';
 		input.value = def.fallback;
 		input.setAttribute( 'aria-label', `${def.label} color` );
+		input.addEventListener( 'focus', () => {
+
+			this._services.setMenuPreviewFocus?.( 'garage-kart' );
+
+		} );
 		input.addEventListener( 'input', () => {
 
+			this._services.setMenuPreviewFocus?.( 'garage-kart' );
 			this._settings.set( def.key, input.value );
 			this._syncStyleControls();
 
@@ -1381,6 +1387,8 @@ export class GaragePanel {
 			this._services.lobbyScene.setAppearance( this._settings.getPlayerAppearance() );
 
 		}
+
+		this._services.setMenuPreviewFocus?.( 'garage-kart' );
 
 	}
 

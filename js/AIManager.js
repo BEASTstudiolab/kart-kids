@@ -7,7 +7,7 @@ import { BoostFlame } from './BoostFlame.js';
 import { TireMarks } from './TireMarks.js';
 import { FinishLine } from './FinishLine.js';
 import { AIController } from './AIController.js';
-import { AI_LABEL, CPU_AI_PROFILE } from './AIProfiles.js';
+import { AI_LABEL, createSeededCPUProfile, getCPUProfileStyleSummary } from './AIProfiles.js';
 import { ItemSlotManager } from './ItemSlotManager.js';
 import { PLAYER_VEHICLES, PLAYER_CHARACTER_ID } from './VehicleRegistry.js';
 import { getRandomBalaclavaId } from './CharacterCustomization.js';
@@ -146,7 +146,7 @@ export class AIManager {
 
 		this.scene.add( vehicle.container );
 
-		const profile = CPU_AI_PROFILE;
+		const profile = createSeededCPUProfile( index );
 		vehicle.weight = profile.weight || 5;
 		vehicle.itemSlot = new ItemSlotManager( vehicle );
 		const controller = new AIController( this.trackIntel, index, profile );
@@ -158,6 +158,9 @@ export class AIManager {
 
 		this._racers.push( {
 			id: 'ai_' + index,
+			profileSeed: index,
+			profile,
+			styleSummary: getCPUProfileStyleSummary( profile ),
 			vehicle,
 			controller,
 			label: AI_LABEL,
@@ -412,6 +415,7 @@ export class AIManager {
 			ai.passedHalfway = false;
 			ai.finishLine.resetCooldown();
 			ai.controller?.reset?.();
+			ai.controller?.armLaunchPhase?.();
 
 		}
 

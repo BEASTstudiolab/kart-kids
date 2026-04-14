@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import * as THREE from 'three';
 
 import { AIController } from '../js/AIController.js';
+import { createSeededCPUProfile } from '../js/AIProfiles.js';
 import { computeSpawnPosition } from '../js/Track.js';
 import { TRACK_CELLS } from '../js/TrackData.js';
 import { TrackIntel } from '../js/TrackIntel.js';
@@ -364,6 +365,157 @@ test( 'AIController applies deterministic lane spread so bots do not stack on th
 	assert.ok( Math.abs( laneA ) <= 0.6 );
 	assert.ok( Math.abs( laneB ) <= 0.6 );
 	assert.ok( Math.abs( laneA - laneB ) > 0.3, 'different seeds should choose visibly different straight lanes' );
+
+} );
+
+test( 'seeded CPU profiles create visible but still safe cornering differences', () => {
+
+	const track = createPolylineTrack( [
+		{ x: -20, z: 0 },
+		{ x: 0, z: 0 },
+		{ x: 0, z: 24 },
+		{ x: 0, z: 90 },
+	] );
+
+	const vehicleA = createVehicle( { x: -8, z: 0, yawDeg: -90, speed: 0.9, boostMeter: 1 } );
+	const vehicleB = createVehicle( { x: -8, z: 0, yawDeg: -90, speed: 0.9, boostMeter: 1 } );
+
+	const controllerA = new AIController( track, 4, createSeededCPUProfile( 0, { noiseAmplitude: 0 } ) );
+	const controllerB = new AIController( track, 4, createSeededCPUProfile( 7, { noiseAmplitude: 0 } ) );
+
+	const inputA = controllerA.update( 0.016, vehicleA );
+	const inputB = controllerB.update( 0.016, vehicleB );
+	const debugA = controllerA.getDebugState();
+	const debugB = controllerB.getDebugState();
+
+	assert.equal( debugA.mode, 'approach' );
+	assert.equal( debugB.mode, 'approach' );
+	assert.ok( inputA.z < 0, 'seed A should still brake into the hard turn' );
+	assert.ok( inputB.z < 0, 'seed B should still brake into the hard turn' );
+	assert.equal( inputA.boost, false );
+	assert.equal( inputB.boost, false );
+	assert.ok(
+		Math.abs( ( debugA.target?.laneOffset ?? 0 ) - ( debugB.target?.laneOffset ?? 0 ) ) > 0.12,
+		'seeded runtime profiles should choose visibly different but still bounded entries'
+	);
+
+} );
+
+test( 'AIController hesitation mistakes briefly soften straight-line pace and then clear cleanly', () => {
+
+	const track = createPolylineTrack( [
+		{ x: 0, z: 0 },
+		{ x: 0, z: 80 },
+	] );
+
+	const baselineController = new AIController( track, 2, {
+		name: 'Baseline',
+		noiseAmplitude: 0,
+		boostEagerness: true,
+		straightLaneOffset: 0,
+		cornerEntryWidth: 0.85,
+		cornerApexTightness: 0.5,
+		cornerSpeedFactor: 1.0,
+	} );
+	const mistakenController = new AIController( track, 2, {
+		name: 'Baseline',
+		noiseAmplitude: 0,
+		boostEagerness: true,
+		straightLaneOffset: 0,
+		cornerEntryWidth: 0.85,
+		cornerApexTightness: 0.5,
+		cornerSpeedFactor: 1.0,
+	} );
+
+	const baselineVehicle = createVehicle( { x: 0, z: 20, yawDeg: 0, speed: 0.72, boostMeter: 1 } );
+	const mistakenVehicle = createVehicle( { x: 0, z: 20, yawDeg: 0, speed: 0.72, boostMeter: 1 } );
+
+	const baselineInput = baselineController.update( 0.016, baselineVehicle );
+
+	mistakenController._mistakeTimer = 0.18;
+	mistakenController._mistakeType = 'hesitate';
+	mistakenController._mistakeMagnitude = 0.24;
+
+	let mistakenInput = mistakenController.update( 0.016, mistakenVehicle );
+	let mistakenDebug = mistakenController.getDebugState();
+
+	assert.equal( mistakenDebug.mistakeActive, true );
+	assert.equal( mistakenDebug.mistakeType, 'hesitate' );
+	assert.equal( mistakenDebug.mode, 'mistake-hesitate' );
+	assert.equal( mistakenInput.boost, false );
+	assert.ok( mistakenInput.z < baselineInput.z, 'hesitation should reduce throttle versus the clean baseline' );
+
+	for ( let i = 0; i < 20; i ++ ) {
+
+		mistakenInput = mistakenController.update( 0.016, mistakenVehicle );
+
+	}
+
+	mistakenDebug = mistakenController.getDebugState();
+	assert.equal( mistakenDebug.mistakeActive, false );
+	assert.equal( mistakenDebug.mistakeType, null );
+	assert.ok( mistakenInput.z >= baselineInput.z - 0.05, 'pace should recover once the short mistake window ends' );
+	assert.equal( mistakenController._reversing, false );
+
+} );
+
+test( 'AIController opening phase creates immediate launch differences between aggressive and cautious starts', () => {
+
+	const track = createPolylineTrack( [
+		{ x: 0, z: 0 },
+		{ x: 0, z: 120 },
+	] );
+
+	const aggressiveController = new AIController( track, 0, {
+		name: 'Launch Aggressive',
+		noiseAmplitude: 0,
+		boostEagerness: true,
+		straightLaneOffset: 0,
+		cornerEntryWidth: 0.85,
+		cornerApexTightness: 0.5,
+		cornerSpeedFactor: 1.0,
+		startReactionDelay: 0,
+		openingLaneCommit: 0.9,
+		launchAssertiveness: 0.92,
+	} );
+	const cautiousController = new AIController( track, 1, {
+		name: 'Launch Cautious',
+		noiseAmplitude: 0,
+		boostEagerness: true,
+		straightLaneOffset: 0,
+		cornerEntryWidth: 0.85,
+		cornerApexTightness: 0.5,
+		cornerSpeedFactor: 1.0,
+		startReactionDelay: 0.18,
+		openingLaneCommit: 0.35,
+		launchAssertiveness: 0.34,
+	} );
+
+	const aggressiveVehicle = createVehicle( { x: 0, z: 10, yawDeg: 0, speed: 0, boostMeter: 0 } );
+	const cautiousVehicle = createVehicle( { x: 0, z: 10, yawDeg: 0, speed: 0, boostMeter: 0 } );
+	aggressiveController.armLaunchPhase();
+	cautiousController.armLaunchPhase();
+
+	const aggressiveInput = aggressiveController.update( 0.016, aggressiveVehicle );
+	const aggressiveDebug = aggressiveController.getDebugState();
+	const cautiousInput = cautiousController.update( 0.016, cautiousVehicle );
+	const cautiousDebug = cautiousController.getDebugState();
+
+	assert.equal( aggressiveDebug.launchActive, true );
+	assert.equal( cautiousDebug.launchActive, true );
+	assert.equal( aggressiveDebug.launchHolding, false );
+	assert.equal( cautiousDebug.launchHolding, true );
+	assert.ok( aggressiveInput.z > 0.9, `aggressive launch should open with near-full throttle, got ${ aggressiveInput.z }` );
+	assert.ok( cautiousInput.z < 0.3, `cautious launch should visibly hesitate, got ${ cautiousInput.z }` );
+	assert.ok( Math.abs( aggressiveDebug.launchLaneBias ) > 0.25, 'aggressive launch should claim early lane space' );
+
+	for ( let i = 0; i < 150; i ++ ) {
+
+		aggressiveController.update( 0.016, aggressiveVehicle );
+
+	}
+
+	assert.equal( aggressiveController.getDebugState().launchActive, false, 'launch phase should clear after the opening window' );
 
 } );
 

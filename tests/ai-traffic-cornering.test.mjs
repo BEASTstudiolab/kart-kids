@@ -186,3 +186,152 @@ test( 'AIController prefers slowing over lateral dodging when traffic appears in
 	assert.ok( Math.abs( input.x ) < 0.15, `expected sharp-corner traffic to avoid a hard lane change, got ${ input.x }` );
 
 } );
+
+test( 'Aggressive AI commits to a pass on a straight while cautious AI stays tucked in longer', () => {
+
+	const track = makeStraightTrackIntel();
+	const selfVehicle = makeVehicle( 0, 0, 1.0 );
+	const blocker = makeVehicle( 0.1, 8, 0 );
+
+	const aggressiveController = new AIController(
+		track,
+		0,
+		{
+			name: 'Aggressive Passer',
+			steerSensitivity: 3.5,
+			noiseAmplitude: 0,
+			turnThrottleDot: 0.7,
+			turnThrottleMin: 0.3,
+			lookAheadBlend: 0.5,
+			lookAheadNearDistance: 10,
+			lookAheadFarDistance: 18,
+			trafficLookAheadDistance: 14,
+			trafficThrottleMin: 0.35,
+			trafficLateralBias: 0.9,
+			aggression: 0.82,
+			overtakeCommitment: 0.86,
+			trafficPatience: 0.24,
+			lateralOffset: 0,
+			boostEagerness: true,
+			stuckTime: 2.0,
+			reverseTime: 1.5,
+			weight: 5,
+		}
+	);
+	aggressiveController.setCombatRefs( [
+		{ id: 'self', vehicle: selfVehicle },
+		{ id: 'blocker', vehicle: blocker },
+	], [] );
+
+	const cautiousVehicle = makeVehicle( 0, 0, 1.0 );
+	const cautiousBlocker = makeVehicle( 0.1, 8, 0 );
+	const cautiousController = new AIController(
+		track,
+		1,
+		{
+			name: 'Cautious Follower',
+			steerSensitivity: 3.5,
+			noiseAmplitude: 0,
+			turnThrottleDot: 0.7,
+			turnThrottleMin: 0.3,
+			lookAheadBlend: 0.5,
+			lookAheadNearDistance: 10,
+			lookAheadFarDistance: 18,
+			trafficLookAheadDistance: 14,
+			trafficThrottleMin: 0.35,
+			trafficLateralBias: 0.9,
+			aggression: 0.32,
+			overtakeCommitment: 0.34,
+			trafficPatience: 0.72,
+			lateralOffset: 0,
+			boostEagerness: true,
+			stuckTime: 2.0,
+			reverseTime: 1.5,
+			weight: 5,
+		}
+	);
+	cautiousController.setCombatRefs( [
+		{ id: 'self', vehicle: cautiousVehicle },
+		{ id: 'blocker', vehicle: cautiousBlocker },
+	], [] );
+
+	const aggressiveInput = aggressiveController.update( 1 / 60, selfVehicle );
+	const aggressiveDebug = aggressiveController.getDebugState();
+	const cautiousInput = cautiousController.update( 1 / 60, cautiousVehicle );
+	const cautiousDebug = cautiousController.getDebugState();
+
+	assert.equal( aggressiveDebug.overtakeActive, true );
+	assert.equal( aggressiveDebug.mode, 'overtake' );
+	assert.ok( Math.abs( aggressiveInput.x ) > 0.18, `expected a committed pass steer input, got ${ aggressiveInput.x }` );
+	assert.ok( aggressiveInput.z > cautiousInput.z, 'aggressive AI should preserve more throttle than cautious AI when a pass opens' );
+	assert.ok(
+		Math.abs( aggressiveInput.x ) >= Math.abs( cautiousInput.x ),
+		'aggressive AI should commit to the pass lane at least as strongly as cautious AI'
+	);
+	assert.ok(
+		aggressiveDebug.overtakeDirection !== 0 || cautiousDebug.overtakeDirection !== 0,
+		'at least one controller should claim a pass direction in the straight-line probe'
+	);
+
+} );
+
+test( 'AIController launch phase keeps assertive starts from bogging under opening traffic', () => {
+
+	const track = makeStraightTrackIntel();
+	const selfVehicle = makeVehicle( 0, 0, 0 );
+	const blocker = makeVehicle( 0.15, 4, 0 );
+	const controller = new AIController(
+		track,
+		0,
+		{
+			name: 'Launch Traffic Probe',
+			steerSensitivity: 3.5,
+			noiseAmplitude: 0,
+			turnThrottleDot: 0.7,
+			turnThrottleMin: 0.3,
+			lookAheadBlend: 0.5,
+			lookAheadNearDistance: 10,
+			lookAheadFarDistance: 18,
+			trafficLookAheadDistance: 14,
+			trafficThrottleMin: 0.3,
+			trafficLateralBias: 0.9,
+			aggression: 0.8,
+			overtakeCommitment: 0.84,
+			trafficPatience: 0.24,
+			startReactionDelay: 0,
+			openingLaneCommit: 0.88,
+			launchAssertiveness: 0.92,
+			lateralOffset: 0,
+			boostEagerness: true,
+			stuckTime: 2.0,
+			reverseTime: 1.5,
+			weight: 5,
+		}
+	);
+
+	controller.setCombatRefs( [
+		{ id: 'self', vehicle: selfVehicle },
+		{ id: 'blocker', vehicle: blocker },
+	], [] );
+	controller.armLaunchPhase();
+
+	let input = null;
+	for ( let i = 0; i < 18; i ++ ) {
+
+		input = controller.update( 1 / 60, selfVehicle );
+		selfVehicle.linearSpeed = Math.max( selfVehicle.linearSpeed, Math.max( 0, input.z ) * 0.78 );
+		selfVehicle.vehPos.z += selfVehicle.linearSpeed * 0.55;
+		blocker.linearSpeed = Math.max( 0.32, selfVehicle.linearSpeed * 0.9 );
+		blocker.vehPos.z = selfVehicle.vehPos.z + 4;
+
+	}
+
+	const debug = controller.getDebugState();
+	assert.equal( debug.launchActive, true );
+	assert.ok( debug.trafficOccupancy > 0.2, `expected nearby launch traffic occupancy, got ${ debug.trafficOccupancy }` );
+	assert.ok( debug.spacingPressure > 0.2, `expected launch spacing pressure to be visible, got ${ debug.spacingPressure }` );
+	assert.ok( Math.abs( input.x ) > 0.12, `expected launch traffic to create a committed lane move, got ${ input.x }` );
+	assert.ok( input.z > 0.9, `expected assertive launch to keep near-full throttle under traffic, got ${ input.z }` );
+	assert.equal( controller._reversing, false );
+
+} );

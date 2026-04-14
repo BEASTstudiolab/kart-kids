@@ -7,6 +7,7 @@
  * Public API:
  *   constructor(renderer)       — set up scene, camera, lights
  *   setKart(kartId)             — load kart + character model, place in scene
+ *   setPreviewPreset(presetId)  — retarget camera/kart framing for menu context
  *   clearKart()                 — remove kart + character from scene
  *   update(dt)                  — render frame (static camera, no orbit)
  *   dispose()                   — clean up
@@ -18,40 +19,102 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { getVehicleById } from '../VehicleRegistry.js';
-import { CHARACTER_MODEL_PATH } from '../CharacterCustomization.js';
+import { CHARACTER_GARAGE_IDLE_ANIMATION_PATH, CHARACTER_MODEL_PATH } from '../CharacterCustomization.js';
 import { applyPlayerAppearanceToNodes, createDefaultPlayerAppearance, normalizePlayerAppearance } from '../PlayerAppearance.js';
 
 // Camera parameters — tuned from the lobby debug panel.
-const CAM_POS  = new THREE.Vector3( 0.00, 1.70, 4.50 );
+const CAM_POS  = new THREE.Vector3( 0.00, 2.30, 5.70 );
 const LOOK_AT  = new THREE.Vector3( 0.00, 0.00, 0.40 );
-const CAM_FOV  = 75;
+const CAM_FOV  = 70;
 
 // Kart placement
-const KART_POS   = new THREE.Vector3( 0.00, 0.40, 2.10 );
+const KART_POS   = new THREE.Vector3( 0.00, 0.40, 1.50 );
 const KART_SCALE = 1.15;
-const KART_ROT_Y_DEG = 2447;
+const KART_ROT_Y_DEG = 1436;
 const LOBBY_FOG_DENSITY = 0.0000;
 const LOBBY_AMBIENT_INTENSITY = 0.00;
 const LOBBY_DIR_LIGHT_INTENSITY = 2.50;
-const LOBBY_DIR_LIGHT_POS = new THREE.Vector3( - 0.49, 0.02, 0.09 );
+const LOBBY_DIR_LIGHT_POS = new THREE.Vector3( - 0.50, 0.00, 0.10 );
 const LOBBY_RIM_LIGHT_INTENSITY = 1.90;
-const LOBBY_RIM_LIGHT_POS = new THREE.Vector3( 2.04, 2.45, 1.54 );
+const LOBBY_RIM_LIGHT_POS = new THREE.Vector3( 2.00, 2.50, 1.50 );
 const LOBBY_BLOOM_STRENGTH = 0.10;
 const LOBBY_BLOOM_RADIUS = 0.59;
 const LOBBY_BLOOM_THRESHOLD = 1.41;
 const DEFAULT_SEAT_OFFSET = Object.freeze( { x: 0, y: 0, z: 0 } );
 const DEFAULT_KART_OFFSET = Object.freeze( { x: 0, y: - 0.5, z: 0.3 } );
 const LOBBY_CHARACTER_OFFSET_ADJUSTMENTS = Object.freeze( {
-	'kart-1': Object.freeze( { y: - 0.06, z: - 0.07 } ),
+	'kart-1': Object.freeze( { x: - 0.22, y: - 0.06, z: - 0.07 } ),
 	'kart-3': Object.freeze( { y: 0.19, z: - 0.03 } ),
 	'kart-4': Object.freeze( { y: - 0.06, z: 0.02 } ),
 	'kart-7': Object.freeze( { y: 0.11, z: - 0.03 } ),
 	'kart-8': Object.freeze( { y: 0.14, z: 0.00 } ),
 } );
+const MENU_PREVIEW_PRESET_IDS = Object.freeze( {
+	PLAY: 'play',
+	CHARACTER_BODY: 'character-body',
+	CHARACTER_FACE: 'character-face',
+	CHARACTER_ACCESSORIES: 'character-accessories',
+	CHARACTER_SHIRT: 'character-shirt',
+	CHARACTER_PANTS: 'character-pants',
+	GARAGE_KART: 'garage-kart',
+} );
+const MENU_PREVIEW_PRESETS = Object.freeze( {
+	[ MENU_PREVIEW_PRESET_IDS.PLAY ]: Object.freeze( {
+		cameraPos: Object.freeze( { x: 0.00, y: 2.30, z: 5.70 } ),
+		lookAt: Object.freeze( { x: 0.00, y: 0.00, z: 0.40 } ),
+		fov: 70,
+		kartRotYDeg: 1436,
+	} ),
+	[ MENU_PREVIEW_PRESET_IDS.CHARACTER_BODY ]: Object.freeze( {
+		cameraPos: Object.freeze( { x: 0.00, y: 2.75, z: 4.80 } ),
+		lookAt: Object.freeze( { x: 0.00, y: 1.05, z: 0.05 } ),
+		fov: 44,
+		kartRotYDeg: 1432,
+	} ),
+	[ MENU_PREVIEW_PRESET_IDS.CHARACTER_FACE ]: Object.freeze( {
+		cameraPos: Object.freeze( { x: 0.00, y: 2.92, z: 3.65 } ),
+		lookAt: Object.freeze( { x: 0.00, y: 1.68, z: - 0.02 } ),
+		fov: 28,
+		kartRotYDeg: 1434,
+	} ),
+	[ MENU_PREVIEW_PRESET_IDS.CHARACTER_ACCESSORIES ]: Object.freeze( {
+		cameraPos: Object.freeze( { x: 0.00, y: 2.84, z: 4.02 } ),
+		lookAt: Object.freeze( { x: 0.00, y: 1.38, z: 0.04 } ),
+		fov: 34,
+		kartRotYDeg: 1433,
+	} ),
+	[ MENU_PREVIEW_PRESET_IDS.CHARACTER_SHIRT ]: Object.freeze( {
+		cameraPos: Object.freeze( { x: 0.00, y: 2.44, z: 4.18 } ),
+		lookAt: Object.freeze( { x: 0.00, y: 0.95, z: 0.14 } ),
+		fov: 35,
+		kartRotYDeg: 1434,
+	} ),
+	[ MENU_PREVIEW_PRESET_IDS.CHARACTER_PANTS ]: Object.freeze( {
+		cameraPos: Object.freeze( { x: 0.00, y: 1.76, z: 4.26 } ),
+		lookAt: Object.freeze( { x: 0.00, y: 0.34, z: 0.52 } ),
+		fov: 34,
+		kartRotYDeg: 1438,
+	} ),
+	[ MENU_PREVIEW_PRESET_IDS.GARAGE_KART ]: Object.freeze( {
+		cameraPos: Object.freeze( { x: 0.52, y: 1.95, z: 4.05 } ),
+		lookAt: Object.freeze( { x: 0.10, y: 0.52, z: 0.72 } ),
+		fov: 52,
+		kartRotYDeg: 1510,
+	} ),
+} );
+const PREVIEW_POSE_LERP_SPEED = 7.5;
+const TWO_PI = Math.PI * 2;
+const DEFAULT_MENU_PREVIEW_TUNING = Object.freeze( {
+	lookTargetX: 0,
+	lookTargetY: 0,
+	cameraOffsetX: 0,
+	cameraOffsetY: 0,
+	cameraOffsetZ: 0,
+} );
 
-// Character model — rest armature has meshes, driving has the seated animation.
+// Character model — rest armature rides the selected kart using the garage idle loop.
 const CHARACTER_MESH_PATH = CHARACTER_MODEL_PATH;
-const CHARACTER_ANIM_PATH = 'characters/Kart_Beast_Driving.glb';
+const CHARACTER_ANIM_PATH = CHARACTER_GARAGE_IDLE_ANIMATION_PATH;
 const LOBBY_MODEL_PATH = 'models/environments/Lobby.gltf';
 const LOBBY_MATERIAL_CONFIGS = Object.freeze( {
 	'Lobby Props': Object.freeze( {
@@ -82,6 +145,27 @@ const LOBBY_MATERIAL_CONFIGS = Object.freeze( {
 	} ),
 } );
 const LOBBY_MATERIAL_ORDER = Object.freeze( Object.keys( LOBBY_MATERIAL_CONFIGS ) );
+
+function normalizeRotationRadians( radians ) {
+
+	return THREE.MathUtils.euclideanModulo( radians, TWO_PI );
+
+}
+
+function dampScalar( current, target, dt, speed = PREVIEW_POSE_LERP_SPEED ) {
+
+	const alpha = 1 - Math.exp( - speed * Math.max( dt, 0 ) );
+	return THREE.MathUtils.lerp( current, target, alpha );
+
+}
+
+function dampAngle( current, target, dt, speed = PREVIEW_POSE_LERP_SPEED ) {
+
+	const alpha = 1 - Math.exp( - speed * Math.max( dt, 0 ) );
+	const delta = THREE.MathUtils.euclideanModulo( ( target - current ) + Math.PI, TWO_PI ) - Math.PI;
+	return normalizeRotationRadians( current + ( delta * alpha ) );
+
+}
 
 export class LobbyScene {
 
@@ -122,8 +206,18 @@ export class LobbyScene {
 			0.1,
 			100
 		);
-		this._camera.position.copy( CAM_POS );
-		this._camera.lookAt( LOOK_AT );
+		this._previewPresetId = MENU_PREVIEW_PRESET_IDS.PLAY;
+		this._previewTuning = { ...DEFAULT_MENU_PREVIEW_TUNING };
+		this._currentCameraPos = CAM_POS.clone();
+		this._targetCameraPos = CAM_POS.clone();
+		this._currentLookAt = LOOK_AT.clone();
+		this._targetLookAt = LOOK_AT.clone();
+		this._currentFov = CAM_FOV;
+		this._targetFov = CAM_FOV;
+		this._targetKartRotationYDeg = KART_ROT_Y_DEG;
+		this._currentKartRotationY = normalizeRotationRadians( THREE.MathUtils.degToRad( KART_ROT_Y_DEG ) );
+		this._targetKartRotationY = this._currentKartRotationY;
+		this._applyPreviewPose();
 
 		// ── Bloom post-processing ────────────────────────────────────────
 		this._composer = new EffectComposer( renderer );
@@ -163,7 +257,7 @@ export class LobbyScene {
 		// ── Kart + character container ───────────────────────────────────
 		this._kartGroup = new THREE.Group();
 		this._kartGroup.position.copy( KART_POS );
-		this._kartGroup.rotation.y = THREE.MathUtils.degToRad( KART_ROT_Y_DEG );
+		this._kartGroup.rotation.y = this._currentKartRotationY;
 		this._scene.add( this._kartGroup );
 
 		/** @type {string | null} */
@@ -204,6 +298,7 @@ export class LobbyScene {
 
 			this._camera.aspect = window.innerWidth / window.innerHeight;
 			this._camera.updateProjectionMatrix();
+			this._camera.lookAt( this._currentLookAt );
 			this._composer.setSize( window.innerWidth, window.innerHeight );
 
 		};
@@ -252,6 +347,7 @@ export class LobbyScene {
 
 		if ( kartId === this._currentKartId ) return;
 		this._currentKartId = kartId;
+		this._mixer = null;
 		this._syncDriverOffsetDebugControls();
 		const gen = ++ this._loadGen;
 
@@ -336,11 +432,9 @@ export class LobbyScene {
 						this._mixer = new THREE.AnimationMixer( character );
 						const clip = animGltf.animations[ 0 ];
 						const action = this._mixer.clipAction( clip );
+						action.reset();
 						action.play();
-
-						// Snap to first frame to hold seated pose
 						this._mixer.update( 0 );
-						action.paused = true;
 
 					}
 
@@ -349,6 +443,89 @@ export class LobbyScene {
 			} );
 
 		} );
+
+	}
+
+	setPreviewPreset( presetId, { immediate = false } = {} ) {
+
+		const nextPresetId = MENU_PREVIEW_PRESETS[ presetId ] ? presetId : MENU_PREVIEW_PRESET_IDS.PLAY;
+		this._previewPresetId = nextPresetId;
+		this._syncPreviewTargets();
+
+		if ( immediate ) {
+
+			this._currentCameraPos.copy( this._targetCameraPos );
+			this._currentLookAt.copy( this._targetLookAt );
+			this._currentFov = this._targetFov;
+			this._currentKartRotationY = this._targetKartRotationY;
+			this._applyPreviewPose();
+
+		}
+
+	}
+
+	setPreviewTuning( nextTuning = {}, { immediate = false } = {} ) {
+
+		for ( const [ key, defaultValue ] of Object.entries( DEFAULT_MENU_PREVIEW_TUNING ) ) {
+
+			if ( ! Object.prototype.hasOwnProperty.call( nextTuning, key ) ) continue;
+
+			const rawValue = Number( nextTuning[ key ] );
+			this._previewTuning[ key ] = Number.isFinite( rawValue ) ? rawValue : defaultValue;
+
+		}
+
+		this._syncPreviewTargets();
+
+		if ( immediate ) {
+
+			this._currentCameraPos.copy( this._targetCameraPos );
+			this._currentLookAt.copy( this._targetLookAt );
+			this._currentFov = this._targetFov;
+			this._currentKartRotationY = this._targetKartRotationY;
+			this._applyPreviewPose();
+
+		}
+
+	}
+
+	resetPreviewTuning( options = {} ) {
+
+		this._previewTuning = { ...DEFAULT_MENU_PREVIEW_TUNING };
+		this.setPreviewTuning( this._previewTuning, options );
+
+	}
+
+	getPreviewTuning() {
+
+		return { ...this._previewTuning };
+
+	}
+
+	getPreviewPresetId() {
+
+		return this._previewPresetId;
+
+	}
+
+	getResolvedPreviewPose() {
+
+		return {
+			presetId: this._previewPresetId,
+			cameraPos: {
+				x: this._targetCameraPos.x,
+				y: this._targetCameraPos.y,
+				z: this._targetCameraPos.z,
+			},
+			lookAt: {
+				x: this._targetLookAt.x,
+				y: this._targetLookAt.y,
+				z: this._targetLookAt.z,
+			},
+			fov: this._targetFov,
+			kartRotYDeg: this._targetKartRotationYDeg,
+			tuning: this.getPreviewTuning(),
+		};
 
 	}
 
@@ -492,8 +669,15 @@ export class LobbyScene {
 	 */
 	update( dt ) {
 
-		// Slow turntable rotation on the kart group
-		this._kartGroup.rotation.y += 0.15 * dt;
+		const safeDt = Math.min( Math.max( dt, 0 ), 0.25 );
+		this._currentCameraPos.lerp( this._targetCameraPos, 1 - Math.exp( - PREVIEW_POSE_LERP_SPEED * safeDt ) );
+		this._currentLookAt.lerp( this._targetLookAt, 1 - Math.exp( - PREVIEW_POSE_LERP_SPEED * safeDt ) );
+		this._currentFov = dampScalar( this._currentFov, this._targetFov, safeDt );
+		this._currentKartRotationY = dampAngle( this._currentKartRotationY, this._targetKartRotationY, safeDt );
+		this._applyPreviewPose();
+
+		// Keep the menu hero static; only the seated rider animation should move.
+		if ( this._mixer ) this._mixer.update( dt );
 
 		// Keep debug helpers in sync with slider changes
 		if ( this._dirHelper.visible ) this._dirHelper.update();
@@ -501,6 +685,45 @@ export class LobbyScene {
 		if ( this._camHelper.visible ) this._camHelper.update();
 
 		this._composer.render( dt );
+
+	}
+
+	_syncPreviewTargets() {
+
+		const preset = MENU_PREVIEW_PRESETS[ this._previewPresetId ] || MENU_PREVIEW_PRESETS[ MENU_PREVIEW_PRESET_IDS.PLAY ];
+		this._targetCameraPos.set(
+			preset.cameraPos.x + this._previewTuning.cameraOffsetX,
+			preset.cameraPos.y + this._previewTuning.cameraOffsetY,
+			preset.cameraPos.z + this._previewTuning.cameraOffsetZ
+		);
+		this._targetLookAt.set(
+			preset.lookAt.x + this._previewTuning.lookTargetX,
+			preset.lookAt.y + this._previewTuning.lookTargetY,
+			preset.lookAt.z
+		);
+		this._targetFov = preset.fov;
+		this._targetKartRotationYDeg = preset.kartRotYDeg;
+		this._targetKartRotationY = normalizeRotationRadians( THREE.MathUtils.degToRad( preset.kartRotYDeg ) );
+
+	}
+
+	_applyPreviewPose() {
+
+		this._camera.position.copy( this._currentCameraPos );
+		this._camera.lookAt( this._currentLookAt );
+
+		if ( Math.abs( this._camera.fov - this._currentFov ) > 0.0001 ) {
+
+			this._camera.fov = this._currentFov;
+			this._camera.updateProjectionMatrix();
+
+		}
+
+		if ( this._kartGroup ) {
+
+			this._kartGroup.rotation.y = this._currentKartRotationY;
+
+		}
 
 	}
 

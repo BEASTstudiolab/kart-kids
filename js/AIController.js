@@ -30,12 +30,40 @@ const DEFAULT_TRAFFIC_LATERAL_BIAS = 1.4;
 const TURN_LOOK_AHEAD_NEAR_SCALE = 0.6;
 const TURN_LOOK_AHEAD_FAR_SCALE = 0.5;
 const TURN_LOOK_AHEAD_BLEND_MIN = 0.12;
+const ROUTE_BLEND_MIN = 0.24;
+const ROUTE_BLEND_MAX = 0.46;
 const ROUTE_RECAPTURE_GAIN = 0.7;
 const ROUTE_RECAPTURE_TURN_GAIN = 1.4;
 const ROUTE_RECAPTURE_MAX_SHIFT = 4.0;
 const TRAFFIC_CORNER_LATERAL_SUPPRESSION = 2.4;
 const NOISE_TURN_SUPPRESSION_THRESHOLD = 0.15;
 const TRAFFIC_SCAN_DIST_SQ = 36 * 36;
+const OVERTAKE_OCCUPANCY_MIN = 0.2;
+const OVERTAKE_OCCUPANCY_MAX = 0.48;
+const OVERTAKE_TURN_SEVERITY_MAX = 0.72;
+const OVERTAKE_RELEASE_TURN_SEVERITY = 0.85;
+const OVERTAKE_COMMIT_MIN = 0.45;
+const OVERTAKE_COMMIT_MAX = 1.1;
+const OVERTAKE_LATERAL_MIN = 0.5;
+const OVERTAKE_LATERAL_MAX = 1.0;
+const OVERTAKE_THROTTLE_FLOOR = 0.94;
+const LAUNCH_PHASE_DURATION = 3.2;
+const LAUNCH_PHASE_MAX_DT = 0.08;
+const LAUNCH_LANE_BIAS_MAX = 1.35;
+const LAUNCH_LANE_SPACE_MIN = 0.22;
+const LAUNCH_HOLD_THROTTLE_MIN = 0.08;
+const LAUNCH_HOLD_THROTTLE_MAX = 0.32;
+const LAUNCH_THROTTLE_FLOOR_MIN = 0.95;
+const LAUNCH_THROTTLE_FLOOR_MAX = 1.0;
+const MISTAKE_INTERVAL_MIN = 3.6;
+const MISTAKE_INTERVAL_MAX = 7.2;
+const MISTAKE_DURATION_MIN = 0.35;
+const MISTAKE_DURATION_MAX = 0.85;
+const MISTAKE_WIDE_SHIFT_MIN = 0.25;
+const MISTAKE_WIDE_SHIFT_MAX = 0.85;
+const MISTAKE_THROTTLE_LIFT_MIN = 0.08;
+const MISTAKE_THROTTLE_LIFT_MAX = 0.28;
+const MISTAKE_MIN_SPEED = 0.18;
 const WRENCH_SEEK_MIN_FORWARD_DISTANCE = 1.5;
 const WRENCH_SEEK_MAX_FORWARD_DISTANCE = 18;
 const WRENCH_SEEK_MAX_LATERAL_DISTANCE = 3.0;
@@ -87,6 +115,7 @@ export class AIController {
 		this._waypointHint = 0;
 
 		this._profile = Object.assign( {}, DEFAULT_PROFILE, profile );
+		this._preferredPassSide = seededUnit( this._seed + 23 ) < 0.5 ? - 1 : 1;
 
 		this._stuckTimer = 0;
 		this._wallPinTimer = 0;
@@ -100,6 +129,19 @@ export class AIController {
 		this._activeTurnSign = 0;
 		this._exitBlendRemaining = 0;
 		this._exitLaneStart = 0;
+		this._overtakeTimer = 0;
+		this._overtakeDirection = 0;
+		this._overtakeTargetId = null;
+		this._mistakeTimer = 0;
+		this._mistakeType = null;
+		this._mistakeDirection = 0;
+		this._mistakeMagnitude = 0;
+		this._mistakeCycle = 0;
+		this._mistakeCheckTimer = 0;
+		this._mistakeInterval = this._computeNextMistakeInterval();
+		this._launchPhaseElapsed = 0;
+		this._launchDirection = Math.abs( this._laneSpread ) > 0.08 ? Math.sign( this._laneSpread ) : this._preferredPassSide;
+		this._launchArmed = false;
 
 		this._input = { x: 0, z: 0, touchActive: false, boost: false, drift: false, useItem: false };
 
@@ -127,6 +169,19 @@ export class AIController {
 		this._activeTurnSign = 0;
 		this._exitBlendRemaining = 0;
 		this._exitLaneStart = 0;
+		this._overtakeTimer = 0;
+		this._overtakeDirection = 0;
+		this._overtakeTargetId = null;
+		this._mistakeTimer = 0;
+		this._mistakeType = null;
+		this._mistakeDirection = 0;
+		this._mistakeMagnitude = 0;
+		this._mistakeCycle = 0;
+		this._mistakeCheckTimer = 0;
+		this._mistakeInterval = this._computeNextMistakeInterval();
+		this._launchPhaseElapsed = 0;
+		this._launchDirection = Math.abs( this._laneSpread ) > 0.08 ? Math.sign( this._laneSpread ) : this._preferredPassSide;
+		this._launchArmed = false;
 		this._wrenchTarget = null;
 		this._input.x = 0;
 		this._input.z = 0;
@@ -165,6 +220,8 @@ export class AIController {
 
 	_updateFallback( dt ) {
 
+		this._clearOvertakePlan();
+		this._deactivateMistake();
 		this._input.x = Math.sin( this._noisePhase + dt * 2 ) * 0.3;
 		this._input.z = 1.0;
 		this._input.boost = false;
@@ -183,6 +240,7 @@ export class AIController {
 		const trackIntel = this._trackIntel;
 		const pos = vehicle.vehPos;
 		const p = this._profile;
+		const speed = Math.abs( vehicle.linearSpeed || 0 );
 
 		if ( this._reversing ) {
 
@@ -197,6 +255,8 @@ export class AIController {
 
 			} else {
 
+				this._clearOvertakePlan();
+				this._deactivateMistake();
 				this._input.x = this._reverseSteer;
 				this._input.z = - 1.0;
 				this._input.boost = false;
@@ -281,6 +341,7 @@ export class AIController {
 		);
 		const nearSample = trackIntel.sampleAhead( currentProgress, nearDistance );
 		const farSample = trackIntel.sampleAhead( currentProgress, farDistance );
+		const turnAngleDeg = signedAngleDeg( routeSample.forward, farSample.forward );
 
 		const lookAheadBlend = clamp( lerp( p.lookAheadBlend, TURN_LOOK_AHEAD_BLEND_MIN, turnSeverity ), 0, 1 );
 		const nearWeight = 1 - lookAheadBlend;
@@ -300,6 +361,21 @@ export class AIController {
 		);
 		targetX += routeSample.left.x * recaptureShift;
 		targetZ += routeSample.left.z * recaptureShift;
+
+		const launch = this._getLaunchPhaseResponse( dt, {
+			speed,
+			turnSeverity,
+			recoveryActive: this._recovering || this._reversing,
+		} );
+		const launchTurnBoost = clamp( launch.packRelease * 1.8, 0, 1 );
+		const launchTurnRelaxation = launch.active ? lerp( 1.0, 0.02, launchTurnBoost ) : 1.0;
+		const throttleTurnSeverity = turnSeverity * launchTurnRelaxation;
+		if ( launch.laneBias !== 0 ) {
+
+			targetX += routeSample.left.x * launch.laneBias;
+			targetZ += routeSample.left.z * launch.laneBias;
+
+		}
 
 		_forward.set( 0, 0, 1 ).applyQuaternion( vehicle.container.quaternion );
 		_forward.y = 0;
@@ -326,13 +402,32 @@ export class AIController {
 
 		}
 
-		const traffic = this._computeTrafficResponse( vehicle, currentProgress, routeSample, p, turnSeverity );
+		const traffic = this._computeTrafficResponse( vehicle, currentProgress, routeSample, p, throttleTurnSeverity, dt, {
+			launchPackRelease: launch.packRelease,
+		} );
 
 		if ( traffic.lateralBias !== 0 ) {
 
 			const laneSpace = Math.max( 0, 1 - turnSeverity * TRAFFIC_CORNER_LATERAL_SUPPRESSION );
 			targetX += routeSample.left.x * traffic.lateralBias * laneSpace;
 			targetZ += routeSample.left.z * traffic.lateralBias * laneSpace;
+			this._refreshToTarget( pos, nearSample.forward, targetX, targetZ );
+
+		}
+
+		const mistake = this._getMistakeResponse( dt, {
+			turnSeverity,
+			turnAngleDeg,
+			speed,
+			trafficOccupancy: traffic.occupancy,
+			wallEscapeFactor: 0,
+			recoveryActive: this._recovering || this._reversing,
+		} );
+
+		if ( mistake.laneBias !== 0 ) {
+
+			targetX += routeSample.left.x * mistake.laneBias;
+			targetZ += routeSample.left.z * mistake.laneBias;
 			this._refreshToTarget( pos, nearSample.forward, targetX, targetZ );
 
 		}
@@ -378,12 +473,30 @@ export class AIController {
 
 		}
 
-		const cornerThrottleCap = lerp( 1.0, p.turnThrottleMin, turnSeverity );
+		const cornerThrottleCap = lerp( 1.0, p.turnThrottleMin, throttleTurnSeverity );
 		throttle = Math.min( throttle, cornerThrottleCap );
 
 		if ( traffic.throttleCap < 1.0 ) {
 
 			throttle = Math.min( throttle, traffic.throttleCap );
+
+		}
+
+		if ( mistake.throttleCap < 1.0 ) {
+
+			throttle = Math.min( throttle, mistake.throttleCap );
+
+		}
+
+		if ( launch.throttleFloor > 0 && wallEscapeFactor === 0 ) {
+
+			throttle = Math.max( throttle, launch.throttleFloor );
+
+		}
+
+		if ( launch.throttleCap < 1.0 ) {
+
+			throttle = Math.min( throttle, launch.throttleCap );
 
 		}
 
@@ -397,13 +510,17 @@ export class AIController {
 		let boost = false;
 		if ( vehicle.boostMeter >= 1.0 ) {
 
-			boost = p.boostEagerness ? true : targetDot > 0.95;
+			const aggressionBoostBias = ( ( p.aggression ?? DEFAULT_PROFILE.aggression ) - 0.5 ) * 0.04;
+			const boostCommitDot = ( p.boostCommitDot ?? 0.95 ) - aggressionBoostBias;
+			boost = p.boostEagerness ? true : targetDot > boostCommitDot;
 
 		}
 
-		if ( turnSeverity > 0.18 ) boost = false;
+		if ( throttleTurnSeverity > 0.18 ) boost = false;
 		if ( traffic.occupancy > 0.3 ) boost = false;
 		if ( wallEscapeFactor > WALL_ESCAPE_BOOST_THRESHOLD ) boost = false;
+		if ( mistake.blockBoost ) boost = false;
+		if ( launch.blockBoost ) boost = false;
 
 		this._input.x = steerInput;
 		this._input.z = throttle;
@@ -415,6 +532,10 @@ export class AIController {
 		let finalTargetZ = targetZ;
 		let debugMode = wallEscapeFactor > 0
 			? 'wall-escape'
+			: traffic.overtakeActive
+				? 'overtake'
+				: mistake.active
+					? `mistake-${ mistake.type }`
 			: traffic.occupancy > 0.25
 				? 'traffic'
 				: 'route';
@@ -461,9 +582,20 @@ export class AIController {
 			finalTarget: { x: finalTargetX, z: finalTargetZ },
 			target: { x: finalTargetX, z: finalTargetZ, laneOffset: 0, wrench: this._cloneWrenchTarget() },
 			turnSeverity,
+			effectiveTurnSeverity: throttleTurnSeverity,
 			trafficOccupancy: traffic.occupancy,
+			spacingPressure: traffic.spacingPressure,
+			overtakeActive: traffic.overtakeActive,
+			overtakeDirection: traffic.overtakeDirection,
+			overtakeTargetId: traffic.overtakeTargetId,
+			launchActive: launch.active,
+			launchHolding: launch.holding,
+			launchLaneBias: launch.laneBias,
+			launchElapsed: launch.elapsed,
 			wallEscapeFactor,
 			recoveryActive: false,
+			mistakeActive: mistake.active,
+			mistakeType: mistake.type,
 			wrenchTarget: this._cloneWrenchTarget(),
 		} );
 
@@ -484,6 +616,8 @@ export class AIController {
 
 		if ( ! routeProjection ) {
 
+			this._clearOvertakePlan();
+			this._deactivateMistake();
 			this._input.x = 0;
 			this._input.z = 0.4;
 			this._input.boost = false;
@@ -515,6 +649,8 @@ export class AIController {
 
 			} else {
 
+				this._clearOvertakePlan();
+				this._deactivateMistake();
 				this._input.x = this._reverseSteer;
 				this._input.z = - 1.0;
 				this._input.boost = false;
@@ -559,6 +695,8 @@ export class AIController {
 			this._recoveryStableTimer = 0;
 			this._segmentHint = null;
 			this._lastDistanceAlongTrack = null;
+			this._clearOvertakePlan();
+			this._deactivateMistake();
 
 			this._input.x = this._reverseSteer;
 			this._input.z = - 1.0;
@@ -596,8 +734,10 @@ export class AIController {
 
 		const nearTarget = this._sampleProjectedRoute( routeProjection.distanceAlongTrack + nearDist, lanePlan.laneOffset ) || nearCenter;
 		const farTarget = this._sampleProjectedRoute( routeProjection.distanceAlongTrack + farDist, lanePlan.laneOffset ) || farCenter;
-		const routeTargetX = nearTarget.x * 0.65 + farTarget.x * 0.35;
-		const routeTargetZ = nearTarget.z * 0.65 + farTarget.z * 0.35;
+		const farWeight = clamp( p.lookAheadBlend ?? 0.35, ROUTE_BLEND_MIN, ROUTE_BLEND_MAX );
+		const nearWeight = 1 - farWeight;
+		const routeTargetX = nearTarget.x * nearWeight + farTarget.x * farWeight;
+		const routeTargetZ = nearTarget.z * nearWeight + farTarget.z * farWeight;
 		let targetX = routeTargetX;
 		let targetZ = routeTargetZ;
 
@@ -609,19 +749,53 @@ export class AIController {
 		targetX += routeNow.left.x * recaptureShift;
 		targetZ += routeNow.left.z * recaptureShift;
 
+		const launch = this._getLaunchPhaseResponse( dt, {
+			speed,
+			turnSeverity,
+			recoveryActive: this._recovering || this._reversing,
+		} );
+		const launchTurnBoost = clamp( launch.packRelease * 1.8, 0, 1 );
+		const launchTurnRelaxation = launch.active ? lerp( 1.0, 0.02, launchTurnBoost ) : 1.0;
+		const throttleTurnSeverity = turnSeverity * launchTurnRelaxation;
+		if ( launch.laneBias !== 0 ) {
+
+			targetX += routeNow.left.x * launch.laneBias;
+			targetZ += routeNow.left.z * launch.laneBias;
+
+		}
+
 		_forward.set( 0, 0, 1 ).applyQuaternion( vehicle.container.quaternion );
 		_forward.y = 0;
 		_forward.normalize();
 
 		this._refreshToTarget( pos, nearTarget.forward || routeNow.forward, targetX, targetZ );
 
-		const traffic = this._computeTrafficResponse( vehicle, routeProjection.progress, routeNow, p, turnSeverity );
+		const traffic = this._computeTrafficResponse( vehicle, routeProjection.progress, routeNow, p, throttleTurnSeverity, dt, {
+			launchPackRelease: launch.packRelease,
+		} );
 
 		if ( traffic.lateralBias !== 0 ) {
 
 			const laneSpace = Math.max( 0, 1 - turnSeverity * TRAFFIC_CORNER_LATERAL_SUPPRESSION );
 			targetX += routeNow.left.x * traffic.lateralBias * laneSpace;
 			targetZ += routeNow.left.z * traffic.lateralBias * laneSpace;
+			this._refreshToTarget( pos, nearTarget.forward || routeNow.forward, targetX, targetZ );
+
+		}
+
+		const mistake = this._getMistakeResponse( dt, {
+			turnSeverity,
+			turnAngleDeg: cornerAngleDeg,
+			speed,
+			trafficOccupancy: traffic.occupancy,
+			wallEscapeFactor: 0,
+			recoveryActive: this._recovering || this._reversing,
+		} );
+
+		if ( mistake.laneBias !== 0 ) {
+
+			targetX += routeNow.left.x * mistake.laneBias;
+			targetZ += routeNow.left.z * mistake.laneBias;
 			this._refreshToTarget( pos, nearTarget.forward || routeNow.forward, targetX, targetZ );
 
 		}
@@ -654,7 +828,7 @@ export class AIController {
 			: 0;
 		const steerInput = clamp( cross * p.steerSensitivity + noise, - 1, 1 );
 
-		const turnRiskDeg = Math.max( Math.abs( nearAngleDeg ) * 1.35, Math.abs( cornerAngleDeg ) * 0.65 );
+		const turnRiskDeg = Math.max( Math.abs( nearAngleDeg ) * 1.35, Math.abs( cornerAngleDeg ) * 0.65 ) * launchTurnRelaxation;
 		let desiredSpeedFactor = clamp( 1 - turnRiskDeg / 85, 0.32, 1 ) * ( p.cornerSpeedFactor ?? 1 );
 		desiredSpeedFactor = clamp( desiredSpeedFactor, 0.25, 1.0 );
 		let throttle = desiredSpeedFactor;
@@ -672,6 +846,24 @@ export class AIController {
 		if ( traffic.throttleCap < 1.0 ) {
 
 			throttle = Math.min( throttle, traffic.throttleCap );
+
+		}
+
+		if ( mistake.throttleCap < 1.0 ) {
+
+			throttle = Math.min( throttle, mistake.throttleCap );
+
+		}
+
+		if ( launch.throttleFloor > 0 && wallEscapeFactor === 0 ) {
+
+			throttle = Math.max( throttle, launch.throttleFloor );
+
+		}
+
+		if ( launch.throttleCap < 1.0 ) {
+
+			throttle = Math.min( throttle, launch.throttleCap );
 
 		}
 
@@ -714,9 +906,14 @@ export class AIController {
 			wallEscapeFactor <= WALL_ESCAPE_BOOST_THRESHOLD
 		) {
 
-			boost = p.boostEagerness ? true : dot > 0.92;
+			const aggressionBoostBias = ( ( p.aggression ?? DEFAULT_PROFILE.aggression ) - 0.5 ) * 0.04;
+			const boostCommitDot = ( p.boostCommitDot ?? 0.92 ) - aggressionBoostBias;
+			boost = p.boostEagerness ? true : dot > boostCommitDot;
 
 		}
+
+		if ( mistake.blockBoost ) boost = false;
+		if ( launch.blockBoost ) boost = false;
 
 		this._input.x = steerInput;
 		this._input.z = throttle;
@@ -728,6 +925,8 @@ export class AIController {
 		let finalTargetZ = targetZ;
 		let debugMode = lanePlan.mode;
 		if ( wallEscapeFactor > 0 ) debugMode = 'wall-escape';
+		else if ( traffic.overtakeActive ) debugMode = 'overtake';
+		else if ( mistake.active ) debugMode = `mistake-${ mistake.type }`;
 		else if ( traffic.occupancy > 0.25 ) debugMode = 'traffic';
 
 		if ( this._combat.shouldUseItem( vehicle, this._allVehiclesRef ) ) {
@@ -738,6 +937,7 @@ export class AIController {
 
 		if ( this._wrenchPositionsRef && this._combat.shouldPursueWrench( vehicle, {
 			turnSeverity,
+			effectiveTurnSeverity: throttleTurnSeverity,
 			trafficOccupancy: traffic.occupancy,
 			wallEscapeFactor,
 		} ) ) {
@@ -781,8 +981,18 @@ export class AIController {
 			desiredSpeedFactor,
 			turnSeverity,
 			trafficOccupancy: traffic.occupancy,
+			spacingPressure: traffic.spacingPressure,
+			overtakeActive: traffic.overtakeActive,
+			overtakeDirection: traffic.overtakeDirection,
+			overtakeTargetId: traffic.overtakeTargetId,
+			launchActive: launch.active,
+			launchHolding: launch.holding,
+			launchLaneBias: launch.laneBias,
+			launchElapsed: launch.elapsed,
 			wallEscapeFactor,
 			recoveryActive: this._recovering || this._reversing,
+			mistakeActive: mistake.active,
+			mistakeType: mistake.type,
 			wrenchTarget: this._cloneWrenchTarget(),
 		} );
 
@@ -870,21 +1080,123 @@ export class AIController {
 
 	}
 
-	_computeTrafficResponse( vehicle, currentProgress, routeSample, profile, turnSeverity = 0 ) {
+	_getLaunchPhaseResponse( dt, context = {} ) {
 
-		const response = { throttleCap: 1.0, lateralBias: 0, occupancy: 0 };
+		const response = {
+			active: false,
+			holding: false,
+			laneBias: 0,
+			throttleFloor: 0,
+			throttleCap: 1.0,
+			blockBoost: false,
+			packRelease: 0,
+			elapsed: this._launchPhaseElapsed,
+		};
+
+		if ( context.recoveryActive || ! this._launchArmed ) return response;
+
+		this._launchPhaseElapsed += Math.min( dt, LAUNCH_PHASE_MAX_DT );
+		response.elapsed = this._launchPhaseElapsed;
+
+		if ( this._launchPhaseElapsed > LAUNCH_PHASE_DURATION ) {
+
+			this._launchArmed = false;
+			return response;
+
+		}
+
+		response.active = true;
+		const reactionDelay = clamp( this._profile.startReactionDelay ?? DEFAULT_PROFILE.startReactionDelay, 0, 0.25 );
+		const launchAssertiveness = clamp( this._profile.launchAssertiveness ?? DEFAULT_PROFILE.launchAssertiveness, 0, 1 );
+		const openingLaneCommit = clamp( this._profile.openingLaneCommit ?? DEFAULT_PROFILE.openingLaneCommit, 0, 1 );
+
+		if ( this._launchPhaseElapsed < reactionDelay ) {
+
+			response.holding = true;
+			response.throttleCap = lerp( LAUNCH_HOLD_THROTTLE_MIN, LAUNCH_HOLD_THROTTLE_MAX, launchAssertiveness );
+			response.blockBoost = true;
+			return response;
+
+		}
+
+		const progress = clamp(
+			( this._launchPhaseElapsed - reactionDelay ) / Math.max( 0.35, LAUNCH_PHASE_DURATION - reactionDelay ),
+			0,
+			1
+		);
+		const fade = 1 - progress;
+		const laneSpace = Math.max( LAUNCH_LANE_SPACE_MIN, 1 - ( context.turnSeverity ?? 0 ) * 1.1 );
+		response.laneBias = this._launchDirection * openingLaneCommit * LAUNCH_LANE_BIAS_MAX * fade * laneSpace;
+		response.packRelease = fade * lerp( 0.58, 1.0, launchAssertiveness );
+
+		const desiredLaunchFloor = lerp( LAUNCH_THROTTLE_FLOOR_MIN, LAUNCH_THROTTLE_FLOOR_MAX, launchAssertiveness );
+		const launchFloorFade = lerp( 1.0, 0.86, progress );
+		const speedFade = lerp( 1.0, 0.88, clamp( ( context.speed ?? 0 ) / 0.95, 0, 1 ) );
+		const turnSafetyFade = lerp( 1.0, 0.74, clamp( ( context.turnSeverity ?? 0 ) / 0.4, 0, 1 ) );
+		response.throttleFloor = desiredLaunchFloor * launchFloorFade * speedFade * turnSafetyFade;
+		response.blockBoost = this._launchPhaseElapsed < reactionDelay + 0.25;
+
+		return response;
+
+	}
+
+	armLaunchPhase() {
+
+		this._launchPhaseElapsed = 0;
+		this._launchDirection = Math.abs( this._laneSpread ) > 0.08 ? Math.sign( this._laneSpread ) : this._preferredPassSide;
+		this._launchArmed = true;
+
+	}
+
+	_computeTrafficResponse( vehicle, currentProgress, routeSample, profile, turnSeverity = 0, dt = 0, context = {} ) {
+
+		const response = {
+			throttleCap: 1.0,
+			lateralBias: 0,
+			occupancy: 0,
+			spacingPressure: 0,
+			overtakeActive: false,
+			overtakeDirection: 0,
+			overtakeTargetId: null,
+		};
 		const vehicles = this._allVehiclesRef || [];
 		const trackIntel = this._trackIntel;
 
-		if ( vehicles.length === 0 || ! routeSample ) return response;
+		if ( dt > 0 && this._overtakeTimer > 0 ) {
+
+			this._overtakeTimer = Math.max( 0, this._overtakeTimer - dt );
+
+		}
+
+		if ( vehicles.length === 0 || ! routeSample ) {
+
+			this._clearOvertakePlan();
+			return response;
+
+		}
 
 		const totalLength = trackIntel?.totalLength || 0;
-		if ( totalLength <= 0 ) return response;
+		if ( totalLength <= 0 ) {
+
+			this._clearOvertakePlan();
+			return response;
+
+		}
 
 		const lookAheadDistance = profile.trafficLookAheadDistance ?? DEFAULT_TRAFFIC_LOOK_AHEAD_DISTANCE;
 		const progressWindow = lookAheadDistance / totalLength;
 		const laneBiasMax = profile.trafficLateralBias ?? DEFAULT_TRAFFIC_LATERAL_BIAS;
 		const trafficThrottleMin = profile.trafficThrottleMin ?? Math.max( profile.turnThrottleMin, 0.35 );
+		const aggression = clamp( profile.aggression ?? DEFAULT_PROFILE.aggression, 0, 1 );
+		const overtakeCommitment = clamp( profile.overtakeCommitment ?? DEFAULT_PROFILE.overtakeCommitment, 0, 1 );
+		const trafficPatience = clamp( profile.trafficPatience ?? DEFAULT_PROFILE.trafficPatience, 0, 1 );
+		const launchAssertiveness = clamp( profile.launchAssertiveness ?? DEFAULT_PROFILE.launchAssertiveness, 0, 1 );
+		const openingLaneCommit = clamp( profile.openingLaneCommit ?? DEFAULT_PROFILE.openingLaneCommit, 0, 1 );
+		const launchPackRelease = clamp( context.launchPackRelease ?? 0, 0, 1 );
+		const openingPaceStrength = launchPackRelease * lerp( 0.82, 1.0, launchAssertiveness );
+		const openingSpacingStrength = launchPackRelease * openingLaneCommit;
+		const sameLaneWidth = lerp( 3.25, 2.1, openingSpacingStrength );
+		let bestBlocker = null;
 
 		for ( const entry of vehicles ) {
 
@@ -904,27 +1216,250 @@ export class AIController {
 			if ( relForward < - 1.0 ) continue;
 
 			const relLeft = dx * routeSample.left.x + dz * routeSample.left.z;
-			const sameLaneFactor = Math.max( 0, 1 - Math.min( Math.abs( relLeft ) / 3.25, 1 ) );
+			const sameLaneFactor = Math.max( 0, 1 - Math.min( Math.abs( relLeft ) / sameLaneWidth, 1 ) );
 			const closeness = Math.max( 0, 1 - delta / progressWindow );
 			const occupancy = sameLaneFactor * closeness;
 			if ( occupancy <= 0 ) continue;
 
 			response.occupancy = Math.max( response.occupancy, occupancy );
+			const trafficFloor = clamp(
+				lerp( trafficThrottleMin + 0.12, trafficThrottleMin - 0.08, trafficPatience ),
+				0.2,
+				0.92
+			);
+			const openingTrafficFloor = clamp(
+				lerp( trafficFloor, 1.0, openingPaceStrength ),
+				trafficFloor,
+				1.0
+			);
+			const occupancyPenalty = Math.min(
+				1,
+				occupancy * ( 1 + turnSeverity * 0.5 ) * lerp( 1.0, 0.08, openingPaceStrength )
+			);
 			response.throttleCap = Math.min(
 				response.throttleCap,
-				lerp( 1.0, trafficThrottleMin, Math.min( 1, occupancy * ( 1 + turnSeverity * 0.5 ) ) )
+				lerp( 1.0, openingTrafficFloor, occupancyPenalty )
 			);
 
-			if ( Math.abs( relLeft ) > 0.75 ) {
+			if ( Math.abs( relLeft ) > lerp( 0.75, 0.2, openingSpacingStrength ) ) {
 
-				response.lateralBias += ( relLeft > 0 ? - 1 : 1 ) * occupancy * laneBiasMax;
+				response.lateralBias += ( relLeft > 0 ? - 1 : 1 ) * occupancy * laneBiasMax * lerp( 1.0, 1.28, openingSpacingStrength );
+
+			}
+
+			if ( openingSpacingStrength > 0 && sameLaneFactor > 0.38 && relForward >= 0.6 ) {
+
+				const spacingDirection = Math.abs( relLeft ) > 0.08 ? ( relLeft > 0 ? - 1 : 1 ) : this._preferredPassSide;
+				response.lateralBias += spacingDirection * occupancy * laneBiasMax * openingSpacingStrength * 0.88;
+				response.spacingPressure = Math.max( response.spacingPressure, occupancy * openingSpacingStrength );
+
+			}
+
+			if ( sameLaneFactor > 0.28 && relForward >= 1.0 ) {
+
+				const blockerScore = occupancy * 0.7 + closeness * 0.3;
+				if ( ! bestBlocker || blockerScore > bestBlocker.score ) {
+
+					bestBlocker = {
+						id: entry.id ?? null,
+						occupancy,
+						score: blockerScore,
+						relForward,
+						relLeft,
+					};
+
+				}
 
 			}
 
 		}
 
-		response.lateralBias = clamp( response.lateralBias, - laneBiasMax, laneBiasMax );
+		const passThreshold = Math.max(
+			0.12,
+			lerp(
+			OVERTAKE_OCCUPANCY_MAX,
+			OVERTAKE_OCCUPANCY_MIN,
+			aggression * 0.55 + overtakeCommitment * 0.45
+			) - openingSpacingStrength * 0.22
+		);
+		const safeToOvertake = turnSeverity <= OVERTAKE_TURN_SEVERITY_MAX;
+		const canMaintainPlan = this._overtakeTimer > 0 &&
+			this._overtakeDirection !== 0 &&
+			safeToOvertake &&
+			bestBlocker &&
+			( ! this._overtakeTargetId || bestBlocker.id === this._overtakeTargetId );
+
+		if ( turnSeverity >= OVERTAKE_RELEASE_TURN_SEVERITY ) {
+
+			this._clearOvertakePlan();
+
+		} else if ( canMaintainPlan ) {
+
+			response.overtakeActive = true;
+			response.overtakeDirection = this._overtakeDirection;
+			response.overtakeTargetId = this._overtakeTargetId;
+
+		} else if ( bestBlocker && safeToOvertake && bestBlocker.occupancy >= passThreshold ) {
+
+			this._overtakeDirection = Math.abs( bestBlocker.relLeft ) > 0.35
+				? ( bestBlocker.relLeft > 0 ? - 1 : 1 )
+				: this._preferredPassSide;
+			this._overtakeTargetId = bestBlocker.id;
+			this._overtakeTimer = lerp( OVERTAKE_COMMIT_MIN, OVERTAKE_COMMIT_MAX, overtakeCommitment );
+			response.overtakeActive = true;
+			response.overtakeDirection = this._overtakeDirection;
+			response.overtakeTargetId = this._overtakeTargetId;
+
+		} else if ( this._overtakeTimer <= 0 ) {
+
+			this._clearOvertakePlan();
+
+		}
+
+		if ( response.overtakeActive ) {
+
+			const overtakeBias = laneBiasMax * lerp(
+				OVERTAKE_LATERAL_MIN,
+				OVERTAKE_LATERAL_MAX,
+				aggression * 0.5 + overtakeCommitment * 0.5
+			);
+			const overtakeThrottleFloor = clamp(
+				lerp(
+					trafficThrottleMin,
+					OVERTAKE_THROTTLE_FLOOR + openingPaceStrength * 0.05,
+					aggression * 0.65 + overtakeCommitment * 0.35
+				),
+				trafficThrottleMin,
+				0.99
+			);
+
+			response.lateralBias += response.overtakeDirection * overtakeBias;
+			response.throttleCap = Math.max( response.throttleCap, overtakeThrottleFloor - turnSeverity * 0.2 );
+			response.spacingPressure = Math.max( response.spacingPressure, openingSpacingStrength * 0.75 );
+
+		}
+
+		if ( launchPackRelease > 0 && turnSeverity < 0.2 ) {
+
+			const launchTrafficCapFloor = clamp(
+				lerp( 0.84, 1.0, launchAssertiveness ) - response.occupancy * 0.08,
+				0.8,
+				1.0
+			);
+			response.throttleCap = Math.max( response.throttleCap, launchTrafficCapFloor );
+
+		}
+
+		const lateralClamp = laneBiasMax + openingSpacingStrength * 0.8;
+		response.lateralBias = clamp( response.lateralBias, - lateralClamp, lateralClamp );
 		return response;
+
+	}
+
+	_getMistakeResponse( dt, context = {} ) {
+
+		const response = {
+			active: false,
+			type: null,
+			laneBias: 0,
+			throttleCap: 1.0,
+			blockBoost: false,
+		};
+
+		if ( context.recoveryActive || ( context.wallEscapeFactor ?? 0 ) > 0.05 ) {
+
+			this._deactivateMistake();
+			return response;
+
+		}
+
+		if ( this._mistakeTimer <= 0 ) {
+
+			this._mistakeCheckTimer += dt;
+			const canTrigger = ( context.speed ?? 0 ) > MISTAKE_MIN_SPEED &&
+				( context.trafficOccupancy ?? 0 ) < 0.7 &&
+				( context.turnSeverity ?? 0 ) < 0.8;
+
+			if ( canTrigger && this._mistakeCheckTimer >= this._mistakeInterval ) {
+
+				this._mistakeCheckTimer = 0;
+				this._activateMistake( context );
+
+			}
+
+		}
+
+		if ( this._mistakeTimer <= 0 ) return response;
+
+		this._mistakeTimer = Math.max( 0, this._mistakeTimer - dt );
+		response.active = true;
+		response.type = this._mistakeType;
+		response.blockBoost = true;
+
+		if ( this._mistakeType === 'wide-line' ) {
+
+			response.laneBias = this._mistakeDirection * this._mistakeMagnitude;
+
+		} else if ( this._mistakeType === 'hesitate' ) {
+
+			response.throttleCap = Math.max( 0.22, 1 - this._mistakeMagnitude );
+
+		}
+
+		if ( this._mistakeTimer <= 0 ) {
+
+			this._deactivateMistake();
+
+		}
+
+		return response;
+
+	}
+
+	_activateMistake( context = {} ) {
+
+		const turnSeverity = context.turnSeverity ?? 0;
+		const turnSign = Math.sign( context.turnAngleDeg ?? 0 ) || this._activeTurnSign || 0;
+		const severity = clamp( this._profile.mistakeSeverity ?? DEFAULT_PROFILE.mistakeSeverity, 0, 1 );
+		const pick = seededUnit( this._seed + this._mistakeCycle, 31 );
+		const canWideLine = turnSign !== 0 && turnSeverity >= 0.18 && turnSeverity <= 0.65;
+		const useWideLine = canWideLine && pick < 0.7;
+		const intensity = clamp( severity * lerp( 0.9, 1.15, seededUnit( this._seed + this._mistakeCycle, 32 ) ), 0, 1 );
+
+		this._mistakeType = useWideLine ? 'wide-line' : 'hesitate';
+		this._mistakeDirection = useWideLine ? - turnSign : 0;
+		this._mistakeMagnitude = useWideLine
+			? lerp( MISTAKE_WIDE_SHIFT_MIN, MISTAKE_WIDE_SHIFT_MAX, intensity )
+			: lerp( MISTAKE_THROTTLE_LIFT_MIN, MISTAKE_THROTTLE_LIFT_MAX, intensity );
+		this._mistakeTimer = lerp( MISTAKE_DURATION_MIN, MISTAKE_DURATION_MAX, intensity );
+		this._mistakeCycle += 1;
+		this._mistakeInterval = this._computeNextMistakeInterval();
+
+	}
+
+	_deactivateMistake() {
+
+		this._mistakeTimer = 0;
+		this._mistakeType = null;
+		this._mistakeDirection = 0;
+		this._mistakeMagnitude = 0;
+
+	}
+
+	_computeNextMistakeInterval() {
+
+		const rate = clamp( this._profile.mistakeRate ?? DEFAULT_PROFILE.mistakeRate, 0, 1 );
+		const seed = seededUnit( this._seed + this._mistakeCycle, 33 );
+		const base = lerp( MISTAKE_INTERVAL_MAX, MISTAKE_INTERVAL_MIN, rate );
+		return base * lerp( 0.9, 1.14, seed );
+
+	}
+
+	_clearOvertakePlan() {
+
+		this._overtakeTimer = 0;
+		this._overtakeDirection = 0;
+		this._overtakeTargetId = null;
 
 	}
 
@@ -1051,9 +1586,20 @@ export class AIController {
 			cornerAngleDeg: nextState.cornerAngleDeg ?? 0,
 			desiredSpeedFactor: nextState.desiredSpeedFactor ?? 1,
 			turnSeverity: nextState.turnSeverity ?? 0,
+			effectiveTurnSeverity: nextState.effectiveTurnSeverity ?? nextState.turnSeverity ?? 0,
 			trafficOccupancy: nextState.trafficOccupancy ?? 0,
+			spacingPressure: nextState.spacingPressure ?? 0,
+			overtakeActive: nextState.overtakeActive ?? false,
+			overtakeDirection: nextState.overtakeDirection ?? 0,
+			overtakeTargetId: nextState.overtakeTargetId ?? null,
+			launchActive: nextState.launchActive ?? false,
+			launchHolding: nextState.launchHolding ?? false,
+			launchLaneBias: nextState.launchLaneBias ?? 0,
+			launchElapsed: nextState.launchElapsed ?? 0,
 			wallEscapeFactor: nextState.wallEscapeFactor ?? 0,
 			recoveryActive: nextState.recoveryActive ?? false,
+			mistakeActive: nextState.mistakeActive ?? false,
+			mistakeType: nextState.mistakeType ?? null,
 			wrenchTarget: clonePoint( nextState.wrenchTarget ),
 		};
 

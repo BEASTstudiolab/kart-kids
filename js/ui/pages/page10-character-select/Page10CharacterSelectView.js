@@ -1,6 +1,4 @@
 import { PageViewBase } from '../../core/PageViewBase.js';
-import { CTAButton } from '../../components/CTAButton.js';
-import { HeroPreviewPanel } from '../../components/HeroPreviewPanel.js';
 import { ButtonIds } from '../../enums/ButtonIds.js';
 
 const CAMERA_DEBUG_SLIDER_DEFS = Object.freeze( [
@@ -20,26 +18,22 @@ export class Page10CharacterSelectView extends PageViewBase {
 			showBackButton: true,
 			showBrandHeader: true,
 			showCameraDebugControls: false,
+			showEmbeddedPreview: false,
 			rootAriaLabel: 'Character Page',
 			eyebrowText: 'Garage Overlay',
 			titleText: 'Character Page',
-			sidebarCopy: 'Open one drawer at a time, swipe through the carousel items, dial in colors, and save when the draft looks right.',
-			secondaryActionLabel: 'Cancel',
-			secondaryActionAriaLabel: 'Discard character draft',
-			secondaryActionMode: 'close',
+			sidebarCopy: 'Tune suit, skin, masks, and gear here. Selections apply instantly to your driver.',
 			...config,
 		};
 
 		this._backBtn = null;
+		this._categoryTabStrip = null;
 		this._categoryStack = null;
 		this._previewPanel = null;
-		this._cancelBtn = null;
-		this._saveBtn = null;
-		this._carouselScrollLeftByCategory = new Map();
-		this._carouselInteractionCleanups = [];
 		this._cameraDebugInputs = new Map();
 		this._cameraDebugValueEls = new Map();
 		this._cameraDebugReadoutEl = null;
+		this._cameraDebugPoseEl = null;
 		this._cameraDebugResetBtn = null;
 
 		this._injectCSS();
@@ -56,7 +50,7 @@ export class Page10CharacterSelectView extends PageViewBase {
 		style.textContent = `
 			.page-character-select {
 				display: grid;
-				grid-template-rows: auto minmax( 0, 1fr ) auto;
+				grid-template-rows: auto minmax( 0, 1fr );
 				height: 100%;
 				min-height: 100%;
 				padding: 1.5rem;
@@ -67,7 +61,7 @@ export class Page10CharacterSelectView extends PageViewBase {
 			}
 
 			.page-character-select--no-header {
-				grid-template-rows: minmax( 0, 1fr ) auto;
+				grid-template-rows: minmax( 0, 1fr );
 			}
 
 			.page-character-select__header {
@@ -97,10 +91,8 @@ export class Page10CharacterSelectView extends PageViewBase {
 			}
 
 			.page-character-select__back-btn:hover {
-
 				border-color: rgba( 255, 255, 255, 0.28 );
 				background: rgba( 255, 255, 255, 0.08 );
-
 			}
 
 			.page-character-select__brand {
@@ -128,10 +120,10 @@ export class Page10CharacterSelectView extends PageViewBase {
 
 			.page-character-select__content {
 				display: grid;
-				grid-template-columns: minmax( 18rem, 24rem ) minmax( 0, 1fr ) minmax( 16rem, 22rem );
+				grid-template-columns: minmax( 20rem, 30rem ) minmax( 0, 1fr );
 				gap: 1.5rem;
 				min-height: 0;
-				align-items: stretch;
+				align-items: start;
 			}
 
 			.page-character-select__panel {
@@ -144,13 +136,13 @@ export class Page10CharacterSelectView extends PageViewBase {
 				overflow: hidden;
 			}
 
-			.page-character-select__sidebar,
-			.page-character-select__details {
+			.page-character-select__sidebar {
 				display: flex;
 				flex-direction: column;
 				gap: 1rem;
 				padding: 1.25rem;
-				min-height: 0;
+				min-height: min( 42rem, 100% );
+				max-height: 100%;
 				overflow: hidden;
 			}
 
@@ -167,82 +159,69 @@ export class Page10CharacterSelectView extends PageViewBase {
 				color: rgba( 248, 251, 255, 0.8 );
 			}
 
+			.page-character-select__category-tabs {
+				display: grid;
+				grid-template-columns: repeat( 3, minmax( 0, 1fr ) );
+				gap: 0.55rem;
+			}
+
+			.page-character-select__category-tab {
+				border: 1px solid rgba( 255, 255, 255, 0.1 );
+				border-radius: 0.95rem;
+				background: rgba( 255, 255, 255, 0.04 );
+				color: #f8fbff;
+				font: 800 0.76rem/1.2 var( --font-ui, sans-serif );
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+				padding: 0.78rem 0.7rem;
+				cursor: pointer;
+				transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
+			}
+
+			.page-character-select__category-tab:hover {
+				border-color: rgba( 255, 255, 255, 0.24 );
+				background: rgba( 255, 255, 255, 0.08 );
+				transform: translateY( - 1px );
+			}
+
+			.page-character-select__category-tab--active {
+				border-color: rgba( 0, 212, 232, 0.85 );
+				background:
+					linear-gradient( 160deg, rgba( 0, 212, 232, 0.24 ), rgba( 255, 122, 61, 0.1 ) ),
+					rgba( 255, 255, 255, 0.06 );
+				box-shadow: 0 0 0 1px rgba( 0, 212, 232, 0.18 );
+			}
+
 			.page-character-select__category-stack {
 				display: flex;
 				flex-direction: column;
-				gap: 0.75rem;
+				flex: 1 1 auto;
+				gap: 0.9rem;
+				min-height: 0;
 				overflow-y: auto;
-				padding-right: 0.2rem;
+				padding-right: 0.15rem;
 			}
 
-			.page-character-select__category {
-				border-radius: 1rem;
-				border: 1px solid rgba( 255, 255, 255, 0.08 );
-				background:
-					linear-gradient( 180deg, rgba( 255, 255, 255, 0.06 ), rgba( 255, 255, 255, 0.02 ) ),
-					rgba( 255, 255, 255, 0.03 );
-				overflow: hidden;
-			}
-
-			.page-character-select__category-toggle {
-				width: 100%;
-				border: none;
-				background: transparent;
-				color: inherit;
+			.page-character-select__category-panel {
 				display: grid;
-				grid-template-columns: minmax( 0, 1fr ) auto;
-				gap: 0.6rem;
-				padding: 0.95rem 1rem;
-				cursor: pointer;
-				text-align: left;
-				align-items: center;
+				gap: 0.9rem;
 			}
 
-			.page-character-select__category-toggle:hover {
-				background: rgba( 255, 255, 255, 0.04 );
+			.page-character-select__category-panel-head {
+				display: grid;
+				gap: 0.3rem;
 			}
 
-			.page-character-select__category-toggle[aria-expanded="true"] {
-				background: rgba( 255, 255, 255, 0.04 );
-			}
-
-			.page-character-select__category-title {
-				display: flex;
-				flex-direction: column;
-				gap: 0.22rem;
-			}
-
-			.page-character-select__category-name {
-				font: 900 0.9rem/1 var( --font-display, sans-serif );
+			.page-character-select__category-panel-title {
+				font: 900 1.05rem/1 var( --font-display, sans-serif );
 				letter-spacing: 0.08em;
 				text-transform: uppercase;
+				color: #ffffff;
 			}
 
-			.page-character-select__category-summary {
-				font: 500 0.82rem/1.45 var( --font-ui, sans-serif );
-				color: rgba( 248, 251, 255, 0.7 );
-			}
-
-			.page-character-select__category-chevron {
-				font: 900 0.88rem/1 var( --font-display, sans-serif );
-				letter-spacing: 0.08em;
-				text-transform: uppercase;
-				color: #85efff;
-			}
-
-			.page-character-select__category-drawer {
-				display: grid;
-				gap: 0.55rem;
-				padding: 0 1rem 1rem;
-				border-top: 1px solid rgba( 255, 255, 255, 0.06 );
-			}
-
-			.page-character-select__drawer-copy {
-				font: 600 0.72rem/1.4 var( --font-ui, sans-serif );
-				letter-spacing: 0.12em;
-				text-transform: uppercase;
-				color: rgba( 133, 239, 255, 0.72 );
-				padding-top: 0.8rem;
+			.page-character-select__category-panel-copy {
+				font: 500 0.86rem/1.45 var( --font-ui, sans-serif );
+				color: rgba( 248, 251, 255, 0.72 );
 			}
 
 			.page-character-select__drawer-controls {
@@ -309,43 +288,13 @@ export class Page10CharacterSelectView extends PageViewBase {
 				background: rgba( 255, 255, 255, 0.08 );
 			}
 
-			.page-character-select__carousel {
+			.page-character-select__option-grid {
 				display: grid;
-				grid-auto-flow: column;
-				grid-auto-columns: minmax( 8.8rem, 9.6rem );
+				grid-template-columns: repeat( 4, minmax( 0, 1fr ) );
 				gap: 0.7rem;
-				overflow-x: auto;
-				scroll-snap-type: x proximity;
-				padding-bottom: 0.2rem;
-				touch-action: none;
-				user-select: none;
-				cursor: grab;
-				overscroll-behavior-x: contain;
-				scrollbar-width: thin;
-				scrollbar-color: rgba( 133, 239, 255, 0.45 ) rgba( 255, 255, 255, 0.06 );
-			}
-
-			.page-character-select__carousel::-webkit-scrollbar {
-				height: 0.42rem;
-			}
-
-			.page-character-select__carousel::-webkit-scrollbar-track {
-				background: rgba( 255, 255, 255, 0.06 );
-				border-radius: 999px;
-			}
-
-			.page-character-select__carousel::-webkit-scrollbar-thumb {
-				background: rgba( 133, 239, 255, 0.42 );
-				border-radius: 999px;
-			}
-
-			.page-character-select__carousel--dragging {
-				cursor: grabbing;
-				scroll-snap-type: none;
 			}
 
 			.page-character-select__item {
-				scroll-snap-align: start;
 				display: flex;
 				flex-direction: column;
 				align-items: flex-start;
@@ -377,10 +326,6 @@ export class Page10CharacterSelectView extends PageViewBase {
 					rgba( 255, 255, 255, 0.04 );
 			}
 
-			.page-character-select__item--saved {
-				border-style: solid;
-			}
-
 			.page-character-select__item-name {
 				font: 900 0.92rem/1.15 var( --font-display, sans-serif );
 				letter-spacing: 0.04em;
@@ -392,56 +337,6 @@ export class Page10CharacterSelectView extends PageViewBase {
 				letter-spacing: 0.1em;
 				text-transform: uppercase;
 				color: rgba( 248, 251, 255, 0.62 );
-			}
-
-			.page-character-select__preview {
-				display: grid;
-				grid-template-rows: auto 1fr;
-				padding: 1.25rem;
-				gap: 1rem;
-				min-height: 0;
-			}
-
-			.page-character-select__preview-card {
-				display: flex;
-				flex-direction: column;
-				gap: 0.85rem;
-				padding: 0.9rem;
-				border-radius: 1.2rem;
-				background: linear-gradient( 180deg, rgba( 255, 255, 255, 0.08 ), rgba( 255, 255, 255, 0.03 ) );
-				border: 1px solid rgba( 255, 255, 255, 0.08 );
-				min-height: 0;
-			}
-
-			.page-character-select__preview-title {
-				display: flex;
-				flex-direction: column;
-				gap: 0.3rem;
-			}
-
-			.page-character-select__preview-selected {
-				font: 900 clamp( 1.2rem, 2vw, 1.9rem )/1 var( --font-display, sans-serif );
-				letter-spacing: 0.06em;
-				text-transform: uppercase;
-			}
-
-			.page-character-select__preview-copy {
-				margin: 0;
-				font: 500 0.95rem/1.5 var( --font-ui, sans-serif );
-				color: rgba( 248, 251, 255, 0.76 );
-			}
-
-			.page-character-select__hero-wrap {
-				display: flex;
-				min-height: 0;
-			}
-
-			.page-character-select__details-grid {
-				display: grid;
-				gap: 0.9rem;
-				min-height: 0;
-				overflow-y: auto;
-				padding-right: 0.2rem;
 			}
 
 			.page-character-select__detail-card {
@@ -460,16 +355,13 @@ export class Page10CharacterSelectView extends PageViewBase {
 				color: #9bb4c9;
 			}
 
-			.page-character-select__detail-value {
-				font: 800 0.95rem/1.35 var( --font-display, sans-serif );
-				letter-spacing: 0.05em;
-				text-transform: uppercase;
-				color: #ffffff;
-			}
-
 			.page-character-select__detail-copy {
 				font: 500 0.92rem/1.55 var( --font-ui, sans-serif );
 				color: rgba( 248, 251, 255, 0.78 );
+			}
+
+			.page-character-select__camera-card {
+				margin-top: auto;
 			}
 
 			.page-character-select__camera-debug-copy {
@@ -538,26 +430,28 @@ export class Page10CharacterSelectView extends PageViewBase {
 				word-break: break-word;
 			}
 
-			.page-character-select__footer {
-				display: flex;
-				justify-content: flex-end;
-				gap: 0.9rem;
-				align-items: center;
-				padding: 0.9rem 1rem;
-				border: 1px solid rgba( 255, 255, 255, 0.1 );
-				border-radius: 1.2rem;
-				background: rgba( 10, 18, 28, 0.78 );
-				box-shadow: 0 18px 40px rgba( 0, 0, 0, 0.22 );
-				backdrop-filter: blur( 16px );
-			}
-
-			.page-character-select__footer .kk-cta-button {
-				min-width: 11rem;
+			.page-character-select__camera-debug-pose {
+				margin-top: 0.7rem;
+				padding: 0.75rem 0.85rem;
+				border-radius: 0.85rem;
+				background: rgba( 255, 255, 255, 0.03 );
+				border: 1px solid rgba( 255, 255, 255, 0.08 );
+				font: 600 0.74rem/1.55 var( --font-mono, monospace );
+				letter-spacing: 0.02em;
+				color: rgba( 248, 251, 255, 0.78 );
+				white-space: pre-wrap;
+				word-break: break-word;
 			}
 
 			@media ( max-width: 1180px ) {
 				.page-character-select__content {
 					grid-template-columns: 1fr;
+				}
+			}
+
+			@media ( max-width: 900px ) {
+				.page-character-select__option-grid {
+					grid-template-columns: repeat( 3, minmax( 0, 1fr ) );
 				}
 			}
 
@@ -571,12 +465,12 @@ export class Page10CharacterSelectView extends PageViewBase {
 					justify-content: center;
 				}
 
-				.page-character-select__footer {
-					flex-direction: column-reverse;
+				.page-character-select__category-tabs {
+					grid-template-columns: repeat( 2, minmax( 0, 1fr ) );
 				}
 
-				.page-character-select__footer .kk-cta-button {
-					width: 100%;
+				.page-character-select__option-grid {
+					grid-template-columns: repeat( 2, minmax( 0, 1fr ) );
 				}
 			}
 		`;
@@ -589,6 +483,7 @@ export class Page10CharacterSelectView extends PageViewBase {
 		const root = this._root;
 		root.setAttribute( 'role', 'main' );
 		root.setAttribute( 'aria-label', this._config.rootAriaLabel );
+		root.classList.toggle( 'page-character-select--shared-stage', ! this._config.showEmbeddedPreview );
 
 		const shouldRenderHeader = this._config.showBackButton || this._config.showBrandHeader;
 		root.classList.toggle( 'page-character-select--no-header', ! shouldRenderHeader );
@@ -658,126 +553,24 @@ export class Page10CharacterSelectView extends PageViewBase {
 		sidebarCopy.textContent = this._config.sidebarCopy;
 		sidebar.appendChild( sidebarCopy );
 
+		this._categoryTabStrip = document.createElement( 'div' );
+		this._categoryTabStrip.className = 'page-character-select__category-tabs';
+		sidebar.appendChild( this._categoryTabStrip );
+
 		this._categoryStack = document.createElement( 'div' );
 		this._categoryStack.className = 'page-character-select__category-stack';
 		sidebar.appendChild( this._categoryStack );
-		content.appendChild( sidebar );
-
-		const previewPanel = document.createElement( 'section' );
-		previewPanel.className = 'page-character-select__panel page-character-select__preview';
-
-		const previewTitle = document.createElement( 'div' );
-		previewTitle.className = 'page-character-select__preview-title';
-
-		const previewLabel = document.createElement( 'div' );
-		previewLabel.className = 'page-character-select__panel-label';
-		previewLabel.textContent = 'Live Preview';
-		previewTitle.appendChild( previewLabel );
-
-		const selectedValue = document.createElement( 'div' );
-		selectedValue.className = 'page-character-select__preview-selected';
-		previewTitle.appendChild( selectedValue );
-		this._registerSection( 'selectedValue', selectedValue );
-
-		const previewCopy = document.createElement( 'p' );
-		previewCopy.className = 'page-character-select__preview-copy';
-		previewTitle.appendChild( previewCopy );
-		this._registerSection( 'previewCopy', previewCopy );
-
-		previewPanel.appendChild( previewTitle );
-
-		const heroWrap = document.createElement( 'div' );
-		heroWrap.className = 'page-character-select__hero-wrap page-character-select__preview-card';
-
-		this._previewPanel = new HeroPreviewPanel( {
-			sceneId: 'character_page_preview',
-			ariaLabel: 'Character preview',
-			aspectRatio: '4/5',
-			loading: true,
-		} );
-		heroWrap.appendChild( this._previewPanel.el );
-		previewPanel.appendChild( heroWrap );
-		content.appendChild( previewPanel );
-
-		const detailsPanel = document.createElement( 'section' );
-		detailsPanel.className = 'page-character-select__panel page-character-select__details';
-
-		const detailsLabel = document.createElement( 'div' );
-		detailsLabel.className = 'page-character-select__panel-label';
-		detailsLabel.textContent = 'Save State';
-		detailsPanel.appendChild( detailsLabel );
-
-		const detailsGrid = document.createElement( 'div' );
-		detailsGrid.className = 'page-character-select__details-grid';
-
-		detailsGrid.appendChild( this._buildDetailCard( 'Saved', 'savedValue' ) );
-		detailsGrid.appendChild( this._buildDetailCard( 'Draft', 'draftValue' ) );
-		detailsGrid.appendChild( this._buildDetailCard( 'Status', 'statusValue' ) );
-
-		const summaryCard = document.createElement( 'div' );
-		summaryCard.className = 'page-character-select__detail-card';
-
-		const summaryLabel = document.createElement( 'span' );
-		summaryLabel.className = 'page-character-select__detail-label';
-		summaryLabel.textContent = 'Current Style';
-		summaryCard.appendChild( summaryLabel );
-
-		const summaryCopy = document.createElement( 'div' );
-		summaryCopy.className = 'page-character-select__detail-copy';
-		summaryCard.appendChild( summaryCopy );
-		this._registerSection( 'summaryCopy', summaryCopy );
-
-		detailsGrid.appendChild( summaryCard );
 
 		if ( this._config.showCameraDebugControls ) {
 
-			detailsGrid.appendChild( this._buildCameraDebugCard() );
+			const cameraCard = this._buildCameraDebugCard();
+			cameraCard.classList.add( 'page-character-select__camera-card' );
+			sidebar.appendChild( cameraCard );
 
 		}
 
-		detailsPanel.appendChild( detailsGrid );
-		content.appendChild( detailsPanel );
-
+		content.appendChild( sidebar );
 		root.appendChild( content );
-
-		const footer = document.createElement( 'div' );
-		footer.className = 'page-character-select__footer';
-
-		this._cancelBtn = new CTAButton( {
-			label: this._config.secondaryActionLabel,
-			variant: 'ghost',
-			ariaLabel: this._config.secondaryActionAriaLabel,
-		} );
-		footer.appendChild( this._cancelBtn.el );
-
-		this._saveBtn = new CTAButton( {
-			label: 'Save',
-			variant: 'primary',
-			actionId: ButtonIds.CHARACTER_SELECT_CONFIRM,
-			ariaLabel: 'Save character draft',
-		} );
-		footer.appendChild( this._saveBtn.el );
-
-		root.appendChild( footer );
-
-	}
-
-	_buildDetailCard( label, sectionName ) {
-
-		const card = document.createElement( 'div' );
-		card.className = 'page-character-select__detail-card';
-
-		const cardLabel = document.createElement( 'span' );
-		cardLabel.className = 'page-character-select__detail-label';
-		cardLabel.textContent = label;
-		card.appendChild( cardLabel );
-
-		const cardValue = document.createElement( 'div' );
-		cardValue.className = 'page-character-select__detail-value';
-		card.appendChild( cardValue );
-		this._registerSection( sectionName, cardValue );
-
-		return card;
 
 	}
 
@@ -788,12 +581,12 @@ export class Page10CharacterSelectView extends PageViewBase {
 
 		const label = document.createElement( 'span' );
 		label.className = 'page-character-select__detail-label';
-		label.textContent = 'Camera Debug';
+		label.textContent = 'Camera Tuning';
 		card.appendChild( label );
 
 		const copy = document.createElement( 'div' );
 		copy.className = 'page-character-select__detail-copy page-character-select__camera-debug-copy';
-		copy.textContent = 'Use these live offsets to center the character preview, then send the values back.';
+		copy.textContent = 'Slide these controls to nudge the live menu framing while you tune the driver.';
 		card.appendChild( copy );
 
 		const grid = document.createElement( 'div' );
@@ -816,7 +609,7 @@ export class Page10CharacterSelectView extends PageViewBase {
 			input.max = String( sliderDef.max );
 			input.step = String( sliderDef.step );
 			input.value = '0';
-			input.setAttribute( 'aria-label', `${ sliderDef.label } camera debug slider` );
+			input.setAttribute( 'aria-label', `${ sliderDef.label } camera tuning slider` );
 			input.addEventListener( 'input', () => {
 
 				this._root.dispatchEvent( new CustomEvent( 'kk:character:camera-debug', {
@@ -866,6 +659,10 @@ export class Page10CharacterSelectView extends PageViewBase {
 		this._cameraDebugReadoutEl.className = 'page-character-select__camera-debug-readout';
 		card.appendChild( this._cameraDebugReadoutEl );
 
+		this._cameraDebugPoseEl = document.createElement( 'div' );
+		this._cameraDebugPoseEl.className = 'page-character-select__camera-debug-pose';
+		card.appendChild( this._cameraDebugPoseEl );
+
 		this.setCameraDebugState( {} );
 
 		return card;
@@ -874,28 +671,27 @@ export class Page10CharacterSelectView extends PageViewBase {
 
 	_onMounted() {
 
-		( this._categoryStack?.querySelector( '.page-character-select__category-toggle' ) || this._backBtn )?.focus( { preventScroll: true } );
+		( this._categoryTabStrip?.querySelector( '.page-character-select__category-tab--active' ) || this._backBtn )?.focus( { preventScroll: true } );
 
 	}
 
 	renderCategories( categories ) {
 
-		if ( ! this._categoryStack ) return;
-		this._rememberCarouselScrollPositions();
-		this._teardownCarouselInteractions();
+		if ( ! this._categoryStack || ! this._categoryTabStrip ) return;
+		this._categoryTabStrip.innerHTML = '';
 		this._categoryStack.innerHTML = '';
 
+		const activeCategory = categories.find( ( category ) => category.isOpen ) || categories[ 0 ];
 		for ( const category of categories ) {
 
-			const section = document.createElement( 'section' );
-			section.className = 'page-character-select__category';
-
-			const toggle = document.createElement( 'button' );
-			toggle.type = 'button';
-			toggle.className = 'page-character-select__category-toggle';
-			toggle.setAttribute( 'aria-expanded', String( category.isOpen ) );
-			toggle.setAttribute( 'aria-label', `${ category.label } category` );
-			toggle.addEventListener( 'click', () => {
+			const tab = document.createElement( 'button' );
+			tab.type = 'button';
+			tab.className = 'page-character-select__category-tab';
+			tab.classList.toggle( 'page-character-select__category-tab--active', category.id === activeCategory?.id );
+			tab.setAttribute( 'aria-pressed', String( category.id === activeCategory?.id ) );
+			tab.setAttribute( 'aria-label', `${ category.label } tab` );
+			tab.textContent = category.label;
+			tab.addEventListener( 'click', () => {
 
 				this._root.dispatchEvent( new CustomEvent( 'kk:character:category', {
 					bubbles: true,
@@ -904,240 +700,158 @@ export class Page10CharacterSelectView extends PageViewBase {
 				} ) );
 
 			} );
+			this._categoryTabStrip.appendChild( tab );
 
-			const titleWrap = document.createElement( 'span' );
-			titleWrap.className = 'page-character-select__category-title';
+		}
 
-			const title = document.createElement( 'span' );
-			title.className = 'page-character-select__category-name';
-			title.textContent = category.label;
-			titleWrap.appendChild( title );
+		if ( ! activeCategory ) return;
 
-			const summary = document.createElement( 'span' );
-			summary.className = 'page-character-select__category-summary';
-			summary.textContent = category.summary;
-			titleWrap.appendChild( summary );
-			toggle.appendChild( titleWrap );
+		const panel = document.createElement( 'section' );
+		panel.className = 'page-character-select__category-panel';
 
-			const chevron = document.createElement( 'span' );
-			chevron.className = 'page-character-select__category-chevron';
-			chevron.textContent = category.isOpen ? 'Close' : 'Open';
-			toggle.appendChild( chevron );
+		const panelHead = document.createElement( 'div' );
+		panelHead.className = 'page-character-select__category-panel-head';
 
-			section.appendChild( toggle );
+		const panelTitle = document.createElement( 'div' );
+		panelTitle.className = 'page-character-select__category-panel-title';
+		panelTitle.textContent = activeCategory.label;
+		panelHead.appendChild( panelTitle );
 
-			if ( category.isOpen ) {
+		const panelCopy = document.createElement( 'div' );
+		panelCopy.className = 'page-character-select__category-panel-copy';
+		panelCopy.textContent = activeCategory.summary;
+		panelHead.appendChild( panelCopy );
+		panel.appendChild( panelHead );
 
-				const drawer = document.createElement( 'div' );
-				drawer.className = 'page-character-select__category-drawer';
+		if ( Array.isArray( activeCategory.colorControls ) && activeCategory.colorControls.length > 0 ) {
 
-				let carousel = null;
-				if ( Array.isArray( category.items ) && category.items.length > 0 ) {
+			const controls = document.createElement( 'div' );
+			controls.className = 'page-character-select__drawer-controls';
 
-					const drawerCopy = document.createElement( 'div' );
-					drawerCopy.className = 'page-character-select__drawer-copy';
-					drawerCopy.textContent = 'Swipe, drag, or mouse-wheel to browse this category.';
-					drawer.appendChild( drawerCopy );
+			for ( const control of activeCategory.colorControls ) {
 
-					carousel = document.createElement( 'div' );
-					carousel.className = 'page-character-select__carousel';
-					carousel.dataset.categoryId = category.id;
+				const row = document.createElement( 'div' );
+				row.className = 'page-character-select__color-row';
 
-					for ( const item of category.items ) {
+				const copy = document.createElement( 'div' );
+				copy.className = 'page-character-select__color-copy';
 
-						const dispatchItemActivate = () => {
+				const label = document.createElement( 'div' );
+				label.className = 'page-character-select__color-label';
+				label.textContent = control.label;
+				copy.appendChild( label );
 
-							this._rememberCarouselScrollPositions();
-							this._root.dispatchEvent( new CustomEvent( 'kk:character:item', {
-								bubbles: true,
-								composed: true,
-								detail: {
-									categoryId: category.id,
-									itemId: item.id,
-								},
-							} ) );
+				const meta = document.createElement( 'div' );
+				meta.className = 'page-character-select__color-meta';
+				meta.textContent = control.isCustom ? 'Custom Color' : 'Default Color';
+				copy.appendChild( meta );
+				row.appendChild( copy );
 
-						};
+				const input = document.createElement( 'input' );
+				input.type = 'color';
+				input.className = 'page-character-select__color-input';
+				input.value = control.value;
+				input.setAttribute( 'aria-label', `${ control.label } picker` );
+				input.addEventListener( 'input', () => {
 
-						const button = document.createElement( 'button' );
-						button.type = 'button';
-						button.className = 'page-character-select__item';
-						button.classList.toggle( 'page-character-select__item--active', !! item.active );
-						button.classList.toggle( 'page-character-select__item--saved', !! item.savedActive );
-						button.setAttribute( 'aria-pressed', String( !! item.active ) );
-						button.setAttribute( 'aria-label', `${ item.label } ${ item.metaText }` );
-						button.addEventListener( 'pointerup', ( event ) => {
+					this._root.dispatchEvent( new CustomEvent( 'kk:character:color', {
+						bubbles: true,
+						composed: true,
+						detail: {
+							categoryId: activeCategory.id,
+							controlId: control.id,
+							value: input.value,
+						},
+					} ) );
 
-							if ( event.button !== undefined && event.button !== 0 ) return;
+				} );
+				row.appendChild( input );
 
-							const interactionState = carousel._kkInteractionState;
-							if ( interactionState?.dragged ) return;
-							if ( performance.now() < ( interactionState?.suppressClickUntil || 0 ) ) return;
+				const reset = document.createElement( 'button' );
+				reset.type = 'button';
+				reset.className = 'page-character-select__color-reset';
+				reset.textContent = 'Reset';
+				reset.addEventListener( 'click', () => {
 
-							event.preventDefault();
-							dispatchItemActivate();
+					this._root.dispatchEvent( new CustomEvent( 'kk:character:color', {
+						bubbles: true,
+						composed: true,
+						detail: {
+							categoryId: activeCategory.id,
+							controlId: control.id,
+							value: control.resetValue ?? '',
+						},
+					} ) );
 
-						} );
-						button.addEventListener( 'click', ( event ) => {
-
-							if ( event.detail !== 0 ) return;
-							dispatchItemActivate();
-
-						} );
-
-						const itemName = document.createElement( 'div' );
-						itemName.className = 'page-character-select__item-name';
-						itemName.textContent = item.label;
-						button.appendChild( itemName );
-
-						const itemMeta = document.createElement( 'div' );
-						itemMeta.className = 'page-character-select__item-meta';
-						itemMeta.textContent = item.metaText;
-						button.appendChild( itemMeta );
-
-						carousel.appendChild( button );
-
-					}
-
-					drawer.appendChild( carousel );
-
-				}
-
-				if ( Array.isArray( category.colorControls ) && category.colorControls.length > 0 ) {
-
-					const controls = document.createElement( 'div' );
-					controls.className = 'page-character-select__drawer-controls';
-
-					for ( const control of category.colorControls ) {
-
-						const row = document.createElement( 'div' );
-						row.className = 'page-character-select__color-row';
-
-						const copy = document.createElement( 'div' );
-						copy.className = 'page-character-select__color-copy';
-
-						const label = document.createElement( 'div' );
-						label.className = 'page-character-select__color-label';
-						label.textContent = control.label;
-						copy.appendChild( label );
-
-						const meta = document.createElement( 'div' );
-						meta.className = 'page-character-select__color-meta';
-						meta.textContent = control.isCustom ? 'Custom Color' : 'Default Color';
-						copy.appendChild( meta );
-						row.appendChild( copy );
-
-						const input = document.createElement( 'input' );
-						input.type = 'color';
-						input.className = 'page-character-select__color-input';
-						input.value = control.value;
-						input.setAttribute( 'aria-label', `${ control.label } picker` );
-						input.addEventListener( 'input', () => {
-
-							this._rememberCarouselScrollPositions();
-							this._root.dispatchEvent( new CustomEvent( 'kk:character:color', {
-								bubbles: true,
-								composed: true,
-								detail: {
-									categoryId: category.id,
-									controlId: control.id,
-									value: input.value,
-								},
-							} ) );
-
-						} );
-						row.appendChild( input );
-
-						const reset = document.createElement( 'button' );
-						reset.type = 'button';
-						reset.className = 'page-character-select__color-reset';
-						reset.textContent = 'Reset';
-						reset.addEventListener( 'click', () => {
-
-							this._rememberCarouselScrollPositions();
-							this._root.dispatchEvent( new CustomEvent( 'kk:character:color', {
-								bubbles: true,
-								composed: true,
-								detail: {
-									categoryId: category.id,
-									controlId: control.id,
-									value: control.resetValue ?? '',
-								},
-							} ) );
-
-						} );
-						row.appendChild( reset );
-						controls.appendChild( row );
-
-					}
-
-					drawer.appendChild( controls );
-
-				}
-
-				section.appendChild( drawer );
-				if ( carousel ) {
-
-					this._setupCarouselInteractions( category.id, carousel );
-					this._restoreCarouselScrollPosition( category.id, carousel );
-
-				}
+				} );
+				row.appendChild( reset );
+				controls.appendChild( row );
 
 			}
 
-			this._categoryStack.appendChild( section );
+			panel.appendChild( controls );
 
 		}
 
-	}
+		if ( Array.isArray( activeCategory.items ) && activeCategory.items.length > 0 ) {
 
-	setSelectionState( { selectedLabel, savedLabel, dirty, summaryText } ) {
+			const grid = document.createElement( 'div' );
+			grid.className = 'page-character-select__option-grid';
 
-		this._previewPanel?.setCaption( selectedLabel.toUpperCase() );
-		this._previewPanel?.setAriaLabel( `${ selectedLabel } preview` );
+			for ( const item of activeCategory.items ) {
 
-		const selectedValue = this.getSection( 'selectedValue' );
-		if ( selectedValue ) selectedValue.textContent = selectedLabel;
+				const button = document.createElement( 'button' );
+				button.type = 'button';
+				button.className = 'page-character-select__item';
+				button.classList.toggle( 'page-character-select__item--active', !! item.active );
+				button.setAttribute( 'aria-pressed', String( !! item.active ) );
+				button.setAttribute( 'aria-label', `${ item.label } ${ item.metaText }` );
+				button.addEventListener( 'click', () => {
 
-		const previewCopy = this.getSection( 'previewCopy' );
-		if ( previewCopy ) {
+					this._root.dispatchEvent( new CustomEvent( 'kk:character:item', {
+						bubbles: true,
+						composed: true,
+						detail: {
+							categoryId: activeCategory.id,
+							itemId: item.id,
+						},
+					} ) );
 
-			previewCopy.textContent = dirty
-				? 'Drag the preview to rotate, pinch or mouse-wheel to zoom, and only the selected gear should remain visible.'
-				: 'This draft matches the version already saved on your driver. Drag to rotate and use pinch or mouse-wheel to zoom.';
+				} );
+
+				const itemName = document.createElement( 'div' );
+				itemName.className = 'page-character-select__item-name';
+				itemName.textContent = item.label;
+				button.appendChild( itemName );
+
+				const itemMeta = document.createElement( 'div' );
+				itemMeta.className = 'page-character-select__item-meta';
+				itemMeta.textContent = item.metaText;
+				button.appendChild( itemMeta );
+
+				grid.appendChild( button );
+
+			}
+
+			panel.appendChild( grid );
 
 		}
 
-		const savedValue = this.getSection( 'savedValue' );
-		if ( savedValue ) savedValue.textContent = savedLabel;
-
-		const draftValue = this.getSection( 'draftValue' );
-		if ( draftValue ) draftValue.textContent = selectedLabel;
-
-		const statusValue = this.getSection( 'statusValue' );
-		if ( statusValue ) statusValue.textContent = dirty ? 'Unsaved Changes' : 'Ready To Race';
-
-		const summaryCopy = this.getSection( 'summaryCopy' );
-		if ( summaryCopy ) summaryCopy.textContent = summaryText;
-
-		this._saveBtn?.setLabel( dirty ? 'Save' : 'Saved' );
-		this._saveBtn?.setDisabled( ! dirty );
-
-		if ( this._config.secondaryActionMode === 'reset' ) {
-
-			this._cancelBtn?.setDisabled( ! dirty );
-
-		}
+		this._categoryStack.appendChild( panel );
 
 	}
 
-	setPreviewLoading( loading ) {
+	setSelectionState( { selectedLabel, activeCategoryId, activeCategoryLabel } ) {
 
-		this._previewPanel?.setLoading( loading );
+		this._root.dataset.selectedLabel = selectedLabel || '';
+		this._root.dataset.activeCategoryId = activeCategoryId || '';
+		this._root.dataset.activeCategoryLabel = activeCategoryLabel || '';
 
 	}
 
-	setCameraDebugState( cameraDebugState = {} ) {
+	setPreviewLoading() {}
+
+	setCameraDebugState( cameraDebugState = {}, previewPose = null ) {
 
 		if ( this._cameraDebugInputs.size === 0 ) return;
 
@@ -1167,6 +881,36 @@ export class Page10CharacterSelectView extends PageViewBase {
 
 		}
 
+		if ( this._cameraDebugPoseEl ) {
+
+			const formatScalar = ( value ) => {
+
+				const nextValue = Number( value );
+				return Number.isFinite( nextValue ) ? nextValue.toFixed( 2 ) : '0.00';
+
+			};
+
+			const formatVector = ( vector ) => {
+
+				const x = formatScalar( vector?.x );
+				const y = formatScalar( vector?.y );
+				const z = formatScalar( vector?.z );
+				return `( ${ x }, ${ y }, ${ z } )`;
+
+			};
+
+			const presetId = typeof previewPose?.presetId === 'string' && previewPose.presetId ? previewPose.presetId : 'play';
+			const fov = formatScalar( previewPose?.fov );
+			const kartRotYDeg = formatScalar( previewPose?.kartRotYDeg );
+			this._cameraDebugPoseEl.textContent = [
+				`Preset: ${ presetId }`,
+				`Cam: ${ formatVector( previewPose?.cameraPos ) }`,
+				`Look: ${ formatVector( previewPose?.lookAt ) }`,
+				`FOV: ${ fov } | Kart Y: ${ kartRotYDeg }`,
+			].join( '\n' );
+
+		}
+
 	}
 
 	get backBtn() {
@@ -1183,13 +927,13 @@ export class Page10CharacterSelectView extends PageViewBase {
 
 	get cancelBtn() {
 
-		return this._cancelBtn;
+		return null;
 
 	}
 
 	get saveBtn() {
 
-		return this._saveBtn;
+		return null;
 
 	}
 
@@ -1199,250 +943,16 @@ export class Page10CharacterSelectView extends PageViewBase {
 
 	}
 
-	_rememberCarouselScrollPositions() {
-
-		for ( const carousel of this._categoryStack?.querySelectorAll( '.page-character-select__carousel[data-category-id]' ) || [] ) {
-
-			this._carouselScrollLeftByCategory.set( carousel.dataset.categoryId, carousel.scrollLeft || 0 );
-
-		}
-
-	}
-
-	_restoreCarouselScrollPosition( categoryId, carousel ) {
-
-		if ( ! carousel ) return;
-
-		const applySavedScroll = () => {
-
-			if ( ! carousel.isConnected ) return;
-
-			const scrollLeft = this._carouselScrollLeftByCategory.get( categoryId ) || 0;
-			carousel.scrollLeft = scrollLeft;
-			this._carouselScrollLeftByCategory.set( categoryId, carousel.scrollLeft || scrollLeft );
-
-		};
-
-		applySavedScroll();
-		requestAnimationFrame( applySavedScroll );
-
-	}
-
-	_teardownCarouselInteractions() {
-
-		for ( const cleanup of this._carouselInteractionCleanups ) {
-
-			cleanup();
-
-		}
-
-		this._carouselInteractionCleanups = [];
-
-	}
-
-	_setupCarouselInteractions( categoryId, carousel ) {
-
-		let activePointerId = null;
-		let dragStartX = 0;
-		let dragStartScrollLeft = 0;
-		let lastX = 0;
-		let lastTime = 0;
-		let velocity = 0;
-		let suppressClickUntil = 0;
-		let inertiaFrameId = 0;
-		let dragged = false;
-		const interactionState = {
-			dragged: false,
-			suppressClickUntil: 0,
-		};
-		carousel._kkInteractionState = interactionState;
-
-		const stopInertia = () => {
-
-			if ( ! inertiaFrameId ) return;
-			cancelAnimationFrame( inertiaFrameId );
-			inertiaFrameId = 0;
-
-		};
-
-		const rememberScroll = () => {
-
-			this._carouselScrollLeftByCategory.set( categoryId, carousel.scrollLeft || 0 );
-
-		};
-
-		const runInertia = () => {
-
-			stopInertia();
-
-			const tick = () => {
-
-				velocity *= 0.94;
-				if ( Math.abs( velocity ) < 0.18 ) {
-
-					inertiaFrameId = 0;
-					rememberScroll();
-					return;
-
-				}
-
-				carousel.scrollLeft += velocity;
-				rememberScroll();
-				inertiaFrameId = requestAnimationFrame( tick );
-
-			};
-
-			inertiaFrameId = requestAnimationFrame( tick );
-
-		};
-
-		const endDrag = ( pointerId ) => {
-
-			if ( activePointerId !== pointerId ) return;
-
-			activePointerId = null;
-			carousel.classList.remove( 'page-character-select__carousel--dragging' );
-			if ( dragged ) {
-
-				suppressClickUntil = performance.now() + 180;
-				interactionState.suppressClickUntil = suppressClickUntil;
-				runInertia();
-
-			} else {
-
-				suppressClickUntil = 0;
-				interactionState.suppressClickUntil = 0;
-
-			}
-
-			dragged = false;
-			interactionState.dragged = false;
-
-		};
-
-		const handlePointerDown = ( event ) => {
-
-			if ( event.button !== undefined && event.button !== 0 ) return;
-
-			stopInertia();
-			activePointerId = event.pointerId;
-			dragStartX = event.clientX;
-			dragStartScrollLeft = carousel.scrollLeft;
-			lastX = event.clientX;
-			lastTime = performance.now();
-			velocity = 0;
-			dragged = false;
-			suppressClickUntil = 0;
-			interactionState.dragged = false;
-			interactionState.suppressClickUntil = 0;
-
-		};
-
-		const handlePointerMove = ( event ) => {
-
-			if ( activePointerId !== event.pointerId ) return;
-
-			const now = performance.now();
-			const dx = event.clientX - dragStartX;
-			const stepDx = event.clientX - lastX;
-			const dt = Math.max( now - lastTime, 8 );
-
-			if ( ! dragged ) {
-
-				if ( Math.abs( dx ) <= 6 ) return;
-				dragged = true;
-				interactionState.dragged = true;
-				carousel.classList.add( 'page-character-select__carousel--dragging' );
-				carousel.setPointerCapture?.( event.pointerId );
-
-			}
-
-			carousel.scrollLeft = dragStartScrollLeft - dx * 1.35;
-			velocity = - stepDx * 0.92;
-			lastX = event.clientX;
-			lastTime = now;
-			rememberScroll();
-			event.preventDefault();
-
-		};
-
-		const handlePointerUp = ( event ) => {
-
-			if ( activePointerId !== event.pointerId ) return;
-			if ( dragged ) carousel.releasePointerCapture?.( event.pointerId );
-			endDrag( event.pointerId );
-
-		};
-
-		const handlePointerCancel = ( event ) => {
-
-			if ( activePointerId !== event.pointerId ) return;
-			endDrag( event.pointerId );
-
-		};
-
-		const handleWheel = ( event ) => {
-
-			const delta = Math.abs( event.deltaX ) > Math.abs( event.deltaY ) ? event.deltaX : event.deltaY;
-			if ( delta === 0 ) return;
-
-			event.preventDefault();
-			stopInertia();
-			carousel.scrollLeft += delta * 1.08;
-			rememberScroll();
-
-		};
-
-		const handleClickCapture = ( event ) => {
-
-			if ( performance.now() >= suppressClickUntil ) return;
-			event.preventDefault();
-			event.stopPropagation();
-
-		};
-
-		const handleScroll = () => rememberScroll();
-
-		carousel.addEventListener( 'pointerdown', handlePointerDown );
-		carousel.addEventListener( 'pointermove', handlePointerMove );
-		carousel.addEventListener( 'pointerup', handlePointerUp );
-		carousel.addEventListener( 'pointercancel', handlePointerCancel );
-		carousel.addEventListener( 'wheel', handleWheel, { passive: false } );
-		carousel.addEventListener( 'click', handleClickCapture, true );
-		carousel.addEventListener( 'scroll', handleScroll, { passive: true } );
-
-		this._carouselInteractionCleanups.push( () => {
-
-			stopInertia();
-			carousel.removeEventListener( 'pointerdown', handlePointerDown );
-			carousel.removeEventListener( 'pointermove', handlePointerMove );
-			carousel.removeEventListener( 'pointerup', handlePointerUp );
-			carousel.removeEventListener( 'pointercancel', handlePointerCancel );
-			carousel.removeEventListener( 'wheel', handleWheel );
-			carousel.removeEventListener( 'click', handleClickCapture, true );
-			carousel.removeEventListener( 'scroll', handleScroll );
-			delete carousel._kkInteractionState;
-
-		} );
-
-	}
-
 	dispose() {
 
-		this._rememberCarouselScrollPositions();
-		this._teardownCarouselInteractions();
-		this._previewPanel?.dispose();
 		this._previewPanel = null;
-		this._cancelBtn?.dispose();
-		this._saveBtn?.dispose();
-		this._cancelBtn = null;
-		this._saveBtn = null;
 		this._backBtn = null;
+		this._categoryTabStrip = null;
 		this._categoryStack = null;
-		this._carouselScrollLeftByCategory.clear();
 		this._cameraDebugInputs.clear();
 		this._cameraDebugValueEls.clear();
 		this._cameraDebugReadoutEl = null;
+		this._cameraDebugPoseEl = null;
 		this._cameraDebugResetBtn = null;
 
 		super.dispose();

@@ -42,48 +42,29 @@ test.describe( 'Character tab', () => {
 
 	} );
 
-	test( 'preserves the masks carousel scroll position when selecting a new mask', async ( { page } ) => {
+	test( 'renders top category tabs and a grid of active options', async ( { page } ) => {
 
 		await page.goto( '/#/characters' );
 
-		const masksToggle = page.locator( '.page-character-select__category-toggle' ).filter( { hasText: 'Masks' } );
-		await masksToggle.click();
+		const tabs = page.locator( '.page-character-select__category-tab' );
+		await expect( tabs ).toHaveCount( 5 );
+		await expect( page.locator( '.page-character-select__category-tab--active' ) ).toHaveText( 'Palette' );
 
-		const carousel = page.locator( '.page-character-select__carousel[data-category-id="masks"]' );
-		await expect( carousel ).toBeVisible( { timeout: 10000 } );
+		const masksTab = page.locator( '.page-character-select__category-tab', { hasText: 'Masks' } );
+		await masksTab.click();
 
-		const beforeScrollLeft = await carousel.evaluate( ( element ) => {
-
-			element.scrollLeft = 640;
-			return element.scrollLeft;
-
-		} );
-
-		await page.evaluate( () => {
-
-			const carousel = document.querySelector( '.page-character-select__carousel[data-category-id="masks"]' );
-			if ( ! carousel ) throw new Error( 'Missing masks carousel' );
-
-			const items = carousel.querySelectorAll( '.page-character-select__item' );
-			if ( items.length < 8 ) throw new Error( 'Expected enough mask items to test scroll retention' );
-
-			items[ 7 ].click();
-
-		} );
-
-		await page.waitForTimeout( 120 );
-
-		const afterScrollLeft = await carousel.evaluate( ( element ) => element.scrollLeft );
-		expect( afterScrollLeft ).toBeGreaterThan( beforeScrollLeft - 40 );
+		const grid = page.locator( '.page-character-select__option-grid' );
+		await expect( grid ).toBeVisible( { timeout: 10000 } );
+		expect( await grid.locator( '.page-character-select__item' ).count() ).toBeGreaterThan( 8 );
 
 	} );
 
-test( 'shows only the main tint control in the masks drawer', async ( { page } ) => {
+	test( 'shows only the main tint control in the masks tab', async ( { page } ) => {
 
 		await page.goto( '/#/characters' );
 
-		const masksToggle = page.locator( '.page-character-select__category-toggle' ).filter( { hasText: 'Masks' } );
-		await masksToggle.click();
+		const masksTab = page.locator( '.page-character-select__category-tab', { hasText: 'Masks' } );
+		await masksTab.click();
 
 		const colorLabels = await page.locator( '.page-character-select__color-label' ).allTextContents();
 		expect( colorLabels ).toContain( 'Main Tint' );
@@ -91,11 +72,11 @@ test( 'shows only the main tint control in the masks drawer', async ( { page } )
 
 	} );
 
-	test( 'shows live camera debug sliders in Character tab mode', async ( { page } ) => {
+	test( 'shows live camera tuning sliders in Character tab mode', async ( { page } ) => {
 
 		await page.goto( '/#/characters' );
 
-		const cameraDebug = page.locator( '.page-character-select__detail-card', { hasText: 'Camera Debug' } );
+		const cameraDebug = page.locator( '.page-character-select__detail-card', { hasText: 'Camera Tuning' } );
 		await expect( cameraDebug ).toBeVisible( { timeout: 10000 } );
 
 		const sliders = cameraDebug.locator( '.page-character-select__camera-debug-slider' );

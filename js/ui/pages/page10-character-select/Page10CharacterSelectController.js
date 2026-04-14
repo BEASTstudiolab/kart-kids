@@ -4,13 +4,17 @@ import { PageIds } from '../../enums/PageIds.js';
 import { EventIds } from '../../enums/EventIds.js';
 import { BALACLAVA_OPTIONS, getBalaclavaOptionById, normalizeSelectedBalaclavaId } from '../../../CharacterCustomization.js';
 import { Settings } from '../../../Settings.js';
-import { DEFAULT_MASK_TINT_COLOR, getVisibleAccessoryLabels, normalizeAppearanceColor, normalizeMaskTintColor, normalizePlayerAppearance } from '../../../PlayerAppearance.js';
-import { CharacterPreviewScene } from '../../CharacterPreviewScene.js';
-import { CHARACTER_PREVIEW_CAMERA_DEFAULTS } from '../../utils/characterPreviewFrame.js';
+import { DEFAULT_MASK_TINT_COLOR, normalizeAppearanceColor, normalizeMaskTintColor, normalizePlayerAppearance } from '../../../PlayerAppearance.js';
 
 const DEFAULT_SKIN_COLOR = '#d9a37f';
 const DEFAULT_SUIT_COLOR = '#00d4e8';
-const CAMERA_DEBUG_DEFAULTS = CHARACTER_PREVIEW_CAMERA_DEFAULTS;
+const CAMERA_DEBUG_DEFAULTS = Object.freeze( {
+	lookTargetX: 0,
+	lookTargetY: 0,
+	cameraOffsetX: 0,
+	cameraOffsetY: 0,
+	cameraOffsetZ: 0,
+} );
 
 const CATEGORY_DEFS = Object.freeze( [
 	Object.freeze( {
@@ -68,10 +72,10 @@ export class Page10CharacterSelectController extends PageControllerBase {
 		this._draftAppearance = null;
 		this._openCategoryId = 'masks';
 		this._onClose = null;
-		this._previewScene = null;
 		this._hostMode = 'overlay';
 		this._trackPageView = true;
 		this._cameraDebugState = this._createDefaultCameraDebugState();
+		this._isActive = false;
 
 	}
 
@@ -100,16 +104,18 @@ export class Page10CharacterSelectController extends PageControllerBase {
 				showBackButton: false,
 				showBrandHeader: false,
 				showCameraDebugControls: true,
+				showEmbeddedPreview: false,
 				rootAriaLabel: 'Character tab',
-				sidebarCopy: 'Tune suit, skin, masks, and gear here. Changes stay in draft until you save them.',
-				secondaryActionLabel: 'Reset',
-				secondaryActionAriaLabel: 'Reset character draft to last saved version',
-				secondaryActionMode: 'reset',
+				sidebarCopy: 'Tune suit, skin, masks, and gear here. Selections apply instantly to your driver.',
 			};
 
 		}
 
-		return {};
+		return {
+			showCameraDebugControls: true,
+			showEmbeddedPreview: false,
+			sidebarCopy: 'Tune suit, skin, masks, and gear here. Selections apply instantly to your driver.',
+		};
 
 	}
 
@@ -120,19 +126,6 @@ export class Page10CharacterSelectController extends PageControllerBase {
 			this._addListener( this._view.backBtn, 'click', () => this.requestClose() );
 
 		}
-		this._addListener( this._view.cancelBtn.el, 'click', () => {
-
-			if ( this._hostMode === 'tab' ) {
-
-				this._handleReset();
-				return;
-
-			}
-
-			this.requestClose();
-
-		} );
-		this._addListener( this._view.saveBtn.el, 'click', () => this._handleSave() );
 		this._addListener( this._view.root, 'kk:character:category', ( event ) => {
 
 			this._handleCategoryOpen( event.detail?.categoryId );
@@ -170,10 +163,8 @@ export class Page10CharacterSelectController extends PageControllerBase {
 	render( container ) {
 
 		this._view.mount( container );
-		this._view.setPreviewLoading( true );
-		this._previewScene = new CharacterPreviewScene( this._view.previewPanel.inner, {
-			onReady: () => this._view.setPreviewLoading( false ),
-		} );
+		const sharedTuning = this._services.getMenuPreviewTuning?.();
+		if ( sharedTuning ) this._cameraDebugState = { ...this._cameraDebugState, ...sharedTuning };
 		this._applyCameraDebugState();
 		this._syncView();
 		if ( this._trackPageView ) {
@@ -186,7 +177,13 @@ export class Page10CharacterSelectController extends PageControllerBase {
 
 	setActive( active ) {
 
-		this._previewScene?.setPaused( ! active );
+		this._isActive = !! active;
+		if ( active ) {
+
+			this._syncMenuPreviewFocus();
+			this._applyCameraDebugState();
+
+		}
 
 	}
 
@@ -205,13 +202,6 @@ export class Page10CharacterSelectController extends PageControllerBase {
 
 	dispose() {
 
-		if ( this._previewScene ) {
-
-			this._previewScene.dispose();
-			this._previewScene = null;
-
-		}
-
 		super.dispose();
 
 	}
@@ -219,8 +209,9 @@ export class Page10CharacterSelectController extends PageControllerBase {
 	_handleCategoryOpen( categoryId ) {
 
 		if ( ! CATEGORY_BY_ID.has( categoryId ) ) return;
+		if ( this._openCategoryId === categoryId ) return;
 
-		this._openCategoryId = this._openCategoryId === categoryId ? null : categoryId;
+		this._openCategoryId = categoryId;
 		this._syncView();
 
 	}
@@ -251,55 +242,7 @@ export class Page10CharacterSelectController extends PageControllerBase {
 
 		}
 
-		this._syncView();
-
-	}
-
-	_handleSave() {
-
-		if ( ! this._isDirty() ) {
-
-			if ( this._onClose ) {
-
-				this._onClose( {
-					saved: false,
-					selectedBalaclavaId: this._savedAppearance.selectedBalaclavaId,
-				} );
-
-			}
-			return;
-
-		}
-
-		this._settings.set( 'charSkinColor', this._draftAppearance.charSkinColor );
-		this._settings.set( 'characterColor', this._draftAppearance.characterColor );
-		this._settings.setSelectedBalaclavaId( this._draftAppearance.selectedBalaclavaId );
-		this._settings.set( 'maskTintMainColor', this._draftAppearance.maskTintMainColor );
-		this._draftAppearance.maskTintSecondaryColor = '';
-		this._settings.set( 'maskTintSecondaryColor', '' );
-		this._settings.set( 'charAccessories', this._cloneAccessories( this._draftAppearance.charAccessories ) );
-		this._savedAppearance = this._cloneAppearance( this._draftAppearance );
-		this._syncView();
-		this._analytics?.track( EventIds.CHARACTER_EQUIPPED, {
-			balaclavaId: this._savedAppearance.selectedBalaclavaId,
-		} );
-
-		if ( this._onClose ) {
-
-			this._onClose( {
-				saved: true,
-				selectedBalaclavaId: this._savedAppearance.selectedBalaclavaId,
-			} );
-
-		}
-
-	}
-
-	_handleReset() {
-
-		if ( ! this._isDirty() ) return;
-
-		this._draftAppearance = this._cloneAppearance( this._savedAppearance );
+		this._commitDraftAppearance();
 		this._syncView();
 
 	}
@@ -324,6 +267,7 @@ export class Page10CharacterSelectController extends PageControllerBase {
 
 			}
 
+			this._commitDraftAppearance();
 			this._syncView();
 			return;
 
@@ -339,6 +283,7 @@ export class Page10CharacterSelectController extends PageControllerBase {
 
 			this._draftAppearance.maskTintMainColor = normalizeMaskTintColor( value );
 			this._draftAppearance.maskTintSecondaryColor = '';
+			this._commitDraftAppearance();
 			this._syncView();
 			return;
 
@@ -352,6 +297,7 @@ export class Page10CharacterSelectController extends PageControllerBase {
 				...this._draftAppearance.charAccessories[ controlId ],
 				color: normalizeAppearanceColor( value ),
 			};
+			this._commitDraftAppearance();
 			this._syncView();
 			return;
 
@@ -366,6 +312,7 @@ export class Page10CharacterSelectController extends PageControllerBase {
 			...this._draftAppearance.charAccessories[ itemId ],
 			color: normalizeAppearanceColor( value ),
 		};
+		this._commitDraftAppearance();
 		this._syncView();
 
 	}
@@ -399,8 +346,29 @@ export class Page10CharacterSelectController extends PageControllerBase {
 
 	_applyCameraDebugState() {
 
-		this._previewScene?.setDebugCameraOffsets( this._cameraDebugState );
-		this._view.setCameraDebugState?.( this._cameraDebugState );
+		this._services.setMenuPreviewTuning?.( this._cameraDebugState );
+		const previewPose = this._services.getMenuPreviewPose?.() ?? null;
+		this._view.setCameraDebugState?.( this._cameraDebugState, previewPose );
+
+	}
+
+	_getMenuPreviewFocusPreset() {
+
+		if ( this._hostMode !== 'tab' ) return null;
+		if ( this._openCategoryId === 'masks' ) return 'character-face';
+		if ( this._openCategoryId === 'accessories' ) return 'character-accessories';
+		if ( this._openCategoryId === 'shirts' ) return 'character-shirt';
+		if ( this._openCategoryId === 'pants' ) return 'character-pants';
+		return 'character-body';
+
+	}
+
+	_syncMenuPreviewFocus() {
+
+		if ( ! this._isActive ) return;
+		const presetId = this._getMenuPreviewFocusPreset();
+		if ( ! presetId ) return;
+		this._services.setMenuPreviewFocus?.( presetId );
 
 	}
 
@@ -419,33 +387,16 @@ export class Page10CharacterSelectController extends PageControllerBase {
 
 	}
 
-	_isDirty() {
+	_commitDraftAppearance() {
 
-		return JSON.stringify( this._draftAppearance ) !== JSON.stringify( this._savedAppearance );
-
-	}
-
-	_buildDraftAppearance() {
-
-		return this._cloneAppearance( this._draftAppearance );
-
-	}
-
-	_buildSummaryText() {
-
-		const appearance = this._buildDraftAppearance();
-		const balaclavaLabel = getBalaclavaOptionById( appearance.selectedBalaclavaId ).label;
-		const visibleAccessories = getVisibleAccessoryLabels( appearance ).filter( ( label ) => label !== balaclavaLabel );
-		const skinState = appearance.charSkinColor ? 'custom skin tone' : 'default skin tone';
-		const suitState = appearance.characterColor ? 'custom suit color' : 'default suit color';
-		const shirtState = appearance.charAccessories.Tshirt?.color ? 'custom shirt color' : 'default shirt color';
-		const pantsState = appearance.charAccessories.Jeans?.color ? 'custom pants color' : 'default pants color';
-		const maskState = appearance.maskTintMainColor
-			? 'custom mask tint'
-			: 'default mask tint';
-		const extrasState = visibleAccessories.length > 0 ? visibleAccessories.join( ', ' ) : 'none';
-
-		return `${ suitState }, ${ skinState }, ${ shirtState }, ${ pantsState }, ${ maskState }. Visible extras: ${ extrasState }.`;
+		this._settings.set( 'charSkinColor', this._draftAppearance.charSkinColor );
+		this._settings.set( 'characterColor', this._draftAppearance.characterColor );
+		this._settings.setSelectedBalaclavaId( this._draftAppearance.selectedBalaclavaId );
+		this._settings.set( 'maskTintMainColor', this._draftAppearance.maskTintMainColor );
+		this._draftAppearance.maskTintSecondaryColor = '';
+		this._settings.set( 'maskTintSecondaryColor', '' );
+		this._settings.set( 'charAccessories', this._cloneAccessories( this._draftAppearance.charAccessories ) );
+		this._savedAppearance = this._cloneAppearance( this._draftAppearance );
 
 	}
 
@@ -477,17 +428,11 @@ export class Page10CharacterSelectController extends PageControllerBase {
 
 		if ( categoryId === 'masks' ) {
 
-			if ( active && savedActive ) return 'Saved';
-			if ( active ) return 'Draft';
-			if ( savedActive ) return 'Saved';
-			return 'Preview';
+			return active ? 'Selected' : 'Available';
 
 		}
 
-		if ( active && savedActive ) return 'Saved On';
-		if ( active ) return 'Draft On';
-		if ( savedActive ) return 'Draft Off';
-		return 'Hidden';
+		return active ? 'On' : 'Hidden';
 
 	}
 
@@ -504,27 +449,23 @@ export class Page10CharacterSelectController extends PageControllerBase {
 				if ( category.id === 'masks' ) {
 
 					const active = this._draftAppearance.selectedBalaclavaId === item.id;
-					const savedActive = this._savedAppearance.selectedBalaclavaId === item.id;
 
 					return {
 						id: item.id,
 						label: item.label,
 						active,
-						savedActive,
-						metaText: this._buildItemMeta( category.id, item.id, active, savedActive ),
+						metaText: this._buildItemMeta( category.id, item.id, active, false ),
 					};
 
 				}
 
 				const active = this._draftAppearance.charAccessories[ item.id ]?.visible !== false;
-				const savedActive = this._savedAppearance.charAccessories[ item.id ]?.visible !== false;
 
 				return {
 					id: item.id,
 					label: item.label,
 					active,
-					savedActive,
-					metaText: this._buildItemMeta( category.id, item.id, active, savedActive ),
+					metaText: this._buildItemMeta( category.id, item.id, active, false ),
 				};
 
 			} ),
@@ -622,25 +563,18 @@ export class Page10CharacterSelectController extends PageControllerBase {
 
 	_syncView() {
 
-		const draftAppearance = this._buildDraftAppearance();
+		const draftAppearance = this._cloneAppearance( this._draftAppearance );
 		const selectedOption = getBalaclavaOptionById( draftAppearance.selectedBalaclavaId );
-		const savedOption = getBalaclavaOptionById( this._savedAppearance.selectedBalaclavaId );
-		const dirty = this._isDirty();
+		const activeCategory = CATEGORY_BY_ID.get( this._openCategoryId ) || CATEGORY_DEFS[ 0 ];
 
 		this._view.renderCategories( this._buildCategoriesViewModel() );
 		this._view.setSelectionState( {
 			selectedLabel: selectedOption.label,
-			savedLabel: savedOption.label,
-			dirty,
-			summaryText: this._buildSummaryText(),
+			activeCategoryId: this._openCategoryId,
+			activeCategoryLabel: activeCategory.label,
 		} );
 
-		if ( this._previewScene ) {
-
-			this._previewScene.setAppearance( draftAppearance );
-
-		}
-
+		this._syncMenuPreviewFocus();
 		this._applyCameraDebugState();
 
 	}

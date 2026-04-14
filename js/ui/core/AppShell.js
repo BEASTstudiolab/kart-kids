@@ -51,9 +51,11 @@ import { NotificationService } from './NotificationService.js';
 import { AnalyticsService }   from './AnalyticsService.js';
 import { RouteIds }           from '../enums/RouteIds.js';
 import { createGameEngine }   from '../../GameEngine.js';
+import { getTrackById }       from '../../TrackRegistry.js';
 import { GaragePreview }      from '../GaragePreview.js';
 import { LobbyScene }         from '../LobbyScene.js';
 import { PartyLobbyScene }    from '../PartyLobbyScene.js';
+import { MenuMusicPlayer }    from '../audio/MenuMusicPlayer.js';
 import { Settings }           from '../../Settings.js';
 import { showNameEntryModal } from '../components/NameEntryModal.js';
 import { RacePanel }         from '../panels/RacePanel.js';
@@ -79,6 +81,13 @@ const TAB_RENDER_MODES = {
 	garage:  'lobby',
 	tracks:  'idle',
 	profile: 'lobby',
+};
+const TAB_MENU_PREVIEW_PRESETS = {
+	race: 'play',
+	character: 'character-body',
+	garage: 'garage-kart',
+	tracks: 'play',
+	profile: 'play',
 };
 
 function shouldExposeKartDebug() {
@@ -126,9 +135,15 @@ export class AppShell {
 			startRace:      ( raceConfig ) => this.startRace( raceConfig ),
 			endRace:        ( results ) => this.endRace( results ),
 			setRenderMode:  ( mode ) => this.setRenderMode( mode ),
+			setMenuPreviewFocus: ( presetId, options ) => this.setMenuPreviewFocus( presetId, options ),
+			setMenuPreviewTuning: ( tuning, options ) => this.setMenuPreviewTuning( tuning, options ),
+			resetMenuPreviewTuning: ( options ) => this.resetMenuPreviewTuning( options ),
+			getMenuPreviewTuning: () => this.getMenuPreviewTuning(),
+			getMenuPreviewPose: () => this.getMenuPreviewPose(),
 			showPartyLobby: () => this.showPartyLobby(),
 			hidePartyLobby: () => this.hidePartyLobby(),
 			garagePreview:  null,  // populated in bootstrap() after engine creation
+			menuMusic:      null,
 			selectedMode:   'solo',
 			switchTab:      ( name ) => this.switchTab( name ),
 			shell:          null,
@@ -169,6 +184,9 @@ export class AppShell {
 		/** @type {import('../PartyLobbyScene.js').PartyLobbyScene | null} */
 		this._partyLobbyScene = null;
 
+		/** @type {import('../audio/MenuMusicPlayer.js').MenuMusicPlayer | null} */
+		this._menuMusic = null;
+
 		// -----------------------------------------------------------------------
 		// DOM elements (populated by _buildShell())
 		// -----------------------------------------------------------------------
@@ -187,6 +205,24 @@ export class AppShell {
 
 		/** @type {HTMLElement | null} */
 		this._toastRegion = null;
+
+		/** @type {HTMLElement | null} */
+		this._menuMusicDockEl = null;
+
+		/** @type {HTMLElement | null} */
+		this._menuMusicTrackEl = null;
+
+		/** @type {HTMLElement | null} */
+		this._menuMusicStatusEl = null;
+
+		/** @type {HTMLButtonElement | null} */
+		this._menuMusicToggleBtn = null;
+
+		/** @type {HTMLButtonElement | null} */
+		this._menuMusicNextBtn = null;
+
+		/** @type {Function | null} */
+		this._menuMusicUnsubscribe = null;
 
 		// -----------------------------------------------------------------------
 		// Tab panel state
@@ -237,6 +273,12 @@ export class AppShell {
 
 		this._buildShell();
 		this._initServices();
+
+		const settings = new Settings();
+		this._menuMusic = new MenuMusicPlayer();
+		this._menuMusic.setVolume( ( settings.get( 'musicVolume' ) ?? 100 ) / 100 );
+		this._services.menuMusic = this._menuMusic;
+		this._bindMenuMusic();
 
 		// Mount RacePanel into the RACE tab container.
 		const raceContainer = this._panels.get( 'race' );
@@ -312,7 +354,7 @@ export class AppShell {
 
 					},
 					switchTab: ( tab ) => this.switchTab( tab ),
-					startSoloRace: ( config = {} ) => this.startRace( { ...config, mode: 'solo' } ),
+					startSoloRace: ( config = {} ) => this.startDebugSoloRace( config ),
 				};
 
 			}
@@ -327,6 +369,12 @@ export class AppShell {
 			this._services.lobbyScene = this._lobbyScene;
 
 			window.addEventListener( 'settings-changed', ( e ) => {
+
+				if ( e.detail.key === 'musicVolume' ) {
+
+					this._menuMusic?.setVolume( ( Number( e.detail.value ) || 0 ) / 100 );
+
+				}
 
 				if ( ! this._lobbyScene ) return;
 
@@ -357,7 +405,6 @@ export class AppShell {
 
 		// Title skip for returning players: skip router dispatch, go straight
 		// to RACE tab. First-run players see NameEntryModal then RACE tab.
-		const settings = new Settings();
 
 		// Auto-start race if URL contains track data (#track=v4:...)
 		const trackHash = window.location.hash.slice( 1 );
@@ -381,6 +428,7 @@ export class AppShell {
 			// after we've already switched to the RACE tab.
 			this.switchTab( 'race' );
 			this._router.start();
+			void this._activateMenuMusic();
 
 		}
 
@@ -399,6 +447,7 @@ export class AppShell {
 
 		await showNameEntryModal( this._modal, settings );
 		this.switchTab( 'race' );
+		void this._activateMenuMusic();
 
 	}
 
@@ -467,9 +516,71 @@ export class AppShell {
 		shell.appendChild( toastRegion );
 		this._toastRegion = toastRegion;
 
+		const menuMusicDock = this._createMenuMusicDock();
+		shell.appendChild( menuMusicDock );
+		this._menuMusicDockEl = menuMusicDock;
+
 		this._mountEl.appendChild( shell );
 		this._shell = shell;
 		this._services.shell = shell;
+
+	}
+
+	_createMenuMusicDock() {
+
+		const dock = document.createElement( 'aside' );
+		dock.className = 'kk-menu-music';
+		dock.setAttribute( 'role', 'region' );
+		dock.setAttribute( 'aria-label', 'Menu music player' );
+
+		const eyebrow = document.createElement( 'p' );
+		eyebrow.className = 'kk-menu-music__eyebrow';
+		eyebrow.textContent = 'Menu Music';
+		dock.appendChild( eyebrow );
+
+		const track = document.createElement( 'p' );
+		track.className = 'kk-menu-music__track';
+		track.textContent = 'Loading music...';
+		dock.appendChild( track );
+		this._menuMusicTrackEl = track;
+
+		const statusRow = document.createElement( 'div' );
+		statusRow.className = 'kk-menu-music__status-row';
+
+		const statusDot = document.createElement( 'span' );
+		statusDot.className = 'kk-menu-music__status-dot';
+		statusDot.setAttribute( 'aria-hidden', 'true' );
+		statusRow.appendChild( statusDot );
+
+		const status = document.createElement( 'p' );
+		status.className = 'kk-menu-music__status';
+		status.textContent = 'Preparing player';
+		statusRow.appendChild( status );
+		dock.appendChild( statusRow );
+		this._menuMusicStatusEl = status;
+
+		const controls = document.createElement( 'div' );
+		controls.className = 'kk-menu-music__controls';
+
+		const toggleBtn = document.createElement( 'button' );
+		toggleBtn.type = 'button';
+		toggleBtn.className = 'kk-menu-music__btn kk-menu-music__btn--primary';
+		toggleBtn.textContent = 'Play';
+		toggleBtn.addEventListener( 'click', () => this._handleMenuMusicToggle() );
+		controls.appendChild( toggleBtn );
+		this._menuMusicToggleBtn = toggleBtn;
+
+		const nextBtn = document.createElement( 'button' );
+		nextBtn.type = 'button';
+		nextBtn.className = 'kk-menu-music__btn';
+		nextBtn.textContent = 'Next';
+		nextBtn.addEventListener( 'click', () => this._handleMenuMusicNext() );
+		controls.appendChild( nextBtn );
+		this._menuMusicNextBtn = nextBtn;
+
+		dock.appendChild( controls );
+
+		return dock;
 
 	}
 
@@ -740,6 +851,7 @@ export class AppShell {
 			const settings = new Settings();
 			this._lobbyScene.setKart( settings.getSelectedKartId() );
 			this._lobbyScene.setAppearance( settings.getPlayerAppearance() );
+			this._lobbyScene.setPreviewPreset( TAB_MENU_PREVIEW_PRESETS[ name ] || 'play' );
 
 		}
 
@@ -997,6 +1109,56 @@ export class AppShell {
 
 	}
 
+	setMenuPreviewFocus( presetId, options = {} ) {
+
+		this._lobbyScene?.setPreviewPreset( presetId, options );
+
+	}
+
+	setMenuPreviewTuning( tuning, options = {} ) {
+
+		this._lobbyScene?.setPreviewTuning( tuning, options );
+
+	}
+
+	resetMenuPreviewTuning( options = {} ) {
+
+		this._lobbyScene?.resetPreviewTuning( options );
+
+	}
+
+	getMenuPreviewTuning() {
+
+		return this._lobbyScene?.getPreviewTuning?.() ?? null;
+
+	}
+
+	getMenuPreviewPose() {
+
+		return this._lobbyScene?.getResolvedPreviewPose?.() ?? null;
+
+	}
+
+	startDebugSoloRace( config = {} ) {
+
+		const nextConfig = { ...config, mode: 'solo' };
+		if ( typeof config.trackId === 'string' && config.trackId ) {
+
+			const track = getTrackById( config.trackId );
+			if ( track ) {
+
+				nextConfig.trackData = track.cells;
+				nextConfig.decoCells = track.decoCells;
+				nextConfig.trackId = track.id;
+
+			}
+
+		}
+
+		return this.startRace( nextConfig );
+
+	}
+
 	// ---------------------------------------------------------------------------
 	// Party lobby 3D scene
 	// ---------------------------------------------------------------------------
@@ -1073,6 +1235,8 @@ export class AppShell {
 
 		try {
 
+			this._deactivateMenuMusic();
+
 			// Hide the menu shell so the 3D canvas is fullscreen.
 			if ( this._shell ) {
 
@@ -1116,6 +1280,7 @@ export class AppShell {
 			}
 
 			this._renderMode = 'idle';
+			void this._activateMenuMusic();
 			this._notification.show( {
 				message: 'Failed to start race: ' + ( err.message || 'Unknown error' ),
 				variant: 'error',
@@ -1194,6 +1359,104 @@ export class AppShell {
 
 		this._resultsOverlay = overlay;
 		overlay.show();
+		void this._activateMenuMusic();
+
+	}
+
+	_bindMenuMusic() {
+
+		this._unbindMenuMusic();
+
+		const player = this._menuMusic;
+		if ( ! player ) {
+
+			this._renderMenuMusic( {
+				canPlay: false,
+				isPlaying: false,
+				currentTrack: null,
+				playlistLength: 0,
+				error: 'Menu music is unavailable.',
+			} );
+			return;
+
+		}
+
+		this._menuMusicUnsubscribe = player.subscribe( ( state ) => {
+
+			this._renderMenuMusic( state );
+
+		} );
+
+	}
+
+	_unbindMenuMusic() {
+
+		if ( ! this._menuMusicUnsubscribe ) return;
+		this._menuMusicUnsubscribe();
+		this._menuMusicUnsubscribe = null;
+
+	}
+
+	_renderMenuMusic( state ) {
+
+		if ( ! this._menuMusicTrackEl || ! this._menuMusicStatusEl || ! this._menuMusicToggleBtn || ! this._menuMusicNextBtn || ! this._menuMusicDockEl ) return;
+
+		const currentTrack = state?.currentTrack || null;
+		const canPlay = !! state?.canPlay;
+		const isPlaying = !! state?.isPlaying;
+		const hasError = !! state?.error;
+		const isActive = !! state?.active;
+
+		this._menuMusicTrackEl.textContent = currentTrack?.title || 'Menu music unavailable';
+
+		if ( hasError ) {
+
+			this._menuMusicStatusEl.textContent = state.error;
+
+		} else if ( isPlaying ) {
+
+			this._menuMusicStatusEl.textContent = 'Now Playing';
+
+		} else if ( isActive ) {
+
+			this._menuMusicStatusEl.textContent = 'Paused';
+
+		} else {
+
+			this._menuMusicStatusEl.textContent = 'Ready';
+
+		}
+
+		this._menuMusicDockEl.classList.toggle( 'kk-menu-music--playing', isPlaying );
+		this._menuMusicDockEl.classList.toggle( 'kk-menu-music--error', hasError );
+		this._menuMusicToggleBtn.disabled = ! canPlay;
+		this._menuMusicToggleBtn.textContent = isPlaying ? 'Pause' : 'Play';
+		this._menuMusicNextBtn.disabled = ! canPlay || ( state?.playlistLength ?? 0 ) < 2;
+
+	}
+
+	_handleMenuMusicToggle() {
+
+		void this._menuMusic?.toggle?.();
+
+	}
+
+	_handleMenuMusicNext() {
+
+		void this._menuMusic?.next?.();
+
+	}
+
+	async _activateMenuMusic() {
+
+		if ( ! this._menuMusic ) return false;
+		return this._menuMusic.activate();
+
+	}
+
+	_deactivateMenuMusic() {
+
+		this._menuMusic?.deactivate();
 
 	}
 
@@ -1304,6 +1567,7 @@ function _makeTabAliasController( tabId, services ) {
  * @property {NotificationService}      notification
  * @property {AnalyticsService}         analytics
  * @property {object}                   [engine]      GameEngine instance (after bootstrap).
+ * @property {MenuMusicPlayer | null}   [menuMusic]   Shared menu music service instance (after bootstrap).
  * @property {Function}                 startRace     Start a race — hides menu, calls engine.start(config).
  * @property {Function}                 endRace       End the race — calls engine.stop(), restores menu, navigates to Results.
  */
