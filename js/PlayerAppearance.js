@@ -71,10 +71,11 @@ export function createDefaultPlayerAppearance() {
 
 }
 
-export function createDefaultAIAppearance( selectedBalaclavaId = DEFAULT_BALACLAVA_ID ) {
+export function createDefaultAIAppearance( selectedBalaclavaId = DEFAULT_BALACLAVA_ID, maskTintMainColor = '' ) {
 
 	const appearance = createDefaultPlayerAppearance();
 	appearance.selectedBalaclavaId = normalizeSelectedBalaclavaId( selectedBalaclavaId );
+	appearance.maskTintMainColor = normalizeMaskTintColor( maskTintMainColor );
 
 	if ( appearance.charAccessories.Baseball_Hat ) {
 

@@ -6,6 +6,16 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { getTrackModelConfig, getTrackTileSet } from '../../TrackModelConfig.js';
 import { applyTrackThemeToObject3D } from '../../TrackThemeApplier.js';
 import { DEFAULT_TRACK_THEME_ID, normalizeTrackThemeId } from '../../TrackThemeRegistry.js';
+import {
+	applyTrackAppearanceToObject3D,
+	getAppearanceTargetForModel,
+	tagObject3DAppearanceTarget,
+} from '../../TrackAppearanceApplier.js';
+import { SPECIAL_EDITOR_MODEL_DEFS } from '../constants/EditorAssetIds.js';
+
+const MODEL_FALLBACKS = {
+	'trk-jump-medium': 'trk-jump-long',
+};
 
 // ── Tile definitions ──
 
@@ -26,10 +36,6 @@ const TRACK_TILES = [
 	{ id: 'trk-ramp-up-2p5-smooth', index: 21, name: 'Smooth Ramp 2.5m',  category: 'ramp',   footprint: { w: 1, h: 1 }, exits: [ 'N', 'S' ], canElevate: false },
 	{ id: 'trk-ramp-up-5-smooth',   index: 22, name: 'Smooth Ramp 5m',    category: 'ramp',   footprint: { w: 1, h: 1 }, exits: [ 'N', 'S' ], canElevate: false },
 
-	// ── Elevated Flats ──
-	{ id: 'trk-elev-2p5',           index: 23, name: 'Elevated 2.5m',     category: 'elevated', footprint: { w: 1, h: 1 }, exits: [ 'N', 'S' ], canElevate: true },
-	{ id: 'trk-elev-5',             index: 24, name: 'Elevated 5m',       category: 'elevated', footprint: { w: 1, h: 1 }, exits: [ 'N', 'S' ], canElevate: true },
-
 	// ── Junctions ──
 	{ id: 'trk-junction-y',         index: 4,  name: 'Y-Split',           category: 'junction', footprint: { w: 3, h: 3 }, exits: null, canElevate: false },
 	{ id: 'trk-junction-t',         index: 5,  name: 'T-Junction',        category: 'junction', footprint: { w: 3, h: 3 }, exits: null, canElevate: false },
@@ -47,6 +53,7 @@ const TRACK_TILES = [
 
 	// ── Jumps ──
 	{ id: 'trk-jump-short',         index: 13, name: 'Jump (Short)',      category: 'jump',    footprint: { w: 1, h: 1 }, exits: [ 'N', 'S' ], canElevate: false },
+	{ id: 'trk-jump-medium',        index: 14, name: 'Jump (Medium)',     category: 'jump',    footprint: { w: 1, h: 1 }, exits: [ 'N', 'S' ], canElevate: false },
 	{ id: 'trk-jump-long',          index: 14, name: 'Jump (Long)',       category: 'jump',    footprint: { w: 1, h: 1 }, exits: [ 'N', 'S' ], canElevate: false },
 
 	// ── Start / Finish ──
@@ -64,7 +71,6 @@ const CATEGORIES = [
 	{ id: 'road',     name: 'Road Pieces' },
 	{ id: 'turn',     name: 'Turns / Curves' },
 	{ id: 'ramp',     name: 'Ramps' },
-	{ id: 'elevated', name: 'Elevated Flats' },
 	{ id: 'junction', name: 'Junctions' },
 	{ id: 'bridge',   name: 'Bridges' },
 	{ id: 'tunnel',   name: 'Tunnels' },
@@ -90,6 +96,7 @@ export class TileLibrary {
 		this._defMap = new Map();
 		for ( const def of TRACK_TILES ) this._defMap.set( def.id, def );
 		for ( const def of DECOR_TILES ) this._defMap.set( def.id, def );
+		for ( const def of SPECIAL_EDITOR_MODEL_DEFS ) this._defMap.set( def.id, def );
 
 	}
 
@@ -158,31 +165,46 @@ export class TileLibrary {
 
 		// Decor models
 		for ( const def of DECOR_TILES ) modelNames.add( def.id );
+		for ( const def of SPECIAL_EDITOR_MODEL_DEFS ) modelNames.add( def.id );
 
 		const names = [ ...modelNames ];
 		let loaded = 0;
 
-		const promises = names.map( name => {
+		const loadModelIntoCache = ( requestedName, sourceName ) => {
 
-			const config = getTrackModelConfig( name, this._tileSet );
-			const url = 'models/' + config.path;
-
-			return this._loader.loadAsync( url ).then( gltf => {
+			const config = getTrackModelConfig( sourceName, this._tileSet );
+			return this._loader.loadAsync( 'models/' + config.path ).then( gltf => {
 
 				const scene = gltf.scene;
 				return applyTrackThemeToObject3D( scene, this._activeThemeId ).then( () => {
 
 					scene.userData.rotationY = config.rotationY;
-					this._modelCache.set( name, scene );
-
-					loaded ++;
-					if ( onProgress ) onProgress( loaded, names.length );
+					tagObject3DAppearanceTarget( scene, getAppearanceTargetForModel( requestedName ) );
+					this._modelCache.set( requestedName, scene );
 
 				} );
+
+			} );
+
+		};
+
+		const promises = names.map( name => {
+
+			const fallbackName = MODEL_FALLBACKS[ name ] ?? null;
+
+			return loadModelIntoCache( name, name ).catch( err => {
+
+				if ( ! fallbackName ) throw err;
+
+				console.warn( `[TileLibrary] Falling back model "${ name }" -> "${ fallbackName }":`, err.message );
+				return loadModelIntoCache( name, fallbackName );
 
 			} ).catch( err => {
 
 				console.warn( `[TileLibrary] Failed to load model "${ name }":`, err.message );
+
+			} ).finally( () => {
+
 				loaded ++;
 				if ( onProgress ) onProgress( loaded, names.length );
 
@@ -222,6 +244,30 @@ export class TileLibrary {
 			} );
 
 		return this._themeApplyQueue;
+
+	}
+
+	async applyAppearance( appearance ) {
+
+		for ( const scene of this._modelCache.values() ) {
+
+			applyTrackAppearanceToObject3D( scene, appearance );
+
+		}
+
+		return appearance;
+
+	}
+
+	animateAppearance( appearance, timeSeconds ) {
+
+		for ( const scene of this._modelCache.values() ) {
+
+			applyTrackAppearanceToObject3D( scene, appearance, timeSeconds );
+
+		}
+
+		return appearance;
 
 	}
 

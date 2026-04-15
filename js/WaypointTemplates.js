@@ -261,6 +261,7 @@ const TEMPLATES = {
 	'trk-tunnel-open':  { 'S>N': STRAIGHT_S_N, 'N>S': STRAIGHT_N_S },
 
 	'trk-jump-short': { 'S>N': STRAIGHT_S_N, 'N>S': STRAIGHT_N_S },
+	'trk-jump-medium': { 'S>N': STRAIGHT_S_N, 'N>S': STRAIGHT_N_S },
 	'trk-jump-long':  { 'S>N': STRAIGHT_S_N, 'N>S': STRAIGHT_N_S },
 
 	// Corner

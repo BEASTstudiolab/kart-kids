@@ -64,6 +64,13 @@ function getOpenEdges( pieceType, cellOrient ) {
 
 }
 
+function getPreferredFinishStartEdge( cellOrient ) {
+
+	const deg = ORIENT_DEG[ cellOrient ] ?? 0;
+	return rotateEdge( 'S', deg );
+
+}
+
 function isCurveArmType( type ) {
 
 	return type === 'trk-straight' || type.startsWith( 'trk-elev-' );
@@ -163,7 +170,13 @@ export class TrackIntel {
 			} else {
 
 				// Normal piece — check open edges
-				for ( const edge of openEdges ) {
+				const preferredStartEdge = type === 'trk-finish' && prevKey === null
+					? getPreferredFinishStartEdge( orient )
+					: null;
+				const candidateEdges = preferredStartEdge
+					? [ preferredStartEdge, ...openEdges.filter( ( edge ) => edge !== preferredStartEdge ) ]
+					: openEdges;
+				for ( const edge of candidateEdges ) {
 
 					const [ dx, dz ] = EDGES[ edge ];
 					const nKey = ( gx + dx ) + ',' + ( gz + dz );
@@ -498,7 +511,7 @@ export class TrackIntel {
 		const RAMP_EXIT_TYPES = new Set( [
 			'trk-ramp-down-2p5', 'trk-ramp-down-5',
 			'trk-ramp-down-2p5-smooth', 'trk-ramp-down-5-smooth',
-			'trk-jump-short', 'trk-jump-long',
+			'trk-jump-short', 'trk-jump-medium', 'trk-jump-long',
 		] );
 
 		const addAnchor = ( idx ) => {

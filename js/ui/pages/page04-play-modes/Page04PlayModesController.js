@@ -186,7 +186,7 @@ export class Page04PlayModesController extends PageControllerBase {
 
 		this._services.startRace( {
 			mode:      'solo',
-			trackData: track.cells,
+			trackData: track.trackData || track.cells,
 			decoCells: track.decoCells,
 			vehicleId,
 		} );

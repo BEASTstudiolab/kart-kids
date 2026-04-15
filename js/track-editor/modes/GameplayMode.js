@@ -7,8 +7,12 @@ import { EditorMode } from './EditorMode.js';
 import { CELL_RAW } from '../../TrackConstants.js';
 import { GameplayMarker } from '../models/GameplayMarker.js';
 import { ELEV_GROUND } from '../models/TrackProject.js';
+import { BOOST_MARKER_MODEL_ID } from '../constants/EditorAssetIds.js';
+import { TrackIntel } from '../../TrackIntel.js';
+import { BOOST_LAYOUTS, resolveBoostPadPlacement } from '../../BoostPadLayout.js';
 
 const Y_PER_STEP = 2.416;
+const BOOST_VISUAL_LIFT = 0.06;
 
 // Marker visual colors
 const MARKER_COLORS = {
@@ -26,10 +30,11 @@ export class GameplayMode extends EditorMode {
 	 * @param {import('../core/EventBus.js').EventBus} eventBus
 	 * @param {import('../models/TrackProject.js').TrackProject} project
 	 */
-	constructor( editorState, eventBus, project ) {
+	constructor( editorState, eventBus, project, tileLibrary ) {
 
 		super( editorState, eventBus );
 		this._project = project;
+		this._tileLibrary = tileLibrary;
 
 		/** @type {Array<GameplayMarker>} */
 		this._markers = [];
@@ -42,7 +47,7 @@ export class GameplayMode extends EditorMode {
 
 	enter() {
 
-		this._state.tool = 'checkpoint';
+		if ( ! this._state.tool || this._state.tool === 'road' ) this._state.tool = 'checkpoint';
 
 	}
 
@@ -51,7 +56,14 @@ export class GameplayMode extends EditorMode {
 		return [
 			{ id: 'checkpoint', name: 'Checkpoint', icon: '🚩', color: '#3b82f6', desc: 'Race checkpoint gate' },
 			{ id: 'spawn', name: 'Spawn Point', icon: '⭐', color: '#22c55e', desc: 'Player start position' },
-			{ id: 'boost', name: 'Boost Pad', icon: '⬆️', color: '#f59e0b', desc: 'Speed boost zone' },
+			{
+				id: 'boost',
+				name: 'Turbo Tile',
+				icon: '⬆️',
+				color: '#f59e0b',
+				desc: 'Speed boost zone',
+				modelId: BOOST_MARKER_MODEL_ID,
+			},
 			{ id: 'powerup', name: 'Powerup', icon: '📦', color: '#a855f7', desc: 'Item pickup box' },
 			{ id: 'respawn', name: 'Respawn', icon: '🔄', color: '#ef4444', desc: 'Respawn marker' },
 		];
@@ -64,7 +76,6 @@ export class GameplayMode extends EditorMode {
 		if ( ! tile ) return; // Must place on existing track
 
 		const tool = this._state.tool;
-		const color = MARKER_COLORS[ tool ] ?? 0xffffff;
 
 		// Check if marker already exists at this cell for this type
 		const existing = this._markers.find(
@@ -73,23 +84,29 @@ export class GameplayMode extends EditorMode {
 
 		if ( existing ) {
 
-			// Toggle off — remove marker
-			this._removeMarker( existing );
+			if ( tool === 'boost' ) {
+
+				this._cycleBoostLayout( existing );
+
+			} else {
+
+				// Toggle off — remove marker
+				this._removeMarker( existing );
+
+			}
 			return;
 
 		}
 
+		if ( tool === 'boost' && ! this._canPlaceBoostOnTile( tile ) ) return;
+
 		// Create new marker
 		const marker = new GameplayMarker( tool, gx, gz );
 		marker.orderIndex = this._markers.filter( m => m.type === tool ).length;
+		if ( tool === 'boost' ) marker.settings.layout = BOOST_LAYOUTS[ 0 ];
 
 		// Build visual gizmo
-		const elevStep = tile._derivedElevation || tile.elevation || ELEV_GROUND;
-		const worldY = ( elevStep - ELEV_GROUND ) * Y_PER_STEP;
-
-		const gizmo = this._createGizmo( tool, color, gx, gz, worldY );
-		marker.mesh = gizmo;
-		this.markerGroup.add( gizmo );
+		this._rebuildMarkerMesh( marker );
 
 		this._markers.push( marker );
 		this._eventBus.emit( 'marker:placed', { marker } );
@@ -116,14 +133,7 @@ export class GameplayMode extends EditorMode {
 
 		if ( ! markersData || ! Array.isArray( markersData ) ) return;
 
-		// Clear existing
-		for ( const m of this._markers ) {
-
-			if ( m.mesh ) this.markerGroup.remove( m.mesh );
-
-		}
-
-		this._markers = [];
+		this.clearMarkers( { emitEvents: false } );
 
 		for ( const data of markersData ) {
 
@@ -133,18 +143,47 @@ export class GameplayMode extends EditorMode {
 			marker.id = data.id || crypto.randomUUID();
 			marker.orderIndex = data.order || 0;
 			marker.settings = data.settings || {};
+			if ( data.rot && Array.isArray( data.rot ) && Number.isFinite( data.rot[ 1 ] ) ) marker.orient = data.rot[ 1 ];
 
-			// Get tile elevation for gizmo positioning
-			const tile = this._project.getTile( gx, gz );
-			const elevStep = tile ? ( tile._derivedElevation || tile.elevation || ELEV_GROUND ) : ELEV_GROUND;
-			const worldY = ( elevStep - ELEV_GROUND ) * Y_PER_STEP;
-
-			const color = MARKER_COLORS[ data.type ] ?? 0xffffff;
-			const gizmo = this._createGizmo( data.type, color, gx, gz, worldY );
-			marker.mesh = gizmo;
-			this.markerGroup.add( gizmo );
+			this._rebuildMarkerMesh( marker );
 
 			this._markers.push( marker );
+
+		}
+
+	}
+
+	clearMarkers( { emitEvents = true } = {} ) {
+
+		const markers = [ ...this._markers ];
+		for ( const marker of markers ) {
+
+			this._removeMarker( marker, { emitEvent: emitEvents } );
+
+		}
+
+		return markers.length;
+
+	}
+
+	removeMarkersAt( gx, gz ) {
+
+		const markers = this._markers.filter( ( marker ) => marker.gx === gx && marker.gz === gz );
+		for ( const marker of markers ) {
+
+			this._removeMarker( marker );
+
+		}
+
+		return markers.length;
+
+	}
+
+	refreshMarkers() {
+
+		for ( const marker of this._markers ) {
+
+			this._rebuildMarkerMesh( marker );
 
 		}
 
@@ -153,7 +192,7 @@ export class GameplayMode extends EditorMode {
 	// ── Private ──
 
 	/** @private */
-	_removeMarker( marker ) {
+	_removeMarker( marker, { emitEvent = true } = {} ) {
 
 		if ( marker.mesh ) {
 
@@ -173,7 +212,36 @@ export class GameplayMode extends EditorMode {
 
 		}
 
-		this._eventBus.emit( 'marker:removed', { marker } );
+		if ( emitEvent ) this._eventBus.emit( 'marker:removed', { marker } );
+
+	}
+
+	_cycleBoostLayout( marker ) {
+
+		const current = BOOST_LAYOUTS.indexOf( marker.settings?.layout || BOOST_LAYOUTS[ 0 ] );
+		const nextIndex = current >= 0 ? ( current + 1 ) % BOOST_LAYOUTS.length : 0;
+		marker.settings.layout = BOOST_LAYOUTS[ nextIndex ];
+		this._rebuildMarkerMesh( marker );
+		this._eventBus.emit( 'marker:changed', { marker } );
+
+	}
+
+	_rebuildMarkerMesh( marker ) {
+
+		if ( marker.mesh ) {
+
+			this.markerGroup.remove( marker.mesh );
+			marker.mesh = null;
+
+		}
+
+		const tile = this._project.getTile( marker.gx, marker.gz );
+		const elevStep = tile ? ( tile._derivedElevation || tile.elevation || ELEV_GROUND ) : ELEV_GROUND;
+		const worldY = ( elevStep - ELEV_GROUND ) * Y_PER_STEP;
+		const color = MARKER_COLORS[ marker.type ] ?? 0xffffff;
+		const gizmo = this._createGizmo( marker, color, worldY );
+		marker.mesh = gizmo;
+		if ( gizmo ) this.markerGroup.add( gizmo );
 
 	}
 
@@ -181,7 +249,15 @@ export class GameplayMode extends EditorMode {
 	 * Create a 3D gizmo for a marker type.
 	 * @private
 	 */
-	_createGizmo( type, color, gx, gz, worldY ) {
+	_createGizmo( marker, color, worldY ) {
+
+		const { type, gx, gz } = marker;
+
+		if ( type === 'boost' ) {
+
+			return this._createBoostMarkerMesh( marker, worldY );
+
+		}
 
 		const group = new THREE.Group();
 		const worldX = ( gx + 0.5 ) * CELL_RAW;
@@ -227,6 +303,83 @@ export class GameplayMode extends EditorMode {
 		group.add( label );
 
 		return group;
+
+	}
+
+	_createBoostMarkerMesh( marker, worldY ) {
+
+		const boostRoot = new THREE.Group();
+		const { gx, gz } = marker;
+		const layout = marker.settings?.layout || BOOST_LAYOUTS[ 0 ];
+		const placement = this._resolveBoostPlacement( gx, gz, layout );
+
+		for ( const padCenter of placement.padCenters ) {
+
+			const boostMesh = this._tileLibrary?.cloneModel( BOOST_MARKER_MODEL_ID );
+			if ( ! boostMesh ) continue;
+
+			boostMesh.position.set(
+				padCenter.x,
+				worldY + BOOST_VISUAL_LIFT,
+				padCenter.z
+			);
+			boostMesh.rotation.y = placement.rotationY;
+			boostMesh.traverse( ( child ) => {
+
+				if ( child.isMesh ) {
+
+					child.castShadow = false;
+					child.receiveShadow = true;
+
+				}
+
+			} );
+			boostRoot.add( boostMesh );
+
+		}
+
+		marker.orient = placement.rotationY;
+		return boostRoot.children.length > 0 ? boostRoot : null;
+
+	}
+
+	_resolveBoostPlacement( gx, gz, layout = BOOST_LAYOUTS[ 0 ] ) {
+
+		const tile = this._project.getTile( gx, gz );
+		let intel = null;
+
+		try {
+
+			const hasFinishTile = [ ...this._project.getGrid().values() ].some( ( cell ) => cell.type === 'trk-finish' );
+			if ( hasFinishTile ) {
+
+				const nextIntel = new TrackIntel( this._project.getCellsArray() );
+				if ( nextIntel.valid && nextIntel.count > 0 ) intel = nextIntel;
+
+			}
+
+		} catch ( err ) {
+
+			console.warn( '[GameplayMode] Failed to resolve boost heading from TrackIntel:', err );
+
+		}
+
+		return resolveBoostPadPlacement( {
+			gx,
+			gz,
+			layout,
+			trackIntel: intel,
+			cellType: tile?.type,
+			orient: tile?.orient ?? 0,
+		} );
+
+	}
+
+	_canPlaceBoostOnTile( tile ) {
+
+		const def = this._tileLibrary?.getDefinition?.( tile.type );
+		if ( ! def ) return ! tile.type.includes( 'jump' ) && ! tile.type.startsWith( 'trk-corner' ) && ! tile.type.startsWith( 'trk-curve-' );
+		return def.category !== 'jump' && def.category !== 'turn';
 
 	}
 

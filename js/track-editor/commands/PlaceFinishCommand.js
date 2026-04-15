@@ -211,7 +211,7 @@ export class PlaceFinishCommand {
 
 			const arrow = new THREE.Mesh( geo, mat );
 			arrow.rotation.x = - Math.PI / 2;
-			arrow.rotation.z = - orientRad;
+			arrow.rotation.z = Math.PI - orientRad;
 			arrow.position.set(
 				worldX + Math.sin( orientRad ) * dist,
 				0.12,

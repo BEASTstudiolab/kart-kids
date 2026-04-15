@@ -48,9 +48,9 @@ test( 'PlayerManager computes deterministic multi-row spawn poses from spawn slo
 		angle: 0,
 		position: [ 10, 0, 20 ],
 	} );
-	assert.deepEqual( manager._computeSpawnPose( 1 ).position, [ 7, 0, 20 ] );
-	assert.deepEqual( manager._computeSpawnPose( 2 ).position, [ 13, 0, 20 ] );
-	assert.deepEqual( manager._computeSpawnPose( 4 ).position, [ 7, 0, 24 ] );
+	assert.deepEqual( manager._computeSpawnPose( 1 ).position, [ 13, 0, 20 ] );
+	assert.deepEqual( manager._computeSpawnPose( 2 ).position, [ 7, 0, 20 ] );
+	assert.deepEqual( manager._computeSpawnPose( 4 ).position, [ 13, 0, 16 ] );
 
 } );
 

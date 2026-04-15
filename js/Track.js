@@ -36,7 +36,7 @@ function elevToY( flags ) {
 
 
 
-export function buildTrack( scene, models, customCells, props ) {
+export function buildTrack( scene, models, customCells, props, terrainTiles = [] ) {
 
 	const trackGroup = new THREE.Group();
 	trackGroup.name = 'trackGroup';
@@ -44,6 +44,8 @@ export function buildTrack( scene, models, customCells, props ) {
 
 	const trackPieceGroup = new THREE.Group();
 	const decoGroup = new THREE.Group();
+	const terrainGroup = new THREE.Group();
+	terrainGroup.name = 'editor-terrain';
 
 	const cells = customCells || TRACK_CELLS;
 
@@ -379,6 +381,43 @@ export function buildTrack( scene, models, customCells, props ) {
 	trackGroup.add( trackPieceGroup );
 	trackGroup.add( decoGroup );
 
+	if ( terrainTiles.length > 0 ) {
+
+		for ( const tile of terrainTiles ) {
+
+			const src = models[ tile.type ];
+			if ( ! src ) continue;
+
+			const clone = src.clone( true );
+			const orient = tile.o ?? 0;
+			const elevY = elevToY( { fullElevation: tile.e ?? ELEV_GROUND } );
+
+			clone.position.set(
+				( tile.gx + 0.5 ) * CELL_RAW,
+				elevY,
+				( tile.gz + 0.5 ) * CELL_RAW
+			);
+			clone.rotation.y = THREE.MathUtils.degToRad( ORIENT_DEG[ orient ] ?? 0 );
+
+			clone.traverse( ( child ) => {
+
+				if ( child.isMesh ) {
+
+					child.castShadow = false;
+					child.receiveShadow = true;
+
+				}
+
+			} );
+
+			terrainGroup.add( clone );
+
+		}
+
+	}
+
+	trackGroup.add( terrainGroup );
+
 	// ── Editor-placed props/decor ────────────────────────────────────────
 	if ( props && props.length > 0 ) {
 
@@ -392,6 +431,7 @@ export function buildTrack( scene, models, customCells, props ) {
 
 			const clone = src.clone( true );
 			clone.position.set( p.pos[ 0 ], p.pos[ 1 ], p.pos[ 2 ] );
+			clone.rotation.y = Number.isFinite( p.rotY ) ? p.rotY : ( Array.isArray( p.rot ) && Number.isFinite( p.rot[ 1 ] ) ? p.rot[ 1 ] : 0 );
 
 			clone.traverse( ( c ) => {
 
@@ -483,9 +523,10 @@ export function computeSpawnPosition( cells ) {
 	const orient = cell[ 3 ];
 	const trackAngle = THREE.MathUtils.degToRad( ORIENT_DEG[ orient ] || 0 );
 
-	// spawnAngle: rotated 180° so the vehicle model (forward = +Z) faces the racing direction
-	// finishAngle: the raw track orientation for finish line normal computation
-	return { position: [ x, 0, z ], angle: trackAngle + Math.PI, finishAngle: trackAngle };
+	// spawnAngle follows the finish-tile arrow direction used by the overlay.
+	// finishAngle points the finish-line normal opposite travel so forward
+	// crossings still register as laps.
+	return { position: [ x, 0, z ], angle: trackAngle, finishAngle: trackAngle + Math.PI };
 
 }
 

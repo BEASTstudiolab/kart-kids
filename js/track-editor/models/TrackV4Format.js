@@ -31,6 +31,7 @@ const V4_TYPE_NAMES = [
 	'trk-curve-2x2-l',
 	'trk-curve-3x3-l',
 	'trk-curve-3x3-wide-l',
+	'trk-jump-medium',
 ];
 
 const V4_TYPE_INDEX = {};

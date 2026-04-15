@@ -571,8 +571,8 @@ test( 'AIController primeAtPosition clears stale route hints so opening grid tar
 
 	const spawn = computeSpawnPosition( TRACK_CELLS );
 	const yawDeg = THREE.MathUtils.radToDeg( spawn.angle );
-	const fwdX = - Math.sin( spawn.angle );
-	const fwdZ = - Math.cos( spawn.angle );
+	const fwdX = Math.sin( spawn.angle );
+	const fwdZ = Math.cos( spawn.angle );
 	const rightX = - fwdZ;
 	const rightZ = fwdX;
 	const colOffsets = [ - 2.5, 0, 2.5 ];

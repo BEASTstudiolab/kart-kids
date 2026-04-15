@@ -33,6 +33,7 @@ export const TRACK_INTEL_BASE_CONNECTIVITY = {
 	'trk-tunnel-exit': [ 'N', 'S' ],
 	'trk-tunnel-open': [ 'N', 'S' ],
 	'trk-jump-short': [ 'N', 'S' ],
+	'trk-jump-medium': [ 'N', 'S' ],
 	'trk-jump-long': [ 'N', 'S' ],
 	'trk-chicane-3x3-l': [ 'N', 'S' ],
 	'trk-junction-y': null,

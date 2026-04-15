@@ -55,3 +55,31 @@ test( 'every configured track theme ships the required atlas textures for both a
 	);
 
 } );
+
+test( 'terrain asset uses the slot-1 asphalt naming convention required for theme swaps', async () => {
+
+	const { existsSync, readFileSync } = await import( 'node:fs' );
+	const gltf = JSON.parse(
+		readFileSync( new URL( '../models/standard-map/kartkids_base_trk_700_terrain_blank.gltf', import.meta.url ), 'utf8' )
+	);
+
+	assert.equal( gltf.materials?.[ 0 ]?.name, 'asphalt' );
+	assert.equal(
+		gltf.images?.some( ( image ) => image.uri === 'textures/AtlasAsphalt1_BaseColor.png' ),
+		true
+	);
+	assert.equal(
+		gltf.images?.some( ( image ) => image.uri === 'textures/AtlasAsphalt1_Normal.png' ),
+		true
+	);
+	assert.equal(
+		gltf.images?.some( ( image ) => image.uri === 'textures/AtlasAsphalt1_OcclusionRoughnessMetallic.png' ),
+		true
+	);
+	assert.equal( gltf.buffers?.[ 0 ]?.uri, 'kartkids_base_trk_700_terrain_blank.bin' );
+	assert.equal(
+		existsSync( new URL( `../models/standard-map/${ gltf.buffers?.[ 0 ]?.uri }`, import.meta.url ) ),
+		true
+	);
+
+} );

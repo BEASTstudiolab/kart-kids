@@ -1,6 +1,6 @@
 // ─── BuildMode ───────────────────────────────────────────────────────────────
 // Primary mode for laying out track tiles.
-// Tools: Road, Erase, Finish, Special, Elevate, Smart Fill, Replace, Eyedropper.
+// Tools: Road, Erase, Finish, Special, Terrain, Elevate, Eyedropper.
 
 import { EditorMode } from './EditorMode.js';
 
@@ -14,11 +14,10 @@ export class BuildMode extends EditorMode {
 		this._placement = placement;
 		this._commandHistory = commandHistory;
 		this._elevCtrl = null;
+		this._gameplayMode = null;
 
 		this._isDragging = false;
 		this._dragCommands = [];
-		this._fillStart = null;
-
 		// Elevation drag state
 		this._elevDragStartY = 0;
 		this._elevDragCell = null;
@@ -29,10 +28,11 @@ export class BuildMode extends EditorMode {
 	}
 
 	setElevationController( elevCtrl ) { this._elevCtrl = elevCtrl; }
+	setGameplayMode( gameplayMode ) { this._gameplayMode = gameplayMode; }
 
 	enter() {
 
-		const valid = [ 'road', 'erase', 'finish', 'special', 'elevate', 'smart-fill', 'replace', 'eyedropper' ];
+		const valid = [ 'road', 'erase', 'finish', 'special', 'terrain', 'elevate', 'eyedropper' ];
 		if ( ! valid.includes( this._state.tool ) ) this._state.tool = 'road';
 
 	}
@@ -51,9 +51,8 @@ export class BuildMode extends EditorMode {
 			{ id: 'erase', name: 'Erase', icon: 'eraser' },
 			{ id: 'finish', name: 'Finish', icon: 'flag' },
 			{ id: 'special', name: 'Special', icon: 'puzzle' },
+			{ id: 'terrain', name: 'Terrain', icon: 'grid' },
 			{ id: 'elevate', name: 'Elevate', icon: 'arrow-up' },
-			{ id: 'smart-fill', name: 'Smart Fill', icon: 'fill' },
-			{ id: 'replace', name: 'Replace', icon: 'replace' },
 		];
 
 	}
@@ -82,6 +81,12 @@ export class BuildMode extends EditorMode {
 
 			const tileType = this._state.selectedTileType;
 			if ( tileType ) this._placement.placeSpecialTile( gx, gz, tileType );
+
+		} else if ( tool === 'terrain' ) {
+
+			this._isDragging = true;
+			this._dragCommands = [];
+			this._placeTerrainAt( gx, gz );
 
 		} else if ( tool === 'eyedropper' ) {
 
@@ -112,19 +117,6 @@ export class BuildMode extends EditorMode {
 				this._placement.setElevationHighlight( gx, gz );
 
 			}
-
-		} else if ( tool === 'smart-fill' ) {
-
-			this._isDragging = true;
-			this._dragCommands = [];
-			this._fillStart = { gx, gz };
-			this._placeAt( gx, gz );
-
-		} else if ( tool === 'replace' ) {
-
-			this._isDragging = true;
-			this._dragCommands = [];
-			this._replaceAt( gx, gz );
 
 		}
 
@@ -169,9 +161,9 @@ export class BuildMode extends EditorMode {
 
 		if ( this._isDragging ) {
 
-			if ( tool === 'road' || tool === 'smart-fill' ) this._placeAt( gx, gz );
+			if ( tool === 'road' ) this._placeAt( gx, gz );
+			else if ( tool === 'terrain' ) this._placeTerrainAt( gx, gz );
 			else if ( tool === 'erase' ) this._eraseAt( gx, gz );
-			else if ( tool === 'replace' ) this._replaceAt( gx, gz );
 
 		} else {
 
@@ -187,7 +179,6 @@ export class BuildMode extends EditorMode {
 		this._dragCommands = [];
 		this._isElevDragging = false;
 		this._elevDragCell = null;
-		this._fillStart = null;
 
 	}
 
@@ -258,18 +249,18 @@ export class BuildMode extends EditorMode {
 	/** @private */
 	_eraseAt( gx, gz ) {
 
+		const removedMarkers = this._gameplayMode?.removeMarkersAt?.( gx, gz ) ?? 0;
+		if ( removedMarkers > 0 ) return;
+
 		const cmd = this._placement.eraseRoad( gx, gz );
 		if ( cmd ) this._dragCommands.push( cmd );
 
 	}
 
 	/** @private */
-	_replaceAt( gx, gz ) {
+	_placeTerrainAt( gx, gz ) {
 
-		const newType = this._state.selectedTileType;
-		if ( ! newType ) return;
-
-		const cmd = this._placement.replaceRoad( gx, gz, newType );
+		const cmd = this._placement.placeTerrain( gx, gz );
 		if ( cmd ) this._dragCommands.push( cmd );
 
 	}

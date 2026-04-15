@@ -120,7 +120,9 @@ export class AIManager {
 			options: { forceWheelCorrection: true },
 		} );
 
-		applyPlayerAppearanceToVehicle( vehicle, createDefaultAIAppearance( getRandomBalaclavaId() ) );
+		const aiColor = this._aiColors[ index % this._aiColors.length ];
+		const aiMaskTint = `#${ aiColor.getHexString() }`;
+		applyPlayerAppearanceToVehicle( vehicle, createDefaultAIAppearance( getRandomBalaclavaId(), aiMaskTint ) );
 
 		// AI benefits from the same centerline correction the player assist uses,
 		// especially when physics pushes a kart wide in tighter corners.
@@ -131,7 +133,6 @@ export class AIManager {
 		for ( const hl of vehicle.headlights ) hl.visible = false;
 
 		// Apply unique color tint to this AI's body
-		const aiColor = this._aiColors[ index % this._aiColors.length ];
 		if ( vehicle.bodyNode ) {
 
 			vehicle.bodyNode.traverse( ( child ) => {
@@ -371,8 +372,8 @@ export class AIManager {
 
 		const positions = [];
 
-		const fwdX = - Math.sin( this.spawnAngle );
-		const fwdZ = - Math.cos( this.spawnAngle );
+		const fwdX = Math.sin( this.spawnAngle );
+		const fwdZ = Math.cos( this.spawnAngle );
 		const rightX = - fwdZ;
 		const rightZ = fwdX;
 

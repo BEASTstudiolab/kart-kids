@@ -4,6 +4,7 @@
 // and starts the render loop.
 
 import * as THREE from 'three';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { CELL_RAW } from '../../TrackConstants.js';
 
 // Core
@@ -55,6 +56,9 @@ import { PublishedTrackApi } from '../../track-library/PublishedTrackApi.js';
 import { TrackLibraryStore } from '../../track-library/TrackLibraryStore.js';
 import { Settings } from '../../Settings.js';
 import { DEFAULT_TRACK_THEME_ID } from '../../TrackThemeRegistry.js';
+import { getAvailableAppearanceTargets, applyTrackGlowSettings } from '../../TrackAppearanceApplier.js';
+import { hasAnimatedTrackAppearance, normalizeTrackAppearance } from '../../TrackAppearance.js';
+import { SPECIAL_EDITOR_MODEL_DEFS } from '../constants/EditorAssetIds.js';
 
 // ── Grid helper settings ──
 const GRID_LINES = 40;
@@ -69,6 +73,7 @@ class EditorApp {
 		this._animFrameId = null;
 		this._manageToken = null;
 		this._managedTrack = null;
+		this._appearanceAnimationEnabled = false;
 
 	}
 
@@ -86,6 +91,9 @@ class EditorApp {
 		this._renderer.setClearColor( 0x0a0a0a );
 		this._renderer.shadowMap.enabled = true;
 		this._renderer.shadowMap.type = THREE.PCFShadowMap;
+		this._bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ) );
+		applyTrackGlowSettings( this._bloomPass, null );
+		this._renderer.setEffects( [ this._bloomPass ] );
 
 		this._scene = new THREE.Scene();
 
@@ -149,6 +157,7 @@ class EditorApp {
 		this._project = new TrackProject();
 
 		this._scene.add( this._project.trackGroup );
+		this._scene.add( this._project.terrainGroup );
 
 		// ── Tile Library (load models) ──
 		this._tileLibrary = new TileLibrary();
@@ -239,7 +248,6 @@ class EditorApp {
 			this._placement, this._commandHistory
 		);
 		buildMode.setElevationController( this._elevController );
-		this._input.registerMode( 'build', buildMode );
 
 		const sculptMode = new SculptMode(
 			this._state, this._eventBus,
@@ -249,8 +257,10 @@ class EditorApp {
 		);
 		this._input.registerMode( 'sculpt', sculptMode );
 
-		const gameplayMode = new GameplayMode( this._state, this._eventBus, this._project );
+		const gameplayMode = new GameplayMode( this._state, this._eventBus, this._project, this._tileLibrary );
 		this._scene.add( gameplayMode.markerGroup );
+		buildMode.setGameplayMode( gameplayMode );
+		this._input.registerMode( 'build', buildMode );
 		this._input.registerMode( 'gameplay', gameplayMode );
 
 		const propsMode = new PropsMode(
@@ -317,6 +327,7 @@ class EditorApp {
 		}
 
 		await this._themeService.applyCurrentTheme();
+		await this._applyTrackAppearance();
 		this._buildInspector();
 		this._syncTopbarProjectState();
 		this._syncPublishUi();
@@ -344,6 +355,11 @@ class EditorApp {
 
 		// Update chase camera if active
 		this._camera.updateChase();
+		if ( this._appearanceAnimationEnabled ) {
+
+			this._tileLibrary.animateAppearance( this._project.meta.appearance, performance.now() * 0.001 );
+
+		}
 
 		this._renderer.render( this._scene, this._camera.camera );
 
@@ -359,6 +375,7 @@ class EditorApp {
 		const h = viewport.clientHeight;
 
 		this._renderer.setSize( w, h );
+		if ( this._bloomPass?.setSize ) this._bloomPass.setSize( w, h );
 		this._camera.resize( w, h );
 
 	}
@@ -419,14 +436,29 @@ class EditorApp {
 		this._eventBus.on( 'tile:placed', onTileChange );
 		this._eventBus.on( 'tile:erased', onTileChange );
 		this._eventBus.on( 'tile:changed', onTileChange );
+		this._eventBus.on( 'terrain:placed', onTileChange );
+		this._eventBus.on( 'terrain:erased', onTileChange );
 		this._eventBus.on( 'elevation:changed', onTileChange );
 		this._eventBus.on( 'prop:placed', onTileChange );
 		this._eventBus.on( 'prop:erased', onTileChange );
 		this._eventBus.on( 'prop:rotated', onTileChange );
 		this._eventBus.on( 'marker:placed', onTileChange );
+		this._eventBus.on( 'marker:changed', onTileChange );
 		this._eventBus.on( 'marker:removed', onTileChange );
 		this._eventBus.on( 'project:loaded', () => this._occupancy.rebuildFromProject( this._project ) );
 		this._eventBus.on( 'project:cleared', () => this._occupancy.rebuildFromProject( this._project ) );
+
+		const refreshGameplayMarkers = () => {
+
+			const gm = this._input._modes.get( 'gameplay' );
+			if ( gm?.refreshMarkers ) gm.refreshMarkers();
+
+		};
+
+		this._eventBus.on( 'tile:placed', refreshGameplayMarkers );
+		this._eventBus.on( 'tile:erased', refreshGameplayMarkers );
+		this._eventBus.on( 'tile:changed', refreshGameplayMarkers );
+		this._eventBus.on( 'elevation:changed', refreshGameplayMarkers );
 
 		// Undo/redo → update UI
 		this._eventBus.on( 'undo:stateChanged', ( data ) => {
@@ -645,6 +677,11 @@ class EditorApp {
 			if ( ! confirm( 'Clear all tiles? This cannot be undone.' ) ) return;
 
 			this._project.clear();
+			const pm = this._input._modes.get( 'props' );
+			if ( pm && pm.loadFromJSON ) pm.loadFromJSON( [] );
+			const gm = this._input._modes.get( 'gameplay' );
+			if ( gm?.clearMarkers ) gm.clearMarkers();
+			else if ( gm?.loadFromJSON ) gm.loadFromJSON( [] );
 			this._commandHistory.clear();
 			this._occupancy.rebuildFromProject( this._project );
 			this._eventBus.emit( 'project:cleared' );
@@ -670,14 +707,25 @@ class EditorApp {
 
 			// Clear and create new project
 			this._project.clear();
+			const pm = this._input._modes.get( 'props' );
+			if ( pm && pm.loadFromJSON ) pm.loadFromJSON( [] );
+			const gm = this._input._modes.get( 'gameplay' );
+			if ( gm?.clearMarkers ) gm.clearMarkers();
+			else if ( gm?.loadFromJSON ) gm.loadFromJSON( [] );
 			this._project.meta = {
 				id: crypto.randomUUID(),
 				name: 'Untitled Track',
 				description: '',
 				themeId: DEFAULT_TRACK_THEME_ID,
 				timeOfDay: 'night',
+				raceType: 'circuit',
 				laps: 3,
 				racerCount: 4,
+				gridWidth: 255,
+				gridHeight: 255,
+				validationState: null,
+				shareId: null,
+				appearance: normalizeTrackAppearance(),
 				createdAt: new Date().toISOString(),
 				updatedAt: new Date().toISOString(),
 				version: 1,
@@ -708,6 +756,7 @@ class EditorApp {
 					this._manageToken = manageToken;
 					this._managedTrack = track;
 					this._project.loadFromV4JSON( track.trackData );
+					this._storage.rebuildAllMeshes();
 					this._trackLibrary.saveOwnedPublishedTrack( track, manageToken );
 					console.log( '[EditorApp] Loaded published track from manage link.' );
 					return true;
@@ -730,6 +779,7 @@ class EditorApp {
 	async _applyTrackTheme( themeId ) {
 
 		await this._tileLibrary.applyTheme( themeId );
+		await this._tileLibrary.applyAppearance( this._project.meta.appearance );
 
 		// Placed track tiles share source materials, but curve clones and preview UI
 		// need an explicit refresh so every editor surface reflects the new theme.
@@ -738,6 +788,22 @@ class EditorApp {
 		this._renderTileThumbnails();
 		this._renderCarousel();
 		this._eventBus.emit( 'theme:changed', { themeId } );
+
+	}
+
+	async _applyTrackAppearance() {
+
+		const appearance = normalizeTrackAppearance( this._project.meta.appearance );
+		this._project.meta.appearance = appearance;
+		this._appearanceAnimationEnabled = hasAnimatedTrackAppearance( appearance );
+		applyTrackGlowSettings( this._bloomPass, appearance );
+		await this._tileLibrary.applyAppearance( appearance );
+		if ( this._appearanceAnimationEnabled ) {
+
+			this._tileLibrary.animateAppearance( appearance, performance.now() * 0.001 );
+
+		}
+		return appearance;
 
 	}
 
@@ -1043,11 +1109,10 @@ class EditorApp {
 			{ id: 'eyedropper', icon: icons.eyedropper, label: 'Eyedropper',     tip: 'Pick a tile from the grid into your brush',  key: 'I', group: 'draw',    action: 'build-tool', tool: 'eyedropper' },
 			{ id: 'sculpt',     icon: icons.rotate,     label: 'Rotate',         tip: 'Click tile to rotate 90deg, Shift=reverse',  key: 'R', group: 'edit',    action: 'mode' },
 			{ id: 'move',       icon: icons.route,      label: 'Move',           tip: 'Click tile then drop at new position',       key: 'M', group: 'edit',    action: 'sculpt-tool', tool: 'move' },
+			{ id: 'terrain',    icon: icons.draw,       label: 'Terrain',        tip: 'Place non-track terrain surfaces',           key: 'A', group: 'edit',    action: 'build-tool', tool: 'terrain' },
 			{ id: 'elevate',    icon: icons.elevate,    label: 'Elevate',        tip: 'Drag up/down to raise/lower, +/- keys',      key: 'V', group: 'edit',    action: 'build-tool', tool: 'elevate' },
-			{ id: 'smart-fill', icon: icons.draw,       label: 'Smart Fill',     tip: 'Drag to fill area with tiles',               key: 'S', group: 'edit',    action: 'build-tool', tool: 'smart-fill' },
-			{ id: 'replace',    icon: icons.eyedropper, label: 'Replace',        tip: 'Click tile to swap its type',                key: 'Q', group: 'edit',    action: 'build-tool', tool: 'replace' },
 			{ id: 'route',      icon: icons.route,      label: 'Route Trace',    tip: 'Fly along the race loop + validate',         key: 'T', group: 'edit',    action: 'toggle-route' },
-			{ id: 'gameplay',   icon: icons.gameplay,   label: 'Gameplay',       tip: 'Checkpoints, spawns, boost pads',            key: 'G', group: 'content', action: 'mode' },
+			{ id: 'gameplay',   icon: icons.gameplay,   label: 'Gameplay',       tip: 'Checkpoints, spawns, turbo tiles',           key: 'G', group: 'content', action: 'mode' },
 			{ id: 'props',      icon: icons.decor,      label: 'Props',          tip: 'Place decorative props freely',              key: 'D', group: 'content', action: 'mode' },
 			{ id: 'erase-prop', icon: icons.erase,      label: 'Erase Prop',     tip: 'Click to remove placed props/decor',        key: 'E', group: 'content', action: 'props-tool', tool: 'erase-prop' },
 			{ id: 'debug',      icon: icons.debug,      label: 'Debug',          tip: 'Toggle tile info overlay',                   key: '`', group: 'meta',    action: 'toggle-debug' },
@@ -1193,7 +1258,7 @@ class EditorApp {
 		const mode = this._state.mode;
 		const tool = this._state.tool;
 
-		const buildSubTools = [ 'erase', 'finish', 'elevate', 'eyedropper', 'smart-fill', 'replace' ];
+		const buildSubTools = [ 'erase', 'finish', 'terrain', 'elevate', 'eyedropper' ];
 		const sculptSubTools = [ 'move' ];
 		const hasBuildSubTool = mode === 'build' && buildSubTools.includes( tool );
 		const hasSculptSubTool = mode === 'sculpt' && sculptSubTools.includes( tool );
@@ -1274,7 +1339,11 @@ class EditorApp {
 		const thumbRenderer = new TileThumbnailRenderer();
 		this._thumbCache = {};
 
-		const allTiles = [ ...this._tileLibrary.getTrackTiles(), ...this._tileLibrary.getDecorTiles() ];
+		const allTiles = [
+			...this._tileLibrary.getTrackTiles(),
+			...this._tileLibrary.getDecorTiles(),
+			...SPECIAL_EDITOR_MODEL_DEFS,
+		];
 		for ( const def of allTiles ) {
 
 			const model = this._tileLibrary.getModel( def.id );
@@ -1305,9 +1374,16 @@ class EditorApp {
 			for ( const t of tools ) {
 
 				const selected = activeTool === t.id ? ' kk-carousel__card--selected' : '';
+				const thumbSrc = t.modelId ? this._thumbCache?.[ t.modelId ] : '';
+				const thumbHtml = thumbSrc
+					? `<img src="${ thumbSrc }" alt="${ t.name }" style="width:100%;height:100%;object-fit:contain">`
+					: t.icon;
+				const thumbStyle = thumbSrc
+					? 'display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.03);border-radius:6px'
+					: `display:flex;align-items:center;justify-content:center;font-size:32px;background:none;border:2px solid ${ t.color };border-radius:6px`;
 				cardsHtml += `
 					<div class="kk-carousel__card${ selected }" data-gameplay-tool="${ t.id }" title="${ t.desc }" style="cursor:pointer">
-						<div class="kk-carousel__card-thumb" style="display:flex;align-items:center;justify-content:center;font-size:32px;background:none;border:2px solid ${ t.color };border-radius:6px">${ t.icon }</div>
+						<div class="kk-carousel__card-thumb" style="${ thumbStyle }">${ thumbHtml }</div>
 						<div class="kk-carousel__card-name" style="color:${ t.color }">${ t.name }</div>
 						<div class="kk-carousel__card-meta">${ t.desc }</div>
 					</div>
@@ -1827,6 +1903,9 @@ class EditorApp {
 		const meta = this._project.meta;
 		const raceTypes = this._themeService.getRaceTypes();
 		const themes = this._themeService.getAvailableThemes();
+		const appearance = normalizeTrackAppearance( meta.appearance );
+		const appearanceTargets = getAvailableAppearanceTargets();
+		meta.appearance = appearance;
 
 		let raceOpts = '';
 		for ( const rt of raceTypes ) {
@@ -1850,6 +1929,79 @@ class EditorApp {
 
 			const sel = n === meta.racerCount ? ' selected' : '';
 			racerOpts += `<option value="${ n }"${ sel }>${ n } Racers</option>`;
+
+		}
+
+		let appearanceHtml = `
+			<h3 class="kk-inspector__heading" style="margin-top:16px">APPEARANCE</h3>
+
+			<div class="kk-inspector__field">
+				<span class="kk-inspector__field-label">Glow Strength</span>
+				<div style="display:flex;align-items:center;gap:8px;width:100%">
+					<input type="range" min="0" max="4" step="0.01" value="${ appearance.glow.strength }"
+						id="inspector-appearance-glow-strength" style="flex:1">
+					<span id="inspector-appearance-glow-strength-value" style="font:11px monospace;color:var(--color-ink-300)">${ appearance.glow.strength.toFixed( 2 ) }</span>
+				</div>
+			</div>
+
+			<div class="kk-inspector__field">
+				<span class="kk-inspector__field-label">Glow Radius</span>
+				<div style="display:flex;align-items:center;gap:8px;width:100%">
+					<input type="range" min="0" max="2" step="0.01" value="${ appearance.glow.radius }"
+						id="inspector-appearance-glow-radius" style="flex:1">
+					<span id="inspector-appearance-glow-radius-value" style="font:11px monospace;color:var(--color-ink-300)">${ appearance.glow.radius.toFixed( 2 ) }</span>
+				</div>
+			</div>
+
+			<div class="kk-inspector__field">
+				<span class="kk-inspector__field-label">Glow Threshold</span>
+				<div style="display:flex;align-items:center;gap:8px;width:100%">
+					<input type="range" min="0" max="2" step="0.01" value="${ appearance.glow.threshold }"
+						id="inspector-appearance-glow-threshold" style="flex:1">
+					<span id="inspector-appearance-glow-threshold-value" style="font:11px monospace;color:var(--color-ink-300)">${ appearance.glow.threshold.toFixed( 2 ) }</span>
+				</div>
+			</div>
+		`;
+
+		for ( const target of appearanceTargets ) {
+
+			const targetAppearance = appearance.targets[ target.id ];
+			appearanceHtml += `
+				<div style="margin-top:12px;padding:10px 0;border-top:1px solid rgba(255,255,255,0.08)">
+					<div style="font-size:12px;font-weight:700;letter-spacing:0.08em;color:var(--color-ink-100)">${ target.label }</div>
+					<div style="margin-top:4px;font-size:11px;line-height:1.45;color:var(--color-ink-400)">${ target.description }</div>
+					<div class="kk-inspector__field" style="margin-top:8px">
+						<span class="kk-inspector__field-label">Emissive Color</span>
+						<input type="color" id="inspector-appearance-${ target.id }-color"
+							value="${ targetAppearance.color }"
+							style="width:48px;height:28px;padding:0;border:none;background:none">
+					</div>
+					<div class="kk-inspector__field">
+						<span class="kk-inspector__field-label">Emissive Strength</span>
+						<div style="display:flex;align-items:center;gap:8px;width:100%">
+							<input type="range" min="0" max="8" step="0.05" value="${ targetAppearance.intensity }"
+								id="inspector-appearance-${ target.id }-intensity" style="flex:1">
+							<span id="inspector-appearance-${ target.id }-intensity-value" style="font:11px monospace;color:var(--color-ink-300)">${ targetAppearance.intensity.toFixed( 2 ) }</span>
+						</div>
+					</div>
+					<div class="kk-inspector__field">
+						<span class="kk-inspector__field-label">Animated Hue Shift</span>
+						<label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--color-ink-300)">
+							<input type="checkbox" id="inspector-appearance-${ target.id }-hue-shift" ${ targetAppearance.hueShiftEnabled ? 'checked' : '' }>
+							<span>Enable rainbow loop</span>
+						</label>
+					</div>
+					<div class="kk-inspector__field" id="inspector-appearance-${ target.id }-hue-speed-row"
+						style="display:${ targetAppearance.hueShiftEnabled ? 'flex' : 'none' }">
+						<span class="kk-inspector__field-label">Hue Shift Speed</span>
+						<div style="display:flex;align-items:center;gap:8px;width:100%">
+							<input type="range" min="0.05" max="4" step="0.05" value="${ targetAppearance.hueShiftSpeed }"
+								id="inspector-appearance-${ target.id }-hue-speed" style="flex:1">
+							<span id="inspector-appearance-${ target.id }-hue-speed-value" style="font:11px monospace;color:var(--color-ink-300)">${ targetAppearance.hueShiftSpeed.toFixed( 2 ) }</span>
+						</div>
+					</div>
+				</div>
+			`;
 
 		}
 
@@ -1877,6 +2029,8 @@ class EditorApp {
 				<select class="kk-editor-select" id="inspector-theme">${ themeOpts }</select>
 			</div>
 
+			${ appearanceHtml }
+
 			<h3 class="kk-inspector__heading" style="margin-top:16px">MARKERS</h3>
 			<div id="inspector-marker-counts" style="font-size:12px;color:var(--color-ink-400)">
 				No markers placed
@@ -1893,29 +2047,189 @@ class EditorApp {
 		`;
 
 		// Event handlers
+		const markUnsaved = () => {
+
+			const saveEl = document.getElementById( 'status-save' );
+			if ( saveEl ) saveEl.textContent = 'Unsaved';
+
+		};
+		const persistInspectorChange = () => {
+
+			this._storage?.save();
+			markUnsaved();
+
+		};
+
 		inspector.querySelector( '#inspector-race-type' ).addEventListener( 'change', ( e ) => {
 
 			this._project.meta.raceType = e.target.value;
+			persistInspectorChange();
 
 		} );
 
 		inspector.querySelector( '#inspector-racer-count' ).addEventListener( 'change', ( e ) => {
 
 			this._project.meta.racerCount = parseInt( e.target.value, 10 );
+			persistInspectorChange();
 
 		} );
 
 		inspector.querySelector( '#inspector-laps' ).addEventListener( 'change', ( e ) => {
 
 			this._project.meta.laps = Math.max( 1, parseInt( e.target.value, 10 ) || 3 );
+			persistInspectorChange();
 
 		} );
 
 		inspector.querySelector( '#inspector-theme' ).addEventListener( 'change', ( e ) => {
 
-			void this._themeService.setTheme( e.target.value );
+			void this._themeService.setTheme( e.target.value ).then( () => persistInspectorChange() );
 
 		} );
+
+		const bindGlowControl = ( key ) => {
+
+			const input = inspector.querySelector( `#inspector-appearance-glow-${ key }` );
+			const valueEl = inspector.querySelector( `#inspector-appearance-glow-${ key }-value` );
+			if ( ! input || ! valueEl ) return;
+
+			const apply = async () => {
+
+				meta.appearance = normalizeTrackAppearance( {
+					...meta.appearance,
+					glow: {
+						...( meta.appearance?.glow || {} ),
+						[ key ]: Number( input.value ),
+					},
+				} );
+				valueEl.textContent = Number( input.value ).toFixed( 2 );
+				await this._applyTrackAppearance();
+
+			};
+
+			input.addEventListener( 'input', () => { void apply(); } );
+			input.addEventListener( 'change', () => {
+
+				void apply().then( () => {
+
+					persistInspectorChange();
+					this._eventBus.emit( 'appearance:changed', { appearance: meta.appearance } );
+
+				} );
+
+			} );
+
+		};
+
+		for ( const key of [ 'strength', 'radius', 'threshold' ] ) bindGlowControl( key );
+
+		for ( const target of appearanceTargets ) {
+
+			const colorInput = inspector.querySelector( `#inspector-appearance-${ target.id }-color` );
+			const intensityInput = inspector.querySelector( `#inspector-appearance-${ target.id }-intensity` );
+			const intensityValue = inspector.querySelector( `#inspector-appearance-${ target.id }-intensity-value` );
+			const hueShiftInput = inspector.querySelector( `#inspector-appearance-${ target.id }-hue-shift` );
+			const hueSpeedRow = inspector.querySelector( `#inspector-appearance-${ target.id }-hue-speed-row` );
+			const hueSpeedInput = inspector.querySelector( `#inspector-appearance-${ target.id }-hue-speed` );
+			const hueSpeedValue = inspector.querySelector( `#inspector-appearance-${ target.id }-hue-speed-value` );
+			const applyTargetAppearance = async ( patch = {} ) => {
+
+				meta.appearance = normalizeTrackAppearance( {
+					...meta.appearance,
+					targets: {
+						...( meta.appearance?.targets || {} ),
+						[ target.id ]: {
+							...( meta.appearance?.targets?.[ target.id ] || {} ),
+							...patch,
+						},
+					},
+				} );
+				if ( intensityInput && intensityValue ) {
+
+					intensityValue.textContent = Number( intensityInput.value ).toFixed( 2 );
+
+				}
+				if ( hueSpeedInput && hueSpeedValue ) {
+
+					hueSpeedValue.textContent = Number( hueSpeedInput.value ).toFixed( 2 );
+
+				}
+				if ( hueSpeedRow && hueShiftInput ) {
+
+					hueSpeedRow.style.display = hueShiftInput.checked ? 'flex' : 'none';
+
+				}
+				await this._applyTrackAppearance();
+
+			};
+			if ( colorInput ) {
+
+				colorInput.addEventListener( 'input', () => { void applyTargetAppearance( { color: colorInput.value } ); } );
+				colorInput.addEventListener( 'change', () => {
+
+					void applyTargetAppearance( { color: colorInput.value } ).then( () => {
+
+						persistInspectorChange();
+						this._eventBus.emit( 'appearance:changed', { appearance: meta.appearance } );
+
+					} );
+
+				} );
+
+			}
+
+			if ( intensityInput && intensityValue ) {
+
+				intensityInput.addEventListener( 'input', () => { void applyTargetAppearance( { intensity: Number( intensityInput.value ) } ); } );
+				intensityInput.addEventListener( 'change', () => {
+
+					void applyTargetAppearance( { intensity: Number( intensityInput.value ) } ).then( () => {
+
+						persistInspectorChange();
+						this._eventBus.emit( 'appearance:changed', { appearance: meta.appearance } );
+
+					} );
+
+				} );
+
+			}
+
+			if ( hueShiftInput ) {
+
+				hueShiftInput.addEventListener( 'change', () => {
+
+					void applyTargetAppearance( { hueShiftEnabled: hueShiftInput.checked } ).then( () => {
+
+						persistInspectorChange();
+						this._eventBus.emit( 'appearance:changed', { appearance: meta.appearance } );
+
+					} );
+
+				} );
+
+			}
+
+			if ( hueSpeedInput && hueSpeedValue ) {
+
+				hueSpeedInput.addEventListener( 'input', () => {
+
+					void applyTargetAppearance( { hueShiftSpeed: Number( hueSpeedInput.value ) } );
+
+				} );
+				hueSpeedInput.addEventListener( 'change', () => {
+
+					void applyTargetAppearance( { hueShiftSpeed: Number( hueSpeedInput.value ) } ).then( () => {
+
+						persistInspectorChange();
+						this._eventBus.emit( 'appearance:changed', { appearance: meta.appearance } );
+
+					} );
+
+				} );
+
+			}
+
+		}
 
 		inspector.querySelector( '#inspector-share' ).addEventListener( 'click', () => {
 
