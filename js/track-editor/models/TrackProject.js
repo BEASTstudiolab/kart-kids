@@ -5,6 +5,7 @@
 import * as THREE from 'three';
 import { TrackTile } from './TrackTile.js';
 import { getFinishRoadCells } from '../../TrackOrientation.js';
+import { DEFAULT_TRACK_THEME_ID, normalizeTrackThemeId } from '../../TrackThemeRegistry.js';
 import {
 	ELEV_STEP,
 	ELEV_GROUND,
@@ -33,7 +34,7 @@ export class TrackProject {
 			id: crypto.randomUUID(),
 			name: 'Untitled Track',
 			description: '',
-			themeId: 'city-night',
+			themeId: DEFAULT_TRACK_THEME_ID,
 			timeOfDay: 'night',
 			raceType: 'circuit',
 			laps: 3,
@@ -198,7 +199,11 @@ export class TrackProject {
 
 		return {
 			v: 4,
-			meta: { ...this.meta, updatedAt: new Date().toISOString() },
+			meta: {
+				...this.meta,
+				themeId: normalizeTrackThemeId( this.meta.themeId ),
+				updatedAt: new Date().toISOString(),
+			},
 			trackTiles,
 			decorTiles: [],
 			props: this._pendingProps || [],
@@ -220,6 +225,7 @@ export class TrackProject {
 		if ( json.meta ) {
 
 			Object.assign( this.meta, json.meta );
+			this.meta.themeId = normalizeTrackThemeId( this.meta.themeId );
 
 		}
 

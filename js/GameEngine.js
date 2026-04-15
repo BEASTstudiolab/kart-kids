@@ -52,6 +52,7 @@ import { GhostRecorder } from './GhostRecorder.js';
 import { GhostPlayer } from './GhostPlayer.js';
 import { getTrackId } from './GhostStorage.js';
 import { ACCESSORY_DEFS, applyPlayerAppearanceToVehicle, getPlayerAppearanceFromSettings } from './PlayerAppearance.js';
+import { DEFAULT_TRACK_THEME_ID, normalizeTrackThemeId } from './TrackThemeRegistry.js';
 
 
 const SPECTATE_INPUT = { x: 0, z: 0, touchActive: false, boost: false, gas: false, brake: false };
@@ -466,6 +467,7 @@ export function createGameEngine( canvasContainer ) {
 			const hash = window.location.hash.slice( 1 );
 			const debugTopdown = urlParams.get( 'debug' ) === 'topdown';
 			let customCells = null;
+			let trackThemeId = DEFAULT_TRACK_THEME_ID;
 
 			if ( config.trackData ) {
 
@@ -477,6 +479,7 @@ export function createGameEngine( canvasContainer ) {
 			} else if ( config.trackData.trackTiles ) {
 
 				customCells = _v4TilesToCells( config.trackData );
+				trackThemeId = normalizeTrackThemeId( config.trackData.meta?.themeId );
 
 			}
 
@@ -493,6 +496,7 @@ export function createGameEngine( canvasContainer ) {
 				if ( v4.trackTiles ) {
 
 					customCells = _v4TilesToCells( v4 );
+					trackThemeId = normalizeTrackThemeId( v4.meta?.themeId );
 
 				}
 
@@ -517,7 +521,7 @@ export function createGameEngine( canvasContainer ) {
 			if ( loadingBar ) loadingBar.style.width = pct + '%';
 			if ( loadingText ) loadingText.textContent = `Loading models... ${ loaded }/${ total }`;
 
-			} );
+			}, { themeId: trackThemeId } );
 
 			const spawn = computeSpawnPosition( activeCells );
 			const bounds = computeTrackBounds( activeCells );

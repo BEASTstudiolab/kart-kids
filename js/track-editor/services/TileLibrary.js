@@ -4,6 +4,8 @@
 
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { getTrackModelConfig, getTrackTileSet } from '../../TrackModelConfig.js';
+import { applyTrackThemeToObject3D } from '../../TrackThemeApplier.js';
+import { DEFAULT_TRACK_THEME_ID, normalizeTrackThemeId } from '../../TrackThemeRegistry.js';
 
 // ── Tile definitions ──
 
@@ -81,6 +83,8 @@ export class TileLibrary {
 
 		this._tileSet = getTrackTileSet( window.location.search );
 		this._loader = new GLTFLoader();
+		this._activeThemeId = DEFAULT_TRACK_THEME_ID;
+		this._themeApplyQueue = Promise.resolve();
 
 		/** @type {Map<string, object>} tile id -> definition */
 		this._defMap = new Map();
@@ -166,11 +170,15 @@ export class TileLibrary {
 			return this._loader.loadAsync( url ).then( gltf => {
 
 				const scene = gltf.scene;
-				scene.userData.rotationY = config.rotationY;
-				this._modelCache.set( name, scene );
+				return applyTrackThemeToObject3D( scene, this._activeThemeId ).then( () => {
 
-				loaded ++;
-				if ( onProgress ) onProgress( loaded, names.length );
+					scene.userData.rotationY = config.rotationY;
+					this._modelCache.set( name, scene );
+
+					loaded ++;
+					if ( onProgress ) onProgress( loaded, names.length );
+
+				} );
 
 			} ).catch( err => {
 
@@ -183,6 +191,37 @@ export class TileLibrary {
 		} );
 
 		await Promise.all( promises );
+
+	}
+
+	/**
+	 * Apply a track theme to all cached models.
+	 * Calls are serialized so fast theme switches settle in order.
+	 * @param {string} themeId
+	 * @returns {Promise<string>}
+	 */
+	async applyTheme( themeId ) {
+
+		const resolvedThemeId = normalizeTrackThemeId( themeId );
+		this._activeThemeId = resolvedThemeId;
+
+		this._themeApplyQueue = this._themeApplyQueue
+			.catch( () => {} )
+			.then( async () => {
+
+				const tasks = [];
+				for ( const scene of this._modelCache.values() ) {
+
+					tasks.push( applyTrackThemeToObject3D( scene, resolvedThemeId ) );
+
+				}
+
+				await Promise.all( tasks );
+				return resolvedThemeId;
+
+			} );
+
+		return this._themeApplyQueue;
 
 	}
 

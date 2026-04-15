@@ -54,6 +54,7 @@ import { RouteAnalysisService } from '../services/RouteAnalysisService.js';
 import { PublishedTrackApi } from '../../track-library/PublishedTrackApi.js';
 import { TrackLibraryStore } from '../../track-library/TrackLibraryStore.js';
 import { Settings } from '../../Settings.js';
+import { DEFAULT_TRACK_THEME_ID } from '../../TrackThemeRegistry.js';
 
 // ── Grid helper settings ──
 const GRID_LINES = 40;
@@ -195,7 +196,9 @@ class EditorApp {
 		this._testDrive = new TestDriveController( this._shareLink, this._validation );
 		this._publishedTrackApi = new PublishedTrackApi();
 		this._trackLibrary = new TrackLibraryStore();
-		this._themeService = new ThemeService( this._project );
+		this._themeService = new ThemeService( this._project, {
+			onThemeChanged: ( themeId ) => this._applyTrackTheme( themeId ),
+		} );
 		this._routeAnalysis = new RouteAnalysisService( this._project );
 		this._routeTrace = new RouteTraceController( {
 			state: this._state,
@@ -313,6 +316,8 @@ class EditorApp {
 
 		}
 
+		await this._themeService.applyCurrentTheme();
+		this._buildInspector();
 		this._syncTopbarProjectState();
 		this._syncPublishUi();
 
@@ -669,7 +674,7 @@ class EditorApp {
 				id: crypto.randomUUID(),
 				name: 'Untitled Track',
 				description: '',
-				themeId: 'city-night',
+				themeId: DEFAULT_TRACK_THEME_ID,
 				timeOfDay: 'night',
 				laps: 3,
 				racerCount: 4,
@@ -719,6 +724,32 @@ class EditorApp {
 		}
 
 		return this._storage.loadSaved();
+
+	}
+
+	async _applyTrackTheme( themeId ) {
+
+		await this._tileLibrary.applyTheme( themeId );
+
+		// Placed track tiles share source materials, but curve clones and preview UI
+		// need an explicit refresh so every editor surface reflects the new theme.
+		this._curveService.renderCurves();
+		this._refreshGhostPreview();
+		this._renderTileThumbnails();
+		this._renderCarousel();
+		this._eventBus.emit( 'theme:changed', { themeId } );
+
+	}
+
+	_refreshGhostPreview() {
+
+		this._placement.clearGhost();
+
+		if ( this._state.mode !== 'build' ) return;
+		if ( ! this._state.hoveredCell ) return;
+
+		const { gx, gz } = this._state.hoveredCell;
+		this._placement.updateGhost( gx, gz, this._state.tool, this._state.selectedTileType );
 
 	}
 
@@ -1212,21 +1243,7 @@ class EditorApp {
 	/** @private */
 	_buildCarousel() {
 
-		const carousel = document.getElementById( 'editor-carousel' );
-
-		// Pre-render thumbnails for all tiles
-		const thumbRenderer = new TileThumbnailRenderer();
-		this._thumbCache = {};
-
-		const allTiles = [ ...this._tileLibrary.getTrackTiles(), ...this._tileLibrary.getDecorTiles() ];
-		for ( const def of allTiles ) {
-
-			const model = this._tileLibrary.getModel( def.id );
-			this._thumbCache[ def.id ] = model ? thumbRenderer.render( model ) : '';
-
-		}
-
-		thumbRenderer.dispose();
+		this._renderTileThumbnails();
 
 		// Load favorites/recent from localStorage
 		try {
@@ -1249,6 +1266,23 @@ class EditorApp {
 
 		// Re-render carousel when mode changes (show decor items in decor mode)
 		this._eventBus.on( 'mode:changed', () => this._renderCarousel() );
+
+	}
+
+	_renderTileThumbnails() {
+
+		const thumbRenderer = new TileThumbnailRenderer();
+		this._thumbCache = {};
+
+		const allTiles = [ ...this._tileLibrary.getTrackTiles(), ...this._tileLibrary.getDecorTiles() ];
+		for ( const def of allTiles ) {
+
+			const model = this._tileLibrary.getModel( def.id );
+			this._thumbCache[ def.id ] = model ? thumbRenderer.render( model ) : '';
+
+		}
+
+		thumbRenderer.dispose();
 
 	}
 
@@ -1879,7 +1913,7 @@ class EditorApp {
 
 		inspector.querySelector( '#inspector-theme' ).addEventListener( 'change', ( e ) => {
 
-			this._themeService.setTheme( e.target.value );
+			void this._themeService.setTheme( e.target.value );
 
 		} );
 
