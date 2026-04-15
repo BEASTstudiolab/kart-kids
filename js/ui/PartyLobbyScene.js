@@ -24,6 +24,11 @@ import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 import { getVehicleById } from '../VehicleRegistry.js';
 import { CHARACTER_MODEL_PATH } from '../CharacterCustomization.js';
 import { applyPlayerAppearanceToNodes, createDefaultPlayerAppearance, normalizePlayerAppearance } from '../PlayerAppearance.js';
+import { MenuCharacterBlinkController } from './MenuCharacterBlinkController.js';
+import {
+	applyMenuCharacterMaterialDebugTuning,
+	getMenuCharacterMaterialDebugVersion,
+} from './MenuCharacterMaterialDebug.js';
 
 // ── Camera — elevated angle looking down at the starting grid ────────────
 const CAM_POS  = new THREE.Vector3( 15, 2, -9.5 );
@@ -146,8 +151,9 @@ export class PartyLobbyScene {
 		} );
 
 		// ── Kart management ──────────────────────────────────────────
-		/** @type {Map<string, { group: THREE.Group, slot: number }>} */
+		/** @type {Map<string, { group: THREE.Group, slot: number, gen: number, blinkController: MenuCharacterBlinkController, characterRoot: THREE.Object3D | null }>} */
 		this._karts = new Map();
+		this._characterMaterialDebugVersion = - 1;
 
 		/** @type {number} Next color tint index for remote karts */
 		this._nextTintIdx = 0;
@@ -392,6 +398,7 @@ export class PartyLobbyScene {
 		const entry = this._karts.get( playerId );
 		if ( ! entry ) return;
 
+		entry.blinkController?.reset();
 		this._scene.remove( entry.group );
 		this._karts.delete( playerId );
 
@@ -429,7 +436,13 @@ export class PartyLobbyScene {
 		this._scene.add( group );
 
 		const gen = ++ this._loadGen;
-		this._karts.set( id, { group, slot, gen } );
+		this._karts.set( id, {
+			group,
+			slot,
+			gen,
+			blinkController: new MenuCharacterBlinkController(),
+			characterRoot: null,
+		} );
 
 		const entry = getVehicleById( kartId );
 		if ( ! entry ) return;
@@ -499,6 +512,9 @@ export class PartyLobbyScene {
 					bodyRoot: bodyNode || kartModel,
 					characterRoot: character,
 				}, effectiveAppearance );
+				cur.blinkController.bind( character );
+				cur.characterRoot = character;
+				applyMenuCharacterMaterialDebugTuning( character );
 
 				// Apply driving pose animation (snapped to first frame)
 				this._loader.load( `models/${ CHARACTER_ANIM_PATH }`, ( animGltf ) => {
@@ -533,6 +549,29 @@ export class PartyLobbyScene {
 	 * @param {number} dt  Delta time in seconds.
 	 */
 	update( dt ) { // eslint-disable-line no-unused-vars
+
+		const currentMaterialDebugVersion = getMenuCharacterMaterialDebugVersion();
+		if ( this._characterMaterialDebugVersion !== currentMaterialDebugVersion ) {
+
+			for ( const entry of this._karts.values() ) {
+
+				if ( entry.characterRoot ) {
+
+					applyMenuCharacterMaterialDebugTuning( entry.characterRoot );
+
+				}
+
+			}
+
+			this._characterMaterialDebugVersion = currentMaterialDebugVersion;
+
+		}
+
+		for ( const entry of this._karts.values() ) {
+
+			entry.blinkController?.update( dt );
+
+		}
 
 		this._renderer.render( this._scene, this._camera );
 

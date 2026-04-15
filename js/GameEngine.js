@@ -267,6 +267,7 @@ export function createGameEngine( canvasContainer ) {
 	let _jitterDisplay = null;
 	let _ghostHudEl = null;
 	let _camToggleBtn = null;
+	let _topRightHudDock = null;
 	let _groundIndicator = null;
 	let _dirLightTarget = null;
 	let _dirLightOffset = null;
@@ -458,6 +459,14 @@ export function createGameEngine( canvasContainer ) {
 			const hudStyle = document.createElement( 'style' );
 			hudStyle.textContent = '#game-hud-container > * { pointer-events: auto; }';
 			_hudContainer.appendChild( hudStyle );
+
+			_topRightHudDock = document.createElement( 'div' );
+			_topRightHudDock.id = 'game-hud-top-right';
+			_topRightHudDock.style.cssText = [
+				'position:fixed', 'top:16px', 'right:16px',
+				'display:flex', 'align-items:center', 'gap:12px', 'z-index:100',
+			].join( ';' );
+			_hudContainer.appendChild( _topRightHudDock );
 
 			// ── Track setup ──────────────────────────────────────────────────────
 			const trackTileSet = getTrackTileSet( globalThis.location?.search ?? '' );
@@ -945,7 +954,9 @@ export function createGameEngine( canvasContainer ) {
 		applyPlayerAppearanceToVehicle( _vehicle, getPlayerAppearanceFromSettings( _settings ) );
 
 		_controls = new Controls( _settings, _cam );
-		_settingsMenu = new SettingsMenu( _settings, _controls, _audio );
+		_settingsMenu = new SettingsMenu( _settings, _controls, _audio, {
+			mountParent: _topRightHudDock,
+		} );
 		_speedometer = new Speedometer( _settings );
 
 		// ── Listener registry: settings-changed for player appearance ────────
@@ -1383,11 +1394,12 @@ export function createGameEngine( canvasContainer ) {
 		// ── FPS display ──────────────────────────────────────────────────────
 		_fpsDisplay = document.createElement( 'div' );
 		_fpsDisplay.style.cssText = [
-			'position:fixed', 'top:68px', 'left:16px',
+			'display:flex', 'align-items:center', 'height:44px',
 			'background:rgba(0,0,0,0.72)', 'color:#0f0', 'font:13px/1.6 monospace',
-			'padding:4px 10px', 'border-radius:6px', 'z-index:999', 'user-select:none',
+			'padding:0 10px', 'border-radius:10px', 'user-select:none',
+			'white-space:nowrap', 'pointer-events:none',
 		].join( ';' );
-		_hudContainer.appendChild( _fpsDisplay );
+		_topRightHudDock.appendChild( _fpsDisplay );
 
 		_draftingSystem = new DraftingSystem();
 		_draftLines = new DraftLines( scene );
@@ -1497,6 +1509,8 @@ export function createGameEngine( canvasContainer ) {
 		// Dispose PostProcessing (nulled; resize handler has null guard)
 		if ( postFX ) { postFX = null; }
 
+		if ( _settingsMenu?.dispose ) _settingsMenu.dispose();
+
 		// Remove HUD container from DOM (cleans up all game DOM elements at once)
 		if ( _hudContainer ) {
 
@@ -1587,6 +1601,7 @@ export function createGameEngine( canvasContainer ) {
 		_jitterDisplay = null;
 		_ghostHudEl = null;
 		_camToggleBtn = null;
+		_topRightHudDock = null;
 		_debugCollider = null;
 		_wheelDebug = null;
 		_debugMenu = null;

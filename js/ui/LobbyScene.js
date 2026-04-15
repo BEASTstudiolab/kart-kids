@@ -21,6 +21,17 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { getVehicleById } from '../VehicleRegistry.js';
 import { CHARACTER_GARAGE_IDLE_ANIMATION_PATH, CHARACTER_MODEL_PATH } from '../CharacterCustomization.js';
 import { applyPlayerAppearanceToNodes, createDefaultPlayerAppearance, normalizePlayerAppearance } from '../PlayerAppearance.js';
+import {
+	getMenuCharacterBlinkTuning,
+	MenuCharacterBlinkController,
+	setMenuCharacterBlinkTuning,
+} from './MenuCharacterBlinkController.js';
+import {
+	applyMenuCharacterMaterialDebugTuning,
+	getMenuCharacterMaterialDebugTuning,
+	getMenuCharacterMaterialDebugVersion,
+	setMenuCharacterMaterialDebugTuning,
+} from './MenuCharacterMaterialDebug.js';
 
 // Camera parameters — tuned from the lobby debug panel.
 const CAM_POS  = new THREE.Vector3( 0.00, 2.30, 5.70 );
@@ -278,6 +289,9 @@ export class LobbyScene {
 		/** @type {THREE.Object3D | null} */
 		this._currentCharacterRoot = null;
 
+		this._blinkController = new MenuCharacterBlinkController();
+		this._characterMaterialDebugVersion = - 1;
+
 		/** @type {Map<string, { x: number, y: number, z: number }>} */
 		this._characterOffsetOverrides = new Map();
 
@@ -348,6 +362,7 @@ export class LobbyScene {
 		if ( kartId === this._currentKartId ) return;
 		this._currentKartId = kartId;
 		this._mixer = null;
+		this._blinkController.reset();
 		this._syncDriverOffsetDebugControls();
 		const gen = ++ this._loadGen;
 
@@ -421,6 +436,7 @@ export class LobbyScene {
 				this._currentCharacterRoot = character;
 				this._syncDriverOffsetDebugControls( offset );
 				this._applyAppearance();
+				this._blinkController.bind( character );
 
 				// Apply driving pose animation
 				this._loader.load( `models/${ CHARACTER_ANIM_PATH }`, ( animGltf ) => {
@@ -538,6 +554,7 @@ export class LobbyScene {
 		this._mixer = null;
 		this._currentBodyRoot = null;
 		this._currentCharacterRoot = null;
+		this._blinkController.reset();
 		this._syncDriverOffsetDebugControls( DEFAULT_SEAT_OFFSET );
 
 		while ( this._kartGroup.children.length > 0 ) {
@@ -561,6 +578,22 @@ export class LobbyScene {
 			bodyRoot: this._currentBodyRoot,
 			characterRoot: this._currentCharacterRoot,
 		}, this._appearance );
+		this._syncCharacterMaterialDebugTuning( true );
+
+	}
+
+	_syncCharacterMaterialDebugTuning( force = false ) {
+
+		const currentVersion = getMenuCharacterMaterialDebugVersion();
+		if ( ! force && this._characterMaterialDebugVersion === currentVersion ) return;
+
+		if ( this._currentCharacterRoot ) {
+
+			applyMenuCharacterMaterialDebugTuning( this._currentCharacterRoot );
+
+		}
+
+		this._characterMaterialDebugVersion = currentVersion;
 
 	}
 
@@ -678,6 +711,8 @@ export class LobbyScene {
 
 		// Keep the menu hero static; only the seated rider animation should move.
 		if ( this._mixer ) this._mixer.update( dt );
+		this._blinkController.update( dt );
+		this._syncCharacterMaterialDebugTuning();
 
 		// Keep debug helpers in sync with slider changes
 		if ( this._dirHelper.visible ) this._dirHelper.update();
@@ -1089,6 +1124,43 @@ export class LobbyScene {
 
 		} );
 		this._syncDriverOffsetDebugControls( initialDriverOffset );
+
+		// ── Character Blink ──
+		addSection( sceneTab, 'BLINK' );
+		const initialBlinkTuning = getMenuCharacterBlinkTuning();
+		addSlider( sceneTab, 'Frequency (sec)', 0.0, 12.0, 0.1, initialBlinkTuning.frequencySeconds, ( v ) => {
+
+			setMenuCharacterBlinkTuning( { frequencySeconds: v } );
+			self._blinkController.update( 0 );
+
+		} );
+		addSlider( sceneTab, 'Speed (sec)', 0.05, 0.40, 0.01, initialBlinkTuning.speedSeconds, ( v ) => {
+
+			setMenuCharacterBlinkTuning( { speedSeconds: v } );
+
+		} );
+
+		// ── Character Normal Maps ──
+		addSection( sceneTab, 'CHARACTER NORMALS' );
+		const initialMaterialDebugTuning = getMenuCharacterMaterialDebugTuning();
+		addSlider( sceneTab, 'Mask Normal', 0.0, 3.0, 0.05, initialMaterialDebugTuning.maskNormalIntensity, ( v ) => {
+
+			setMenuCharacterMaterialDebugTuning( { maskNormalIntensity: v } );
+			self._syncCharacterMaterialDebugTuning( true );
+
+		} );
+		addSlider( sceneTab, 'Jeans Normal', 0.0, 3.0, 0.05, initialMaterialDebugTuning.jeansNormalIntensity, ( v ) => {
+
+			setMenuCharacterMaterialDebugTuning( { jeansNormalIntensity: v } );
+			self._syncCharacterMaterialDebugTuning( true );
+
+		} );
+		addSlider( sceneTab, 'Shirt Normal', 0.0, 3.0, 0.05, initialMaterialDebugTuning.shirtNormalIntensity, ( v ) => {
+
+			setMenuCharacterMaterialDebugTuning( { shirtNormalIntensity: v } );
+			self._syncCharacterMaterialDebugTuning( true );
+
+		} );
 
 		// ── Camera Position ──
 		addSection( sceneTab, 'CAMERA POSITION' );

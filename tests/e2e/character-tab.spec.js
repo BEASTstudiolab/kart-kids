@@ -47,8 +47,10 @@ test.describe( 'Character tab', () => {
 		await page.goto( '/#/characters' );
 
 		const tabs = page.locator( '.page-character-select__category-tab' );
-		await expect( tabs ).toHaveCount( 5 );
+		await expect( tabs ).toHaveCount( 6 );
 		await expect( page.locator( '.page-character-select__category-tab--active' ) ).toHaveText( 'Palette' );
+		await expect( tabs.nth( 4 ) ).toHaveText( 'Pants' );
+		await expect( tabs.nth( 5 ) ).toHaveText( 'Feet' );
 
 		const masksTab = page.locator( '.page-character-select__category-tab', { hasText: 'Masks' } );
 		await masksTab.click();

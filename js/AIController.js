@@ -193,6 +193,67 @@ export class AIController {
 
 	}
 
+	primeAtPosition( worldX, worldZ ) {
+
+		this._segmentHint = null;
+		this._waypointHint = 0;
+		this._stuckTimer = 0;
+		this._wallPinTimer = 0;
+		this._reverseTimer = 0;
+		this._reversing = false;
+		this._recovering = false;
+		this._reverseSteer = 0;
+		this._recoveryStableTimer = 0;
+		this._lastDistanceAlongTrack = null;
+		this._lastProgress = null;
+		this._activeTurnSign = 0;
+		this._exitBlendRemaining = 0;
+		this._exitLaneStart = 0;
+		this._clearOvertakePlan();
+		this._deactivateMistake();
+		this._wrenchTarget = null;
+		this._input.x = 0;
+		this._input.z = 0;
+		this._input.touchActive = false;
+		this._input.boost = false;
+		this._input.drift = false;
+		this._input.useItem = false;
+		this._debugState = null;
+
+		const trackIntel = this._trackIntel;
+		if ( ! trackIntel || trackIntel.valid === false ) return;
+
+		if ( typeof trackIntel.getNearestWaypoint === 'function' ) {
+
+			this._waypointHint = trackIntel.getNearestWaypoint( worldX, worldZ );
+
+		}
+
+		if ( typeof trackIntel.getProgress === 'function' ) {
+
+			this._lastProgress = trackIntel.getProgress( worldX, worldZ, this._waypointHint );
+
+		}
+
+		if ( typeof trackIntel.projectToRoute === 'function' ) {
+
+			const routeProjection = trackIntel.projectToRoute( worldX, worldZ, null );
+			if ( routeProjection ) {
+
+				this._segmentHint = routeProjection.segmentIndex ?? null;
+				this._lastDistanceAlongTrack = routeProjection.distanceAlongTrack ?? null;
+				if ( this._lastProgress === null && Number.isFinite( routeProjection.progress ) ) {
+
+					this._lastProgress = routeProjection.progress;
+
+				}
+
+			}
+
+		}
+
+	}
+
 	update( dt, vehicle ) {
 
 		const trackIntel = this._trackIntel;

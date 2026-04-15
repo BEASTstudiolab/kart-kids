@@ -52,11 +52,14 @@ test( 'character tab routes each wardrobe category to the right shared-stage pre
 	controller._syncMenuPreviewFocus();
 	controller._openCategoryId = 'pants';
 	controller._syncMenuPreviewFocus();
+	controller._openCategoryId = 'feet';
+	controller._syncMenuPreviewFocus();
 
 	assert.deepEqual( calls, [
 		'character-body',
 		'character-accessories',
 		'character-shirt',
+		'character-pants',
 		'character-pants',
 	] );
 
@@ -178,5 +181,86 @@ test( 'character selections persist immediately without a separate save action',
 	assert.equal( controller._savedAppearance.selectedBalaclavaId, 'balaclava-pig' );
 	assert.equal( settingsCalls.some( ( [ key ] ) => key === 'selectedBalaclavaId' ), true );
 	assert.equal( settingsCalls.some( ( [ key ] ) => key === 'charAccessories' ), true );
+
+} );
+
+test( 'character tab palette exposes only the skin tone control', () => {
+
+	const controller = new Page10CharacterSelectController();
+	controller._draftAppearance = controller._cloneAppearance( createDefaultPlayerAppearance() );
+
+	assert.deepEqual(
+		controller._buildCategoryColorControls( 'palette' ).map( ( control ) => control.id ),
+		[ 'charSkinColor' ]
+	);
+
+} );
+
+test( 'character tab places feet beside pants in the category row', () => {
+
+	const controller = new Page10CharacterSelectController();
+	controller._draftAppearance = controller._cloneAppearance( createDefaultPlayerAppearance() );
+	controller._openCategoryId = 'palette';
+
+	assert.deepEqual(
+		controller._buildCategoriesViewModel().map( ( category ) => category.label ),
+		[ 'Palette', 'Masks', 'Accessories', 'Shirts', 'Pants', 'Feet' ]
+	);
+
+} );
+
+test( 'character tab exposes a dedicated boot color control in the feet category', () => {
+
+	const controller = new Page10CharacterSelectController();
+	controller._draftAppearance = controller._cloneAppearance( createDefaultPlayerAppearance() );
+
+	assert.deepEqual(
+		controller._buildCategoryColorControls( 'feet' ).map( ( control ) => control.id ),
+		[ 'bootsColor' ]
+	);
+
+} );
+
+test( 'character tab does not allow pants to be toggled off', () => {
+
+	const settingsCalls = [];
+	const controller = new Page10CharacterSelectController();
+	const appearance = createDefaultPlayerAppearance();
+
+	controller._settings = {
+		set: ( key, value ) => settingsCalls.push( [ key, value ] ),
+		setSelectedBalaclavaId: ( value ) => settingsCalls.push( [ 'selectedBalaclavaId', value ] ),
+	};
+	controller._draftAppearance = controller._cloneAppearance( appearance );
+	controller._savedAppearance = controller._cloneAppearance( appearance );
+	controller._syncView = () => {};
+
+	controller._handleItemActivate( 'pants', 'Jeans' );
+
+	assert.equal( controller._draftAppearance.charAccessories.Jeans.visible, true );
+	assert.equal( controller._savedAppearance.charAccessories.Jeans.visible, true );
+	assert.equal( settingsCalls.length, 0 );
+
+} );
+
+test( 'character tab does not allow boots to be toggled off', () => {
+
+	const settingsCalls = [];
+	const controller = new Page10CharacterSelectController();
+	const appearance = createDefaultPlayerAppearance();
+
+	controller._settings = {
+		set: ( key, value ) => settingsCalls.push( [ key, value ] ),
+		setSelectedBalaclavaId: ( value ) => settingsCalls.push( [ 'selectedBalaclavaId', value ] ),
+	};
+	controller._draftAppearance = controller._cloneAppearance( appearance );
+	controller._savedAppearance = controller._cloneAppearance( appearance );
+	controller._syncView = () => {};
+
+	controller._handleItemActivate( 'feet', 'Boots' );
+
+	assert.equal( controller._draftAppearance.charAccessories.Boots.visible, true );
+	assert.equal( controller._savedAppearance.charAccessories.Boots.visible, true );
+	assert.equal( settingsCalls.length, 0 );
 
 } );

@@ -7,7 +7,6 @@ import { Settings } from '../../../Settings.js';
 import { DEFAULT_MASK_TINT_COLOR, normalizeAppearanceColor, normalizeMaskTintColor, normalizePlayerAppearance } from '../../../PlayerAppearance.js';
 
 const DEFAULT_SKIN_COLOR = '#d9a37f';
-const DEFAULT_SUIT_COLOR = '#00d4e8';
 const CAMERA_DEBUG_DEFAULTS = Object.freeze( {
 	lookTargetX: 0,
 	lookTargetY: 0,
@@ -57,9 +56,18 @@ const CATEGORY_DEFS = Object.freeze( [
 			Object.freeze( { id: 'Jeans', label: 'Jeans' } ),
 		] ),
 	} ),
+	Object.freeze( {
+		id: 'feet',
+		label: 'Feet',
+		mode: 'toggle',
+		items: Object.freeze( [
+			Object.freeze( { id: 'Boots', label: 'Boots' } ),
+		] ),
+	} ),
 ] );
 
 const CATEGORY_BY_ID = new Map( CATEGORY_DEFS.map( ( category ) => [ category.id, category ] ) );
+const NON_HIDEABLE_WARDROBE_CATEGORY_IDS = new Set( [ 'pants', 'feet' ] );
 
 export class Page10CharacterSelectController extends PageControllerBase {
 
@@ -88,6 +96,8 @@ export class Page10CharacterSelectController extends PageControllerBase {
 		this._settings = this._params.settings instanceof Settings ? this._params.settings : new Settings();
 		this._savedAppearance = this._cloneAppearance( this._settings.getPlayerAppearance() );
 		this._draftAppearance = this._cloneAppearance( this._savedAppearance );
+		this._savedAppearance.characterColor = '';
+		this._draftAppearance.characterColor = '';
 		this._savedAppearance.maskTintSecondaryColor = '';
 		this._draftAppearance.maskTintSecondaryColor = '';
 		const defaultCategoryId = this._hostMode === 'tab' ? 'palette' : 'masks';
@@ -220,12 +230,26 @@ export class Page10CharacterSelectController extends PageControllerBase {
 		const category = CATEGORY_BY_ID.get( categoryId );
 		if ( ! category ) return;
 
-		if ( category.mode === 'exclusive' ) {
+		if ( category.id === 'masks' ) {
 
 			const normalizedId = normalizeSelectedBalaclavaId( itemId );
 			if ( normalizedId === this._draftAppearance.selectedBalaclavaId ) return;
 			this._draftAppearance.selectedBalaclavaId = normalizedId;
 			this._analytics?.track( EventIds.CHARACTER_SELECTED, { balaclavaId: normalizedId } );
+
+		} else if ( NON_HIDEABLE_WARDROBE_CATEGORY_IDS.has( category.id ) && this._draftAppearance.charAccessories?.[ itemId ] ) {
+
+			if ( this._draftAppearance.charAccessories[ itemId ].visible !== false ) return;
+
+			for ( const option of category.items ) {
+
+				if ( ! this._draftAppearance.charAccessories?.[ option.id ] ) continue;
+				this._draftAppearance.charAccessories[ option.id ] = {
+					...this._draftAppearance.charAccessories[ option.id ],
+					visible: option.id === itemId,
+				};
+
+			}
 
 		} else if ( this._draftAppearance.charAccessories?.[ itemId ] ) {
 
@@ -255,10 +279,6 @@ export class Page10CharacterSelectController extends PageControllerBase {
 			if ( controlId === 'charSkinColor' ) {
 
 				this._draftAppearance.charSkinColor = normalizeAppearanceColor( value );
-
-			} else if ( controlId === 'characterColor' ) {
-
-				this._draftAppearance.characterColor = normalizeAppearanceColor( value );
 
 			} else {
 
@@ -294,6 +314,21 @@ export class Page10CharacterSelectController extends PageControllerBase {
 
 			this._draftAppearance.charAccessories[ controlId ] = {
 				...this._draftAppearance.charAccessories[ controlId ],
+				color: normalizeAppearanceColor( value ),
+			};
+			this._commitDraftAppearance();
+			this._syncView();
+			return;
+
+		}
+
+		if ( categoryId === 'feet' ) {
+
+			if ( controlId !== 'bootsColor' ) return;
+			if ( ! this._draftAppearance.charAccessories?.Boots ) return;
+
+			this._draftAppearance.charAccessories.Boots = {
+				...this._draftAppearance.charAccessories.Boots,
 				color: normalizeAppearanceColor( value ),
 			};
 			this._commitDraftAppearance();
@@ -358,6 +393,7 @@ export class Page10CharacterSelectController extends PageControllerBase {
 		if ( this._openCategoryId === 'accessories' ) return 'character-accessories';
 		if ( this._openCategoryId === 'shirts' ) return 'character-shirt';
 		if ( this._openCategoryId === 'pants' ) return 'character-pants';
+		if ( this._openCategoryId === 'feet' ) return 'character-pants';
 		return 'character-body';
 
 	}
@@ -389,7 +425,8 @@ export class Page10CharacterSelectController extends PageControllerBase {
 	_commitDraftAppearance() {
 
 		this._settings.set( 'charSkinColor', this._draftAppearance.charSkinColor );
-		this._settings.set( 'characterColor', this._draftAppearance.characterColor );
+		this._draftAppearance.characterColor = '';
+		this._settings.set( 'characterColor', '' );
 		this._settings.setSelectedBalaclavaId( this._draftAppearance.selectedBalaclavaId );
 		this._settings.set( 'maskTintMainColor', this._draftAppearance.maskTintMainColor );
 		this._draftAppearance.maskTintSecondaryColor = '';
@@ -403,9 +440,8 @@ export class Page10CharacterSelectController extends PageControllerBase {
 
 		if ( category.id === 'palette' ) {
 
-			const suitState = this._draftAppearance.characterColor ? 'Custom Suit' : 'Default Suit';
 			const skinState = this._draftAppearance.charSkinColor ? 'Custom Skin' : 'Default Skin';
-			return `${ suitState } / ${ skinState }`;
+			return skinState;
 
 		}
 
@@ -419,6 +455,12 @@ export class Page10CharacterSelectController extends PageControllerBase {
 			.filter( ( item ) => this._draftAppearance.charAccessories[ item.id ]?.visible !== false )
 			.map( ( item ) => item.label );
 
+		if ( NON_HIDEABLE_WARDROBE_CATEGORY_IDS.has( category.id ) ) {
+
+			return activeLabels.length > 0 ? activeLabels.join( ', ' ) : ( category.items[ 0 ]?.label || 'Unavailable' );
+
+		}
+
 		return activeLabels.length > 0 ? activeLabels.join( ', ' ) : 'Off';
 
 	}
@@ -426,6 +468,12 @@ export class Page10CharacterSelectController extends PageControllerBase {
 	_buildItemMeta( categoryId, itemId, active, savedActive ) {
 
 		if ( categoryId === 'masks' ) {
+
+			return active ? 'Selected' : 'Available';
+
+		}
+
+		if ( NON_HIDEABLE_WARDROBE_CATEGORY_IDS.has( categoryId ) ) {
 
 			return active ? 'Selected' : 'Available';
 
@@ -477,13 +525,6 @@ export class Page10CharacterSelectController extends PageControllerBase {
 		if ( categoryId === 'palette' ) {
 
 			return [
-				{
-					id: 'characterColor',
-					label: 'Suit Color',
-					value: this._draftAppearance.characterColor || DEFAULT_SUIT_COLOR,
-					resetValue: '',
-					isCustom: !! this._draftAppearance.characterColor,
-				},
 				{
 					id: 'charSkinColor',
 					label: 'Skin Tone',
@@ -549,6 +590,19 @@ export class Page10CharacterSelectController extends PageControllerBase {
 			return [ {
 				id: 'pantsColor',
 				label: 'Pants Color',
+				value: value || DEFAULT_MASK_TINT_COLOR,
+				resetValue: '',
+				isCustom: !! value,
+			} ];
+
+		}
+
+		if ( categoryId === 'feet' ) {
+
+			const value = this._draftAppearance.charAccessories?.Boots?.color || '';
+			return [ {
+				id: 'bootsColor',
+				label: 'Boot Color',
 				value: value || DEFAULT_MASK_TINT_COLOR,
 				resetValue: '',
 				isCustom: !! value,

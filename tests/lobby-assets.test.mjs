@@ -85,6 +85,36 @@ test( 'LobbyScene uses the animated garage idle rider pose for the menu kart pre
 
 } );
 
+test( 'LobbyScene wires shared menu blink tuning and exposes blink debug sliders', () => {
+
+	const source = readText( 'js/ui/LobbyScene.js' );
+
+	assert.match( source, /import \{\s*getMenuCharacterBlinkTuning,\s*MenuCharacterBlinkController,\s*setMenuCharacterBlinkTuning,\s*\} from '\.\/MenuCharacterBlinkController\.js';/m );
+	assert.ok( source.includes( 'this._blinkController = new MenuCharacterBlinkController();' ) );
+	assert.ok( source.includes( 'this._blinkController.bind( character );' ) );
+	assert.ok( source.includes( 'this._blinkController.update( dt );' ) );
+	assert.ok( source.includes( "addSection( sceneTab, 'BLINK' );" ) );
+	assert.ok( source.includes( "addSlider( sceneTab, 'Frequency (sec)', 0.0, 12.0, 0.1, initialBlinkTuning.frequencySeconds, ( v ) => {" ) );
+	assert.ok( source.includes( "setMenuCharacterBlinkTuning( { frequencySeconds: v } );" ) );
+	assert.ok( source.includes( "addSlider( sceneTab, 'Speed (sec)', 0.05, 0.40, 0.01, initialBlinkTuning.speedSeconds, ( v ) => {" ) );
+	assert.ok( source.includes( "setMenuCharacterBlinkTuning( { speedSeconds: v } );" ) );
+
+} );
+
+test( 'LobbyScene wires menu character normal debug tuning and exposes normal intensity sliders', () => {
+
+	const source = readText( 'js/ui/LobbyScene.js' );
+
+	assert.match( source, /import \{\s*applyMenuCharacterMaterialDebugTuning,\s*getMenuCharacterMaterialDebugTuning,\s*getMenuCharacterMaterialDebugVersion,\s*setMenuCharacterMaterialDebugTuning,\s*\} from '\.\/MenuCharacterMaterialDebug\.js';/m );
+	assert.ok( source.includes( 'this._characterMaterialDebugVersion = - 1;' ) );
+	assert.ok( source.includes( 'applyMenuCharacterMaterialDebugTuning( this._currentCharacterRoot );' ) );
+	assert.ok( source.includes( "addSection( sceneTab, 'CHARACTER NORMALS' );" ) );
+	assert.ok( source.includes( "addSlider( sceneTab, 'Mask Normal', 0.0, 3.0, 0.05, initialMaterialDebugTuning.maskNormalIntensity, ( v ) => {" ) );
+	assert.ok( source.includes( "addSlider( sceneTab, 'Jeans Normal', 0.0, 3.0, 0.05, initialMaterialDebugTuning.jeansNormalIntensity, ( v ) => {" ) );
+	assert.ok( source.includes( "addSlider( sceneTab, 'Shirt Normal', 0.0, 3.0, 0.05, initialMaterialDebugTuning.shirtNormalIntensity, ( v ) => {" ) );
+
+} );
+
 test( 'LobbyScene supports contextual menu preview presets', () => {
 
 	const source = readText( 'js/ui/LobbyScene.js' );
