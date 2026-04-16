@@ -1454,7 +1454,7 @@ export class AppShell {
 			const track = getTrackById( config.trackId );
 			if ( track ) {
 
-				nextConfig.trackData = track.cells;
+				nextConfig.trackData = track.trackData || track.cells;
 				nextConfig.decoCells = track.decoCells;
 				nextConfig.trackId = track.id;
 

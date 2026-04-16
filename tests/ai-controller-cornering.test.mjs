@@ -2,11 +2,39 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
 
+import { AIManager } from '../js/AIManager.js';
 import { AIController } from '../js/AIController.js';
 import { createSeededCPUProfile } from '../js/AIProfiles.js';
 import { computeSpawnPosition } from '../js/Track.js';
 import { TRACK_CELLS } from '../js/TrackData.js';
 import { TrackIntel } from '../js/TrackIntel.js';
+
+const CUSTOM_RECT_LOOP_CELLS = [
+	[ 0, - 1, 'trk-finish', 0 ],
+	[ 0, - 2, 'trk-straight', 0 ],
+	[ 0, 0, 'trk-straight', 0 ],
+	[ 0, - 3, 'trk-straight', 0 ],
+	[ 0, - 4, 'trk-straight', 0 ],
+	[ 0, - 5, 'trk-corner-1x1', 0 ],
+	[ - 1, - 5, 'trk-straight', 16 ],
+	[ - 2, - 5, 'trk-straight', 16 ],
+	[ - 3, - 5, 'trk-straight', 16 ],
+	[ - 4, - 5, 'trk-corner-1x1', 16 ],
+	[ - 4, - 4, 'trk-straight', 10 ],
+	[ - 4, - 3, 'trk-straight', 10 ],
+	[ - 4, - 2, 'trk-straight', 10 ],
+	[ - 4, - 1, 'trk-straight', 10 ],
+	[ - 4, 0, 'trk-straight', 10 ],
+	[ - 4, 1, 'trk-straight', 10 ],
+	[ - 4, 2, 'trk-straight', 10 ],
+	[ - 4, 3, 'trk-corner-1x1', 10 ],
+	[ - 3, 3, 'trk-straight', 22 ],
+	[ - 2, 3, 'trk-straight', 22 ],
+	[ - 1, 3, 'trk-straight', 22 ],
+	[ 0, 3, 'trk-corner-1x1', 22 ],
+	[ 0, 2, 'trk-straight', 0 ],
+	[ 0, 1, 'trk-straight', 0 ],
+];
 
 function createPolylineTrack( rawPoints ) {
 
@@ -159,6 +187,23 @@ function getForwardDotToTarget( vehicle, target ) {
 	toTarget.normalize();
 
 	return forward.dot( toTarget );
+
+}
+
+function getRouteHeading( track, worldX, worldZ ) {
+
+	const waypointHint = track.getNearestWaypoint( worldX, worldZ );
+	const info = track.getWaypointInfo( waypointHint );
+	return {
+		waypointHint,
+		yaw: Math.atan2( info.forward.x, info.forward.z ),
+	};
+
+}
+
+function getWrappedAngleDelta( a, b ) {
+
+	return Math.atan2( Math.sin( a - b ), Math.cos( a - b ) );
 
 }
 
@@ -519,15 +564,15 @@ test( 'AIController opening phase creates immediate launch differences between a
 
 } );
 
-test( 'AIController reset clears stale route hints so opening grid targets stay ahead on the default track', () => {
+test( 'AIController primeAtPosition clears stale route hints so opening grid targets stay ahead on the default track', () => {
 
 	const track = new TrackIntel( TRACK_CELLS );
 	assert.equal( track.valid, true );
 
 	const spawn = computeSpawnPosition( TRACK_CELLS );
 	const yawDeg = THREE.MathUtils.radToDeg( spawn.angle );
-	const fwdX = - Math.sin( spawn.angle );
-	const fwdZ = - Math.cos( spawn.angle );
+	const fwdX = Math.sin( spawn.angle );
+	const fwdZ = Math.cos( spawn.angle );
 	const rightX = - fwdZ;
 	const rightZ = fwdX;
 	const colOffsets = [ - 2.5, 0, 2.5 ];
@@ -549,7 +594,6 @@ test( 'AIController reset clears stale route hints so opening grid targets stay 
 				cornerSpeedFactor: 1,
 			} );
 			controller._segmentHint = 0;
-			controller.reset();
 
 			const vehicle = createVehicle( {
 				x: spawn.position[ 0 ] + rightX * colOffset + fwdX * rowOffset,
@@ -558,10 +602,18 @@ test( 'AIController reset clears stale route hints so opening grid targets stay 
 				speed: 0,
 				boostMeter: 0,
 			} );
+			controller._reversing = true;
+			controller._recovering = true;
+			controller._reverseTimer = 1;
+			controller._lastProgress = 0.75;
+			controller._lastDistanceAlongTrack = track.totalLength * 0.75;
+			controller.primeAtPosition( vehicle.vehPos.x, vehicle.vehPos.z );
 
 			controller.update( 0.016, vehicle );
 			const debug = controller.getDebugState();
 
+			assert.equal( controller._reversing, false, `grid slot ${slotIndex} should clear stale reversing state` );
+			assert.equal( controller._recovering, false, `grid slot ${slotIndex} should clear stale recovery state` );
 			assert.ok( debug.target, `grid slot ${slotIndex} should produce a target` );
 			assert.ok(
 				getForwardDotToTarget( vehicle, debug.target ) > 0.2,
@@ -570,6 +622,70 @@ test( 'AIController reset clears stale route hints so opening grid targets stay 
 			slotIndex ++;
 
 		}
+
+	}
+
+} );
+
+test( 'AIManager route-aligned start poses keep custom-track AI launches facing forward', () => {
+
+	const track = new TrackIntel( CUSTOM_RECT_LOOP_CELLS );
+	assert.equal( track.valid, true );
+
+	const spawn = computeSpawnPosition( CUSTOM_RECT_LOOP_CELLS );
+	const manager = new AIManager( null, null, {}, track, spawn.position, spawn.angle, spawn.finishAngle );
+	const gridPositions = manager.computeGridPositions();
+
+	for ( let slotIndex = 0; slotIndex < gridPositions.length; slotIndex ++ ) {
+
+		const gridPos = gridPositions[ slotIndex ];
+		const pose = manager._resolveAIStartPose( gridPos );
+		const routeHeading = getRouteHeading( track, gridPos.x, gridPos.z );
+		const controller = new AIController( track, slotIndex, {
+			name: 'Custom Track Start',
+			noiseAmplitude: 0,
+			boostEagerness: false,
+			straightLaneOffset: 0,
+			cornerEntryWidth: 0.85,
+			cornerApexTightness: 0.5,
+			cornerSpeedFactor: 1,
+		} );
+
+		assert.ok(
+			Math.abs( getWrappedAngleDelta( pose.yaw, routeHeading.yaw ) ) < 1e-6,
+			`grid slot ${slotIndex} should align its start yaw to the nearest route tangent`,
+		);
+		assert.equal( pose.waypointHint, routeHeading.waypointHint );
+
+		controller._reversing = true;
+		controller._recovering = true;
+		controller._reverseTimer = 1;
+		controller._lastProgress = 0.5;
+		controller._lastDistanceAlongTrack = track.totalLength * 0.5;
+		controller.primeAtPosition( pose.x, pose.z );
+
+		assert.equal( controller._reversing, false, `grid slot ${slotIndex} should clear stale reversing before launch` );
+		assert.equal( controller._recovering, false, `grid slot ${slotIndex} should clear stale recovery before launch` );
+		assert.equal( controller._waypointHint, routeHeading.waypointHint );
+		assert.notEqual( controller._lastProgress, null, `grid slot ${slotIndex} should seed progress from its grid slot` );
+
+		const vehicle = createVehicle( {
+			x: pose.x,
+			z: pose.z,
+			yawDeg: THREE.MathUtils.radToDeg( pose.yaw ),
+			speed: 0,
+			boostMeter: 0,
+		} );
+
+		controller.update( 0.016, vehicle );
+		const debug = controller.getDebugState();
+
+		assert.ok( debug.target, `grid slot ${slotIndex} should produce a route target` );
+		assert.ok(
+			getForwardDotToTarget( vehicle, debug.target ) > 0.2,
+			`grid slot ${slotIndex} should keep its first target in front of the AI`,
+		);
+		assert.equal( debug.recoveryActive, false );
 
 	}
 

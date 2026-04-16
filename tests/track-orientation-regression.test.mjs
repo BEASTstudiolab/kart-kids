@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import * as THREE from 'three';
 
+import { computeSpawnPosition } from '../js/Track.js';
 import { TrackIntel } from '../js/TrackIntel.js';
 import { TRACK_CELLS } from '../js/TrackData.js';
 import { TrackProject } from '../js/track-editor/models/TrackProject.js';
@@ -126,5 +128,20 @@ test( 'TrackIntel validates the default TRACK_CELLS layout', () => {
 	assert.equal( intel.valid, true );
 	assert.equal( intel.error, null );
 	assert.ok( intel.count > 0 );
+
+} );
+
+test( 'default start-finish route and spawn heading follow the west-to-east overlay arrows', () => {
+
+	const spawn = computeSpawnPosition( TRACK_CELLS );
+	const intel = new TrackIntel( TRACK_CELLS );
+	assert.equal( intel.valid, true );
+	assert.ok( Math.abs( spawn.angle - Math.PI / 2 ) < 1e-6 );
+
+	const waypointIndex = intel.getNearestWaypoint( spawn.position[ 0 ], spawn.position[ 2 ] );
+	const info = intel.getWaypointInfo( waypointIndex );
+	assert.ok( info.forward.x > 0.99 );
+	assert.ok( Math.abs( info.forward.z ) < 1e-6 );
+	assert.ok( Math.abs( THREE.MathUtils.euclideanModulo( spawn.finishAngle, Math.PI * 2 ) - 3 * Math.PI / 2 ) < 1e-6 );
 
 } );

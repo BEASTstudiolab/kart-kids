@@ -214,7 +214,8 @@ export class VehicleTrickController {
 
 		if ( ! vehicle?.visualRoot ) return;
 
-		vehicle.visualRoot.rotation.set( 0, 0, 0 );
+		const baseYaw = vehicle.visualYawOffset ?? 0;
+		vehicle.visualRoot.rotation.set( 0, baseYaw, 0 );
 
 		if ( ! trickType ) return;
 
@@ -228,14 +229,14 @@ export class VehicleTrickController {
 			const phase = THREE.MathUtils.clamp( progress / completionWindow, 0, 1 );
 			const loopEased = THREE.MathUtils.smootherstep( phase, 0, 1 );
 			vehicle.visualRoot.rotation.z = ( def.z || 0 ) * loopEased;
-			vehicle.visualRoot.rotation.y = ( def.y || 0 ) * Math.sin( loopEased * Math.PI );
+			vehicle.visualRoot.rotation.y = baseYaw + ( def.y || 0 ) * Math.sin( loopEased * Math.PI );
 			return;
 
 		}
 
 		vehicle.visualRoot.rotation.x = ( def.x || 0 ) * eased;
 		vehicle.visualRoot.rotation.z = ( def.z || 0 ) * eased;
-		vehicle.visualRoot.rotation.y = ( def.y || 0 ) * Math.sin( eased * Math.PI );
+		vehicle.visualRoot.rotation.y = baseYaw + ( def.y || 0 ) * Math.sin( eased * Math.PI );
 
 	}
 

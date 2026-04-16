@@ -74,6 +74,7 @@ export class Vehicle {
 
 		this.container = new THREE.Group();
 		this.visualRoot = new THREE.Group();
+		this.visualYawOffset = 0;
 		this.container.add( this.visualRoot );
 		this.bodyNode = null;
 		this.wheels = [];
@@ -306,7 +307,9 @@ export class Vehicle {
 		const clonedVehicle = vehicleModel.clone();
 
 		this.visualRoot.clear();
-		this.visualRoot.rotation.set( 0, 0, 0 );
+		// Keep a dedicated visual yaw offset so mesh-facing tweaks never touch
+		// the vehicle's driving direction or spawn math.
+		this.visualRoot.rotation.set( 0, this.visualYawOffset, 0 );
 		this.visualRoot.add( clonedVehicle );
 
 		const allNodeNames = [];
@@ -524,7 +527,7 @@ export class Vehicle {
 		for ( const child of keep ) this.container.add( child );
 		if ( ! this.visualRoot.parent ) this.container.add( this.visualRoot );
 		this.visualRoot.clear();
-		this.visualRoot.rotation.set( 0, 0, 0 );
+		this.visualRoot.rotation.set( 0, this.visualYawOffset, 0 );
 
 		// Reset node references
 		this.bodyNode = null;

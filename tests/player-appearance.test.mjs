@@ -199,7 +199,74 @@ test( 'getVisibleAccessoryLabels reflects sanitized visibility state', () => {
 
 	assert.ok( labels.includes( 'Balaclava Basic' ) );
 	assert.ok( labels.includes( 'Baseball Hat' ) );
-	assert.ok( ! labels.includes( 'Jeans' ) );
+	assert.ok( labels.includes( 'Jeans' ) );
+
+} );
+
+test( 'normalizePlayerAppearance keeps jeans and boots visible even when the source payload hides them', () => {
+
+	const appearance = normalizePlayerAppearance( {
+		charAccessories: {
+			Jeans: { visible: false, color: '#224466' },
+			Boots: { visible: false, color: '#553311' },
+		},
+	} );
+
+	assert.deepEqual( appearance.charAccessories.Jeans, {
+		visible: true,
+		color: '#224466',
+	} );
+	assert.deepEqual( appearance.charAccessories.Boots, {
+		visible: true,
+		color: '#553311',
+	} );
+
+} );
+
+test( 'applyCharacterAppearance no longer uses legacy characterColor as a fallback tint for clothing', () => {
+
+	const originalMaterial = createMockMaterial( { name: 'Charcoal.002' } );
+	const child = {
+		isMesh: true,
+		name: 'Tshirt',
+		visible: true,
+		material: originalMaterial,
+	};
+
+	applyCharacterAppearance( createMockCharacterRoot( child ), {
+		characterColor: '#00ccff',
+		charAccessories: {
+			Tshirt: { visible: true, color: '' },
+		},
+	} );
+
+	assert.strictEqual( child.material, originalMaterial );
+	assert.equal( child.material.color.value, '#ffffff' );
+
+} );
+
+test( 'applyCharacterAppearance tints boots from the feet customizer color when boots are a body material slot', () => {
+
+	const bodyMaterial = createMockMaterial( { name: 'Body Base' } );
+	const originalBootsMaterial = createMockMaterial( { name: 'Boots' } );
+	const child = {
+		isMesh: true,
+		name: 'Body',
+		visible: true,
+		material: [ bodyMaterial, originalBootsMaterial ],
+	};
+
+	applyCharacterAppearance( createMockCharacterRoot( child ), {
+		charAccessories: {
+			Boots: { visible: true, color: '#663300' },
+		},
+	} );
+
+	assert.equal( child.visible, true );
+	assert.ok( Array.isArray( child.material ) );
+	assert.strictEqual( child.material[ 0 ], bodyMaterial );
+	assert.notStrictEqual( child.material[ 1 ], originalBootsMaterial );
+	assert.equal( child.material[ 1 ].color.value, '#663300' );
 
 } );
 

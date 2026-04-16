@@ -150,7 +150,7 @@ export class VehicleRespawn {
 		v.container.quaternion.identity();
 		const halfYaw = spawnYaw / 2;
 		v.container.quaternion.set( 0, Math.sin( halfYaw ), 0, Math.cos( halfYaw ) );
-		if ( v.visualRoot ) v.visualRoot.rotation.set( 0, 0, 0 );
+		if ( v.visualRoot ) v.visualRoot.rotation.set( 0, v.visualYawOffset ?? 0, 0 );
 
 		// Sync physics body
 		if ( v.rigidBody && v.physicsWorld ) {

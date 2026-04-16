@@ -332,6 +332,17 @@ test( 'collision-only cells contribute support geometry and no blocker geometry'
 
 } );
 
+test( 'terrain tiles contribute support geometry and no blocker geometry', () => {
+
+	const geometry = buildTrackCollisionGeometry( {}, [], [
+		{ gx: 2, gz: 3, type: 'terrain-blank', e: 12 },
+	] );
+
+	assert.equal( geometry.supportIndices.length / 3, 2 );
+	assert.equal( geometry.blockerIndices.length / 3, 0 );
+
+} );
+
 test( 'back-to-back long jumps keep support geometry across the shared seam', () => {
 
 	const scene = buildSceneFromRecords(

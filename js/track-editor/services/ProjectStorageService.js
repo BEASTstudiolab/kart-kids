@@ -65,7 +65,7 @@ export class ProjectStorageService {
 				if ( parsed.v === 4 ) {
 
 					this._project.loadFromV4JSON( parsed );
-					this._rebuildAllMeshes();
+					this.rebuildAllMeshes();
 					return true;
 
 				}
@@ -147,7 +147,7 @@ export class ProjectStorageService {
 
 			const parsed = JSON.parse( raw );
 			this._project.loadFromV4JSON( parsed );
-			this._rebuildAllMeshes();
+			this.rebuildAllMeshes();
 			return true;
 
 		} catch ( err ) {
@@ -184,7 +184,7 @@ export class ProjectStorageService {
 		const json = new TextDecoder().decode( Uint8Array.from( bytes, c => c.charCodeAt( 0 ) ) );
 			const parsed = JSON.parse( json );
 			this._project.loadFromV4JSON( parsed );
-			this._rebuildAllMeshes();
+			this.rebuildAllMeshes();
 			return true;
 
 		} catch ( err ) {
@@ -197,12 +197,19 @@ export class ProjectStorageService {
 	}
 
 	/** @private Rebuild meshes for all tiles after a load. */
-	_rebuildAllMeshes() {
+	rebuildAllMeshes() {
 
 		for ( const [ key, tile ] of this._project.getGrid() ) {
 
 			const [ gx, gz ] = key.split( ',' ).map( Number );
 			this._meshFactory.createTileMesh( gx, gz, tile );
+
+		}
+
+		for ( const [ key, tile ] of this._project.getTerrainGrid() ) {
+
+			const [ gx, gz ] = key.split( ',' ).map( Number );
+			this._meshFactory.createTerrainMesh( gx, gz, tile );
 
 		}
 

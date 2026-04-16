@@ -52,9 +52,15 @@ import { GhostRecorder } from './GhostRecorder.js';
 import { GhostPlayer } from './GhostPlayer.js';
 import { getTrackId } from './GhostStorage.js';
 import { ACCESSORY_DEFS, applyPlayerAppearanceToVehicle, getPlayerAppearanceFromSettings } from './PlayerAppearance.js';
+import { DEFAULT_TRACK_THEME_ID, normalizeTrackThemeId } from './TrackThemeRegistry.js';
+import { hasAnimatedTrackAppearance, normalizeTrackAppearance } from './TrackAppearance.js';
+import { applyTrackAppearanceToModelMap, applyTrackGlowSettings } from './TrackAppearanceApplier.js';
+import { BOOST_PAD_HALF_LENGTH, BOOST_PAD_HALF_WIDTH, resolveBoostPadPlacement } from './BoostPadLayout.js';
+import { BOOST_MARKER_MODEL_ID } from './track-editor/constants/EditorAssetIds.js';
 
 
 const SPECTATE_INPUT = { x: 0, z: 0, touchActive: false, boost: false, gas: false, brake: false };
+const BOOST_PAD_VISUAL_LIFT = 0.06;
 
 /** Convert v4 JSON trackTiles to the cells array format the game expects. */
 function _v4TilesToCells( v4 ) {
@@ -86,6 +92,37 @@ function _v4TilesToCells( v4 ) {
 	}
 
 	return cells;
+
+}
+
+function _resolveTerrainTiles( v4 ) {
+
+	return Array.isArray( v4?.terrainTiles ) ? v4.terrainTiles : null;
+
+}
+
+function _resolveProps( v4 ) {
+
+	return Array.isArray( v4?.props ) ? v4.props : null;
+
+}
+
+function _resolveMarkers( v4 ) {
+
+	return Array.isArray( v4?.markers ) ? v4.markers : null;
+
+}
+
+function _resolveTrackAppearance( v4 ) {
+
+	return normalizeTrackAppearance( v4?.meta?.appearance );
+
+}
+
+function _getCellWorldY( flags ) {
+
+	if ( flags?.fullElevation != null ) return ( flags.fullElevation - ELEV_GROUND ) * 2.5;
+	return ( flags?.elevation || 0 ) * 2.5;
 
 }
 
@@ -202,6 +239,10 @@ export function createGameEngine( canvasContainer ) {
 	let _trackSupportBody = null; // Driveable support mesh body
 	let _trackBlockerBody = null; // Wall/blocker mesh body
 	let _trackGroup = null;       // Track mesh group added to scene
+	let _boostPads = [];          // Runtime boost pad trigger zones
+	let _loadedModels = null;     // Shared source model cache for runtime appearance animation
+	let _trackAppearance = normalizeTrackAppearance();
+	let _trackAppearanceAnimated = false;
 
 	// Game subsystem references (nulled during stop)
 	let _vehicle = null;
@@ -266,6 +307,7 @@ export function createGameEngine( canvasContainer ) {
 	let _jitterDisplay = null;
 	let _ghostHudEl = null;
 	let _camToggleBtn = null;
+	let _topRightHudDock = null;
 	let _groundIndicator = null;
 	let _dirLightTarget = null;
 	let _dirLightOffset = null;
@@ -413,6 +455,134 @@ export function createGameEngine( canvasContainer ) {
 
 	}
 
+	function _getMarkerGridPosition( marker ) {
+
+		if ( ! marker || typeof marker !== 'object' ) return null;
+		if ( Array.isArray( marker.pos ) && Number.isFinite( marker.pos[ 0 ] ) && Number.isFinite( marker.pos[ 2 ] ) ) {
+
+			return { gx: marker.pos[ 0 ], gz: marker.pos[ 2 ] };
+
+		}
+
+		if ( typeof marker.tileRef === 'string' ) {
+
+			const [ gx, gz ] = marker.tileRef.split( ',' ).map( Number );
+			if ( Number.isFinite( gx ) && Number.isFinite( gz ) ) return { gx, gz };
+
+		}
+
+		return null;
+
+	}
+
+	function _createRuntimeBoostPads( models, markers, trackIntel, cellMap ) {
+
+		const group = new THREE.Group();
+		group.name = 'runtime-boost-pads';
+		const pads = [];
+
+		for ( const marker of ( markers || [] ) ) {
+
+			if ( marker?.type !== 'boost' ) continue;
+
+			const gridPos = _getMarkerGridPosition( marker );
+			if ( ! gridPos ) continue;
+
+			const cell = cellMap.get( `${ gridPos.gx },${ gridPos.gz }` ) ?? null;
+			const placement = resolveBoostPadPlacement( {
+				gx: gridPos.gx,
+				gz: gridPos.gz,
+				layout: marker.settings?.layout,
+				trackIntel,
+				cellType: cell?.type,
+				orient: cell?.orient ?? 0,
+			} );
+			const worldY = cell?.worldY ?? 0;
+
+			for ( const padCenter of placement.padCenters ) {
+
+				const boostMesh = models[ BOOST_MARKER_MODEL_ID ]?.clone?.( true ) ?? null;
+				if ( boostMesh ) {
+
+					boostMesh.position.set( padCenter.x, worldY + BOOST_PAD_VISUAL_LIFT, padCenter.z );
+					boostMesh.rotation.y = placement.rotationY;
+					boostMesh.traverse( ( child ) => {
+
+						if ( child.isMesh ) {
+
+							child.castShadow = false;
+							child.receiveShadow = true;
+
+						}
+
+					} );
+					group.add( boostMesh );
+
+				}
+
+				pads.push( {
+					id: `${ marker.id || `${ gridPos.gx },${ gridPos.gz }` }:${ pads.length }`,
+					centerX: padCenter.x,
+					centerZ: padCenter.z,
+					forward: placement.forward,
+					left: placement.left,
+					cooldowns: new WeakMap(),
+				} );
+
+			}
+
+		}
+
+		return { group, pads };
+
+	}
+
+	function _triggerBoostPadForVehicle( vehicle ) {
+
+		if ( ! vehicle ) return;
+		vehicle.miniBoostTimer = Math.max( vehicle.miniBoostTimer || 0, 1.15 );
+		vehicle.miniBoostTopSpeed = Math.max( vehicle.miniBoostTopSpeed || 0, ( vehicle.debug?.topSpeed || 250 ) + 55 );
+
+	}
+
+	function _updateBoostPadCollisions( vehicles ) {
+
+		if ( _boostPads.length === 0 || ! Array.isArray( vehicles ) || vehicles.length === 0 ) return;
+
+		const now = performance.now() * 0.001;
+
+		for ( const entry of vehicles ) {
+
+			const vehicle = entry?.vehicle ?? entry;
+			if ( ! vehicle?.vehPos ) continue;
+
+			for ( const pad of _boostPads ) {
+
+				const lastHit = pad.cooldowns.get( vehicle ) ?? - Infinity;
+				if ( now - lastHit < 0.45 ) continue;
+
+				const dx = vehicle.vehPos.x - pad.centerX;
+				const dz = vehicle.vehPos.z - pad.centerZ;
+				const lateral = dx * pad.left.x + dz * pad.left.z;
+				const longitudinal = dx * pad.forward.x + dz * pad.forward.z;
+				if ( Math.abs( lateral ) > BOOST_PAD_HALF_WIDTH || Math.abs( longitudinal ) > BOOST_PAD_HALF_LENGTH ) continue;
+
+				pad.cooldowns.set( vehicle, now );
+				_triggerBoostPadForVehicle( vehicle );
+
+				if ( vehicle === _vehicle ) {
+
+					_audio?.playBoostWhoosh?.();
+					if ( _boostBurst ) _boostBurst.emit( _vehicle.container.position, pad.forward.x, pad.forward.z );
+
+				}
+
+			}
+
+		}
+
+	}
+
 
 	// ── start() ──────────────────────────────────────────────────────────────
 
@@ -431,6 +601,7 @@ export function createGameEngine( canvasContainer ) {
 			_trackedBodies = [];
 			_listenerRegistry = [];
 			_allActiveVehicles = [];
+			_boostPads = [];
 			_multiplayer = false;
 			_spectating = false;
 			_wasBoostActive = false;
@@ -445,6 +616,9 @@ export function createGameEngine( canvasContainer ) {
 			_prevSwitchView = false;
 			_fpsCapMs = { value: 0 };
 			_draftIndicatorEnabled = { value: false };
+			_loadedModels = null;
+			_trackAppearance = normalizeTrackAppearance();
+			_trackAppearanceAnimated = false;
 
 			// ── HUD container (all game DOM elements go here for easy teardown) ──
 			_hudContainer = document.createElement( 'div' );
@@ -458,6 +632,14 @@ export function createGameEngine( canvasContainer ) {
 			hudStyle.textContent = '#game-hud-container > * { pointer-events: auto; }';
 			_hudContainer.appendChild( hudStyle );
 
+			_topRightHudDock = document.createElement( 'div' );
+			_topRightHudDock.id = 'game-hud-top-right';
+			_topRightHudDock.style.cssText = [
+				'position:fixed', 'top:16px', 'right:16px',
+				'display:flex', 'align-items:center', 'gap:12px', 'z-index:100',
+			].join( ';' );
+			_hudContainer.appendChild( _topRightHudDock );
+
 			// ── Track setup ──────────────────────────────────────────────────────
 			const trackTileSet = getTrackTileSet( globalThis.location?.search ?? '' );
 			const asphaltMode = getTrackAsphaltMode( globalThis.location?.search ?? '' );
@@ -466,46 +648,141 @@ export function createGameEngine( canvasContainer ) {
 			const hash = window.location.hash.slice( 1 );
 			const debugTopdown = urlParams.get( 'debug' ) === 'topdown';
 			let customCells = null;
+			let trackThemeId = DEFAULT_TRACK_THEME_ID;
+			let terrainTiles = config.terrainTiles ?? null;
+			let props = config.props ?? null;
+			let markers = config.markers ?? null;
+			let trackAppearance = normalizeTrackAppearance( config.trackAppearance );
+			let resolvedTrackData = null;
 
 			if ( config.trackData ) {
 
-			// config.trackData can be raw cells array or v4 JSON object
-			if ( Array.isArray( config.trackData ) ) {
+				// config.trackData can be raw cells array or v4 JSON object
+				if ( Array.isArray( config.trackData ) ) {
 
-				customCells = config.trackData;
+					customCells = config.trackData;
 
-			} else if ( config.trackData.trackTiles ) {
+				} else if ( config.trackData.trackTiles ) {
 
-				customCells = _v4TilesToCells( config.trackData );
-
-			}
-
-		} else if ( hash.startsWith( 'track=v4:' ) ) {
-
-			// v4 JSON track (base64url-encoded)
-			try {
-
-				const b64 = hash.slice( 9 );
-				const bytes = atob( b64.replace( /-/g, '+' ).replace( /_/g, '/' ) );
-				const json = new TextDecoder().decode( Uint8Array.from( bytes, c => c.charCodeAt( 0 ) ) );
-				const v4 = JSON.parse( json );
-
-				if ( v4.trackTiles ) {
-
-					customCells = _v4TilesToCells( v4 );
+					resolvedTrackData = config.trackData;
+					customCells = _v4TilesToCells( config.trackData );
+					trackThemeId = normalizeTrackThemeId( config.trackData.meta?.themeId );
+					terrainTiles = _resolveTerrainTiles( config.trackData ) || [];
+					props = config.props ?? _resolveProps( config.trackData ) ?? null;
+					markers = config.markers ?? _resolveMarkers( config.trackData ) ?? null;
+					trackAppearance = normalizeTrackAppearance( config.trackAppearance ?? _resolveTrackAppearance( config.trackData ) );
 
 				}
 
-			} catch ( e ) {
+			} else if ( hash.startsWith( 'track=v4:' ) ) {
 
-				console.warn( 'Invalid v4 track parameter, using default track' );
+				// v4 JSON track (base64url-encoded)
+				try {
 
-			}
+					const b64 = hash.slice( 9 );
+					const bytes = atob( b64.replace( /-/g, '+' ).replace( /_/g, '/' ) );
+					const json = new TextDecoder().decode( Uint8Array.from( bytes, c => c.charCodeAt( 0 ) ) );
+					const v4 = JSON.parse( json );
+
+					if ( v4.trackTiles ) {
+
+						resolvedTrackData = v4;
+						customCells = _v4TilesToCells( v4 );
+						trackThemeId = normalizeTrackThemeId( v4.meta?.themeId );
+						terrainTiles = _resolveTerrainTiles( v4 ) || [];
+						props = config.props ?? _resolveProps( v4 ) ?? null;
+						markers = config.markers ?? _resolveMarkers( v4 ) ?? null;
+						trackAppearance = normalizeTrackAppearance( config.trackAppearance ?? _resolveTrackAppearance( v4 ) );
+
+					}
+
+				} catch ( e ) {
+
+					console.warn( 'Invalid v4 track parameter, using default track' );
+
+				}
 
 			}
 
 			const activeCells = customCells || TRACK_CELLS;
 			const renderCells = transformCells( activeCells );
+			const cellMap = new Map();
+			for ( const [ gx, gz, type, orient, flags ] of activeCells ) {
+
+				cellMap.set( `${gx},${gz}`, {
+					type,
+					orient,
+					worldY: _getCellWorldY( flags ),
+				} );
+
+			}
+
+		// ── Resolve props (editor-placed decorations) ───────────────────────
+		if ( props == null && ! config.trackData && ! resolvedTrackData ) {
+
+			try {
+
+				const v4Raw = localStorage.getItem( 'kk-editor-project' );
+				if ( v4Raw ) {
+
+					const v4 = JSON.parse( v4Raw );
+					props = _resolveProps( v4 );
+
+				}
+
+			} catch { /* ignore */ }
+
+		}
+
+		if ( terrainTiles == null && ! config.trackData && ! resolvedTrackData ) {
+
+			try {
+
+				const v4Raw = localStorage.getItem( 'kk-editor-project' );
+				if ( v4Raw ) {
+
+					const v4 = JSON.parse( v4Raw );
+					terrainTiles = _resolveTerrainTiles( v4 );
+
+				}
+
+			} catch { /* ignore */ }
+
+		}
+
+		if ( markers == null && ! config.trackData && ! resolvedTrackData ) {
+
+			try {
+
+				const v4Raw = localStorage.getItem( 'kk-editor-project' );
+				if ( v4Raw ) {
+
+					const v4 = JSON.parse( v4Raw );
+					markers = _resolveMarkers( v4 );
+					trackAppearance = normalizeTrackAppearance( _resolveTrackAppearance( v4 ) );
+
+				}
+
+			} catch { /* ignore */ }
+
+		}
+
+		const extraModelNames = new Set();
+		for ( const tile of ( terrainTiles || [] ) ) {
+
+			if ( typeof tile?.type === 'string' && tile.type ) extraModelNames.add( tile.type );
+
+		}
+		for ( const prop of ( props || [] ) ) {
+
+			if ( typeof prop?.type === 'string' && prop.type ) extraModelNames.add( prop.type );
+
+		}
+		for ( const marker of ( markers || [] ) ) {
+
+			if ( marker?.type === 'boost' ) extraModelNames.add( BOOST_MARKER_MODEL_ID );
+
+		}
 
 		// Loading progress UI
 		const loadingBar = document.getElementById( 'loading-bar' );
@@ -517,7 +794,14 @@ export function createGameEngine( canvasContainer ) {
 			if ( loadingBar ) loadingBar.style.width = pct + '%';
 			if ( loadingText ) loadingText.textContent = `Loading models... ${ loaded }/${ total }`;
 
+			}, {
+				themeId: trackThemeId,
+				appearance: trackAppearance,
+				extraModelNames: [ ...extraModelNames ],
 			} );
+			_loadedModels = models;
+			_trackAppearance = trackAppearance;
+			_trackAppearanceAnimated = hasAnimatedTrackAppearance( trackAppearance );
 
 			const spawn = computeSpawnPosition( activeCells );
 			const bounds = computeTrackBounds( activeCells );
@@ -540,32 +824,14 @@ export function createGameEngine( canvasContainer ) {
 
 		}
 
-		// ── Resolve props (editor-placed decorations) ───────────────────────
-		let props = config.props || null;
-		if ( ! props ) {
-
-			try {
-
-				const v4Raw = localStorage.getItem( 'kk-editor-project' );
-				if ( v4Raw ) {
-
-					const v4 = JSON.parse( v4Raw );
-					if ( v4.props && v4.props.length > 0 ) props = v4.props;
-
-				}
-
-			} catch { /* ignore */ }
-
-		}
-
-		_trackGroup = buildTrack( scene, models, renderCells, props );
+		_trackGroup = buildTrack( scene, models, renderCells, props, terrainTiles || [] );
 
 		// ── Track colliders ──────────────────────────────────────────────────
 		// Teleport old track body if switching tracks
 		if ( _trackSupportBody ) rigidBody.setPosition( world, _trackSupportBody, [ 0, - 10000, 0 ], false );
 		if ( _trackBlockerBody ) rigidBody.setPosition( world, _trackBlockerBody, [ 0, - 10000, 0 ], false );
 
-		const trackColliderData = buildTrackColliders( world, models, renderCells );
+		const trackColliderData = buildTrackColliders( world, models, renderCells, terrainTiles || [] );
 		_trackSupportBody = trackColliderData.supportBody;
 		_trackBlockerBody = trackColliderData.blockerBody;
 
@@ -810,6 +1076,20 @@ export function createGameEngine( canvasContainer ) {
 		_raceMode.trackIntel = _trackIntel.valid ? _trackIntel : null;
 		_vehicle.setTrackIntel( _trackIntel.valid ? _trackIntel : null );
 
+		const runtimeBoostPads = _createRuntimeBoostPads(
+			models,
+			markers,
+			_trackIntel.valid ? _trackIntel : null,
+			cellMap
+		);
+		_boostPads = runtimeBoostPads.pads;
+		if ( runtimeBoostPads.group.children.length > 0 ) {
+
+			_trackGroup.add( runtimeBoostPads.group );
+			runtimeBoostPads.group.updateMatrixWorld( true );
+
+		}
+
 		_aiManager = new AIManager( scene, world, models, _trackIntel.valid ? _trackIntel : null, spawnPosition, spawnAngle, spawn.finishAngle );
 		_aiManager.totalLaps = 3;
 
@@ -925,6 +1205,7 @@ export function createGameEngine( canvasContainer ) {
 
 		buildLightingCache( scene );
 		applyLighting( LIGHTING_DAY );
+		applyTrackGlowSettings( bloomPass, trackAppearance );
 		for ( const hl of _vehicle.headlights ) hl.visible = false;
 
 		_cam = new Camera();
@@ -941,7 +1222,9 @@ export function createGameEngine( canvasContainer ) {
 		applyPlayerAppearanceToVehicle( _vehicle, getPlayerAppearanceFromSettings( _settings ) );
 
 		_controls = new Controls( _settings, _cam );
-		_settingsMenu = new SettingsMenu( _settings, _controls, _audio );
+		_settingsMenu = new SettingsMenu( _settings, _controls, _audio, {
+			mountParent: _topRightHudDock,
+		} );
 		_speedometer = new Speedometer( _settings );
 
 		// ── Listener registry: settings-changed for player appearance ────────
@@ -1379,11 +1662,12 @@ export function createGameEngine( canvasContainer ) {
 		// ── FPS display ──────────────────────────────────────────────────────
 		_fpsDisplay = document.createElement( 'div' );
 		_fpsDisplay.style.cssText = [
-			'position:fixed', 'top:68px', 'left:16px',
+			'display:flex', 'align-items:center', 'height:44px',
 			'background:rgba(0,0,0,0.72)', 'color:#0f0', 'font:13px/1.6 monospace',
-			'padding:4px 10px', 'border-radius:6px', 'z-index:999', 'user-select:none',
+			'padding:0 10px', 'border-radius:10px', 'user-select:none',
+			'white-space:nowrap', 'pointer-events:none',
 		].join( ';' );
-		_hudContainer.appendChild( _fpsDisplay );
+		_topRightHudDock.appendChild( _fpsDisplay );
 
 		_draftingSystem = new DraftingSystem();
 		_draftLines = new DraftLines( scene );
@@ -1493,6 +1777,8 @@ export function createGameEngine( canvasContainer ) {
 		// Dispose PostProcessing (nulled; resize handler has null guard)
 		if ( postFX ) { postFX = null; }
 
+		if ( _settingsMenu?.dispose ) _settingsMenu.dispose();
+
 		// Remove HUD container from DOM (cleans up all game DOM elements at once)
 		if ( _hudContainer ) {
 
@@ -1553,8 +1839,12 @@ export function createGameEngine( canvasContainer ) {
 
 		// Null out remaining game refs
 		_vehicle = null;
+		_boostPads = [];
 		_trackSupportBody = null;
 		_trackBlockerBody = null;
+		_loadedModels = null;
+		_trackAppearance = normalizeTrackAppearance();
+		_trackAppearanceAnimated = false;
 		_audio = null;
 		_raceMode = null;
 		_raceLobby = null;
@@ -1583,6 +1873,7 @@ export function createGameEngine( canvasContainer ) {
 		_jitterDisplay = null;
 		_ghostHudEl = null;
 		_camToggleBtn = null;
+		_topRightHudDock = null;
 		_debugCollider = null;
 		_wheelDebug = null;
 		_debugMenu = null;
@@ -1764,6 +2055,7 @@ export function createGameEngine( canvasContainer ) {
 		_allActiveVehicles.length = 0;
 		for ( const v of _playerManager.getActiveVehicles() ) _allActiveVehicles.push( v );
 		for ( const v of _aiManager.getActiveVehicles() ) _allActiveVehicles.push( v );
+		_updateBoostPadCollisions( _allActiveVehicles );
 
 		if ( ! _spectating ) _contactListener.checkVehicleBumps( _allActiveVehicles );
 
@@ -1920,6 +2212,11 @@ export function createGameEngine( canvasContainer ) {
 		}
 
 		_audio.update( dt, _vehicle ? _vehicle.linearSpeed : 0, input.z, _vehicle ? _vehicle.driftIntensity : 0 );
+		if ( _trackAppearanceAnimated && _loadedModels ) {
+
+			applyTrackAppearanceToModelMap( _loadedModels, _trackAppearance, now * 0.001 );
+
+		}
 
 		// Draft wind audio
 		if ( _vehicle ) {

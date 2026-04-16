@@ -6,6 +6,11 @@ import {
 	CHARACTER_PREVIEW_CAMERA_DEFAULTS,
 	computeCharacterPreviewFrame,
 } from './utils/characterPreviewFrame.js';
+import { MenuCharacterBlinkController } from './MenuCharacterBlinkController.js';
+import {
+	applyMenuCharacterMaterialDebugTuning,
+	getMenuCharacterMaterialDebugVersion,
+} from './MenuCharacterMaterialDebug.js';
 
 const _boundsCenter = new THREE.Vector3();
 const _boundsBox = new THREE.Box3();
@@ -55,6 +60,8 @@ export class CharacterPreviewScene {
 		this._scene.add( this._turntable );
 
 		this._characterRoot = null;
+		this._blinkController = new MenuCharacterBlinkController();
+		this._characterMaterialDebugVersion = - 1;
 		this._idleClip = null;
 		this._mixer = null;
 		this._idleAction = null;
@@ -127,6 +134,8 @@ export class CharacterPreviewScene {
 		if ( this._characterRoot ) {
 
 			applyPlayerAppearanceToNodes( { characterRoot: this._characterRoot }, this._appearance );
+			applyMenuCharacterMaterialDebugTuning( this._characterRoot );
+			this._characterMaterialDebugVersion = getMenuCharacterMaterialDebugVersion();
 			this._refreshCharacterFrame();
 
 		}
@@ -219,6 +228,7 @@ export class CharacterPreviewScene {
 		}
 
 		this._turntable.clear();
+		this._blinkController.reset();
 		if ( this._mixer && this._characterRoot ) {
 
 			this._mixer.stopAllAction();
@@ -272,6 +282,7 @@ export class CharacterPreviewScene {
 			this._turntable.add( this._characterRoot );
 			this._bindIdleAnimation();
 			this.setAppearance( this._appearance );
+			this._blinkController.bind( this._characterRoot );
 
 			if ( this._onReady ) this._onReady();
 
@@ -592,6 +603,13 @@ export class CharacterPreviewScene {
 
 			this._zoomScale += ( this._targetZoomScale - this._zoomScale ) * ( 1 - Math.exp( - 10 * dt ) );
 			if ( this._mixer ) this._mixer.update( dt );
+			this._blinkController.update( dt );
+			if ( this._characterRoot && this._characterMaterialDebugVersion !== getMenuCharacterMaterialDebugVersion() ) {
+
+				applyMenuCharacterMaterialDebugTuning( this._characterRoot );
+				this._characterMaterialDebugVersion = getMenuCharacterMaterialDebugVersion();
+
+			}
 			this._turntable.rotation.y = this._orbitAngle;
 			this._updateCameraPose();
 			this._renderer.render( this._scene, this._camera );

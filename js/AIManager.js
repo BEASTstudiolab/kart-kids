@@ -120,7 +120,9 @@ export class AIManager {
 			options: { forceWheelCorrection: true },
 		} );
 
-		applyPlayerAppearanceToVehicle( vehicle, createDefaultAIAppearance( getRandomBalaclavaId() ) );
+		const aiColor = this._aiColors[ index % this._aiColors.length ];
+		const aiMaskTint = `#${ aiColor.getHexString() }`;
+		applyPlayerAppearanceToVehicle( vehicle, createDefaultAIAppearance( getRandomBalaclavaId(), aiMaskTint ) );
 
 		// AI benefits from the same centerline correction the player assist uses,
 		// especially when physics pushes a kart wide in tighter corners.
@@ -131,7 +133,6 @@ export class AIManager {
 		for ( const hl of vehicle.headlights ) hl.visible = false;
 
 		// Apply unique color tint to this AI's body
-		const aiColor = this._aiColors[ index % this._aiColors.length ];
 		if ( vehicle.bodyNode ) {
 
 			vehicle.bodyNode.traverse( ( child ) => {
@@ -156,7 +157,7 @@ export class AIManager {
 			angle: this.finishAngle
 		} );
 
-		this._racers.push( {
+		const ai = {
 			id: 'ai_' + index,
 			profileSeed: index,
 			profile,
@@ -174,6 +175,13 @@ export class AIManager {
 			finished: false,
 			segmentHint: null,
 			passedHalfway: false,
+		};
+
+		this._racers.push( ai );
+		this._positionAIRacer( ai, {
+			x: this.spawnPosition[ 0 ],
+			y: this.spawnPosition[ 1 ],
+			z: this.spawnPosition[ 2 ],
 		} );
 
 	}
@@ -318,14 +326,54 @@ export class AIManager {
 
 	}
 
+	_resolveAIStartPose( worldPos ) {
+
+		const pose = {
+			x: worldPos.x,
+			y: worldPos.y,
+			z: worldPos.z,
+			yaw: this.spawnAngle,
+			waypointHint: null,
+		};
+
+		const trackIntel = this.trackIntel;
+		if ( ! trackIntel || trackIntel.valid === false ) return pose;
+
+		const waypointHint = trackIntel.getNearestWaypoint?.( pose.x, pose.z );
+		if ( ! Number.isInteger( waypointHint ) ) return pose;
+
+		pose.waypointHint = waypointHint;
+		const info = trackIntel.getWaypointInfo?.( waypointHint );
+		if ( info?.forward ) {
+
+			pose.yaw = Math.atan2( info.forward.x, info.forward.z );
+
+		}
+
+		return pose;
+
+	}
+
+	_positionAIRacer( ai, worldPos, { resetController = false } = {} ) {
+
+		const pose = this._resolveAIStartPose( worldPos );
+		this._teleportVehicle( ai.vehicle, pose, pose.yaw );
+		if ( resetController ) ai.controller?.reset?.();
+		ai.controller?.primeAtPosition?.( pose.x, pose.z );
+		ai.segmentHint = pose.waypointHint;
+		ai.prevPos = null;
+		return pose;
+
+	}
+
 	// ── Grid positioning ─────────────────────────────────────────────────────
 
 	computeGridPositions() {
 
 		const positions = [];
 
-		const fwdX = - Math.sin( this.spawnAngle );
-		const fwdZ = - Math.cos( this.spawnAngle );
+		const fwdX = Math.sin( this.spawnAngle );
+		const fwdZ = Math.cos( this.spawnAngle );
 		const rightX = - fwdZ;
 		const rightZ = fwdX;
 
@@ -369,8 +417,7 @@ export class AIManager {
 
 			if ( aiIdx < this._racers.length ) {
 
-				this._teleportVehicle( this._racers[ aiIdx ].vehicle, gridPositions[ slot ] );
-				this._racers[ aiIdx ].controller?.reset?.();
+				this._positionAIRacer( this._racers[ aiIdx ], gridPositions[ slot ], { resetController: true } );
 				aiIdx ++;
 
 			}
@@ -379,13 +426,13 @@ export class AIManager {
 
 	}
 
-	_teleportVehicle( vehicle, gridPos ) {
+	_teleportVehicle( vehicle, gridPos, yaw = this.spawnAngle ) {
 
 		vehicle.vehPos.set( gridPos.x, gridPos.y, gridPos.z );
 		vehicle.groundHeight = gridPos.y;
 		vehicle.prevModelPos.set( gridPos.x, gridPos.y, gridPos.z );
 		vehicle.container.position.set( gridPos.x, gridPos.y, gridPos.z );
-		vehicle.container.rotation.y = this.spawnAngle;
+		vehicle.container.rotation.y = yaw;
 		vehicle.linearSpeed = 0;
 		vehicle.angularSpeed = 0;
 		vehicle.acceleration = 0;
@@ -393,7 +440,7 @@ export class AIManager {
 		if ( vehicle.rigidBody && vehicle.physicsWorld ) {
 
 			rigidBody.setPosition( vehicle.physicsWorld, vehicle.rigidBody, [ gridPos.x, gridPos.y + 0.5, gridPos.z ], false );
-			rigidBody.setQuaternion( vehicle.physicsWorld, vehicle.rigidBody, [ 0, Math.sin( this.spawnAngle / 2 ), 0, Math.cos( this.spawnAngle / 2 ) ], false );
+			rigidBody.setQuaternion( vehicle.physicsWorld, vehicle.rigidBody, [ 0, Math.sin( yaw / 2 ), 0, Math.cos( yaw / 2 ) ], false );
 			rigidBody.setLinearVelocity( vehicle.physicsWorld, vehicle.rigidBody, [ 0, 0, 0 ] );
 			rigidBody.setAngularVelocity( vehicle.physicsWorld, vehicle.rigidBody, [ 0, 0, 0 ] );
 			rigidBody.wake( vehicle.physicsWorld, vehicle.rigidBody );
@@ -409,12 +456,11 @@ export class AIManager {
 		for ( const ai of this._racers ) {
 
 			ai.controller.reset();
+			this._positionAIRacer( ai, ai.vehicle.vehPos );
 			ai.lap = 0;
 			ai.finished = false;
-			ai.prevPos = null;
 			ai.passedHalfway = false;
 			ai.finishLine.resetCooldown();
-			ai.controller?.reset?.();
 			ai.controller?.armLaunchPhase?.();
 
 		}
@@ -426,15 +472,13 @@ export class AIManager {
 		for ( const ai of this._racers ) {
 
 			ai.controller.reset();
+			this._positionAIRacer( ai, ai.vehicle.vehPos );
 			ai.lap = 0;
 			ai.finished = false;
-			ai.prevPos = null;
 			ai.passedHalfway = false;
-			ai.segmentHint = null;
 			ai.finishLine.resetCooldown();
 			ai.vehicle.externalTopSpeedMultiplier = 1.0;
 			ai.tireMarks.clear();
-			ai.controller?.reset?.();
 
 		}
 

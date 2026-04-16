@@ -1,6 +1,6 @@
 // ─── RadialMenu ──────────────────────────────────────────────────────────────
 // Circular context menu that appears on right-click over a tile.
-// Actions: Rotate, Elevate+, Elevate-, Replace, Duplicate, Delete.
+// Actions: Rotate, Elevate+, Elevate-, Duplicate, Delete.
 
 export class RadialMenu {
 
@@ -20,8 +20,7 @@ export class RadialMenu {
 			{ id: 'elevate-up', label: 'Raise',    icon: '↑', angle: 60 },
 			{ id: 'elevate-down', label: 'Lower',  icon: '↓', angle: 120 },
 			{ id: 'duplicate', label: 'Duplicate',  icon: '⊕', angle: 180 },
-			{ id: 'replace',   label: 'Replace',    icon: '⇄', angle: 240 },
-			{ id: 'delete',    label: 'Delete',     icon: '✕', angle: 300 },
+			{ id: 'delete',    label: 'Delete',     icon: '✕', angle: 240 },
 		];
 
 		this._build();

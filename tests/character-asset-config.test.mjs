@@ -18,13 +18,14 @@ function getTextureImageUri( gltf, textureIndex ) {
 
 }
 
-test( 'configured balaclava and accessory mesh names exist in the character gltf', async () => {
+test( 'configured balaclava and accessory mesh or material targets exist in the character gltf', async () => {
 
 	const raw = await readFile( new URL( `../models/${ CHARACTER_MODEL_PATH }`, import.meta.url ), 'utf8' );
 	const gltf = JSON.parse( raw );
 	const availableNames = new Set( [
 		...( gltf.nodes || [] ).map( ( node ) => node.name ).filter( Boolean ),
 		...( gltf.meshes || [] ).map( ( mesh ) => mesh.name ).filter( Boolean ),
+		...( gltf.materials || [] ).map( ( material ) => material.name ).filter( Boolean ),
 	] );
 
 	for ( const option of BALACLAVA_OPTIONS ) {
@@ -35,15 +36,38 @@ test( 'configured balaclava and accessory mesh names exist in the character gltf
 
 	for ( const accessory of CHARACTER_ACCESSORY_DEFS ) {
 
-		for ( const meshName of accessory.meshes ) {
+		for ( const meshName of accessory.meshes || [] ) {
 
 			assert.ok( availableNames.has( meshName ), `missing accessory mesh "${ meshName }"` );
+
+		}
+
+		for ( const materialName of accessory.materials || [] ) {
+
+			assert.ok( availableNames.has( materialName ), `missing accessory material "${ materialName }"` );
 
 		}
 
 	}
 
 	assert.equal( availableNames.has( 'Mask_Basic' ), false );
+
+} );
+
+test( 'character boots material is authored on the body mesh primitive', async () => {
+
+	const raw = await readFile( new URL( `../models/${ CHARACTER_MODEL_PATH }`, import.meta.url ), 'utf8' );
+	const gltf = JSON.parse( raw );
+	const bootsMaterialIndex = ( gltf.materials || [] ).findIndex( ( material ) => material?.name === 'Boots' );
+
+	assert.notEqual( bootsMaterialIndex, - 1, 'missing Boots material' );
+
+	const bootsMesh = ( gltf.meshes || [] ).find( ( mesh ) =>
+		( mesh.primitives || [] ).some( ( primitive ) => primitive?.material === bootsMaterialIndex )
+	);
+
+	assert.ok( bootsMesh, 'missing mesh primitive using the Boots material' );
+	assert.equal( bootsMesh.name, 'Body.002' );
 
 } );
 

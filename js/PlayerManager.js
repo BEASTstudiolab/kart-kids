@@ -509,8 +509,8 @@ export class PlayerManager {
 		const lateral = START_GRID_LANE_OFFSETS[ column ] ?? ( column * START_GRID_LANE_SPACING );
 		const longitudinal = - row * START_GRID_ROW_SPACING;
 
-		const fwdX = - Math.sin( this.spawnAngle );
-		const fwdZ = - Math.cos( this.spawnAngle );
+		const fwdX = Math.sin( this.spawnAngle );
+		const fwdZ = Math.cos( this.spawnAngle );
 		const rightX = - fwdZ;
 		const rightZ = fwdX;
 

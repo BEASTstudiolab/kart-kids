@@ -614,7 +614,7 @@ function buildSceneCollisionGeometry( sceneRoot, roadHeightHints = [ 0 ], tileKe
 
 }
 
-export function buildTrackCollisionGeometry( models, customCells ) {
+export function buildTrackCollisionGeometry( models, customCells, terrainTiles = [] ) {
 
 	const cells = customCells || TRACK_CELLS;
 	const dummy = new THREE.Object3D();
@@ -706,6 +706,18 @@ export function buildTrackCollisionGeometry( models, customCells ) {
 
 	}
 
+	for ( const tile of terrainTiles ) {
+
+		const flags = {
+			fullElevation: tile.e ?? ELEV_GROUND,
+			_collisionOnly: true,
+		};
+		const elevY = elevToY( flags );
+		appendCollisionOnlySupportQuad( supportPositions, supportIndices, tile.gx, tile.gz, elevY );
+		roadHeightHints.push( elevY );
+
+	}
+
 	const barrierGeometry = buildBarrierGeometryFromBlockers( blockerPositions, blockerIndices, roadHeightHints );
 
 	return {
@@ -719,9 +731,9 @@ export function buildTrackCollisionGeometry( models, customCells ) {
 
 }
 
-export function buildTrackColliders( world, models, customCells ) {
+export function buildTrackColliders( world, models, customCells, terrainTiles = [] ) {
 
-	const geometry = buildTrackCollisionGeometry( models, customCells );
+	const geometry = buildTrackCollisionGeometry( models, customCells, terrainTiles );
 
 	console.log(
 		'[collider] support mesh:',

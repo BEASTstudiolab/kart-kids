@@ -9,8 +9,10 @@ import { PlaceTileCommand } from '../commands/PlaceTileCommand.js';
 import { EraseTileCommand } from '../commands/EraseTileCommand.js';
 import { PlaceFinishCommand } from '../commands/PlaceFinishCommand.js';
 import { PlaceSpecialTileCommand } from '../commands/PlaceSpecialTileCommand.js';
-import { ReplaceTileCommand } from '../commands/ReplaceTileCommand.js';
+import { PlaceTerrainCommand } from '../commands/PlaceTerrainCommand.js';
+import { EraseTerrainCommand } from '../commands/EraseTerrainCommand.js';
 import { TILES_3X3, TILES_2X2 } from '../models/TrackTile.js';
+import { TERRAIN_TILE_ID } from '../constants/EditorAssetIds.js';
 
 /**
  * Compute the anchor cell for a multi-cell footprint.
@@ -144,6 +146,24 @@ export class PlacementController {
 
 			this._addClearanceIndicator( ghostGx, ghostGz, activeElev );
 
+		} else if ( tool === 'terrain' ) {
+
+			const activeElev = this._state ? this._state.activeElevation : 12;
+			const terrainOccupied = this._project.getTerrainTile( gx, gz );
+			const trackOccupied = this._project.getTile( gx, gz );
+			const valid = ! terrainOccupied && ! trackOccupied;
+
+			const ghost = this._meshFactory.createGhostMesh(
+				TERRAIN_TILE_ID,
+				0,
+				gx,
+				gz,
+				activeElev,
+				valid ? 0.4 : 0.18
+			);
+			if ( ghost ) this.ghostGroup.add( ghost );
+			this._addFlatIndicator( gx, gz, activeElev, valid ? this._footprintMat : this._footprintInvalidMat );
+
 		} else if ( tool === 'finish' ) {
 
 			// Manual orient from R key — no auto-detection
@@ -196,7 +216,7 @@ export class PlacementController {
 			const behindDist = CELL_RAW * 0.8;
 			const arrow1 = new THREE.Mesh( arrowGeo, arrowMat );
 			arrow1.rotation.x = - Math.PI / 2;
-			arrow1.rotation.z = - orientRad;
+			arrow1.rotation.z = Math.PI - orientRad;
 			arrow1.position.set(
 				worldX - Math.sin( orientRad ) * behindDist,
 				0.1,
@@ -208,7 +228,7 @@ export class PlacementController {
 			const aheadDist = CELL_RAW * 0.8;
 			const arrow2 = new THREE.Mesh( arrowGeo, arrowMat );
 			arrow2.rotation.x = - Math.PI / 2;
-			arrow2.rotation.z = - orientRad;
+			arrow2.rotation.z = Math.PI - orientRad;
 			arrow2.position.set(
 				worldX + Math.sin( orientRad ) * aheadDist,
 				0.1,
@@ -220,17 +240,12 @@ export class PlacementController {
 
 			// Red highlight on tile that would be erased (including consumed cells)
 			const existing = this._project.getTile( gx, gz );
-			if ( existing ) {
+			const terrain = this._project.getTerrainTile( gx, gz );
+			const tileForHeight = existing || terrain;
+			if ( tileForHeight ) {
 
-				const geo = new THREE.PlaneGeometry( CELL_RAW * 0.95, CELL_RAW * 0.95 );
-				const plane = new THREE.Mesh( geo, this._footprintInvalidMat );
-				plane.rotation.x = - Math.PI / 2;
-				plane.position.set(
-					( gx + 0.5 ) * CELL_RAW,
-					0.03,
-					( gz + 0.5 ) * CELL_RAW
-				);
-				this.ghostGroup.add( plane );
+				const elevation = tileForHeight.elevation ?? ELEV_GROUND;
+				this._addFlatIndicator( gx, gz, elevation, this._footprintInvalidMat );
 
 			}
 
@@ -288,6 +303,30 @@ export class PlacementController {
 
 	}
 
+	placeTerrain( gx, gz ) {
+
+		const trackTile = this._project.getTile( gx, gz );
+		const terrainTile = this._project.getTerrainTile( gx, gz );
+		if ( trackTile || terrainTile ) return null;
+
+		const elevation = this._state ? this._state.activeElevation : ELEV_GROUND;
+		const cmd = new PlaceTerrainCommand(
+			this._project,
+			gx,
+			gz,
+			TERRAIN_TILE_ID,
+			0,
+			elevation,
+			this._meshFactory,
+			this._eventBus
+		);
+
+		this._commandHistory.execute( cmd );
+		this.clearGhost();
+		return cmd;
+
+	}
+
 	/**
 	 * Erase a tile at (gx, gz) via command.
 	 * @returns {EraseTileCommand|null}
@@ -295,36 +334,28 @@ export class PlacementController {
 	eraseRoad( gx, gz ) {
 
 		const tile = this._project.getTile( gx, gz );
-		if ( ! tile ) return null;
+		if ( ! tile ) {
+
+			const terrain = this._project.getTerrainTile( gx, gz );
+			if ( ! terrain ) return null;
+
+			const terrainCmd = new EraseTerrainCommand(
+				this._project,
+				gx,
+				gz,
+				this._meshFactory,
+				this._eventBus
+			);
+			this._commandHistory.execute( terrainCmd );
+			return terrainCmd;
+
+		}
 
 		// Consumed cells are handled by EraseTileCommand (finds and erases the anchor)
 
 		const cmd = new EraseTileCommand(
 			this._project, gx, gz,
 			this._meshFactory, this._autoTile, this._eventBus
-		);
-
-		this._commandHistory.execute( cmd );
-		return cmd;
-
-	}
-
-	/**
-	 * Replace a tile's type in-place (no delete+recreate).
-	 * @param {number} gx
-	 * @param {number} gz
-	 * @param {string} newType
-	 * @returns {import('../commands/ReplaceTileCommand.js').ReplaceTileCommand|null}
-	 */
-	replaceRoad( gx, gz, newType ) {
-
-		const tile = this._project.getTile( gx, gz );
-		if ( ! tile || tile._consumed || tile.autoRamp ) return null;
-		if ( ! newType || tile.type === newType ) return null;
-
-		const cmd = new ReplaceTileCommand(
-			this._project, gx, gz, newType,
-			this._meshFactory, this._eventBus
 		);
 
 		this._commandHistory.execute( cmd );
@@ -407,6 +438,21 @@ export class PlacementController {
 
 		const geo = new THREE.PlaneGeometry( CELL_RAW * 0.95, CELL_RAW * 0.95 );
 		const plane = new THREE.Mesh( geo, mat );
+		plane.rotation.x = - Math.PI / 2;
+		plane.position.set(
+			( gx + 0.5 ) * CELL_RAW,
+			worldY,
+			( gz + 0.5 ) * CELL_RAW
+		);
+		this.ghostGroup.add( plane );
+
+	}
+
+	_addFlatIndicator( gx, gz, elevation, material ) {
+
+		const worldY = ( elevation - ELEV_GROUND ) * 2.416 + 0.03;
+		const geo = new THREE.PlaneGeometry( CELL_RAW * 0.95, CELL_RAW * 0.95 );
+		const plane = new THREE.Mesh( geo, material );
 		plane.rotation.x = - Math.PI / 2;
 		plane.position.set(
 			( gx + 0.5 ) * CELL_RAW,

@@ -77,6 +77,53 @@ export class MeshFactory {
 	}
 
 	/**
+	 * Create a terrain mesh and add it to the project's terrainGroup.
+	 * @param {number} gx
+	 * @param {number} gz
+	 * @param {import('../models/TerrainTile.js').TerrainTile} tile
+	 * @returns {import('three').Object3D|null}
+	 */
+	createTerrainMesh( gx, gz, tile ) {
+
+		if ( tile.mesh ) {
+
+			this._project.terrainGroup.remove( tile.mesh );
+			tile.mesh = null;
+
+		}
+
+		const clone = this._lib.cloneModel( tile.type );
+		if ( ! clone ) return null;
+
+		const worldX = ( gx + 0.5 ) * CELL_RAW;
+		const worldZ = ( gz + 0.5 ) * CELL_RAW;
+		const worldY = this.getElevationY( tile );
+
+		clone.position.set( worldX, worldY, worldZ );
+
+		const orientDeg = ORIENT_DEG[ tile.orient ] ?? 0;
+		const baseRotY = clone.userData.rotationY ?? 0;
+		clone.rotation.y = THREE.MathUtils.degToRad( orientDeg ) + baseRotY;
+
+		clone.traverse( ( child ) => {
+
+			if ( child.isMesh ) {
+
+				child.castShadow = false;
+				child.receiveShadow = true;
+
+			}
+
+		} );
+
+		tile.mesh = clone;
+		this._project.terrainGroup.add( clone );
+
+		return clone;
+
+	}
+
+	/**
 	 * Create a transparent ghost preview mesh (not added to project).
 	 * @param {string} modelName
 	 * @param {number} orient

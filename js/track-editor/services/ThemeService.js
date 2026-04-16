@@ -1,19 +1,10 @@
 // ─── ThemeService ────────────────────────────────────────────────────────────
-// Theme registry and material swapping. Currently only city-night has assets.
-// Other themes are registered as unavailable (grayed out in UI) — ready for
-// when art assets are produced.
+// Theme registry + project metadata normalization for the track editor.
 
-const THEMES = [
-	{ id: 'city-night',    name: 'City Night',     available: true,  description: 'Urban night racing with neon accents' },
-	{ id: 'city-day',      name: 'City Day',        available: false, description: 'Bright urban daytime circuit' },
-	{ id: 'beach',         name: 'Beach',            available: false, description: 'Coastal track with sand and palms' },
-	{ id: 'jungle',        name: 'Jungle',           available: false, description: 'Dense tropical jungle course' },
-	{ id: 'space',         name: 'Space',            available: false, description: 'Zero-gravity space station track' },
-	{ id: 'volcano',       name: 'Volcano',          available: false, description: 'Volcanic terrain with lava hazards' },
-	{ id: 'frozen',        name: 'Frozen',           available: false, description: 'Ice and snow winter circuit' },
-	{ id: 'underwater',    name: 'Underwater',       available: false, description: 'Deep sea tube racing' },
-	{ id: 'retro-neon',    name: 'Retro / Neon',     available: false, description: 'Synthwave neon grid aesthetic' },
-];
+import {
+	getAvailableTrackThemes,
+	normalizeTrackThemeId,
+} from '../../TrackThemeRegistry.js';
 
 const RACE_TYPES = [
 	{ id: 'circuit',        name: 'Circuit Race',     description: 'Multiple laps around a closed loop' },
@@ -28,9 +19,10 @@ const RACE_TYPES = [
 
 export class ThemeService {
 
-	constructor( project ) {
+	constructor( project, options = {} ) {
 
 		this._project = project;
+		this._onThemeChanged = typeof options.onThemeChanged === 'function' ? options.onThemeChanged : null;
 
 	}
 
@@ -40,7 +32,7 @@ export class ThemeService {
 	 */
 	getAvailableThemes() {
 
-		return THEMES;
+		return getAvailableTrackThemes();
 
 	}
 
@@ -48,13 +40,28 @@ export class ThemeService {
 	 * Set the active theme.
 	 * @param {string} themeId
 	 */
-	setTheme( themeId ) {
+	async setTheme( themeId ) {
 
-		const theme = THEMES.find( t => t.id === themeId );
-		if ( ! theme || ! theme.available ) return;
+		const resolvedThemeId = normalizeTrackThemeId( themeId );
+		this._project.meta.themeId = resolvedThemeId;
 
-		this._project.meta.themeId = themeId;
-		// Future: swap materials on all tile meshes based on theme texture atlas
+		if ( this._onThemeChanged ) {
+
+			await this._onThemeChanged( resolvedThemeId );
+
+		}
+
+		return resolvedThemeId;
+
+	}
+
+	/**
+	 * Normalize and re-apply the current theme.
+	 * @returns {Promise<string>}
+	 */
+	async applyCurrentTheme() {
+
+		return this.setTheme( this._project.meta.themeId );
 
 	}
 
@@ -86,4 +93,4 @@ export class ThemeService {
 
 }
 
-export { THEMES, RACE_TYPES };
+export { RACE_TYPES };

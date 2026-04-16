@@ -1,4 +1,5 @@
 import { CHARACTER_MODEL_PATH } from './CharacterCustomization.js';
+import { BOOST_MARKER_MODEL_ID, TERRAIN_TILE_ID } from './track-editor/constants/EditorAssetIds.js';
 
 export function getTrackTileSet( search = '' ) {
 
@@ -64,10 +65,15 @@ export function getTrackModelConfig( name, tileSet = 'standard' ) {
 
 		// ─── Jumps (1x1) ───────────────────────────────────────
 		if ( name === 'trk-jump-short' ) return { path: 'standard-map/kartkids_base_trk_480_jmp_01_short_25pct_1x1.gltf', rotationY: 0 };
+		if ( name === 'trk-jump-medium' ) return { path: 'standard-map/kartkids_base_trk_490_jmp_02_mid_50pct_railed_1x1.gltf', rotationY: 0 };
 		if ( name === 'trk-jump-long' ) return { path: 'standard-map/kartkids_base_trk_500_jmp_03_long_midstart_to_edge_1x1.gltf', rotationY: 0 };
 
 		// ─── Chicane (3x3) ─────────────────────────────────────
 		if ( name === 'trk-chicane-3x3-l' ) return { path: 'standard-map/kartkids_base_trk_550_chicane_90_l_3x3.gltf', rotationY: Math.PI };
+
+		// ─── Shared editor/runtime utility assets ──────────────
+		if ( name === TERRAIN_TILE_ID ) return { path: 'standard-map/kartkids_base_trk_700_terrain_blank.gltf', rotationY: 0 };
+		if ( name === BOOST_MARKER_MODEL_ID ) return { path: 'standard-map/kartkids_base_trk_600__Turbo_2x2.gltf', rotationY: 0 };
 
 	}
 

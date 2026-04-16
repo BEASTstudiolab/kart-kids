@@ -55,15 +55,23 @@ const CHARACTER_MATERIAL_TUNING_PRESETS = Object.freeze( {
 		} ),
 	} ),
 } );
+const NON_HIDEABLE_ACCESSORY_KEYS = new Set( [ 'Jeans', 'Boots' ] );
 
 export const ACCESSORY_DEFS = CHARACTER_ACCESSORY_DEFS;
 
 const ACCESSORY_BY_MESH = new Map();
+const ACCESSORY_BY_MATERIAL = new Map();
 for ( const def of ACCESSORY_DEFS ) {
 
-	for ( const meshName of def.meshes ) {
+	for ( const meshName of def.meshes || [] ) {
 
 		ACCESSORY_BY_MESH.set( normalizeCharacterMeshName( meshName ), def );
+
+	}
+
+	for ( const materialName of def.materials || [] ) {
+
+		ACCESSORY_BY_MATERIAL.set( normalizeCharacterMeshName( materialName ), def );
 
 	}
 
@@ -106,10 +114,11 @@ export function createDefaultPlayerAppearance() {
 
 }
 
-export function createDefaultAIAppearance( selectedBalaclavaId = DEFAULT_BALACLAVA_ID ) {
+export function createDefaultAIAppearance( selectedBalaclavaId = DEFAULT_BALACLAVA_ID, maskTintMainColor = '' ) {
 
 	const appearance = createDefaultPlayerAppearance();
 	appearance.selectedBalaclavaId = normalizeSelectedBalaclavaId( selectedBalaclavaId );
+	appearance.maskTintMainColor = normalizeMaskTintColor( maskTintMainColor );
 
 	if ( appearance.charAccessories.Baseball_Hat ) {
 
@@ -144,7 +153,7 @@ export function normalizePlayerAppearance( rawAppearance = {} ) {
 
 		const source = sourceAccessories[ def.key ] || {};
 		normalizedAccessories[ def.key ] = {
-			visible: source.visible !== false,
+			visible: NON_HIDEABLE_ACCESSORY_KEYS.has( def.key ) ? true : source.visible !== false,
 			color: normalizeAppearanceColor( source.color ),
 		};
 
@@ -475,12 +484,12 @@ export function applyCharacterAppearance( characterRoot, appearance ) {
 
 		if ( ! _isMeshNode( child ) ) return;
 
-		const accessoryDef = ACCESSORY_BY_MESH.get( normalizeCharacterMeshName( child.name ) );
-		const accessoryState = accessoryDef ? normalized.charAccessories[ accessoryDef.key ] : null;
+		const meshAccessoryDef = ACCESSORY_BY_MESH.get( normalizeCharacterMeshName( child.name ) );
+		const meshAccessoryState = meshAccessoryDef ? normalized.charAccessories[ meshAccessoryDef.key ] : null;
 		const balaclavaOption = resolveBalaclavaOptionByMeshName( child.name );
-		if ( accessoryState ) {
+		if ( meshAccessoryState ) {
 
-			child.visible = accessoryState.visible !== false;
+			child.visible = meshAccessoryState.visible !== false;
 
 		}
 
@@ -505,17 +514,9 @@ export function applyCharacterAppearance( characterRoot, appearance ) {
 
 			}
 
-			let tintColor = '';
-
-			if ( accessoryState?.color ) {
-
-				tintColor = accessoryState.color;
-
-			} else if ( normalized.characterColor ) {
-
-				tintColor = normalized.characterColor;
-
-			}
+			const materialAccessoryDef = ACCESSORY_BY_MATERIAL.get( normalizeCharacterMeshName( originalMaterial?.name || '' ) );
+			const materialAccessoryState = materialAccessoryDef ? normalized.charAccessories[ materialAccessoryDef.key ] : null;
+			const tintColor = meshAccessoryState?.color || materialAccessoryState?.color || '';
 
 			if ( ! tintColor || ! originalMaterial?.color ) return originalMaterial;
 			return _cloneMaterialWithColor( originalMaterial, tintColor );

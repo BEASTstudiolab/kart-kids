@@ -33,6 +33,7 @@ export class PropsMode extends EditorMode {
 		this._groundPlane = new THREE.Plane( new THREE.Vector3( 0, 1, 0 ), 0 );
 		this._raycaster = new THREE.Raycaster();
 		this._movingProp = null;
+		this._lastHoverWorldPos = null;
 
 		this._conflictMat = new THREE.MeshBasicMaterial( {
 			color: 0xef4444, transparent: true, opacity: 0.3,
@@ -88,13 +89,7 @@ export class PropsMode extends EditorMode {
 
 			const worldPos = this._screenToWorld( event.clientX, event.clientY );
 			if ( ! worldPos ) return;
-			const nearest = this._findNearestProp( worldPos, 3.0 );
-			if ( nearest && nearest.mesh ) {
-
-				nearest.mesh.rotation.y = ( nearest.mesh.rotation.y + Math.PI / 2 ) % ( Math.PI * 2 );
-				this._eventBus.emit( 'prop:rotated', { id: nearest.id } );
-
-			}
+			this._rotateNearestPropAt( worldPos );
 
 		} else if ( tool === 'move-prop' ) {
 
@@ -114,6 +109,17 @@ export class PropsMode extends EditorMode {
 	handlePointerUp() {
 
 		this._movingProp = null;
+
+	}
+
+	handleKeyDown( code ) {
+
+		if ( code !== 'KeyR' ) return false;
+
+		const worldPos = this._getKeyboardTargetWorldPos();
+		if ( ! worldPos ) return false;
+
+		return this._rotateNearestPropAt( worldPos );
 
 	}
 
@@ -138,6 +144,7 @@ export class PropsMode extends EditorMode {
 
 		const worldPos = this._screenToWorld( event.clientX, event.clientY );
 		if ( ! worldPos ) return;
+		this._lastHoverWorldPos = worldPos.clone();
 
 		const activeElev = this._state.activeElevation;
 		const planeY = ( activeElev - ELEV_GROUND ) * Y_PER_STEP;
@@ -211,6 +218,7 @@ export class PropsMode extends EditorMode {
 			id: p.id,
 			type: p.type,
 			pos: [ p.pos.x, p.pos.y, p.pos.z ],
+			rotY: p.mesh?.rotation?.y ?? 0,
 		} ) );
 
 	}
@@ -239,6 +247,7 @@ export class PropsMode extends EditorMode {
 			const clone = model.clone( true );
 			const pos = new THREE.Vector3( data.pos[ 0 ], data.pos[ 1 ], data.pos[ 2 ] );
 			clone.position.copy( pos );
+			clone.rotation.y = Number.isFinite( data.rotY ) ? data.rotY : 0;
 
 			clone.traverse( c => {
 
@@ -358,6 +367,29 @@ export class PropsMode extends EditorMode {
 		}
 
 		return nearest;
+
+	}
+
+	_rotateNearestPropAt( worldPos ) {
+
+		const nearest = this._findNearestProp( worldPos, 3.0 );
+		if ( ! nearest?.mesh ) return false;
+
+		nearest.mesh.rotation.y = ( nearest.mesh.rotation.y + Math.PI / 2 ) % ( Math.PI * 2 );
+		this._eventBus.emit( 'prop:rotated', { id: nearest.id } );
+		return true;
+
+	}
+
+	_getKeyboardTargetWorldPos() {
+
+		if ( this._lastHoverWorldPos ) return this._lastHoverWorldPos.clone();
+		const hovered = this._state.hoveredCell;
+		if ( ! hovered ) return null;
+
+		const activeElev = this._state.activeElevation;
+		const planeY = ( activeElev - ELEV_GROUND ) * Y_PER_STEP;
+		return new THREE.Vector3( hovered.worldX, planeY, hovered.worldZ );
 
 	}
 

@@ -34,8 +34,14 @@ export const BALACLAVA_OPTIONS = Object.freeze( [
 
 export const CHARACTER_ACCESSORY_DEFS = Object.freeze( [
 	Object.freeze( { key: 'Baseball_Hat', label: 'Baseball Hat', meshes: Object.freeze( [ 'Baseball Hat' ] ) } ),
-	Object.freeze( { key: 'Gold_Chain', label: 'Gold Chain', meshes: Object.freeze( [ 'Balaclava Gold Chain', 'Gold Chain' ] ) } ),
+	Object.freeze( { key: 'Gold_Chain', label: 'Gold Chain', meshes: Object.freeze( [ 'Gold Chain' ] ) } ),
 	Object.freeze( { key: 'Jeans', label: 'Jeans', meshes: Object.freeze( [ 'Jeans' ] ) } ),
+	Object.freeze( {
+		key: 'Boots',
+		label: 'Boots',
+		meshes: Object.freeze( [] ),
+		materials: Object.freeze( [ 'Boots' ] ),
+	} ),
 	Object.freeze( { key: 'Tshirt', label: 'T-Shirt', meshes: Object.freeze( [ 'Tshirt' ] ) } ),
 ] );
 

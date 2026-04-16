@@ -4,7 +4,10 @@
 
 import * as THREE from 'three';
 import { TrackTile } from './TrackTile.js';
+import { TerrainTile } from './TerrainTile.js';
+import { normalizeTrackAppearance } from '../../TrackAppearance.js';
 import { getFinishRoadCells } from '../../TrackOrientation.js';
+import { DEFAULT_TRACK_THEME_ID, normalizeTrackThemeId } from '../../TrackThemeRegistry.js';
 import {
 	ELEV_STEP,
 	ELEV_GROUND,
@@ -28,12 +31,19 @@ export class TrackProject {
 		this.trackGroup = new THREE.Group();
 		this.trackGroup.name = 'track-editor-group';
 
+		/** @type {Map<string, TerrainTile>} "gx,gz" -> TerrainTile */
+		this._terrainGrid = new Map();
+
+		/** Three.js group containing all terrain meshes. */
+		this.terrainGroup = new THREE.Group();
+		this.terrainGroup.name = 'track-editor-terrain-group';
+
 		/** Project metadata. */
 		this.meta = {
 			id: crypto.randomUUID(),
 			name: 'Untitled Track',
 			description: '',
-			themeId: 'city-night',
+			themeId: DEFAULT_TRACK_THEME_ID,
 			timeOfDay: 'night',
 			raceType: 'circuit',
 			laps: 3,
@@ -42,6 +52,7 @@ export class TrackProject {
 			gridHeight: 255,
 			validationState: null,
 			shareId: null,
+			appearance: normalizeTrackAppearance(),
 			createdAt: new Date().toISOString(),
 			updatedAt: new Date().toISOString(),
 			version: 1,
@@ -135,6 +146,40 @@ export class TrackProject {
 
 	}
 
+	getTerrainTile( gx, gz ) {
+
+		return this._terrainGrid.get( this.cellKey( gx, gz ) ) ?? null;
+
+	}
+
+	setTerrainTile( gx, gz, tile ) {
+
+		this._terrainGrid.set( this.cellKey( gx, gz ), tile );
+
+	}
+
+	deleteTerrainTile( gx, gz ) {
+
+		const key = this.cellKey( gx, gz );
+		const tile = this._terrainGrid.get( key );
+
+		if ( tile?.mesh ) {
+
+			this.terrainGroup.remove( tile.mesh );
+			tile.mesh = null;
+
+		}
+
+		this._terrainGrid.delete( key );
+
+	}
+
+	getTerrainGrid() {
+
+		return this._terrainGrid;
+
+	}
+
 	/** Clear all tiles and remove all meshes from the scene. */
 	clear() {
 
@@ -146,6 +191,16 @@ export class TrackProject {
 		}
 
 		this._grid.clear();
+
+		for ( const tile of this._terrainGrid.values() ) {
+
+			if ( tile.mesh ) this.terrainGroup.remove( tile.mesh );
+
+		}
+
+		this._terrainGrid.clear();
+		this._pendingMarkers = [];
+		this._pendingProps = [];
 
 	}
 
@@ -159,6 +214,7 @@ export class TrackProject {
 	toV4JSON() {
 
 		const trackTiles = [];
+		const terrainTiles = [];
 
 		for ( const [ key, tile ] of this._grid ) {
 
@@ -196,10 +252,28 @@ export class TrackProject {
 
 		}
 
+		for ( const [ key, tile ] of this._terrainGrid ) {
+
+			const [ gx, gz ] = key.split( ',' ).map( Number );
+			const entry = { gx, gz, type: tile.type };
+
+			if ( tile.elevation !== ELEV_GROUND ) entry.e = tile.elevation;
+			if ( tile.orient !== 0 ) entry.o = tile.orient;
+
+			terrainTiles.push( entry );
+
+		}
+
 		return {
 			v: 4,
-			meta: { ...this.meta, updatedAt: new Date().toISOString() },
+			meta: {
+				...this.meta,
+				appearance: normalizeTrackAppearance( this.meta.appearance ),
+				themeId: normalizeTrackThemeId( this.meta.themeId ),
+				updatedAt: new Date().toISOString(),
+			},
 			trackTiles,
+			terrainTiles,
 			decorTiles: [],
 			props: this._pendingProps || [],
 			markers: this._pendingMarkers || [],
@@ -220,6 +294,8 @@ export class TrackProject {
 		if ( json.meta ) {
 
 			Object.assign( this.meta, json.meta );
+			this.meta.themeId = normalizeTrackThemeId( this.meta.themeId );
+			this.meta.appearance = normalizeTrackAppearance( this.meta.appearance );
 
 		}
 
@@ -260,6 +336,17 @@ export class TrackProject {
 		// along the road but only the center is saved as trk-finish.
 		// Add invisible straights at the two road-direction neighbors.
 		this._restoreFinishRoadCells();
+
+		for ( const entry of ( json.terrainTiles || [] ) ) {
+
+			const tile = new TerrainTile(
+				entry.type,
+				entry.o ?? 0,
+				entry.e ?? ELEV_GROUND
+			);
+			this.setTerrainTile( entry.gx, entry.gz, tile );
+
+		}
 
 	}
 

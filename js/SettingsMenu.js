@@ -1,11 +1,17 @@
 export class SettingsMenu {
 
-	constructor( settings, controls, audio ) {
+	constructor( settings, controls, audio, options = {} ) {
 
 		this.settings = settings;
 		this.controls = controls;
 		this.audio = audio;
 		this._open = false;
+		this._mountParent = options.mountParent || document.body;
+		this._styleEl = null;
+		this._hamburger = null;
+		this._overlay = null;
+		this._panel = null;
+		this._closeBtn = null;
 
 		this._injectCSS();
 		this._createHamburger();
@@ -26,6 +32,9 @@ export class SettingsMenu {
 				cursor: pointer; display: flex; flex-direction: column;
 				align-items: center; justify-content: center; gap: 5px;
 				-webkit-tap-highlight-color: transparent; touch-action: manipulation;
+			}
+			.settings-hamburger--docked {
+				position: relative; top: auto; right: auto; z-index: 1;
 			}
 			.settings-hamburger span {
 				display: block; width: 22px; height: 2px;
@@ -124,6 +133,7 @@ export class SettingsMenu {
 			}
 		`;
 		document.head.appendChild( css );
+		this._styleEl = css;
 
 	}
 
@@ -133,6 +143,7 @@ export class SettingsMenu {
 
 		const btn = document.createElement( 'div' );
 		btn.className = 'settings-hamburger';
+		if ( this._mountParent !== document.body ) btn.classList.add( 'settings-hamburger--docked' );
 		btn.setAttribute( 'role', 'button' );
 		btn.setAttribute( 'aria-label', 'Open settings' );
 		btn.setAttribute( 'aria-expanded', 'false' );
@@ -154,7 +165,7 @@ export class SettingsMenu {
 			}
 
 		} );
-		document.body.appendChild( btn );
+		this._mountParent.appendChild( btn );
 		this._hamburger = btn;
 
 	}
@@ -525,6 +536,7 @@ export class SettingsMenu {
 
 	open() {
 
+		if ( ! this._overlay || ! this._hamburger ) return;
 		this._open = true;
 		this._overlay.classList.add( 'open' );
 		this._hamburger.setAttribute( 'aria-expanded', 'true' );
@@ -533,9 +545,24 @@ export class SettingsMenu {
 
 	close() {
 
+		if ( ! this._overlay || ! this._hamburger ) return;
 		this._open = false;
 		this._overlay.classList.remove( 'open' );
 		this._hamburger.setAttribute( 'aria-expanded', 'false' );
+
+	}
+
+	dispose() {
+
+		this.close();
+		this._hamburger?.remove();
+		this._overlay?.remove();
+		this._styleEl?.remove();
+		this._hamburger = null;
+		this._overlay = null;
+		this._panel = null;
+		this._closeBtn = null;
+		this._styleEl = null;
 
 	}
 

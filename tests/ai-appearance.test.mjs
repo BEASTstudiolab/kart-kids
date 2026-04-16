@@ -5,9 +5,10 @@ import { ACCESSORY_DEFS, createDefaultAIAppearance } from '../js/PlayerAppearanc
 
 test( 'createDefaultAIAppearance hides the baseball hat but keeps other defaults intact', () => {
 
-	const appearance = createDefaultAIAppearance( 'BALACLAVA-WOLF' );
+	const appearance = createDefaultAIAppearance( 'BALACLAVA-WOLF', '#FF8800' );
 
 	assert.equal( appearance.selectedBalaclavaId, 'balaclava-wolf' );
+	assert.equal( appearance.maskTintMainColor, '#ff8800' );
 	assert.deepEqual( appearance.charAccessories.Baseball_Hat, {
 		visible: false,
 		color: '',
