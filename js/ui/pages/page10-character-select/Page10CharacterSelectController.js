@@ -17,7 +17,7 @@ const CAMERA_DEBUG_DEFAULTS = Object.freeze( {
 } );
 const THUMBNAIL_CATEGORY_IDS = new Set( [ 'masks', 'accessories', 'shirts', 'pants' ] );
 
-const CATEGORY_DEFS = Object.freeze( [
+export const CATEGORY_DEFS = Object.freeze( [
 	Object.freeze( {
 		id: 'palette',
 		label: 'Palette',
@@ -236,6 +236,18 @@ export class Page10CharacterSelectController extends PageControllerBase {
 
 		this._openCategoryId = categoryId;
 		this._syncView();
+
+	}
+
+	openCategory( categoryId ) {
+
+		this._handleCategoryOpen( categoryId );
+
+	}
+
+	getOpenCategoryId() {
+
+		return this._openCategoryId;
 
 	}
 

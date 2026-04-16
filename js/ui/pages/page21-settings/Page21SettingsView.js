@@ -141,14 +141,8 @@ export class Page21SettingsView extends PageViewBase {
 		this._resetBtn = null;
 		this._applyBtn = null;
 		this._debugBtn = null;
-		this._summaryCardRightEl = null;
-		this._summaryEyebrowEl = null;
-		this._summaryTitleEl = null;
-		this._summaryCopyEl = null;
 		this._workspaceCardRightEl = null;
-		this._statusCardRightEl = null;
 		this._statusValueEl = null;
-		this._statusCopyEl = null;
 		this._activeTabId = SETTINGS_SECTIONS[ 0 ].id;
 		this._suspendDirtyTracking = false;
 
@@ -185,7 +179,7 @@ export class Page21SettingsView extends PageViewBase {
 
 			.page-settings__shell {
 				display: grid;
-				grid-template-rows: auto auto minmax(0, 1fr);
+				grid-template-rows: auto minmax(0, 1fr) auto;
 				gap: 20px;
 				min-height: 100%;
 				width: min(1380px, 100%);
@@ -243,10 +237,18 @@ export class Page21SettingsView extends PageViewBase {
 				font-size: 0.95rem;
 			}
 
+			.page-settings .kk-mv-header__badge:has(.page-settings__back) {
+				padding: 0;
+				border: none;
+				background: transparent;
+				font-size: inherit;
+			}
+
 			.page-settings__top {
-				display: grid;
-				grid-template-columns: minmax(0, 1.35fr) minmax(320px, 380px);
-				align-items: start;
+				display: flex;
+				flex-direction: column;
+				justify-content: flex-start;
+				align-items: flex-end;
 				gap: 16px;
 			}
 
@@ -573,7 +575,6 @@ export class Page21SettingsView extends PageViewBase {
 					grid-template-rows: auto auto auto;
 				}
 
-				.page-settings__top,
 				.page-settings__panel-grid {
 					grid-template-columns: 1fr;
 				}
@@ -615,9 +616,10 @@ export class Page21SettingsView extends PageViewBase {
 		shell.className = 'page-settings__shell';
 		root.appendChild( shell );
 
+		let back = null;
 		if ( ! this._config.modalMode ) {
 
-			const back = document.createElement( 'button' );
+			back = document.createElement( 'button' );
 			back.type = 'button';
 			back.className = 'page-settings__back';
 			back.textContent = 'Back';
@@ -626,7 +628,6 @@ export class Page21SettingsView extends PageViewBase {
 				root.dispatchEvent( new CustomEvent( 'kk:pageheader:back', { bubbles: true } ) );
 
 			} );
-			shell.appendChild( back );
 
 		}
 
@@ -638,44 +639,18 @@ export class Page21SettingsView extends PageViewBase {
 		shell.appendChild( header.el );
 		this._pageHeader = header.el;
 
-		const top = document.createElement( 'div' );
-		top.className = 'page-settings__top';
-		top.appendChild( this._buildSummaryCard() );
-		top.appendChild( this._buildStatusCard() );
-		shell.appendChild( top );
+		const badgeEl = header.el.querySelector( '.kk-mv-header__badge' );
+		if ( badgeEl && back ) badgeEl.replaceChildren( back );
 
 		shell.appendChild( this._buildWorkspaceCard() );
 
+		const top = document.createElement( 'div' );
+		top.className = 'page-settings__top';
+		top.appendChild( this._buildStatusCard() );
+		shell.appendChild( top );
+
 		this.setActiveSection( this._activeTabId );
 		this.markClean( 'Live' );
-
-	}
-
-	_buildSummaryCard() {
-
-		const card = new MarginalPanelCard( {
-			headerLeft: 'Section Focus',
-			headerRight: SECTION_META[ this._activeTabId ]?.label || 'Race',
-		} );
-		card.el.classList.add( 'page-settings__card-shell' );
-		this._summaryCardRightEl = card.headerRightEl;
-
-		const eyebrow = document.createElement( 'div' );
-		eyebrow.className = 'page-settings__summary-eyebrow';
-		card.bodyEl.appendChild( eyebrow );
-		this._summaryEyebrowEl = eyebrow;
-
-		const title = document.createElement( 'div' );
-		title.className = 'page-settings__summary-title';
-		card.bodyEl.appendChild( title );
-		this._summaryTitleEl = title;
-
-		const copy = document.createElement( 'p' );
-		copy.className = 'page-settings__summary-copy';
-		card.bodyEl.appendChild( copy );
-		this._summaryCopyEl = copy;
-
-		return card.el;
 
 	}
 
@@ -684,11 +659,9 @@ export class Page21SettingsView extends PageViewBase {
 		const card = new MarginalPanelCard( {
 			variant: 'red',
 			headerLeft: 'Session State',
-			headerRight: 'Live',
-			sticker: this._config.modalMode ? 'Menu: Ready' : 'Fullscreen Route',
+			headerRight: '',
 		} );
 		card.el.classList.add( 'page-settings__card-shell' );
-		this._statusCardRightEl = card.headerRightEl;
 
 		const label = document.createElement( 'div' );
 		label.className = 'page-settings__status-label';
@@ -699,11 +672,6 @@ export class Page21SettingsView extends PageViewBase {
 		value.className = 'page-settings__status-value';
 		card.bodyEl.appendChild( value );
 		this._statusValueEl = value;
-
-		const copy = document.createElement( 'p' );
-		copy.className = 'page-settings__status-copy';
-		card.bodyEl.appendChild( copy );
-		this._statusCopyEl = copy;
 
 		const actions = document.createElement( 'div' );
 		actions.className = 'page-settings__status-actions';
@@ -1156,25 +1124,19 @@ export class Page21SettingsView extends PageViewBase {
 		const meta = SECTION_META[ tabId ] || SECTION_META[ this._activeTabId ] || SETTINGS_SECTIONS[ 0 ];
 		this._activeTabId = meta.id;
 
-		if ( this._summaryCardRightEl ) this._summaryCardRightEl.textContent = meta.label;
 		if ( this._workspaceCardRightEl ) this._workspaceCardRightEl.textContent = meta.label;
-		if ( this._summaryEyebrowEl ) this._summaryEyebrowEl.textContent = meta.summaryLabel;
-		if ( this._summaryTitleEl ) this._summaryTitleEl.textContent = meta.title;
-		if ( this._summaryCopyEl ) this._summaryCopyEl.textContent = meta.copy;
 
 	}
 
-	setStatus( status, copy = '' ) {
+	setStatus( status ) {
 
-		if ( this._statusCardRightEl ) this._statusCardRightEl.textContent = status;
 		if ( this._statusValueEl ) this._statusValueEl.textContent = status;
-		if ( this._statusCopyEl ) this._statusCopyEl.textContent = copy;
 
 	}
 
 	markDirty() {
 
-		this.setStatus( 'Unsaved', 'Apply changes to make this setup live.' );
+		this.setStatus( 'Unsaved' );
 
 	}
 
@@ -1182,19 +1144,19 @@ export class Page21SettingsView extends PageViewBase {
 
 		if ( status === 'Saved' ) {
 
-			this.setStatus( 'Saved', 'Changes stored and active.' );
+			this.setStatus( 'Saved' );
 			return;
 
 		}
 
 		if ( status === 'Defaults' ) {
 
-			this.setStatus( 'Defaults', 'Factory defaults restored.' );
+			this.setStatus( 'Defaults' );
 			return;
 
 		}
 
-		this.setStatus( 'Live', 'System controls are synced.' );
+		this.setStatus( 'Live' );
 
 	}
 

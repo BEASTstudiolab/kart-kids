@@ -27086,3 +27086,290 @@ tests/e2e/play-modes.spec.js
 tests/e2e/profile-settings.spec.js
 ---
 
+## Session End: 20260416_173816
+### Commits
+8c8c627 Merge remote-tracking branch 'origin/master' into codex/menu-origin-merge-prep
+5409bf0 feat: refresh menu shell surfaces
+### Uncommitted Changes
+js/ui/pages/page10-character-select/Page10CharacterSelectController.js
+js/ui/panels/CharacterPanel.js
+js/ui/panels/GaragePanel.js
+js/ui/panels/TracksPanel.js
+tests/tracks-panel-layout.test.mjs
+---
+
+## Session End: 20260416_173832
+### Commits
+8c8c627 Merge remote-tracking branch 'origin/master' into codex/menu-origin-merge-prep
+5409bf0 feat: refresh menu shell surfaces
+### Uncommitted Changes
+js/ui/pages/page10-character-select/Page10CharacterSelectController.js
+js/ui/panels/CharacterPanel.js
+js/ui/panels/GaragePanel.js
+js/ui/panels/TracksPanel.js
+production/session-logs/session-log.md
+tests/tracks-panel-layout.test.mjs
+---
+
+## Session End: 20260416_174319
+### Commits
+8c8c627 Merge remote-tracking branch 'origin/master' into codex/menu-origin-merge-prep
+5409bf0 feat: refresh menu shell surfaces
+### Uncommitted Changes
+js/ui/pages/page10-character-select/Page10CharacterSelectController.js
+js/ui/pages/page21-settings/Page21SettingsView.js
+js/ui/panels/CharacterPanel.js
+js/ui/panels/GaragePanel.js
+js/ui/panels/TracksPanel.js
+production/session-logs/session-log.md
+tests/tracks-panel-layout.test.mjs
+---
+
+## Session End: 20260416_175144
+### Commits
+8c8c627 Merge remote-tracking branch 'origin/master' into codex/menu-origin-merge-prep
+5409bf0 feat: refresh menu shell surfaces
+### Uncommitted Changes
+js/ui/pages/page10-character-select/Page10CharacterSelectController.js
+js/ui/pages/page21-settings/Page21SettingsView.js
+js/ui/panels/CharacterPanel.js
+js/ui/panels/GaragePanel.js
+js/ui/panels/TracksPanel.js
+production/session-logs/session-log.md
+tests/tracks-panel-layout.test.mjs
+---
+
+## Session End: 20260416_175206
+### Commits
+8c8c627 Merge remote-tracking branch 'origin/master' into codex/menu-origin-merge-prep
+5409bf0 feat: refresh menu shell surfaces
+### Uncommitted Changes
+js/ui/components/MarginalMusicCard.js
+js/ui/pages/page10-character-select/Page10CharacterSelectController.js
+js/ui/pages/page21-settings/Page21SettingsView.js
+js/ui/panels/CharacterPanel.js
+js/ui/panels/GaragePanel.js
+js/ui/panels/TracksPanel.js
+production/session-logs/session-log.md
+tests/tracks-panel-layout.test.mjs
+---
+
+## Session End: 20260416_175529
+### Commits
+8c8c627 Merge remote-tracking branch 'origin/master' into codex/menu-origin-merge-prep
+5409bf0 feat: refresh menu shell surfaces
+### Uncommitted Changes
+js/ui/components/MarginalMusicCard.js
+js/ui/pages/page10-character-select/Page10CharacterSelectController.js
+js/ui/pages/page21-settings/Page21SettingsView.js
+js/ui/panels/CharacterPanel.js
+js/ui/panels/GaragePanel.js
+js/ui/panels/TracksPanel.js
+production/session-logs/session-log.md
+tests/e2e/profile-settings.spec.js
+tests/tracks-panel-layout.test.mjs
+---
+
+## Session End: 20260416_180209
+### Commits
+8c8c627 Merge remote-tracking branch 'origin/master' into codex/menu-origin-merge-prep
+5409bf0 feat: refresh menu shell surfaces
+### Uncommitted Changes
+js/ui/components/MarginalMusicCard.js
+js/ui/pages/page10-character-select/Page10CharacterSelectController.js
+js/ui/pages/page10-character-select/Page10CharacterSelectView.js
+js/ui/pages/page21-settings/Page21SettingsView.js
+js/ui/panels/CharacterPanel.js
+js/ui/panels/GaragePanel.js
+js/ui/panels/TracksPanel.js
+production/session-logs/session-log.md
+tests/e2e/profile-settings.spec.js
+tests/tracks-panel-layout.test.mjs
+---
+
+## Session End: 20260416_183031
+### Commits
+8c8c627 Merge remote-tracking branch 'origin/master' into codex/menu-origin-merge-prep
+5409bf0 feat: refresh menu shell surfaces
+### Uncommitted Changes
+js/ui/audio/MenuMusicPlayer.js
+js/ui/components/MarginalMusicCard.js
+js/ui/pages/page10-character-select/Page10CharacterSelectController.js
+js/ui/pages/page10-character-select/Page10CharacterSelectView.js
+js/ui/pages/page21-settings/Page21SettingsView.js
+js/ui/panels/CharacterPanel.js
+js/ui/panels/GaragePanel.js
+js/ui/panels/TracksPanel.js
+production/session-logs/session-log.md
+tests/app-shell-menu-music-widget.test.mjs
+tests/e2e/profile-settings.spec.js
+tests/menu-music-player.test.mjs
+tests/tracks-panel-layout.test.mjs
+---
+
+## Session End: 20260416_183346
+### Commits
+8c8c627 Merge remote-tracking branch 'origin/master' into codex/menu-origin-merge-prep
+5409bf0 feat: refresh menu shell surfaces
+### Uncommitted Changes
+js/ui/audio/MenuMusicPlayer.js
+js/ui/components/MarginalMusicCard.js
+js/ui/pages/page10-character-select/Page10CharacterSelectController.js
+js/ui/pages/page10-character-select/Page10CharacterSelectView.js
+js/ui/pages/page21-settings/Page21SettingsView.js
+js/ui/panels/CharacterPanel.js
+js/ui/panels/GaragePanel.js
+js/ui/panels/TracksPanel.js
+production/session-logs/session-log.md
+tests/app-shell-menu-music-widget.test.mjs
+tests/e2e/profile-settings.spec.js
+tests/menu-music-player.test.mjs
+tests/tracks-panel-layout.test.mjs
+---
+
+## Session End: 20260416_184409
+### Commits
+8c8c627 Merge remote-tracking branch 'origin/master' into codex/menu-origin-merge-prep
+5409bf0 feat: refresh menu shell surfaces
+### Uncommitted Changes
+js/ui/audio/MenuMusicPlayer.js
+js/ui/components/MarginalMusicCard.js
+js/ui/pages/page10-character-select/Page10CharacterSelectController.js
+js/ui/pages/page10-character-select/Page10CharacterSelectView.js
+js/ui/pages/page21-settings/Page21SettingsView.js
+js/ui/panels/CharacterPanel.js
+js/ui/panels/GaragePanel.js
+js/ui/panels/TracksPanel.js
+production/session-logs/session-log.md
+tests/app-shell-menu-music-widget.test.mjs
+tests/e2e/profile-settings.spec.js
+tests/menu-music-player.test.mjs
+tests/tracks-panel-layout.test.mjs
+---
+
+## Session End: 20260416_184653
+### Commits
+8c8c627 Merge remote-tracking branch 'origin/master' into codex/menu-origin-merge-prep
+5409bf0 feat: refresh menu shell surfaces
+### Uncommitted Changes
+js/ui/audio/MenuMusicPlayer.js
+js/ui/components/MarginalMusicCard.js
+js/ui/pages/page10-character-select/Page10CharacterSelectController.js
+js/ui/pages/page10-character-select/Page10CharacterSelectView.js
+js/ui/pages/page21-settings/Page21SettingsView.js
+js/ui/panels/CharacterPanel.js
+js/ui/panels/GaragePanel.js
+js/ui/panels/TracksPanel.js
+js/ui/ui-theme.css
+production/session-logs/session-log.md
+tests/app-shell-menu-music-widget.test.mjs
+tests/e2e/profile-settings.spec.js
+tests/menu-music-player.test.mjs
+tests/tracks-panel-layout.test.mjs
+---
+
+## Session End: 20260416_185109
+### Commits
+8c8c627 Merge remote-tracking branch 'origin/master' into codex/menu-origin-merge-prep
+5409bf0 feat: refresh menu shell surfaces
+### Uncommitted Changes
+js/ui/audio/MenuMusicPlayer.js
+js/ui/components/MarginalMusicCard.js
+js/ui/pages/page10-character-select/Page10CharacterSelectController.js
+js/ui/pages/page10-character-select/Page10CharacterSelectView.js
+js/ui/pages/page21-settings/Page21SettingsView.js
+js/ui/panels/CharacterPanel.js
+js/ui/panels/GaragePanel.js
+js/ui/panels/TracksPanel.js
+js/ui/ui-theme.css
+production/session-logs/session-log.md
+tests/app-shell-menu-music-widget.test.mjs
+tests/e2e/profile-settings.spec.js
+tests/menu-music-player.test.mjs
+tests/tracks-panel-layout.test.mjs
+---
+
+## Session End: 20260416_185536
+### Commits
+8c8c627 Merge remote-tracking branch 'origin/master' into codex/menu-origin-merge-prep
+5409bf0 feat: refresh menu shell surfaces
+### Uncommitted Changes
+js/ui/audio/MenuMusicPlayer.js
+js/ui/components/MarginalMusicCard.js
+js/ui/pages/page10-character-select/Page10CharacterSelectController.js
+js/ui/pages/page10-character-select/Page10CharacterSelectView.js
+js/ui/pages/page21-settings/Page21SettingsView.js
+js/ui/panels/CharacterPanel.js
+js/ui/panels/GaragePanel.js
+js/ui/panels/TracksPanel.js
+js/ui/ui-theme.css
+production/session-logs/session-log.md
+tests/app-shell-menu-music-widget.test.mjs
+tests/e2e/profile-settings.spec.js
+tests/menu-music-player.test.mjs
+tests/tracks-panel-layout.test.mjs
+---
+
+## Session End: 20260416_190515
+### Commits
+8c8c627 Merge remote-tracking branch 'origin/master' into codex/menu-origin-merge-prep
+5409bf0 feat: refresh menu shell surfaces
+### Uncommitted Changes
+js/ui/audio/MenuMusicPlayer.js
+js/ui/character/BalaclavaThumbnailRenderer.js
+js/ui/components/MarginalMusicCard.js
+js/ui/pages/page10-character-select/Page10CharacterSelectController.js
+js/ui/pages/page10-character-select/Page10CharacterSelectView.js
+js/ui/pages/page21-settings/Page21SettingsView.js
+js/ui/panels/CharacterPanel.js
+js/ui/panels/GaragePanel.js
+js/ui/panels/TracksPanel.js
+js/ui/ui-theme.css
+production/session-logs/session-log.md
+tests/app-shell-menu-music-widget.test.mjs
+tests/e2e/profile-settings.spec.js
+tests/menu-music-player.test.mjs
+tests/tracks-panel-layout.test.mjs
+---
+
+## Session End: 20260416_191546
+### Commits
+8c8c627 Merge remote-tracking branch 'origin/master' into codex/menu-origin-merge-prep
+5409bf0 feat: refresh menu shell surfaces
+### Uncommitted Changes
+js/ui/audio/MenuMusicPlayer.js
+js/ui/character/BalaclavaThumbnailRenderer.js
+js/ui/components/MarginalMusicCard.js
+js/ui/pages/page10-character-select/Page10CharacterSelectController.js
+js/ui/pages/page10-character-select/Page10CharacterSelectView.js
+js/ui/pages/page21-settings/Page21SettingsView.js
+js/ui/panels/CharacterPanel.js
+js/ui/panels/GaragePanel.js
+js/ui/panels/TracksPanel.js
+js/ui/ui-theme.css
+production/session-logs/session-log.md
+tests/app-shell-menu-music-widget.test.mjs
+tests/e2e/profile-settings.spec.js
+tests/menu-music-player.test.mjs
+tests/tracks-panel-layout.test.mjs
+---
+
+## Session End: 20260416_194214
+### Commits
+3fc6165 feat: add menu music visualizer
+8c8c627 Merge remote-tracking branch 'origin/master' into codex/menu-origin-merge-prep
+5409bf0 feat: refresh menu shell surfaces
+### Uncommitted Changes
+js/ui/character/BalaclavaThumbnailRenderer.js
+js/ui/pages/page10-character-select/Page10CharacterSelectController.js
+js/ui/pages/page10-character-select/Page10CharacterSelectView.js
+js/ui/pages/page21-settings/Page21SettingsView.js
+js/ui/panels/CharacterPanel.js
+js/ui/panels/GaragePanel.js
+js/ui/panels/TracksPanel.js
+js/ui/ui-theme.css
+production/session-logs/session-log.md
+tests/e2e/profile-settings.spec.js
+tests/tracks-panel-layout.test.mjs
+---
+

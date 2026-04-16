@@ -1,23 +1,5 @@
-import { Settings } from '../../Settings.js';
-import { getBalaclavaOptionById } from '../../CharacterCustomization.js';
-import { MarginalPanelCard } from '../components/MarginalPanelCard.js';
 import { MarginalPanelHeader } from '../components/MarginalPanelHeader.js';
-import { Page10CharacterSelectController } from '../pages/page10-character-select/Page10CharacterSelectController.js';
-
-const APPEARANCE_EVENT_KEYS = new Set( [
-	'characterColor',
-	'charSkinColor',
-	'maskTintMainColor',
-	'selectedBalaclavaId',
-	'charAccessories',
-] );
-
-const ACCESSORY_LABELS = Object.freeze( {
-	Baseball_Hat: 'Hat',
-	Gold_Chain: 'Chain',
-	Tshirt: 'Shirt',
-	Jeans: 'Pants',
-} );
+import { Page10CharacterSelectController, CATEGORY_DEFS } from '../pages/page10-character-select/Page10CharacterSelectController.js';
 
 export class CharacterPanel {
 
@@ -32,22 +14,14 @@ export class CharacterPanel {
 		this._controller = null;
 		this._initPromise = null;
 		this._isVisible = false;
-		this._pendingInspectorFrame = 0;
-		this._activeCategoryValueEl = null;
-		this._activeCategoryCopyEl = null;
-		this._selectedMaskValueEl = null;
-		this._paletteStateEl = null;
-		this._accentStateEl = null;
-		this._gearStateEl = null;
+		this._tabStripEl = null;
+		this._tabButtons = new Map();
+		this._currentCategoryId = 'palette';
 
-		this._stageStateHandler = () => this._scheduleInspectorRefresh();
-		this._settingsChangedHandler = ( event ) => {
+		this._categoryEventHandler = ( event ) => {
 
-			if ( APPEARANCE_EVENT_KEYS.has( event?.detail?.key ) ) {
-
-				this._scheduleInspectorRefresh();
-
-			}
+			const id = event?.detail?.categoryId;
+			if ( id ) this._setActiveTab( id );
 
 		};
 
@@ -78,8 +52,6 @@ export class CharacterPanel {
 				font-family: var(--mv-font-mono);
 				text-transform: uppercase;
 				background: unset;
-				background-color: unset;
-				background-image: none;
 			}
 
 			.kk-character-panel,
@@ -87,55 +59,66 @@ export class CharacterPanel {
 				cursor: crosshair;
 			}
 
-			.kk-character-panel__scanlines,
-			.kk-character-panel__vignette {
-				display: none;
-				position: absolute;
-				inset: 0;
-				pointer-events: none;
-			}
-
-			.kk-character-panel__scanlines {
-				z-index: 1;
-				opacity: 0.24;
-				background:
-					linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.08) 50%),
-					linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.008), rgba(0, 0, 255, 0.03));
-				background-size: 100% 3px, 3px 100%;
-			}
-
-			.kk-character-panel__vignette {
-				z-index: 2;
-				box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.62);
-			}
-
 			.kk-character-panel__interface {
 				position: relative;
 				z-index: 3;
 				display: grid;
-				grid-template-columns: minmax(0, 1fr) minmax(280px, var(--kk-customizer-deck-width, 20rem));
-				grid-template-rows: auto minmax(0, 1fr);
+				grid-template-columns: minmax(0, 1fr);
+				grid-template-rows: auto auto minmax(0, 1fr);
 				width: 100%;
 				height: 100%;
 				padding: 24px 24px calc(24px + var(--kk-shell-nav-clearance, 6.75rem));
-				gap: 20px;
+				gap: 16px;
 			}
 
 			.kk-character-panel__interface > * {
 				pointer-events: auto;
 			}
 
-			.kk-character-panel__header {
-				grid-column: 1 / span 2;
-			}
-
 			.kk-character-panel__header.kk-mv-header {
 				padding-top: 57px;
 			}
 
+			/* ---------- Sub-tab strip (palette | masks | accessories | …) ---------- */
+
+			.kk-character-panel__tabs {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 8px;
+				padding: 4px 0;
+			}
+
+			.kk-character-panel__tab {
+				flex: 0 0 9rem;
+				padding: 0.7rem 0.6rem;
+				border: 1px solid rgba(247, 243, 233, 0.42);
+				background: rgba(15, 17, 21, 0.45);
+				color: var(--mv-cream);
+				font-family: var(--mv-font-mono);
+				font-size: 0.66rem;
+				font-weight: 700;
+				letter-spacing: 0.18em;
+				text-transform: uppercase;
+				cursor: pointer;
+				transition: background 150ms ease, border-color 150ms ease, transform 150ms ease;
+				clip-path: polygon(0 0, 100% 0, 100% 86%, 94% 100%, 0 100%);
+			}
+
+			.kk-character-panel__tab:hover {
+				background: rgba(15, 17, 21, 0.65);
+				border-color: rgba(247, 243, 233, 0.78);
+				transform: translateY(-1px);
+			}
+
+			.kk-character-panel__tab--active {
+				background: var(--mv-cream);
+				color: var(--mv-dark);
+				border-color: var(--mv-cream);
+			}
+
+			/* ---------- Stage (3D preview + cream content panel) ---------- */
+
 			.kk-character-panel__stage {
-				grid-column: 1 / span 2;
-				grid-row: 2;
 				position: relative;
 				min-height: 0;
 				pointer-events: none;
@@ -143,49 +126,6 @@ export class CharacterPanel {
 
 			.kk-character-panel__stage > * {
 				pointer-events: auto;
-			}
-
-			.kk-character-panel__deck {
-				grid-column: 2;
-				grid-row: 2;
-				align-self: start;
-				display: flex;
-				flex-direction: column;
-				gap: 20px;
-				z-index: 4;
-			}
-
-			.kk-character-panel__deck .kk-mv-card__body {
-				gap: 12px;
-			}
-
-			.kk-character-panel__deck-copy {
-				opacity: 0.9;
-			}
-
-			.kk-character-panel__garage-btn {
-				display: inline-flex;
-				align-items: center;
-				justify-content: center;
-				min-height: 42px;
-				padding: 0.8rem 1rem;
-				border: 1px solid rgba(247, 243, 233, 0.82);
-				background: transparent;
-				color: var(--mv-cream);
-				font-family: var(--mv-font-mono);
-				font-size: 0.64rem;
-				font-weight: 700;
-				letter-spacing: 0.16em;
-				text-transform: uppercase;
-				cursor: pointer;
-				clip-path: polygon(0 0, 100% 0, 100% 88%, 95% 100%, 0 100%);
-				transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
-			}
-
-			.kk-character-panel__garage-btn:hover {
-				background: rgba(247, 243, 233, 0.12);
-				border-color: rgba(247, 243, 233, 1);
-				transform: translateY(-1px);
 			}
 
 			.kk-character-panel__stage .page-character-select {
@@ -207,117 +147,129 @@ export class CharacterPanel {
 				position: absolute;
 				top: 0;
 				left: 0;
-				width: min(var(--kk-customizer-builder-width, 18rem), calc(100vw - 3rem));
-				max-height: min(35rem, calc(100% - 1rem));
-				background: var(--mv-cream);
-				color: var(--mv-dark);
-				border: none;
-				border-radius: 0;
-				clip-path: polygon(0 0, 100% 0, 100% 94%, 94% 100%, 0 100%);
-				box-shadow: 0 28px 46px rgba(0, 0, 0, 0.24);
-				backdrop-filter: none;
-				overflow-y: auto;
-			}
-
-			.kk-character-panel__stage .page-character-select__panel-label,
-			.kk-character-panel__stage .page-character-select__color-meta,
-			.kk-character-panel__stage .page-character-select__item-meta {
-				color: rgba(15, 17, 21, 0.62);
-				font-family: var(--mv-font-mono);
-				letter-spacing: 0.12em;
-			}
-
-			.kk-character-panel__stage .page-character-select__panel-copy,
-			.kk-character-panel__stage .page-character-select__category-panel-copy,
-			.kk-character-panel__stage .page-character-select__detail-copy {
-				color: rgba(15, 17, 21, 0.82);
-				font-family: var(--mv-font-mono);
-			}
-
-			.kk-character-panel__stage .page-character-select__category-tabs {
-				grid-template-columns: repeat(2, minmax(0, 1fr));
-			}
-
-			.kk-character-panel__stage .page-character-select__category-tab {
-				border-radius: 0;
-				border: 1px solid rgba(15, 17, 21, 0.16);
-				background: rgba(15, 17, 21, 0.04);
-				color: var(--mv-dark);
-				font-family: var(--mv-font-mono);
-				letter-spacing: 0.12em;
-			}
-
-			.kk-character-panel__stage .page-character-select__category-tab:hover {
-				background: rgba(15, 17, 21, 0.08);
-				border-color: rgba(15, 17, 21, 0.24);
-				transform: translateY(-1px);
-			}
-
-			.kk-character-panel__stage .page-character-select__category-tab--active {
-				background: var(--mv-dark);
+				width: min(var(--kk-customizer-builder-width, 443px), calc(100vw - 3rem));
+				height: fit-content;
+				max-height: min(38rem, calc(100% - 1rem));
+				background: rgba(15, 17, 21, 0.78);
 				color: var(--mv-cream);
-				border-color: var(--mv-dark);
-				box-shadow: none;
+				border: 1px solid rgba(247, 243, 233, 0.18);
+				border-radius: 0;
+				clip-path: polygon(0 0, 100% 0, 100% 97%, 98% 100%, 0 100%);
+				box-shadow: 0 28px 46px rgba(0, 0, 0, 0.32);
+				backdrop-filter: blur(10px);
+				-webkit-backdrop-filter: blur(10px);
+				overflow-y: auto;
+				padding: 1.1rem 1.25rem 1.4rem;
+				gap: 0.85rem;
 			}
 
-			.kk-character-panel__stage .page-character-select__category-panel-title,
-			.kk-character-panel__stage .page-character-select__color-label,
-			.kk-character-panel__stage .page-character-select__item-name,
-			.kk-character-panel__stage .page-character-select__detail-label {
-				color: var(--mv-dark);
+			/* Hide the page's own header bits — the panel owns header + tabs now. */
+			.kk-character-panel__stage .page-character-select__panel-label,
+			.kk-character-panel__stage .page-character-select__panel-title,
+			.kk-character-panel__stage .page-character-select__panel-copy,
+			.kk-character-panel__stage .page-character-select__category-tabs,
+			.kk-character-panel__stage .page-character-select__category-panel-head,
+			.kk-character-panel__stage .page-character-select__color-reset {
+				display: none !important;
 			}
 
 			.kk-character-panel__stage .page-character-select__category-stack {
+				height: fit-content;
+				flex: 0 1 auto;
 				padding-right: 0;
 			}
 
-			.kk-character-panel__stage .page-character-select__color-row,
-			.kk-character-panel__stage .page-character-select__detail-card {
+			/* Color picker row — no RESET, full-width swatch + label. */
+			.kk-character-panel__stage .page-character-select__color-row {
+				grid-template-columns: minmax(0, 1fr) auto;
 				border-radius: 0;
-				border: 1px solid rgba(15, 17, 21, 0.12);
-				background: rgba(15, 17, 21, 0.03);
+				border: 1px solid rgba(247, 243, 233, 0.18);
+				background: rgba(247, 243, 233, 0.04);
+				padding: 0.7rem 0;
+				color: rgba(247, 243, 233, 1);
 			}
 
-			.kk-character-panel__stage .page-character-select__color-reset {
-				border-radius: 0;
-				border-color: rgba(15, 17, 21, 0.18);
+			.kk-character-panel__stage .page-character-select__color-input {
+				box-sizing: content-box;
+				width: 2.6rem;
+				height: 2.6rem;
+				border: none;
+				border-radius: 999px;
+				cursor: pointer;
+				padding: 0;
 				background: transparent;
-				color: var(--mv-dark);
+			}
+
+			.kk-character-panel__stage .page-character-select__color-input::-webkit-color-swatch-wrapper {
+				padding: 0;
+			}
+
+			.kk-character-panel__stage .page-character-select__color-input::-webkit-color-swatch {
+				border: none;
+				border-radius: 999px;
+			}
+
+			.kk-character-panel__stage .page-character-select__color-label {
 				font-family: var(--mv-font-mono);
+				font-size: 0.78rem;
+				letter-spacing: 0.14em;
+				color: var(--color-cta-secondary-text);
 			}
 
+			.kk-character-panel__stage .page-character-select__color-meta {
+				font-family: var(--mv-font-mono);
+				font-size: 0.6rem;
+				letter-spacing: 0.12em;
+				color: var(--color-cta-secondary-text);
+			}
+
+			/* Item grid — 4 columns (overrides customizer-mode 2-col override) */
+			.kk-character-panel__stage .page-character-select.page-character-select--customizer .page-character-select__option-grid,
 			.kk-character-panel__stage .page-character-select__option-grid {
-				grid-template-columns: repeat(2, minmax(0, 1fr));
-				gap: 0.55rem;
+				grid-template-columns: repeat(3, minmax(0, 1fr));
+				gap: 0.5rem;
 			}
 
+			.kk-character-panel__stage .page-character-select.page-character-select--customizer .page-character-select__item,
 			.kk-character-panel__stage .page-character-select__item {
-				min-height: 5.35rem;
+				min-height: 5.6rem;
 				border-radius: 0;
-				border: 1px solid rgba(15, 17, 21, 0.12);
-				background: rgba(255, 255, 255, 0.58);
-				color: var(--mv-dark);
+				border: 1px solid rgba(247, 243, 233, 0.18);
+				background: transparent;
+				color: var(--mv-cream);
 				box-shadow: none;
 			}
 
 			.kk-character-panel__stage .page-character-select__item:hover {
-				border-color: rgba(15, 17, 21, 0.26);
-				box-shadow: 0 14px 24px rgba(15, 17, 21, 0.08);
+				border-color: rgba(247, 243, 233, 0.42);
+				background: rgba(247, 243, 233, 0.06);
+				box-shadow: 0 14px 24px rgba(0, 0, 0, 0.18);
 			}
 
 			.kk-character-panel__stage .page-character-select__item--active {
-				background: rgba(216, 44, 44, 0.08);
-				border-color: rgba(216, 44, 44, 0.58);
+				background: rgba(216, 44, 44, 0.18);
+				border-color: rgba(216, 44, 44, 0.78);
+			}
+
+			.kk-character-panel__stage .page-character-select__item-name {
+				color: var(--mv-cream);
+			}
+
+			.kk-character-panel__stage .page-character-select__item-meta {
+				color: rgba(247, 243, 233, 0.62);
 			}
 
 			.kk-character-panel__stage .page-character-select__item-thumb,
 			.kk-character-panel__stage .page-character-select__item-thumb-fallback {
 				border-radius: 0;
+				border: none;
+				background: transparent;
 			}
 
-			.kk-character-panel__stage .page-character-select__item-thumb {
-				border: 1px solid rgba(15, 17, 21, 0.08);
-				background: rgba(15, 17, 21, 0.04);
+			.kk-character-panel__stage .page-character-select.page-character-select--customizer .page-character-select__item-thumb,
+			.kk-character-panel__stage .page-character-select.page-character-select--customizer .page-character-select__item-thumb-fallback {
+				border: none;
+				background: transparent;
 			}
 
 			@media (max-width: 980px) {
@@ -326,27 +278,11 @@ export class CharacterPanel {
 				}
 
 				.kk-character-panel__interface {
-					grid-template-columns: 1fr;
 					grid-template-rows: auto auto auto;
 					height: auto;
 					min-height: 100%;
 					padding: 20px 16px calc(20px + var(--kk-shell-nav-clearance, 6.75rem));
-					gap: 16px;
-				}
-
-				.kk-character-panel__header,
-				.kk-character-panel__stage,
-				.kk-character-panel__deck {
-					grid-column: auto;
-					grid-row: auto;
-				}
-
-				.kk-character-panel__stage {
-					min-height: 0;
-				}
-
-				.kk-character-panel__stage .page-character-select__content {
-					height: auto;
+					gap: 14px;
 				}
 
 				.kk-character-panel__stage .page-character-select__panel.page-character-select__sidebar {
@@ -355,13 +291,22 @@ export class CharacterPanel {
 					left: auto;
 					width: 100%;
 					max-height: none;
-					clip-path: polygon(0 0, 100% 0, 100% 96%, 96% 100%, 0 100%);
+				}
+
+				.kk-character-panel__tab {
+					flex: 0 0 7.5rem;
+					font-size: 0.6rem;
+					padding: 0.6rem 0.4rem;
 				}
 			}
 
 			@media (max-width: 720px) {
-				.kk-character-panel__stage .page-character-select__option-grid {
-					grid-template-columns: repeat(2, minmax(0, 1fr));
+				.kk-character-panel__tabs {
+					gap: 6px;
+				}
+
+				.kk-character-panel__tab {
+					flex: 0 0 calc(33.333% - 4px);
 				}
 			}
 		`;
@@ -374,14 +319,6 @@ export class CharacterPanel {
 		this._root = document.createElement( 'div' );
 		this._root.className = 'kk-character-panel';
 
-		const scanlines = document.createElement( 'div' );
-		scanlines.className = 'kk-character-panel__scanlines';
-		this._root.appendChild( scanlines );
-
-		const vignette = document.createElement( 'div' );
-		vignette.className = 'kk-character-panel__vignette';
-		this._root.appendChild( vignette );
-
 		const frame = document.createElement( 'div' );
 		frame.className = 'kk-character-panel__interface';
 		this._root.appendChild( frame );
@@ -393,137 +330,52 @@ export class CharacterPanel {
 			className: 'kk-character-panel__header',
 		} ).el );
 
+		this._tabStripEl = document.createElement( 'nav' );
+		this._tabStripEl.className = 'kk-character-panel__tabs';
+		this._tabStripEl.setAttribute( 'aria-label', 'Character categories' );
+
+		for ( const category of CATEGORY_DEFS ) {
+
+			const btn = document.createElement( 'button' );
+			btn.type = 'button';
+			btn.className = 'kk-character-panel__tab';
+			btn.dataset.categoryId = category.id;
+			btn.textContent = category.label;
+			btn.setAttribute( 'aria-pressed', 'false' );
+			btn.addEventListener( 'click', () => this._onTabClick( category.id ) );
+			this._tabStripEl.appendChild( btn );
+			this._tabButtons.set( category.id, btn );
+
+		}
+
+		this._setActiveTab( this._currentCategoryId );
+		frame.appendChild( this._tabStripEl );
+
 		const stage = document.createElement( 'div' );
 		stage.className = 'kk-character-panel__stage';
-		stage.addEventListener( 'kk:character:category', this._stageStateHandler );
-		stage.addEventListener( 'kk:character:item', this._stageStateHandler );
-		stage.addEventListener( 'kk:character:color', this._stageStateHandler );
+		stage.addEventListener( 'kk:character:category', this._categoryEventHandler );
 		frame.appendChild( stage );
 		this._mountEl = stage;
 
-		const deck = document.createElement( 'aside' );
-		deck.className = 'kk-character-panel__deck';
-		frame.appendChild( deck );
+	}
 
-		const builderCard = new MarginalPanelCard( {
-			variant: 'outline',
-			headerLeft: 'Pilot Builder',
-			headerRight: 'Live',
-		} );
+	_onTabClick( categoryId ) {
 
-		const activeLabel = document.createElement( 'div' );
-		activeLabel.className = 'kk-mv-label';
-		activeLabel.textContent = 'Active Category';
-		builderCard.bodyEl.appendChild( activeLabel );
-
-		const activeValue = document.createElement( 'div' );
-		activeValue.className = 'kk-mv-value';
-		activeValue.textContent = 'Palette';
-		builderCard.bodyEl.appendChild( activeValue );
-		this._activeCategoryValueEl = activeValue;
-
-		const activeCopy = document.createElement( 'p' );
-		activeCopy.className = 'kk-mv-copy kk-character-panel__deck-copy';
-		activeCopy.textContent = 'Suit color and skin tone are live in this lane.';
-		builderCard.bodyEl.appendChild( activeCopy );
-		this._activeCategoryCopyEl = activeCopy;
-
-		const builderGrid = document.createElement( 'div' );
-		builderGrid.className = 'kk-mv-data-grid';
-		builderCard.bodyEl.appendChild( builderGrid );
-
-		const paletteState = document.createElement( 'div' );
-		paletteState.className = 'kk-mv-data-item';
-		builderGrid.appendChild( paletteState );
-		this._paletteStateEl = paletteState;
-
-		const accentState = document.createElement( 'div' );
-		accentState.className = 'kk-mv-data-item';
-		builderGrid.appendChild( accentState );
-		this._accentStateEl = accentState;
-
-		const gearState = document.createElement( 'div' );
-		gearState.className = 'kk-mv-data-item';
-		builderGrid.appendChild( gearState );
-		this._gearStateEl = gearState;
-
-		const modeCard = new MarginalPanelCard( {
-			variant: 'red',
-			headerLeft: 'Loadout Snapshot',
-			headerRight: '[Garage]',
-			sticker: 'Customizer Suite',
-		} );
-
-		const loadoutLabel = document.createElement( 'div' );
-		loadoutLabel.className = 'kk-mv-label';
-		loadoutLabel.textContent = 'Current Mask';
-		modeCard.bodyEl.appendChild( loadoutLabel );
-
-		const loadoutValue = document.createElement( 'div' );
-		loadoutValue.className = 'kk-mv-value';
-		loadoutValue.textContent = 'Balaclava Basic';
-		modeCard.bodyEl.appendChild( loadoutValue );
-		this._selectedMaskValueEl = loadoutValue;
-
-		const loadoutCopy = document.createElement( 'p' );
-		loadoutCopy.className = 'kk-mv-copy kk-character-panel__deck-copy';
-		loadoutCopy.textContent = 'Switch to Garage to tune kart paint and performance inside the same customizer shell.';
-		modeCard.bodyEl.appendChild( loadoutCopy );
-
-		const garageBtn = document.createElement( 'button' );
-		garageBtn.type = 'button';
-		garageBtn.className = 'kk-character-panel__garage-btn';
-		garageBtn.textContent = 'Open Garage Bay';
-		garageBtn.addEventListener( 'click', () => this._services.switchTab?.( 'garage' ) );
-		modeCard.bodyEl.appendChild( garageBtn );
-
-		deck.appendChild( builderCard.el );
-		deck.appendChild( modeCard.el );
+		this._setActiveTab( categoryId );
+		this._controller?.openCategory( categoryId );
 
 	}
 
-	_scheduleInspectorRefresh() {
+	_setActiveTab( categoryId ) {
 
-		if ( this._pendingInspectorFrame ) cancelAnimationFrame( this._pendingInspectorFrame );
-		this._pendingInspectorFrame = requestAnimationFrame( () => {
+		this._currentCategoryId = categoryId;
+		for ( const [ id, btn ] of this._tabButtons ) {
 
-			this._pendingInspectorFrame = 0;
-			this._refreshInspector();
+			const active = id === categoryId;
+			btn.classList.toggle( 'kk-character-panel__tab--active', active );
+			btn.setAttribute( 'aria-pressed', String( active ) );
 
-		} );
-
-	}
-
-	_refreshInspector() {
-
-		const characterRoot = this._mountEl?.querySelector( '.page-character-select' );
-		const settings = new Settings();
-		const appearance = settings.getPlayerAppearance();
-		const selectedBalaclava = getBalaclavaOptionById( appearance?.selectedBalaclavaId );
-		const liveAccessories = Object.entries( appearance?.charAccessories || {} )
-			.filter( ( [ , state ] ) => state?.visible !== false )
-			.map( ( [ key ] ) => ACCESSORY_LABELS[ key ] || key.replace( /_/g, ' ' ) );
-
-		const activeCategoryLabel = characterRoot?.dataset.activeCategoryLabel || 'Palette';
-		const activeCategorySummary = characterRoot?.dataset.activeCategorySummary || 'Suit color and skin tone are live in this lane.';
-		const selectedMaskLabel = characterRoot?.dataset.selectedLabel || selectedBalaclava.label;
-		const paletteState = appearance?.characterColor || appearance?.charSkinColor
-			? `Palette: ${ [
-				appearance?.characterColor ? 'Suit' : '',
-				appearance?.charSkinColor ? 'Skin' : '',
-			].filter( Boolean ).join( ' + ' ) }`
-			: 'Palette: Default';
-		const accentState = `Accent: ${ appearance?.maskTintMainColor ? 'Custom' : 'Default' }`;
-		const gearState = liveAccessories.length > 0
-			? `Gear: ${ liveAccessories.slice( 0, 2 ).join( ' + ' ) }${ liveAccessories.length > 2 ? ` +${ liveAccessories.length - 2 }` : '' }`
-			: 'Gear: None';
-
-		if ( this._activeCategoryValueEl ) this._activeCategoryValueEl.textContent = activeCategoryLabel;
-		if ( this._activeCategoryCopyEl ) this._activeCategoryCopyEl.textContent = activeCategorySummary;
-		if ( this._selectedMaskValueEl ) this._selectedMaskValueEl.textContent = selectedMaskLabel;
-		if ( this._paletteStateEl ) this._paletteStateEl.textContent = paletteState;
-		if ( this._accentStateEl ) this._accentStateEl.textContent = accentState;
-		if ( this._gearStateEl ) this._gearStateEl.textContent = gearState;
+		}
 
 	}
 
@@ -536,12 +388,12 @@ export class CharacterPanel {
 
 			const controller = new Page10CharacterSelectController( {
 				hostMode: 'tab',
-				openCategoryId: 'palette',
+				openCategoryId: this._currentCategoryId,
 				trackPageView: false,
 			}, this._services );
 			controller.initialize( {
 				hostMode: 'tab',
-				openCategoryId: 'palette',
+				openCategoryId: this._currentCategoryId,
 				trackPageView: false,
 			} );
 			controller.bindEvents();
@@ -549,7 +401,7 @@ export class CharacterPanel {
 			controller.render( this._mountEl );
 			controller.setActive( this._isVisible );
 			this._controller = controller;
-			this._scheduleInspectorRefresh();
+			this._setActiveTab( controller.getOpenCategoryId() );
 			return controller;
 
 		} )().catch( ( error ) => {
@@ -566,14 +418,12 @@ export class CharacterPanel {
 	show() {
 
 		this._isVisible = true;
-		window.removeEventListener( 'settings-changed', this._settingsChangedHandler );
-		window.addEventListener( 'settings-changed', this._settingsChangedHandler );
 
 		this._ensureInitialized()
 			.then( ( controller ) => {
 
 				controller.setActive( this._isVisible );
-				this._scheduleInspectorRefresh();
+				this._setActiveTab( controller.getOpenCategoryId() );
 
 			} )
 			.catch( ( error ) => {
@@ -593,21 +443,14 @@ export class CharacterPanel {
 
 		this._isVisible = false;
 		this._controller?.setActive( false );
-		window.removeEventListener( 'settings-changed', this._settingsChangedHandler );
 
 	}
 
 	dispose() {
 
-		window.removeEventListener( 'settings-changed', this._settingsChangedHandler );
-		if ( this._pendingInspectorFrame ) cancelAnimationFrame( this._pendingInspectorFrame );
-		this._pendingInspectorFrame = 0;
-
 		if ( this._mountEl ) {
 
-			this._mountEl.removeEventListener( 'kk:character:category', this._stageStateHandler );
-			this._mountEl.removeEventListener( 'kk:character:item', this._stageStateHandler );
-			this._mountEl.removeEventListener( 'kk:character:color', this._stageStateHandler );
+			this._mountEl.removeEventListener( 'kk:character:category', this._categoryEventHandler );
 
 		}
 
@@ -615,6 +458,7 @@ export class CharacterPanel {
 		this._controller = null;
 		this._initPromise = null;
 		this._isVisible = false;
+		this._tabButtons.clear();
 
 		if ( this._root?.parentNode ) {
 

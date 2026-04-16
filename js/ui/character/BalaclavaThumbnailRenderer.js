@@ -39,6 +39,42 @@ function canRenderCharacterItemThumbnails() {
 
 }
 
+/**
+ * Box3.setFromObject traverses every child regardless of `visible`, which means small
+ * items (hats, chains) get framed against the whole character's bounding box and render
+ * tiny/offset. This walks the tree ourselves and only expands the box with *visible*
+ * mesh geometry so the camera frames just what the user sees.
+ */
+function computeVisibleBoundingBox( root ) {
+
+	const box = new THREE.Box3();
+	const temp = new THREE.Box3();
+
+	function walk( node ) {
+
+		if ( ! node || node.visible === false ) return;
+
+		if ( ( node.isMesh || node.isSkinnedMesh ) && node.geometry ) {
+
+			if ( ! node.geometry.boundingBox ) node.geometry.computeBoundingBox();
+			if ( node.geometry.boundingBox ) {
+
+				temp.copy( node.geometry.boundingBox ).applyMatrix4( node.matrixWorld );
+				if ( ! temp.isEmpty() ) box.union( temp );
+
+			}
+
+		}
+
+		for ( const child of node.children ) walk( child );
+
+	}
+
+	walk( root );
+	return box;
+
+}
+
 function normalizeThumbnailEntry( entry ) {
 
 	if ( typeof entry === 'string' ) {

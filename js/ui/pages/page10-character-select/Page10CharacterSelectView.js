@@ -273,6 +273,7 @@ export class Page10CharacterSelectView extends PageViewBase {
 			}
 
 			.page-character-select__color-input {
+				box-sizing: content-box;
 				width: 2.8rem;
 				height: 2.8rem;
 				padding: 0;
@@ -301,7 +302,7 @@ export class Page10CharacterSelectView extends PageViewBase {
 
 			.page-character-select__option-grid {
 				display: grid;
-				grid-template-columns: repeat( 4, minmax( 0, 1fr ) );
+				grid-template-columns: repeat( 3, minmax( 0, 1fr ) );
 				gap: 0.7rem;
 			}
 
@@ -518,6 +519,8 @@ export class Page10CharacterSelectView extends PageViewBase {
 			.page-character-select--customizer .page-character-select__sidebar {
 				gap: 0.72rem;
 				padding: 0.9rem;
+				height: fit-content;
+				min-height: 0;
 			}
 
 			.page-character-select--customizer .page-character-select__panel-label,
@@ -582,7 +585,6 @@ export class Page10CharacterSelectView extends PageViewBase {
 			}
 
 			.page-character-select--customizer .page-character-select__category-panel-title,
-			.page-character-select--customizer .page-character-select__color-label,
 			.page-character-select--customizer .page-character-select__item-name,
 			.page-character-select--customizer .page-character-select__detail-label {
 				font-family: var( --font-editorial-display, var( --font-display, sans-serif ) );
@@ -594,6 +596,8 @@ export class Page10CharacterSelectView extends PageViewBase {
 			}
 
 			.page-character-select--customizer .page-character-select__category-stack {
+				height: fit-content;
+				flex: 0 1 auto;
 				padding-right: 0;
 			}
 
@@ -606,14 +610,19 @@ export class Page10CharacterSelectView extends PageViewBase {
 
 			.page-character-select--customizer .page-character-select__color-label {
 				font-size: var( --text-customizer-control, 0.875rem );
+				color: var( --color-cta-secondary-text );
 			}
 
-			.page-character-select--customizer .page-character-select__color-meta,
+			.page-character-select--customizer .page-character-select__color-meta {
+				color: var( --color-cta-secondary-text );
+			}
+
 			.page-character-select--customizer .page-character-select__item-meta {
 				color: rgba( 15, 17, 21, 0.62 );
 			}
 
 			.page-character-select--customizer .page-character-select__color-input {
+				box-sizing: content-box;
 				border-radius: 0;
 			}
 
@@ -635,7 +644,7 @@ export class Page10CharacterSelectView extends PageViewBase {
 			}
 
 			.page-character-select--customizer .page-character-select__option-grid {
-				grid-template-columns: repeat( 2, minmax( 0, 1fr ) );
+				grid-template-columns: repeat( 3, minmax( 0, 1fr ) );
 				gap: 0.55rem;
 			}
 
@@ -704,7 +713,7 @@ export class Page10CharacterSelectView extends PageViewBase {
 				}
 
 				.page-character-select__option-grid {
-					grid-template-columns: repeat( 2, minmax( 0, 1fr ) );
+					grid-template-columns: repeat( 3, minmax( 0, 1fr ) );
 				}
 			}
 

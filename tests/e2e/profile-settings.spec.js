@@ -116,7 +116,7 @@ test.describe( 'Settings page', () => {
 		await expect( page.locator( '#kk-app-shell' ) ).toHaveClass( /kk-app-shell--settings-route/ );
 		await expect( page.locator( '.kk-shell-chrome' ) ).toBeHidden();
 		await expect( settingsPage.locator( '.kk-mv-header__title' ) ).toContainText( 'SETTINGS' );
-		await expect( settingsPage.locator( '.page-settings__top .kk-mv-card' ) ).toHaveCount( 2 );
+		await expect( settingsPage.locator( '.page-settings__top .kk-mv-card' ) ).toHaveCount( 1 );
 
 	} );
 
@@ -157,7 +157,7 @@ test.describe( 'Settings page', () => {
 
 	} );
 
-	test( 'clicking a tab updates the visible panel and summary card', async ( { page } ) => {
+	test( 'clicking a tab updates the visible panel and workspace header', async ( { page } ) => {
 
 		await page.goto( '/#/settings' );
 
@@ -165,7 +165,7 @@ test.describe( 'Settings page', () => {
 		await audioTab.click();
 
 		await expect( audioTab ).toHaveAttribute( 'aria-selected', 'true' );
-		await expect( page.locator( '.page-settings__summary-title' ) ).toContainText( 'Audio Bus' );
+		await expect( page.locator( '.page-settings__workspace .kk-mv-card__header-right' ) ).toContainText( 'Audio' );
 		await expect( page.locator( '[role="tabpanel"]:not([hidden]) .page-settings__group-title' ).first() ).toContainText( 'Mix Levels' );
 
 	} );
