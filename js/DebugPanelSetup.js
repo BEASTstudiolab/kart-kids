@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { DebugMenu } from './DebugMenu.js';
 import { CELL_RAW, GRID_SCALE, ORIENT_DEG } from './Track.js';
 import { setBarrierEmissive, getBarrierEmissiveColor, getBarrierEmissiveIntensity } from './Lighting.js';
+import { ensureEditorialRuntimeTheme } from './ui/components/EditorialRuntimeTheme.js';
 
 
 // ── Helper: text sprite for debug labels ────────────────────────────────────
@@ -68,7 +69,10 @@ export function setupDebugPanel( ctx ) {
 		groundIndicator, jitterDisplay, draftIndicator,
 		applyLighting, LIGHTING_DAY, LIGHTING_NIGHT,
 		fpsCapMs, draftIndicatorEnabled,
+		mountRoot = document.body,
 	} = ctx;
+
+	ensureEditorialRuntimeTheme();
 
 	// ── Debug label builders ─────────────────────────────────────────────────
 
@@ -261,13 +265,14 @@ export function setupDebugPanel( ctx ) {
 	// ── HUD PANEL (toggle with H key) ────────────────────────────────────────
 
 	const debugHud = document.createElement( 'div' );
+	debugHud.className = 'kk-rt-card kk-rt-card--outline';
 	debugHud.style.cssText = [
 		'position:fixed', 'top:12px', 'right:12px',
-		'background:rgba(0,0,0,0.72)', 'color:#0f0', 'font:13px/1.6 monospace',
-		'padding:10px 14px', 'border-radius:6px', 'pointer-events:none',
+		'color:var(--kk-rt-cream)', 'font:12px/1.6 var(--kk-rt-font-mono)',
+		'padding:10px 12px', 'pointer-events:none',
 		'min-width:260px', 'white-space:pre', 'z-index:999',
 	].join( ';' );
-	document.body.appendChild( debugHud );
+	mountRoot.appendChild( debugHud );
 
 	debugHud.style.display = 'none';
 	window.addEventListener( 'keydown', ( e ) => {
@@ -282,7 +287,7 @@ export function setupDebugPanel( ctx ) {
 
 	// ── DEBUG CONTROLS PANEL (tabbed, toggle with M) ─────────────────────────
 
-	const debugMenu = new DebugMenu();
+	const debugMenu = new DebugMenu( mountRoot );
 
 	// ── Tab: General ─────────────────────────────────────────────────────────
 	const generalTab = debugMenu.addTab( 'general', 'General' );

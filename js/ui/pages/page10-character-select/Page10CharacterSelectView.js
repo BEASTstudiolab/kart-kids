@@ -19,9 +19,12 @@ export class Page10CharacterSelectView extends PageViewBase {
 			showBrandHeader: true,
 			showCameraDebugControls: false,
 			showEmbeddedPreview: false,
+			surfaceVariant: 'default',
 			rootAriaLabel: 'Character Page',
 			eyebrowText: 'Garage Overlay',
 			titleText: 'Character Page',
+			sidebarLabelText: 'Customizer',
+			sidebarTitleText: '',
 			sidebarCopy: 'Tune suit, skin, masks, and gear here. Selections apply instantly to your driver.',
 			...config,
 		};
@@ -157,6 +160,14 @@ export class Page10CharacterSelectView extends PageViewBase {
 				margin: 0;
 				font: 500 0.94rem/1.5 var( --font-ui, sans-serif );
 				color: rgba( 248, 251, 255, 0.8 );
+			}
+
+			.page-character-select__panel-title {
+				margin: 0;
+				font: 900 1.45rem/1 var( --font-display, sans-serif );
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+				color: #ffffff;
 			}
 
 			.page-character-select__category-tabs {
@@ -313,6 +324,18 @@ export class Page10CharacterSelectView extends PageViewBase {
 				transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
 			}
 
+			.page-character-select__item--thumbnail {
+				align-items: stretch;
+				justify-content: stretch;
+				min-height: 0;
+				padding: 0.55rem;
+				aspect-ratio: 1 / 1;
+			}
+
+			.page-character-select__item--thumbnail-hero {
+				grid-column: span 2;
+			}
+
 			.page-character-select__item:hover {
 				transform: translateY( - 2px );
 				border-color: rgba( 255, 255, 255, 0.28 );
@@ -330,6 +353,55 @@ export class Page10CharacterSelectView extends PageViewBase {
 				font: 900 0.92rem/1.15 var( --font-display, sans-serif );
 				letter-spacing: 0.04em;
 				text-transform: uppercase;
+			}
+
+			.page-character-select__item-thumb {
+				display: grid;
+				place-items: center;
+				width: 100%;
+				height: 100%;
+				aspect-ratio: 1 / 1;
+				border-radius: 0.9rem;
+				border: 1px solid rgba( 255, 255, 255, 0.08 );
+				background: linear-gradient( 180deg, rgba( 8, 13, 20, 0.92 ), rgba( 16, 24, 36, 0.78 ) );
+				overflow: hidden;
+			}
+
+			.page-character-select__item-thumb-image {
+				display: block;
+				width: 112%;
+				height: 112%;
+				object-fit: contain;
+				object-position: center center;
+				transform: translateY( - 1% );
+				filter: drop-shadow( 0 10px 18px rgba( 0, 0, 0, 0.32 ) );
+			}
+
+			.page-character-select__item-thumb-fallback {
+				display: grid;
+				place-items: center;
+				width: 100%;
+				height: 100%;
+				padding: 0.65rem;
+				background: linear-gradient( 180deg, rgba( 255, 255, 255, 0.04 ), rgba( 255, 255, 255, 0.01 ) );
+			}
+
+			.page-character-select__item-thumb-fallback--loading::after {
+				content: '';
+				display: block;
+				width: 1.4rem;
+				height: 1.4rem;
+				margin-top: 0.45rem;
+				border-radius: 999px;
+				border: 2px solid rgba( 255, 255, 255, 0.16 );
+				border-top-color: rgba( 0, 212, 232, 0.88 );
+				animation: page-character-select-thumb-spin 0.8s linear infinite;
+			}
+
+			.page-character-select__item-copy {
+				display: grid;
+				gap: 0.28rem;
+				width: 100%;
 			}
 
 			.page-character-select__item-meta {
@@ -443,6 +515,168 @@ export class Page10CharacterSelectView extends PageViewBase {
 				word-break: break-word;
 			}
 
+			.page-character-select--customizer .page-character-select__sidebar {
+				gap: 0.72rem;
+				padding: 0.9rem;
+			}
+
+			.page-character-select--customizer .page-character-select__panel-label,
+			.page-character-select--customizer .page-character-select__color-meta,
+			.page-character-select--customizer .page-character-select__item-meta,
+			.page-character-select--customizer .page-character-select__detail-label {
+				font-family: var( --font-editorial-mono, var( --font-mono, monospace ) );
+				font-size: var( --text-customizer-meta, 0.625rem );
+				font-weight: 700;
+				letter-spacing: 0.12em;
+				text-transform: uppercase;
+				color: rgba( 15, 17, 21, 0.58 );
+			}
+
+			.page-character-select--customizer .page-character-select__panel-title {
+				font-family: var( --font-editorial-display, var( --font-display, sans-serif ) );
+				font-size: var( --text-customizer-title, clamp( 2.35rem, 4.2vw, 3.4rem ) );
+				font-weight: 900;
+				line-height: 0.92;
+				letter-spacing: -0.04em;
+				color: var( --color-editorial-ink, #0f1115 );
+			}
+
+			.page-character-select--customizer .page-character-select__panel-copy,
+			.page-character-select--customizer .page-character-select__category-panel-copy,
+			.page-character-select--customizer .page-character-select__detail-copy {
+				font-family: var( --font-editorial-mono, var( --font-mono, monospace ) );
+				font-size: var( --text-customizer-copy, 0.78rem );
+				line-height: 1.55;
+				letter-spacing: 0.02em;
+				text-transform: uppercase;
+				color: rgba( 15, 17, 21, 0.78 );
+			}
+
+			.page-character-select--customizer .page-character-select__category-tabs {
+				grid-template-columns: repeat( 2, minmax( 0, 1fr ) );
+			}
+
+			.page-character-select--customizer .page-character-select__category-tab {
+				border-radius: 0;
+				border: 1px solid rgba( 15, 17, 21, 0.16 );
+				background: rgba( 15, 17, 21, 0.04 );
+				color: var( --color-editorial-ink, #0f1115 );
+				font-family: var( --font-editorial-mono, var( --font-mono, monospace ) );
+				font-size: var( --text-customizer-action, 0.64rem );
+				font-weight: 700;
+				letter-spacing: 0.16em;
+				padding: 0.78rem 0.72rem;
+			}
+
+			.page-character-select--customizer .page-character-select__category-tab:hover {
+				background: rgba( 15, 17, 21, 0.08 );
+				border-color: rgba( 15, 17, 21, 0.24 );
+				transform: translateY( -1px );
+			}
+
+			.page-character-select--customizer .page-character-select__category-tab--active {
+				background: var( --color-editorial-ink, #0f1115 );
+				color: var( --color-editorial-cream, #f7f3e9 );
+				border-color: var( --color-editorial-ink, #0f1115 );
+				box-shadow: none;
+			}
+
+			.page-character-select--customizer .page-character-select__category-panel-title,
+			.page-character-select--customizer .page-character-select__color-label,
+			.page-character-select--customizer .page-character-select__item-name,
+			.page-character-select--customizer .page-character-select__detail-label {
+				font-family: var( --font-editorial-display, var( --font-display, sans-serif ) );
+				font-size: var( --text-customizer-section, 1.05rem );
+				font-weight: 900;
+				line-height: 1;
+				letter-spacing: -0.02em;
+				color: var( --color-editorial-ink, #0f1115 );
+			}
+
+			.page-character-select--customizer .page-character-select__category-stack {
+				padding-right: 0;
+			}
+
+			.page-character-select--customizer .page-character-select__color-row,
+			.page-character-select--customizer .page-character-select__detail-card {
+				border-radius: 0;
+				border: 1px solid rgba( 15, 17, 21, 0.12 );
+				background: rgba( 15, 17, 21, 0.03 );
+			}
+
+			.page-character-select--customizer .page-character-select__color-label {
+				font-size: var( --text-customizer-control, 0.875rem );
+			}
+
+			.page-character-select--customizer .page-character-select__color-meta,
+			.page-character-select--customizer .page-character-select__item-meta {
+				color: rgba( 15, 17, 21, 0.62 );
+			}
+
+			.page-character-select--customizer .page-character-select__color-input {
+				border-radius: 0;
+			}
+
+			.page-character-select--customizer .page-character-select__color-reset {
+				border-radius: 0;
+				border-color: rgba( 15, 17, 21, 0.18 );
+				background: transparent;
+				color: var( --color-editorial-ink, #0f1115 );
+				font-family: var( --font-editorial-mono, var( --font-mono, monospace ) );
+				font-size: var( --text-customizer-action, 0.64rem );
+				font-weight: 700;
+				letter-spacing: 0.16em;
+				padding: 0.75rem 0.9rem;
+			}
+
+			.page-character-select--customizer .page-character-select__color-reset:hover {
+				border-color: rgba( 15, 17, 21, 0.24 );
+				background: rgba( 15, 17, 21, 0.08 );
+			}
+
+			.page-character-select--customizer .page-character-select__option-grid {
+				grid-template-columns: repeat( 2, minmax( 0, 1fr ) );
+				gap: 0.55rem;
+			}
+
+			.page-character-select--customizer .page-character-select__item {
+				min-height: 5.35rem;
+				border-radius: 0;
+				border: 1px solid rgba( 15, 17, 21, 0.12 );
+				background: rgba( 255, 255, 255, 0.58 );
+				color: var( --color-editorial-ink, #0f1115 );
+				box-shadow: none;
+			}
+
+			.page-character-select--customizer .page-character-select__item:hover {
+				border-color: rgba( 15, 17, 21, 0.26 );
+				box-shadow: 0 14px 24px rgba( 15, 17, 21, 0.08 );
+			}
+
+			.page-character-select--customizer .page-character-select__item--active {
+				background: rgba( 216, 44, 44, 0.08 );
+				border-color: rgba( 216, 44, 44, 0.58 );
+				box-shadow: none;
+			}
+
+			.page-character-select--customizer .page-character-select__item-name {
+				font-size: var( --text-customizer-control, 0.875rem );
+			}
+
+			.page-character-select--customizer .page-character-select__item-thumb,
+			.page-character-select--customizer .page-character-select__item-thumb-fallback {
+				border-radius: 0;
+			}
+
+			.page-character-select--customizer .page-character-select__item-thumb {
+				border: 1px solid rgba( 15, 17, 21, 0.08 );
+				background: rgba( 15, 17, 21, 0.04 );
+			}
+
+			.page-character-select--customizer .page-character-select__item-thumb-fallback {
+				background: linear-gradient( 180deg, rgba( 15, 17, 21, 0.04 ), rgba( 15, 17, 21, 0.01 ) );
+			}
+
 			@media ( max-width: 1180px ) {
 				.page-character-select__content {
 					grid-template-columns: 1fr;
@@ -473,6 +707,11 @@ export class Page10CharacterSelectView extends PageViewBase {
 					grid-template-columns: repeat( 2, minmax( 0, 1fr ) );
 				}
 			}
+
+			@keyframes page-character-select-thumb-spin {
+				from { transform: rotate( 0deg ); }
+				to { transform: rotate( 360deg ); }
+			}
 		`;
 		document.head.appendChild( style );
 
@@ -484,6 +723,7 @@ export class Page10CharacterSelectView extends PageViewBase {
 		root.setAttribute( 'role', 'main' );
 		root.setAttribute( 'aria-label', this._config.rootAriaLabel );
 		root.classList.toggle( 'page-character-select--shared-stage', ! this._config.showEmbeddedPreview );
+		root.classList.toggle( 'page-character-select--customizer', this._config.surfaceVariant === 'customizer' );
 
 		const shouldRenderHeader = this._config.showBackButton || this._config.showBrandHeader;
 		root.classList.toggle( 'page-character-select--no-header', ! shouldRenderHeader );
@@ -545,8 +785,17 @@ export class Page10CharacterSelectView extends PageViewBase {
 
 		const sidebarLabel = document.createElement( 'div' );
 		sidebarLabel.className = 'page-character-select__panel-label';
-		sidebarLabel.textContent = 'Customizer';
+		sidebarLabel.textContent = this._config.sidebarLabelText;
 		sidebar.appendChild( sidebarLabel );
+
+		if ( this._config.sidebarTitleText ) {
+
+			const sidebarTitle = document.createElement( 'h2' );
+			sidebarTitle.className = 'page-character-select__panel-title';
+			sidebarTitle.textContent = this._config.sidebarTitleText;
+			sidebar.appendChild( sidebarTitle );
+
+		}
 
 		const sidebarCopy = document.createElement( 'p' );
 		sidebarCopy.className = 'page-character-select__panel-copy';
@@ -804,8 +1053,11 @@ export class Page10CharacterSelectView extends PageViewBase {
 				button.type = 'button';
 				button.className = 'page-character-select__item';
 				button.classList.toggle( 'page-character-select__item--active', !! item.active );
+				const hasThumbnail = typeof item.thumbnailState === 'string';
+				button.classList.toggle( 'page-character-select__item--thumbnail', hasThumbnail );
+				button.classList.toggle( 'page-character-select__item--thumbnail-hero', hasThumbnail && activeCategory.items.length <= 2 );
 				button.setAttribute( 'aria-pressed', String( !! item.active ) );
-				button.setAttribute( 'aria-label', `${ item.label } ${ item.metaText }` );
+				button.setAttribute( 'aria-label', `${ item.label }, ${ item.metaText }` );
 				button.addEventListener( 'click', () => {
 
 					this._root.dispatchEvent( new CustomEvent( 'kk:character:item', {
@@ -819,15 +1071,54 @@ export class Page10CharacterSelectView extends PageViewBase {
 
 				} );
 
-				const itemName = document.createElement( 'div' );
-				itemName.className = 'page-character-select__item-name';
-				itemName.textContent = item.label;
-				button.appendChild( itemName );
+				if ( hasThumbnail ) {
 
-				const itemMeta = document.createElement( 'div' );
-				itemMeta.className = 'page-character-select__item-meta';
-				itemMeta.textContent = item.metaText;
-				button.appendChild( itemMeta );
+					const thumb = document.createElement( 'div' );
+					thumb.className = 'page-character-select__item-thumb';
+					thumb.setAttribute( 'aria-hidden', 'true' );
+
+					if ( typeof item.thumbnailSrc === 'string' && item.thumbnailSrc ) {
+
+						const image = document.createElement( 'img' );
+						image.className = 'page-character-select__item-thumb-image';
+						image.alt = '';
+						image.decoding = 'async';
+						image.loading = 'lazy';
+						image.src = item.thumbnailSrc;
+						thumb.appendChild( image );
+
+					} else {
+
+						const fallback = document.createElement( 'div' );
+						fallback.className = 'page-character-select__item-thumb-fallback';
+						if ( item.thumbnailState === 'loading' ) {
+
+							fallback.classList.add( 'page-character-select__item-thumb-fallback--loading' );
+
+						}
+						thumb.appendChild( fallback );
+
+					}
+
+					button.appendChild( thumb );
+
+				} else {
+
+					const copy = document.createElement( 'div' );
+					copy.className = 'page-character-select__item-copy';
+
+					const itemName = document.createElement( 'div' );
+					itemName.className = 'page-character-select__item-name';
+					itemName.textContent = item.label;
+					copy.appendChild( itemName );
+
+					const itemMeta = document.createElement( 'div' );
+					itemMeta.className = 'page-character-select__item-meta';
+					itemMeta.textContent = item.metaText;
+					copy.appendChild( itemMeta );
+					button.appendChild( copy );
+
+				}
 
 				grid.appendChild( button );
 
@@ -841,11 +1132,12 @@ export class Page10CharacterSelectView extends PageViewBase {
 
 	}
 
-	setSelectionState( { selectedLabel, activeCategoryId, activeCategoryLabel } ) {
+	setSelectionState( { selectedLabel, activeCategoryId, activeCategoryLabel, activeCategorySummary } ) {
 
 		this._root.dataset.selectedLabel = selectedLabel || '';
 		this._root.dataset.activeCategoryId = activeCategoryId || '';
 		this._root.dataset.activeCategoryLabel = activeCategoryLabel || '';
+		this._root.dataset.activeCategorySummary = activeCategorySummary || '';
 
 	}
 

@@ -1,15 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * Profile and Settings E2E tests.
- *
- * Tests the Profile page (#/profile) and Settings page (#/settings).
- * Verifies player data display, stats, and settings tab structure.
+ * Profile panel and fullscreen settings E2E tests for the current shell.
  */
 
-/**
- * Seed localStorage with a known player name and stats.
- */
 async function seedSettings( page, overrides = {} ) {
 
 	await page.addInitScript( ( overrides ) => {
@@ -22,6 +16,14 @@ async function seedSettings( page, overrides = {} ) {
 			controls: {},
 			audio: {},
 			video: {},
+			stats: {
+				totalRaces: overrides.totalRaces ?? 12,
+				wins: overrides.wins ?? 3,
+				bestTimes: overrides.bestTimes || {
+					'starter-circuit': 61.234,
+					'coastal-run': 68.5,
+				},
+			},
 		};
 		localStorage.setItem( 'kart-kids-settings', JSON.stringify( settings ) );
 
@@ -29,11 +31,32 @@ async function seedSettings( page, overrides = {} ) {
 
 }
 
-// ---------------------------------------------------------------------------
-// Profile page
-// ---------------------------------------------------------------------------
+async function waitForShell( page ) {
 
-test.describe( 'Profile page', () => {
+	await expect( page.locator( '.kk-tab-bar' ) ).toBeVisible( { timeout: 10000 } );
+	await expect.poll( async () => await page.locator( '.kk-loading-overlay' ).count() ).toBe( 0 );
+
+}
+
+async function openProfilePanel( page ) {
+
+	await page.goto( '/' );
+	await waitForShell( page );
+
+	const profileBtn = page.locator( '.kk-shell-utility__profile-btn' );
+	await profileBtn.click();
+
+	const profilePanel = page.locator( '#kk-panel-profile' );
+	await expect( profilePanel ).toHaveClass( /kk-panel--active/ );
+	await expect( profileBtn ).toHaveAttribute( 'aria-current', 'page' );
+
+	const profileRoot = profilePanel.locator( '.kk-profile' );
+	await expect( profileRoot ).toBeVisible( { timeout: 10000 } );
+	return profileRoot;
+
+}
+
+test.describe( 'Profile panel', () => {
 
 	test.beforeEach( async ( { page } ) => {
 
@@ -41,114 +64,40 @@ test.describe( 'Profile page', () => {
 
 	} );
 
-	test( 'renders at #/profile', async ( { page } ) => {
+	test( 'opens from the shell utility button', async ( { page } ) => {
 
-		await page.goto( '/#/profile' );
+		const profileRoot = await openProfilePanel( page );
 
-		const profilePage = page.locator( '.page-profile' );
-		await expect( profilePage ).toBeVisible( { timeout: 10000 } );
-
-	} );
-
-	test( 'shows PROFILE header', async ( { page } ) => {
-
-		await page.goto( '/#/profile' );
-
-		const header = page.locator( '.kk-page-header' );
-		await expect( header ).toBeVisible( { timeout: 10000 } );
-		await expect( header ).toContainText( 'PROFILE' );
+		await expect( profileRoot.locator( '.kk-mv-header__title' ) ).toContainText( 'PROFILE' );
+		await expect( profileRoot.locator( '.kk-profile__settings-btn' ) ).toBeVisible();
 
 	} );
 
-	test( 'shows profile card section', async ( { page } ) => {
+	test( 'shows the seeded player name and race summary', async ( { page } ) => {
 
-		await page.goto( '/#/profile' );
+		const profileRoot = await openProfilePanel( page );
 
-		const profileCard = page.locator( '.kk-profile-card' );
-		await expect( profileCard ).toBeVisible( { timeout: 10000 } );
+		await expect( profileRoot.locator( '.kk-mv-value' ).first() ).toContainText( 'SpeedRacer' );
 
-	} );
-
-	test( 'shows player name from localStorage', async ( { page } ) => {
-
-		await page.goto( '/#/profile' );
-
-		// Wait for the profile card to be populated by the controller.
-		// The controller calls setProfileCard which creates a .kk-profile-card__name element.
-		const nameEl = page.locator( '.kk-profile-card__name' );
-
-		// The name element may take a moment to be rendered by the controller.
-		await expect( nameEl ).toBeVisible( { timeout: 10000 } );
-		await expect( nameEl ).toContainText( 'SpeedRacer' );
+		const metaText = ( await profileRoot.locator( '.kk-mv-data-item' ).allTextContents() ).join( ' ' );
+		expect( metaText ).toContain( 'Races: 12' );
+		expect( metaText ).toContain( 'Wins: 3' );
+		expect( metaText ).toContain( 'Rate: 25%' );
 
 	} );
 
-	test( 'shows race stats section with default values', async ( { page } ) => {
+	test( 'shows best times when stats are available', async ( { page } ) => {
 
-		await page.goto( '/#/profile' );
+		const profileRoot = await openProfilePanel( page );
 
-		// The profile page has a record section showing wins and races.
-		// These default to 0 for a new player.
-		const recordValues = page.locator( '.kk-profile-card__record-value' );
-
-		// Wait for the profile card to be populated
-		await page.locator( '.kk-profile-card__name' ).waitFor( { timeout: 10000 } );
-
-		const count = await recordValues.count();
-
-		if ( count > 0 ) {
-
-			// Record values should contain "0" for a new player
-			const values = await recordValues.allTextContents();
-			expect( values.some( ( v ) => v.includes( '0' ) ) ).toBeTruthy();
-
-		}
-
-	} );
-
-	test( 'shows lifetime stats panel', async ( { page } ) => {
-
-		await page.goto( '/#/profile' );
-
-		const statsPanel = page.locator( '.kk-lifetime-stats' );
-		await expect( statsPanel ).toBeVisible( { timeout: 10000 } );
-
-	} );
-
-	test( 'shows tab strip with profile sections', async ( { page } ) => {
-
-		await page.goto( '/#/profile' );
-
-		// Profile page has a tab row: ACHIEVEMENTS, BADGES, MATCH HISTORY
-		const tabsRow = page.locator( '.page-profile__tabs-row' );
-		await expect( tabsRow ).toBeVisible( { timeout: 10000 } );
-
-		const tabs = tabsRow.locator( '.page-profile__tab' );
-		const count = await tabs.count();
-		expect( count ).toBeGreaterThanOrEqual( 3 );
-
-		const tabTexts = await tabs.allTextContents();
-		const combined = tabTexts.join( ' ' ).toUpperCase();
-		expect( combined ).toContain( 'ACHIEVEMENTS' );
-		expect( combined ).toContain( 'BADGES' );
-		expect( combined ).toContain( 'HISTORY' );
-
-	} );
-
-	test( 'shows favorite loadout section', async ( { page } ) => {
-
-		await page.goto( '/#/profile' );
-
-		const loadout = page.locator( '.kk-loadout-preview' );
-		await expect( loadout ).toBeVisible( { timeout: 10000 } );
+		const timeRows = profileRoot.locator( '.kk-profile__time-item' );
+		await expect( timeRows.first() ).toBeVisible( { timeout: 10000 } );
+		expect( await timeRows.count() ).toBeGreaterThanOrEqual( 2 );
+		await expect( profileRoot.locator( '.kk-profile__time-value' ).first() ).toContainText( ':' );
 
 	} );
 
 } );
-
-// ---------------------------------------------------------------------------
-// Settings page
-// ---------------------------------------------------------------------------
 
 test.describe( 'Settings page', () => {
 
@@ -158,95 +107,98 @@ test.describe( 'Settings page', () => {
 
 	} );
 
-	test( 'renders at #/settings', async ( { page } ) => {
+	test( 'renders the redesigned settings surface at #/settings', async ( { page } ) => {
 
 		await page.goto( '/#/settings' );
 
 		const settingsPage = page.locator( '.page-settings' );
 		await expect( settingsPage ).toBeVisible( { timeout: 10000 } );
+		await expect( page.locator( '#kk-app-shell' ) ).toHaveClass( /kk-app-shell--settings-route/ );
+		await expect( page.locator( '.kk-shell-chrome' ) ).toBeHidden();
+		await expect( settingsPage.locator( '.kk-mv-header__title' ) ).toContainText( 'SETTINGS' );
+		await expect( settingsPage.locator( '.page-settings__top .kk-mv-card' ) ).toHaveCount( 2 );
 
 	} );
 
-	test( 'shows SETTINGS header', async ( { page } ) => {
+	test( 'returns to the previous panel after fullscreen settings closes', async ( { page } ) => {
 
-		await page.goto( '/#/settings' );
+		await openProfilePanel( page );
 
-		const header = page.locator( '.kk-page-header' );
-		await expect( header ).toBeVisible( { timeout: 10000 } );
-		await expect( header ).toContainText( 'SETTINGS' );
+		await page.locator( '.kk-profile__settings-btn' ).click();
+		await expect( page.locator( '.page-settings' ) ).toBeVisible( { timeout: 10000 } );
+		await expect( page.locator( '#kk-app-shell' ) ).toHaveClass( /kk-app-shell--settings-route/ );
+
+		await page.locator( '.page-settings__back' ).click();
+
+		await expect( page.locator( '.page-settings' ) ).toHaveCount( 0 );
+		await expect( page.locator( '#kk-app-shell' ) ).not.toHaveClass( /kk-app-shell--settings-route/ );
+		await expect( page.locator( '#kk-panel-profile' ) ).toHaveClass( /kk-panel--active/ );
 
 	} );
 
-	test( 'has 8 settings tabs', async ( { page } ) => {
+	test( 'shows the focused 6-tab settings navigation', async ( { page } ) => {
 
 		await page.goto( '/#/settings' );
 
-		// The Tabs component renders with role="tablist" and role="tab" buttons.
 		const tablist = page.locator( '[role="tablist"]' );
 		await expect( tablist ).toBeVisible( { timeout: 10000 } );
 
 		const tabs = tablist.locator( '[role="tab"]' );
-		await expect( tabs ).toHaveCount( 8 );
+		await expect( tabs ).toHaveCount( 6 );
 
-		// Verify all expected tab labels are present
 		const tabTexts = await tabs.allTextContents();
 		const combined = tabTexts.join( ' ' ).toUpperCase();
-		expect( combined ).toContain( 'GAMEPLAY' );
+		expect( combined ).toContain( 'RACE' );
 		expect( combined ).toContain( 'CONTROLS' );
 		expect( combined ).toContain( 'AUDIO' );
-		expect( combined ).toContain( 'VIDEO' );
+		expect( combined ).toContain( 'DISPLAY' );
 		expect( combined ).toContain( 'ACCESSIBILITY' );
-		expect( combined ).toContain( 'ACCOUNT' );
-		expect( combined ).toContain( 'PRIVACY' );
-		expect( combined ).toContain( 'CREDITS' );
+		expect( combined ).toContain( 'ABOUT' );
 
 	} );
 
-	test( 'clicking a tab switches visible panel', async ( { page } ) => {
+	test( 'clicking a tab updates the visible panel and summary card', async ( { page } ) => {
 
 		await page.goto( '/#/settings' );
 
-		const tablist = page.locator( '[role="tablist"]' );
-		await expect( tablist ).toBeVisible( { timeout: 10000 } );
-
-		// Click the AUDIO tab
-		const audioTab = tablist.locator( '[role="tab"]', { hasText: 'AUDIO' } );
+		const audioTab = page.locator( '[role="tab"]', { hasText: 'AUDIO' } );
 		await audioTab.click();
 
-		// The audio tab should be selected
 		await expect( audioTab ).toHaveAttribute( 'aria-selected', 'true' );
+		await expect( page.locator( '.page-settings__summary-title' ) ).toContainText( 'Audio Bus' );
+		await expect( page.locator( '[role="tabpanel"]:not([hidden]) .page-settings__group-title' ).first() ).toContainText( 'Mix Levels' );
 
 	} );
 
-	test( 'shows action bar with RESET and APPLY buttons', async ( { page } ) => {
+	test( 'keeps reset and apply actions visible inside the status card', async ( { page } ) => {
 
 		await page.goto( '/#/settings' );
 
-		// The settings page has an action bar at the bottom
-		const actionBar = page.locator( '.settings-action-bar' );
-		await expect( actionBar ).toBeVisible( { timeout: 10000 } );
+		const actions = page.locator( '.page-settings__status-actions' );
+		await expect( actions ).toBeVisible( { timeout: 10000 } );
 
-		const buttons = actionBar.locator( '.kk-cta-button' );
-		await expect( buttons ).toHaveCount( 2 );
-
-		const btnTexts = await buttons.allTextContents();
+		const btnTexts = await actions.locator( 'button' ).allTextContents();
 		const combined = btnTexts.join( ' ' ).toUpperCase();
 		expect( combined ).toContain( 'RESET' );
 		expect( combined ).toContain( 'APPLY' );
 
 	} );
 
-	test( 'gameplay tab has controls (sliders/toggles)', async ( { page } ) => {
+	test( 'apply persists updated values from the new layout', async ( { page } ) => {
 
 		await page.goto( '/#/settings' );
 
-		// GAMEPLAY should be the default active tab.
-		// Check for settings rows in the visible panel.
-		const settingsRows = page.locator( '.settings-row' );
-		await expect( settingsRows.first() ).toBeVisible( { timeout: 10000 } );
+		const displayTab = page.locator( '[role="tab"]', { hasText: 'DISPLAY' } );
+		await displayTab.click();
 
-		const count = await settingsRows.count();
-		expect( count ).toBeGreaterThanOrEqual( 1 );
+		const qualitySelect = page.locator( '[role="tabpanel"]:not([hidden]) select' ).first();
+		await qualitySelect.selectOption( 'LOW' );
+		await page.locator( '.page-settings__action--primary' ).click();
+
+		await expect( page.locator( '.page-settings__status-value' ) ).toContainText( 'Saved' );
+
+		const stored = await page.evaluate( () => JSON.parse( localStorage.getItem( 'kart-kids-settings' ) ) );
+		expect( stored.quality ).toBe( 'low' );
 
 	} );
 

@@ -383,6 +383,90 @@ export class LobbyOverlay {
 				opacity: 1;
 			}
 
+			/* ── Editorial overrides ─────────────────────────────────── */
+
+			.kk-lobby-overlay {
+				top: auto;
+				right: 24px;
+				bottom: calc(env(safe-area-inset-bottom, 0px) + var(--kk-shell-nav-clearance, 6.75rem));
+				width: min(430px, calc(100vw - 48px));
+				max-height: min(42rem, calc(100vh - 120px));
+				padding: 18px;
+				border-radius: 0;
+				background: rgba(247, 243, 233, 0.96);
+				border: 1px solid rgba(15, 17, 21, 0.12);
+				box-shadow: 0 28px 52px rgba(0, 0, 0, 0.28);
+				color: #0f1115;
+				text-transform: uppercase;
+				font-family: var(--font-editorial-mono, var(--font-mono, monospace));
+				clip-path: polygon(0 0, 100% 0, 100% 95%, 96% 100%, 0 100%);
+			}
+
+			.kk-lobby-overlay--3d {
+				background: rgba(247, 243, 233, 0.94);
+				backdrop-filter: blur(16px);
+				-webkit-backdrop-filter: blur(16px);
+			}
+
+			.kk-lobby-overlay__title,
+			.kk-lobby-overlay__code-value,
+			.kk-lobby-overlay__track-name {
+				color: #0f1115;
+				font-family: var(--font-editorial-display, var(--font-display, sans-serif));
+			}
+
+			.kk-lobby-overlay__title {
+				font-size: clamp(1.9rem, 4vw, 2.8rem);
+				line-height: 0.9;
+				letter-spacing: -0.06em;
+			}
+
+			.kk-lobby-overlay__room-code,
+			.kk-lobby-overlay__track-info,
+			.kk-lobby-overlay__member,
+			.kk-lobby-overlay__join-input {
+				border-radius: 0;
+				background: rgba(15, 17, 21, 0.04);
+				border: 1px solid rgba(15, 17, 21, 0.12);
+			}
+
+			.kk-lobby-overlay__code-label,
+			.kk-lobby-overlay__track-change,
+			.kk-lobby-overlay__members-title,
+			.kk-lobby-overlay__join-link {
+				color: rgba(15, 17, 21, 0.58);
+				font-family: var(--font-editorial-mono, var(--font-mono, monospace));
+				letter-spacing: 0.16em;
+			}
+
+			.kk-lobby-overlay__copy-btn,
+			.kk-lobby-overlay__join-go,
+			.kk-lobby-overlay__btn {
+				border-radius: 0;
+				font-family: var(--font-editorial-mono, var(--font-mono, monospace));
+				font-size: var(--text-editorial-label, 0.625rem);
+				letter-spacing: var(--tracking-widest, 0.14em);
+				clip-path: polygon(0 0, 100% 0, 100% 88%, 95% 100%, 0 100%);
+			}
+
+			.kk-lobby-overlay__copy-btn,
+			.kk-lobby-overlay__btn--start,
+			.kk-lobby-overlay__join-go {
+				background: #d82c2c;
+				color: #f7f3e9;
+			}
+
+			.kk-lobby-overlay__btn--cancel {
+				background: #0f1115;
+				color: #f7f3e9;
+			}
+
+			.kk-lobby-overlay__track-info--host:hover,
+			.kk-lobby-overlay__join-link:hover {
+				background: rgba(216, 44, 44, 0.08);
+				color: #0f1115;
+			}
+
 		`;
 		document.head.appendChild( style );
 

@@ -70,6 +70,28 @@ function createFakeTabElement() {
 
 }
 
+function attachFakeRaceLoadingOverlay( shell, callOrder = [] ) {
+
+	shell._getOrCreateRaceLoadingOverlay = () => ( {
+		setState: ( state ) => {
+
+			callOrder.push( [ 'overlay:setState', state?.phase || null ] );
+
+		},
+		show: () => {
+
+			callOrder.push( 'overlay:show' );
+
+		},
+		hide: () => {
+
+			callOrder.push( 'overlay:hide' );
+
+		},
+	} );
+
+}
+
 test( 'AppShell menu music helpers activate and deactivate the shared player', async () => {
 
 	const shell = new AppShell( {} );
@@ -125,6 +147,7 @@ test( 'AppShell.startRace deactivates menu music before starting the engine', as
 
 	const shell = new AppShell( {} );
 	const callOrder = [];
+	attachFakeRaceLoadingOverlay( shell, callOrder );
 	shell._menuMusic = {
 		deactivate: () => {
 
@@ -146,7 +169,14 @@ test( 'AppShell.startRace deactivates menu music before starting the engine', as
 
 	await shell.startRace( { mode: 'solo' } );
 
-	assert.deepEqual( callOrder, [ 'deactivate', 'start' ] );
+	assert.deepEqual( callOrder, [
+		[ 'overlay:setState', 'Initializing' ],
+		'overlay:show',
+		'deactivate',
+		'start',
+		[ 'overlay:setState', 'Ready' ],
+		'overlay:hide',
+	] );
 	assert.equal( shell._renderMode, 'race' );
 
 } );
@@ -155,6 +185,7 @@ test( 'AppShell.startRace reactivates menu music when engine startup fails', asy
 
 	const shell = new AppShell( {} );
 	const callOrder = [];
+	attachFakeRaceLoadingOverlay( shell, callOrder );
 	shell._menuMusic = {
 		deactivate: () => {
 
@@ -184,7 +215,14 @@ test( 'AppShell.startRace reactivates menu music when engine startup fails', asy
 
 	await shell.startRace( { mode: 'solo' } );
 
-	assert.deepEqual( callOrder, [ 'deactivate', 'start', 'activate' ] );
+	assert.deepEqual( callOrder, [
+		[ 'overlay:setState', 'Initializing' ],
+		'overlay:show',
+		'deactivate',
+		'start',
+		'overlay:hide',
+		'activate',
+	] );
 	assert.equal( shell._renderMode, 'idle' );
 	assert.equal( shell._shell.style.display, '' );
 	assert.equal( shell._tabBarEl.style.display, '' );
@@ -254,6 +292,62 @@ test( 'AppShell preview tuning helpers delegate to the shared lobby scene', () =
 		fov: 28,
 		kartRotYDeg: 1434,
 	} );
+
+} );
+
+test( 'AppShell bootstrap progress reporter clamps and fills defaults for the shared loader', () => {
+
+	const shell = new AppShell( {} );
+	const calls = [];
+	const report = shell._createBootstrapProgressReporter( ( state ) => {
+
+		calls.push( state );
+
+	} );
+
+	report( {
+		phase: 'Loading Menu',
+		message: 'Preparing menu scene',
+		detail: 'Starting lobby renderer',
+		progress: 1.2,
+	} );
+	report( {
+		detail: 'Waiting for the first full reveal',
+		progress: - 0.3,
+		determinate: true,
+	} );
+	report( {
+		progress: Number.NaN,
+		determinate: false,
+		progressText: '...',
+	} );
+
+	assert.deepEqual( calls, [
+		{
+			phase: 'Loading Menu',
+			message: 'Preparing menu scene',
+			detail: 'Starting lobby renderer',
+			progress: 1,
+			determinate: true,
+			progressText: '100%',
+		},
+		{
+			phase: 'Booting',
+			message: 'Launching menu',
+			detail: 'Waiting for the first full reveal',
+			progress: 0,
+			determinate: true,
+			progressText: '0%',
+		},
+		{
+			phase: 'Booting',
+			message: 'Launching menu',
+			detail: '',
+			progress: null,
+			determinate: false,
+			progressText: '...',
+		},
+	] );
 
 } );
 
@@ -327,5 +421,83 @@ test( 'AppShell.startDebugSoloRace leaves custom config untouched when track id 
 	assert.equal( capturedConfig.trackId, 'missing-track' );
 	assert.deepEqual( capturedConfig.trackData, [ [ 1, 2, 3 ] ] );
 	assert.deepEqual( capturedConfig.decoCells, [ [ 4, 5, 6 ] ] );
+
+} );
+
+test( 'AppShell._openSettingsRoute navigates to fullscreen settings and remembers the current tab', () => {
+
+	const shell = new AppShell( {} );
+	const navigations = [];
+	shell._activeTab = 'profile';
+	shell._panels = new Map( [
+		[ 'race', {} ],
+		[ 'profile', {} ],
+	] );
+	shell._router = {
+		navigate: ( path, state ) => {
+
+			navigations.push( [ path, state ] );
+
+		},
+	};
+
+	shell._openSettingsRoute( { fragment: 'controls' } );
+
+	assert.equal( shell._routeFallbackTab, 'profile' );
+	assert.deepEqual( navigations, [
+		[
+			'/settings#controls',
+			{
+				returnTab: 'profile',
+				origin: 'menu-tab',
+			},
+		],
+	] );
+
+} );
+
+test( 'AppShell._handleRouteFallback restores detached panels and returns to the remembered tab', () => {
+
+	const shell = new AppShell( {} );
+	const appendedPanels = [];
+	const pageContainer = {
+		appendChild: ( panel ) => {
+
+			appendedPanels.push( panel.dataset.panel );
+			panel.parentNode = pageContainer;
+
+		},
+	};
+	const racePanel = { dataset: { panel: 'race' }, parentNode: null };
+	const profilePanel = { dataset: { panel: 'profile' }, parentNode: null };
+	let shellClassToggle = null;
+	let switchedTab = null;
+
+	shell._pageContainer = pageContainer;
+	shell._panels = new Map( [
+		[ 'race', racePanel ],
+		[ 'profile', profilePanel ],
+	] );
+	shell._shell = {
+		classList: {
+			toggle: ( className, active ) => {
+
+				shellClassToggle = [ className, active ];
+
+			},
+		},
+	};
+	shell._routeFallbackTab = 'profile';
+	shell.switchTab = ( tabId ) => {
+
+		switchedTab = tabId;
+
+	};
+
+	shell._handleRouteFallback();
+
+	assert.deepEqual( appendedPanels, [ 'race', 'profile' ] );
+	assert.deepEqual( shellClassToggle, [ 'kk-app-shell--settings-route', false ] );
+	assert.equal( switchedTab, 'profile' );
 
 } );

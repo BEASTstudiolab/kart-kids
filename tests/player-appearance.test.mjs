@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import {
 	ACCESSORY_DEFS,
 	applyCharacterAppearance,
+	applyCharacterMaterialTuningToMaterial,
 	createDefaultPlayerAppearance,
 	getVisibleAccessoryLabels,
 	normalizeAppearanceColor,
@@ -13,22 +14,103 @@ import { DEFAULT_BALACLAVA_ID } from '../js/CharacterCustomization.js';
 
 function createMockMaterial( { name = 'Masks Batch', color = '#ffffff' } = {} ) {
 
+	const createMockTexture = () => ( {
+		isTexture: true,
+		anisotropy: 0,
+		needsUpdate: false,
+	} );
+
 	return {
 		name,
+		userData: {},
 		color: {
 			value: color,
+			r: 1,
+			g: 1,
+			b: 1,
 			set( next ) {
 
 				this.value = next;
 
 			},
+			setRGB( r, g, b ) {
+
+				this.r = r;
+				this.g = g;
+				this.b = b;
+
+			},
 		},
+		emissive: {
+			r: 0,
+			g: 0,
+			b: 0,
+			setRGB( r, g, b ) {
+
+				this.r = r;
+				this.g = g;
+				this.b = b;
+
+			},
+		},
+		normalScale: {
+			x: 1,
+			y: - 1,
+			set( x, y ) {
+
+				this.x = x;
+				this.y = y;
+
+			},
+		},
+		emissiveIntensity: 0,
+		aoMapIntensity: 0,
+		roughness: 0,
+		metalness: 0,
+		envMapIntensity: 0,
+		opacity: 1,
+		alphaTest: 0,
+		side: 0,
+		wireframe: false,
+		flatShading: false,
+		depthWrite: true,
+		transparent: false,
+		map: createMockTexture(),
+		normalMap: createMockTexture(),
+		aoMap: createMockTexture(),
+		roughnessMap: createMockTexture(),
+		metalnessMap: createMockTexture(),
+		emissiveMap: createMockTexture(),
+		alphaMap: createMockTexture(),
 		clone() {
 
-			return createMockMaterial( {
+			const cloned = createMockMaterial( {
 				name: this.name,
 				color: this.color.value,
 			} );
+			cloned.userData = { ...this.userData };
+			cloned.emissiveIntensity = this.emissiveIntensity;
+			cloned.aoMapIntensity = this.aoMapIntensity;
+			cloned.roughness = this.roughness;
+			cloned.metalness = this.metalness;
+			cloned.envMapIntensity = this.envMapIntensity;
+			cloned.opacity = this.opacity;
+			cloned.alphaTest = this.alphaTest;
+			cloned.side = this.side;
+			cloned.wireframe = this.wireframe;
+			cloned.flatShading = this.flatShading;
+			cloned.depthWrite = this.depthWrite;
+			cloned.transparent = this.transparent;
+			cloned.normalScale.set( this.normalScale.x, this.normalScale.y );
+			cloned.emissive.setRGB( this.emissive.r, this.emissive.g, this.emissive.b );
+			cloned.map = this.map;
+			cloned.normalMap = this.normalMap;
+			cloned.aoMap = this.aoMap;
+			cloned.roughnessMap = this.roughnessMap;
+			cloned.metalnessMap = this.metalnessMap;
+			cloned.emissiveMap = this.emissiveMap;
+			cloned.alphaMap = this.alphaMap;
+			return cloned;
 
 		},
 	};
@@ -151,6 +233,8 @@ test( 'applyCharacterAppearance tints balaclava materials with the main tint onl
 
 	assert.notStrictEqual( child.material, originalMaterial );
 	assert.equal( child.material.color.value, '#ff0000' );
+	assert.equal( child.material.normalScale.x, 0.1 );
+	assert.equal( child.material.normalScale.y, - 0.1 );
 
 } );
 
@@ -200,5 +284,30 @@ test( 'applyCharacterAppearance restores the original balaclava material when th
 	} );
 
 	assert.strictEqual( child.material, originalMaterial );
+
+} );
+
+test( 'applyCharacterMaterialTuningToMaterial bakes the shared mask material defaults', () => {
+
+	const material = createMockMaterial();
+	const originalEmissiveMap = material.emissiveMap;
+	const originalAlphaMap = material.alphaMap;
+
+	applyCharacterMaterialTuningToMaterial( material );
+
+	assert.equal( material.normalScale.x, 0.1 );
+	assert.equal( material.normalScale.y, - 0.1 );
+	assert.equal( material.aoMapIntensity, 1 );
+	assert.equal( material.roughness, 1 );
+	assert.equal( material.metalness, 1 );
+	assert.equal( material.envMapIntensity, 1 );
+	assert.equal( material.side, 2 );
+	assert.equal( material.emissiveMap, null );
+	assert.equal( material.alphaMap, null );
+	assert.strictEqual( material._kkCharacterMaterialOriginalTextures.emissiveMap, originalEmissiveMap );
+	assert.strictEqual( material._kkCharacterMaterialOriginalTextures.alphaMap, originalAlphaMap );
+	assert.equal( material.map.anisotropy, 1 );
+	assert.equal( material.map.needsUpdate, true );
+	assert.equal( material.needsUpdate, true );
 
 } );

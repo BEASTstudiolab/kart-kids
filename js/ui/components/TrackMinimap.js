@@ -1,151 +1,285 @@
+import { TrackIntel } from '../../TrackIntel.js';
+import { normalizeLegacyTrackIntelCells } from '../../TrackOrientation.js';
+import { CELL_RAW, GRID_SCALE } from '../../TrackConstants.js';
+
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const DEFAULT_TRACK_COLOR = '#d6402b';
+const DEFAULT_PADDING = 6;
+const DEFAULT_WORLD_HALF_WIDTH = CELL_RAW * GRID_SCALE * 0.28;
+
 /**
- * TrackMinimap — Pure function that renders a top-down track minimap onto a canvas.
+ * TrackMinimap — pure helper that renders a top-down minimap as SVG.
  *
- * Each track cell is drawn as a colored rounded rectangle, with colors
- * determined by tile type (track, finish, elevation, bridge, junction, etc.).
+ * The preview is built from track waypoints when possible so larger pieces
+ * such as 2x2/3x3 curves read like the real route rather than a single tile.
+ * The SVG stays transparent so the UI surface owns the background treatment.
  */
 
 /**
  * Render a top-down minimap of the given track cells.
  *
- * @param {Array<Array>} cells  Array of cell tuples: [gx, gz, tileKey, orient, ...]
- * @param {number}       width  Canvas width in pixels.
- * @param {number}       height Canvas height in pixels.
- * @returns {HTMLCanvasElement} A canvas element with the rendered minimap.
+ * @param {Array<Array>} cells  Array of cell tuples: [gx, gz, tileKey, orient, flags?]
+ * @param {number} width
+ * @param {number} height
+ * @param {{ palette?: { track?: string } }} [options]
+ * @returns {SVGSVGElement}
  */
-export function renderMinimap( cells, width, height ) {
+export function renderMinimap( cells, width, height, options = {} ) {
 
-	const canvas = document.createElement( 'canvas' );
-	canvas.width = width;
-	canvas.height = height;
+	const svg = _createSvgRoot( width, height, options.palette );
 
-	const ctx = canvas.getContext( '2d' );
+	if ( ! Array.isArray( cells ) || cells.length === 0 ) {
 
-	// Background fill
-
-	ctx.fillStyle = '#0a0a0a';
-	ctx.fillRect( 0, 0, width, height );
-
-	// Early out for empty or null cells
-
-	if ( ! cells || cells.length === 0 ) return canvas;
-
-	// Compute bounding box
-
-	let minGx = Infinity;
-	let maxGx = - Infinity;
-	let minGz = Infinity;
-	let maxGz = - Infinity;
-
-	for ( let i = 0; i < cells.length; i ++ ) {
-
-		const cell = cells[ i ];
-		const gx = cell[ 0 ];
-		const gz = cell[ 1 ];
-
-		if ( gx < minGx ) minGx = gx;
-		if ( gx > maxGx ) maxGx = gx;
-		if ( gz < minGz ) minGz = gz;
-		if ( gz > maxGz ) maxGz = gz;
+		svg.setAttribute( 'data-track-render-mode', 'empty' );
+		svg.setAttribute( 'data-track-point-count', '0' );
+		return svg;
 
 	}
 
-	const rangeX = maxGx - minGx + 1;
-	const rangeZ = maxGz - minGz + 1;
+	const geometry = _buildRenderGeometry( cells );
+	const points = _projectPoints( geometry.points, width, height, geometry.closed );
 
-	// Cell render size with padding margin
+	svg.setAttribute( 'data-track-render-mode', geometry.mode );
+	svg.setAttribute( 'data-track-point-count', String( points.length ) );
 
-	const padding = 2;
-	const cellSize = Math.min(
-		( width - padding * 2 ) / rangeX,
-		( height - padding * 2 ) / rangeZ
+	if ( points.length === 0 ) return svg;
+
+	const dots = _createSvgElement( 'g' );
+	dots.setAttribute( 'fill', `var(--track-minimap-track, ${DEFAULT_TRACK_COLOR})` );
+	dots.setAttribute( 'stroke', 'none' );
+	svg.appendChild( dots );
+
+	for ( const point of points ) {
+
+		const circle = _createSvgElement( 'circle' );
+		circle.setAttribute( 'cx', _formatNumber( point.x ) );
+		circle.setAttribute( 'cy', _formatNumber( point.y ) );
+		circle.setAttribute( 'r', _formatNumber( point.r ) );
+		dots.appendChild( circle );
+
+	}
+
+	return svg;
+
+}
+
+function _createSvgRoot( width, height, paletteOverride ) {
+
+	const svg = _createSvgElement( 'svg' );
+	svg.setAttribute( 'xmlns', SVG_NS );
+	svg.setAttribute( 'width', String( width ) );
+	svg.setAttribute( 'height', String( height ) );
+	svg.setAttribute( 'viewBox', `0 0 ${width} ${height}` );
+	svg.setAttribute( 'preserveAspectRatio', 'xMidYMid meet' );
+	svg.setAttribute( 'aria-hidden', 'true' );
+	svg.setAttribute( 'focusable', 'false' );
+	svg.setAttribute( 'class', 'kk-track-minimap' );
+	svg.setAttribute( 'shape-rendering', 'geometricPrecision' );
+
+	if ( paletteOverride?.track ) {
+
+		svg.style.setProperty( '--track-minimap-track', paletteOverride.track );
+
+	}
+
+	return svg;
+
+}
+
+function _buildRenderGeometry( cells ) {
+
+	try {
+
+		const intel = new TrackIntel( cells );
+		if ( intel.valid && Array.isArray( intel.waypoints ) && intel.waypoints.length > 1 ) {
+
+			return {
+				mode: 'intel',
+				closed: true,
+				points: intel.waypoints.map( ( point ) => ( { x: point.x, y: point.z } ) ),
+			};
+
+		}
+
+	} catch ( error ) {
+
+		console.warn( 'TrackMinimap: TrackIntel fallback triggered:', error );
+
+	}
+
+	const fallbackCells = normalizeLegacyTrackIntelCells( cells );
+	return {
+		mode: 'fallback',
+		closed: false,
+		points: fallbackCells.map( ( cell ) => _cellToWorldPoint( cell ) ),
+	};
+
+}
+
+function _cellToWorldPoint( cell ) {
+
+	return {
+		x: ( cell[ 0 ] + 0.5 ) * CELL_RAW * GRID_SCALE,
+		y: ( cell[ 1 ] + 0.5 ) * CELL_RAW * GRID_SCALE,
+	};
+
+}
+
+function _projectPoints( worldPoints, width, height, closed ) {
+
+	if ( ! Array.isArray( worldPoints ) || worldPoints.length === 0 ) return [];
+
+	let minX = Infinity;
+	let maxX = - Infinity;
+	let minY = Infinity;
+	let maxY = - Infinity;
+
+	for ( const point of worldPoints ) {
+
+		if ( point.x < minX ) minX = point.x;
+		if ( point.x > maxX ) maxX = point.x;
+		if ( point.y < minY ) minY = point.y;
+		if ( point.y > maxY ) maxY = point.y;
+
+	}
+
+	const padding = Math.max( DEFAULT_PADDING, Math.min( width, height ) * 0.08 );
+	const contentWidth = Math.max( maxX - minX, 1 ) + DEFAULT_WORLD_HALF_WIDTH * 2;
+	const contentHeight = Math.max( maxY - minY, 1 ) + DEFAULT_WORLD_HALF_WIDTH * 2;
+	const scale = Math.min(
+		( width - padding * 2 ) / contentWidth,
+		( height - padding * 2 ) / contentHeight
 	);
 
-	// Center the map within the canvas
+	const offsetX = ( width - contentWidth * scale ) / 2;
+	const offsetY = ( height - contentHeight * scale ) / 2;
+	const projected = worldPoints.map( ( point ) => ( {
+		x: offsetX + ( point.x - minX + DEFAULT_WORLD_HALF_WIDTH ) * scale,
+		y: offsetY + ( point.y - minY + DEFAULT_WORLD_HALF_WIDTH ) * scale,
+	} ) );
 
-	const offsetX = ( width - rangeX * cellSize ) / 2;
-	const offsetZ = ( height - rangeZ * cellSize ) / 2;
+	if ( projected.length === 1 ) {
 
-	// Corner radius for rounded rects
-
-	const cornerRadius = Math.max( 1, cellSize * 0.15 );
-	const inset = Math.max( 0.5, cellSize * 0.05 );
-
-	// Draw each cell
-
-	for ( let i = 0; i < cells.length; i ++ ) {
-
-		const cell = cells[ i ];
-		const gx = cell[ 0 ];
-		const gz = cell[ 1 ];
-		const tileKey = cell[ 2 ] || '';
-
-		const x = offsetX + ( gx - minGx ) * cellSize + inset;
-		const y = offsetZ + ( gz - minGz ) * cellSize + inset;
-		const size = cellSize - inset * 2;
-
-		ctx.fillStyle = getTileColor( tileKey );
-
-		drawRoundedRect( ctx, x, y, size, size, cornerRadius );
-		ctx.fill();
+		return [ {
+			x: projected[ 0 ].x,
+			y: projected[ 0 ].y,
+			r: _computeDotRadius( width, height ),
+		} ];
 
 	}
 
-	return canvas;
+	if ( ! closed ) {
+
+		const radius = _computeDotRadius( width, height );
+		return projected.map( ( point ) => ( { ...point, r: radius } ) );
+
+	}
+
+	const spacing = _computeDotSpacing( width, height );
+	const sampled = _sampleClosedPolyline( projected, spacing );
+	const radius = Math.max( 1.4, Math.min( spacing * 0.72, Math.min( width, height ) * 0.11 ) );
+
+	return sampled.map( ( point ) => ( { ...point, r: radius } ) );
 
 }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
+function _sampleClosedPolyline( points, spacing ) {
 
-/**
- * Return a hex color string for the given tile key based on its prefix.
- *
- * @param {string} tileKey
- * @returns {string}
- */
-function getTileColor( tileKey ) {
+	if ( points.length <= 1 ) return points.slice();
 
-	if ( tileKey.startsWith( 'trk-finish' ) ) return '#22c55e';
-	if ( tileKey.startsWith( 'trk-ramp' ) ) return '#ffd600';
-	if ( tileKey.startsWith( 'trk-elev' ) ) return '#ffd600';
-	if ( tileKey.startsWith( 'trk-bridge' ) ) return '#00d4e8';
-	if ( tileKey.startsWith( 'trk-tunnel' ) ) return '#00d4e8';
-	if ( tileKey.startsWith( 'trk-junction' ) ) return '#ff3a8c';
-	if ( tileKey.startsWith( 'trk-straight' ) ) return '#ff6b00';
-	if ( tileKey.startsWith( 'trk-corner' ) ) return '#ff6b00';
-	if ( tileKey.startsWith( 'trk-jump' ) ) return '#ff6b00';
-	if ( tileKey.startsWith( 'trk-chicane' ) ) return '#ff6b00';
+	const closedPoints = points.slice();
+	const first = points[ 0 ];
+	const last = points[ points.length - 1 ];
+	if ( _distance( first, last ) > 0.001 ) closedPoints.push( first );
 
-	return '#555555';
+	const segmentLengths = [];
+	let totalLength = 0;
+
+	for ( let i = 0; i < closedPoints.length - 1; i ++ ) {
+
+		const start = closedPoints[ i ];
+		const end = closedPoints[ i + 1 ];
+		const length = _distance( start, end );
+		segmentLengths.push( length );
+		totalLength += length;
+
+	}
+
+	if ( totalLength === 0 ) return [ first ];
+
+	const sampled = [];
+	for ( let distanceAlong = 0; distanceAlong < totalLength; distanceAlong += spacing ) {
+
+		sampled.push( _pointAtDistance( closedPoints, segmentLengths, distanceAlong ) );
+
+	}
+
+	return sampled.length > 0 ? sampled : [ first ];
 
 }
 
-/**
- * Trace a rounded-rectangle path on the given 2D context.
- *
- * @param {CanvasRenderingContext2D} ctx
- * @param {number} x
- * @param {number} y
- * @param {number} w
- * @param {number} h
- * @param {number} r  Corner radius.
- */
-function drawRoundedRect( ctx, x, y, w, h, r ) {
+function _pointAtDistance( points, segmentLengths, targetDistance ) {
 
-	const radius = Math.min( r, w / 2, h / 2 );
+	let consumed = 0;
 
-	ctx.beginPath();
-	ctx.moveTo( x + radius, y );
-	ctx.lineTo( x + w - radius, y );
-	ctx.arcTo( x + w, y, x + w, y + radius, radius );
-	ctx.lineTo( x + w, y + h - radius );
-	ctx.arcTo( x + w, y + h, x + w - radius, y + h, radius );
-	ctx.lineTo( x + radius, y + h );
-	ctx.arcTo( x, y + h, x, y + h - radius, radius );
-	ctx.lineTo( x, y + radius );
-	ctx.arcTo( x, y, x + radius, y, radius );
-	ctx.closePath();
+	for ( let i = 0; i < segmentLengths.length; i ++ ) {
+
+		const segmentLength = segmentLengths[ i ];
+		if ( segmentLength === 0 ) continue;
+
+		const nextConsumed = consumed + segmentLength;
+		if ( targetDistance <= nextConsumed ) {
+
+			const ratio = ( targetDistance - consumed ) / segmentLength;
+			return _lerpPoint( points[ i ], points[ i + 1 ], ratio );
+
+		}
+
+		consumed = nextConsumed;
+
+	}
+
+	return { ...points[ points.length - 1 ] };
+
+}
+
+function _lerpPoint( start, end, t ) {
+
+	return {
+		x: start.x + ( end.x - start.x ) * t,
+		y: start.y + ( end.y - start.y ) * t,
+	};
+
+}
+
+function _distance( a, b ) {
+
+	const dx = b.x - a.x;
+	const dy = b.y - a.y;
+	return Math.hypot( dx, dy );
+
+}
+
+function _computeDotSpacing( width, height ) {
+
+	return Math.max( 2.25, Math.min( Math.min( width, height ) / 24, 5 ) );
+
+}
+
+function _computeDotRadius( width, height ) {
+
+	return Math.max( 1.6, Math.min( Math.min( width, height ) * 0.05, 4.25 ) );
+
+}
+
+function _createSvgElement( tagName ) {
+
+	return document.createElementNS( SVG_NS, tagName );
+
+}
+
+function _formatNumber( value ) {
+
+	return Number( value ).toFixed( 2 ).replace( /\.00$/, '' );
 
 }

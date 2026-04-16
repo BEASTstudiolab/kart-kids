@@ -92,8 +92,11 @@ test( 'character tab disables the embedded preview panel in tab mode', () => {
 		showBrandHeader: false,
 		showCameraDebugControls: false,
 		showEmbeddedPreview: false,
-		rootAriaLabel: 'Character tab',
-		sidebarCopy: 'Tune suit, skin, masks, and gear here. Selections apply instantly to your driver.',
+		surfaceVariant: 'customizer',
+		rootAriaLabel: 'Character customization tab',
+		sidebarLabelText: 'Customizer',
+		sidebarTitleText: 'Pilot Style',
+		sidebarCopy: 'Tune suit, skin, masks, and gear here. Garage handles kart paint and performance.',
 	} );
 
 } );
@@ -104,6 +107,7 @@ test( 'character render clears stale shared preview tuning back to baked default
 	const viewCalls = [];
 	const controller = new Page10CharacterSelectController( {}, {
 		setMenuPreviewTuning: ( tuning ) => tuningCalls.push( tuning ),
+		loadBalaclavaThumbnails: async () => new Map(),
 		getMenuPreviewPose: () => ( {
 			presetId: 'character-face',
 			cameraPos: { x: 0.4, y: 2.92, z: 3.65 },
@@ -122,6 +126,8 @@ test( 'character render clears stale shared preview tuning back to baked default
 	};
 	controller._view = {
 		mount: () => {},
+		renderCategories: () => {},
+		setSelectionState: () => {},
 		setCameraDebugState: ( tuning, previewPose ) => {
 
 			viewCalls.push( { tuning, previewPose } );
@@ -155,6 +161,45 @@ test( 'character render clears stale shared preview tuning back to baked default
 			kartRotYDeg: 1434,
 		},
 	} ] );
+
+} );
+
+test( 'wardrobe category items expose thumbnail metadata when character item previews are available', () => {
+
+	const controller = new Page10CharacterSelectController();
+	const appearance = createDefaultPlayerAppearance();
+
+	controller._draftAppearance = controller._cloneAppearance( appearance );
+	controller._itemThumbnailState = 'ready';
+	controller._itemThumbnailEntries = new Map( [
+		[ 'balaclava-basic', { src: 'data:image/png;base64,basic', state: 'ready' } ],
+		[ 'balaclava-pig', { src: '', state: 'fallback' } ],
+		[ 'Baseball_Hat', { src: 'data:image/png;base64,hat', state: 'ready' } ],
+		[ 'Tshirt', { src: 'data:image/png;base64,shirt', state: 'ready' } ],
+		[ 'Jeans', { src: 'data:image/png;base64,pants', state: 'ready' } ],
+	] );
+
+	const categories = controller._buildCategoriesViewModel();
+	const masksCategory = categories.find( ( category ) => category.id === 'masks' );
+	const accessoriesCategory = categories.find( ( category ) => category.id === 'accessories' );
+	const shirtsCategory = categories.find( ( category ) => category.id === 'shirts' );
+	const pantsCategory = categories.find( ( category ) => category.id === 'pants' );
+	const basic = masksCategory.items.find( ( item ) => item.id === 'balaclava-basic' );
+	const pig = masksCategory.items.find( ( item ) => item.id === 'balaclava-pig' );
+	const hat = accessoriesCategory.items.find( ( item ) => item.id === 'Baseball_Hat' );
+	const shirt = shirtsCategory.items.find( ( item ) => item.id === 'Tshirt' );
+	const pants = pantsCategory.items.find( ( item ) => item.id === 'Jeans' );
+
+	assert.equal( basic.thumbnailSrc, 'data:image/png;base64,basic' );
+	assert.equal( basic.thumbnailState, 'ready' );
+	assert.equal( pig.thumbnailSrc, '' );
+	assert.equal( pig.thumbnailState, 'fallback' );
+	assert.equal( hat.thumbnailSrc, 'data:image/png;base64,hat' );
+	assert.equal( hat.thumbnailState, 'ready' );
+	assert.equal( shirt.thumbnailSrc, 'data:image/png;base64,shirt' );
+	assert.equal( shirt.thumbnailState, 'ready' );
+	assert.equal( pants.thumbnailSrc, 'data:image/png;base64,pants' );
+	assert.equal( pants.thumbnailState, 'ready' );
 
 } );
 

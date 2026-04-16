@@ -140,9 +140,12 @@ export class TrackBrowser {
 			.kk-tracks__detail-minimap {
 				border-radius: var(--radius-sm, 2px);
 				overflow: hidden;
+				background: transparent;
+				--track-minimap-track: rgba(255, 255, 255, 0.92);
 			}
 
-			.kk-tracks__detail-minimap canvas {
+			.kk-tracks__detail-minimap canvas,
+			.kk-tracks__detail-minimap svg {
 				display: block;
 				width: 100%;
 				height: auto;
@@ -458,9 +461,12 @@ export class TrackBrowser {
 				margin-top: auto;
 				border-radius: var(--radius-sm, 2px);
 				overflow: hidden;
+				background: transparent;
+				--track-minimap-track: rgba(255, 255, 255, 0.92);
 			}
 
-			.kk-tracks__card-minimap canvas {
+			.kk-tracks__card-minimap canvas,
+			.kk-tracks__card-minimap svg {
 				display: block;
 				width: 100%;
 				height: auto;

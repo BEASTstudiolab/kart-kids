@@ -187,10 +187,12 @@ export class RouterService {
 		if ( ! matched ) {
 
 			// Unknown route — invoke fallback.
+			this._disposeActive();
+
 			if ( typeof this._fallbackRoute === 'function' ) {
 
 				console.warn( `[RouterService] No route matched "${path}" — invoking fallback callback` );
-				this._fallbackRoute();
+				this._fallbackRoute( path );
 
 			} else {
 

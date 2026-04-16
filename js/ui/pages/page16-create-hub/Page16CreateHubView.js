@@ -211,12 +211,6 @@ export class Page16CreateHubView extends PageViewBase {
 			}
 
 			.page-create-hub__sidebar-section-label {
-				font-family: var(--font-ui);
-				font-size: var(--text-xs);
-				font-weight: var(--weight-bold);
-				color: var(--color-ink-400);
-				text-transform: uppercase;
-				letter-spacing: var(--tracking-widest);
 				margin-bottom: var(--space-3);
 				display: block;
 			}
@@ -316,36 +310,12 @@ export class Page16CreateHubView extends PageViewBase {
 			}
 
 			.page-create-hub__section-heading-label {
-				font-family: var(--font-ui);
-				font-size: var(--text-xs);
-				font-weight: var(--weight-bold);
-				color: var(--color-ink-300);
-				text-transform: uppercase;
-				letter-spacing: var(--tracking-widest);
 				flex: 1;
 			}
 
 			/* Heading button (e.g., FEATURED TRACKS → /discover) */
 			.page-create-hub__section-heading-btn {
-				background: none;
-				border: none;
-				padding: 0;
-				cursor: pointer;
-				font-family: var(--font-ui);
-				font-size: var(--text-xs);
-				font-weight: var(--weight-bold);
-				color: var(--color-ink-400);
-				text-transform: uppercase;
-				letter-spacing: var(--tracking-widest);
 				border-radius: var(--radius-sm);
-				transition: color var(--duration-fast) var(--ease-standard);
-			}
-
-			.page-create-hub__section-heading-btn:hover,
-			.page-create-hub__section-heading-btn:focus-visible {
-				color: var(--color-accent-orange);
-				outline: 2px solid var(--color-accent-orange);
-				outline-offset: 2px;
 			}
 
 			/* ================================================================
@@ -389,12 +359,7 @@ export class Page16CreateHubView extends PageViewBase {
 			}
 
 			.page-create-hub__track-thumb-label {
-				font-family: var(--font-ui);
-				font-size: var(--text-xs);
-				font-weight: var(--weight-bold);
 				color: var(--color-ink-400);
-				text-transform: uppercase;
-				letter-spacing: var(--tracking-widest);
 			}
 
 			.page-create-hub__track-thumb-badge {
@@ -478,12 +443,6 @@ export class Page16CreateHubView extends PageViewBase {
 			}
 
 			.page-create-hub__creator-label {
-				font-family: var(--font-ui);
-				font-size: var(--text-xs);
-				font-weight: var(--weight-bold);
-				color: var(--color-ink-300);
-				text-transform: uppercase;
-				letter-spacing: var(--tracking-widest);
 				display: block;
 				margin-bottom: var(--space-1);
 			}
@@ -516,11 +475,7 @@ export class Page16CreateHubView extends PageViewBase {
 			}
 
 			.page-create-hub__creator-spotlight {
-				font-family: var(--font-ui);
-				font-size: var(--text-xs);
 				color: var(--color-ink-400);
-				text-transform: uppercase;
-				letter-spacing: var(--tracking-widest);
 				margin-bottom: var(--space-1);
 				display: block;
 			}
@@ -535,12 +490,6 @@ export class Page16CreateHubView extends PageViewBase {
 			}
 
 			.page-create-hub__creator-featured-label {
-				font-family: var(--font-ui);
-				font-size: var(--text-xs);
-				font-weight: var(--weight-bold);
-				color: var(--color-ink-300);
-				text-transform: uppercase;
-				letter-spacing: var(--tracking-widest);
 				margin: var(--space-3) var(--space-4) var(--space-2);
 				border-top: 1px solid var(--color-panel-border);
 				padding-top: var(--space-3);
@@ -566,12 +515,7 @@ export class Page16CreateHubView extends PageViewBase {
 			}
 
 			.page-create-hub__creator-track-thumb-label {
-				font-family: var(--font-ui);
-				font-size: var(--text-xs);
 				color: var(--color-ink-500);
-				font-weight: var(--weight-semibold);
-				text-transform: uppercase;
-				letter-spacing: var(--tracking-wider);
 			}
 
 			/* ================================================================
@@ -579,13 +523,7 @@ export class Page16CreateHubView extends PageViewBase {
 			================================================================ */
 
 			.page-create-hub__placeholder-panel {
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				justify-content: center;
 				height: 100%;
-				gap: var(--space-4);
-				color: var(--color-ink-400);
 			}
 
 			.page-create-hub__placeholder-panel-icon {
@@ -594,11 +532,6 @@ export class Page16CreateHubView extends PageViewBase {
 			}
 
 			.page-create-hub__placeholder-panel-text {
-				font-family: var(--font-display);
-				font-size: var(--text-lg);
-				font-weight: var(--weight-black);
-				text-transform: uppercase;
-				letter-spacing: var(--tracking-wider);
 				color: var(--color-ink-500);
 			}
 		`;
@@ -636,7 +569,7 @@ export class Page16CreateHubView extends PageViewBase {
 
 		// Wrap the pill-style title label separately, insert PageHeader for back
 		const centerArea = document.createElement( 'div' );
-		centerArea.style.cssText = 'display:flex;align-items:center;gap:var(--space-3);';
+		centerArea.className = 'kk-ui-inline-row';
 		centerArea.appendChild( this._header.el );
 		headerStrip.appendChild( centerArea );
 
@@ -678,13 +611,13 @@ export class Page16CreateHubView extends PageViewBase {
 		// Append tab panels that need body-level slot — they share the body layout
 		// Track builder panel drives the 3-col body; other panels are full-span placeholders
 		const trackBuilderPanel = this._topTabs.getPanel( 'tab_track_builder' );
-		trackBuilderPanel.style.cssText = 'display:contents;'; // dissolves into body grid
+		trackBuilderPanel.classList.add( 'kk-ui-display-contents' ); // dissolves into body grid
 		body.appendChild( trackBuilderPanel );
 
 		[ 'tab_kart_customizer', 'tab_street_art', 'tab_community_hub' ].forEach( ( tabId ) => {
 
 			const panel = this._topTabs.getPanel( tabId );
-			panel.style.cssText = 'grid-column:1/-1;display:flex;';
+			panel.classList.add( 'kk-ui-tab-panel' );
 			panel.appendChild( this._buildPlaceholderPanel( tabId ) );
 			body.appendChild( panel );
 
@@ -736,7 +669,7 @@ export class Page16CreateHubView extends PageViewBase {
 		libSection.className = 'page-create-hub__sidebar-section';
 
 		const libLabel = document.createElement( 'span' );
-		libLabel.className = 'page-create-hub__sidebar-section-label';
+		libLabel.className = 'page-create-hub__sidebar-section-label kk-ui-meta-label';
 		libLabel.textContent = 'MY LIBRARY';
 		libSection.appendChild( libLabel );
 
@@ -777,7 +710,7 @@ export class Page16CreateHubView extends PageViewBase {
 		tmplSection.className = 'page-create-hub__sidebar-section';
 
 		const tmplLabel = document.createElement( 'span' );
-		tmplLabel.className = 'page-create-hub__sidebar-section-label';
+		tmplLabel.className = 'page-create-hub__sidebar-section-label kk-ui-meta-label';
 		tmplLabel.textContent = 'TEMPLATES';
 		tmplSection.appendChild( tmplLabel );
 
@@ -810,7 +743,7 @@ export class Page16CreateHubView extends PageViewBase {
 		recentHeading.className = 'page-create-hub__section-heading';
 
 		const recentLabel = document.createElement( 'span' );
-		recentLabel.className = 'page-create-hub__section-heading-label';
+		recentLabel.className = 'page-create-hub__section-heading-label kk-ui-meta-label';
 		recentLabel.textContent = 'MY RECENT TRACKS';
 		recentHeading.appendChild( recentLabel );
 		center.appendChild( recentHeading );
@@ -829,13 +762,13 @@ export class Page16CreateHubView extends PageViewBase {
 		featuredHeading.className = 'page-create-hub__section-heading';
 
 		const featuredLabel = document.createElement( 'span' );
-		featuredLabel.className = 'page-create-hub__section-heading-label';
+		featuredLabel.className = 'page-create-hub__section-heading-label kk-ui-meta-label';
 		featuredLabel.textContent = 'FEATURED TRACKS';
 		featuredHeading.appendChild( featuredLabel );
 
 		const featuredBtn = document.createElement( 'button' );
 		featuredBtn.type = 'button';
-		featuredBtn.className = 'page-create-hub__section-heading-btn';
+		featuredBtn.className = 'page-create-hub__section-heading-btn kk-ui-meta-action';
 		featuredBtn.textContent = 'SEE ALL';
 		featuredBtn.dataset.action = ButtonIds.CREATE_FEATURED_TRACKS;
 		this._featuredHeadingBtn = featuredBtn;
@@ -870,7 +803,7 @@ export class Page16CreateHubView extends PageViewBase {
 		header.className = 'page-create-hub__creator-header';
 
 		const headerLabel = document.createElement( 'span' );
-		headerLabel.className = 'page-create-hub__creator-label';
+		headerLabel.className = 'page-create-hub__creator-label kk-ui-meta-label';
 		headerLabel.textContent = 'FEATURED CREATOR';
 		header.appendChild( headerLabel );
 		panel.appendChild( header );
@@ -890,7 +823,7 @@ export class Page16CreateHubView extends PageViewBase {
 		info.className = 'page-create-hub__creator-info';
 
 		const spotlight = document.createElement( 'span' );
-		spotlight.className = 'page-create-hub__creator-spotlight';
+		spotlight.className = 'page-create-hub__creator-spotlight kk-ui-meta-label';
 		spotlight.textContent = 'CREATOR SPOTLIGHT:';
 		info.appendChild( spotlight );
 
@@ -903,7 +836,7 @@ export class Page16CreateHubView extends PageViewBase {
 
 		// His featured tracks
 		const featLabel = document.createElement( 'span' );
-		featLabel.className = 'page-create-hub__creator-featured-label';
+		featLabel.className = 'page-create-hub__creator-featured-label kk-ui-meta-label';
 		featLabel.textContent = 'HIS FEATURED TRACKS';
 		panel.appendChild( featLabel );
 
@@ -916,7 +849,7 @@ export class Page16CreateHubView extends PageViewBase {
 			const thumb = document.createElement( 'div' );
 			thumb.className = 'page-create-hub__creator-track-thumb';
 			const thumbLabel = document.createElement( 'span' );
-			thumbLabel.className = 'page-create-hub__creator-track-thumb-label';
+			thumbLabel.className = 'page-create-hub__creator-track-thumb-label kk-ui-meta-label';
 			thumbLabel.textContent = `TRACK ${i + 1}`;
 			thumb.appendChild( thumbLabel );
 			creatorTracks.appendChild( thumb );
@@ -944,8 +877,7 @@ export class Page16CreateHubView extends PageViewBase {
 		};
 
 		const el = document.createElement( 'div' );
-		el.className = 'page-create-hub__placeholder-panel';
-		el.style.flex = '1';
+		el.className = 'page-create-hub__placeholder-panel kk-ui-placeholder kk-ui-fill';
 
 		const icon = document.createElement( 'div' );
 		icon.className = 'page-create-hub__placeholder-panel-icon';
@@ -954,7 +886,7 @@ export class Page16CreateHubView extends PageViewBase {
 		el.appendChild( icon );
 
 		const text = document.createElement( 'p' );
-		text.className = 'page-create-hub__placeholder-panel-text';
+		text.className = 'page-create-hub__placeholder-panel-text kk-ui-placeholder__title';
 		text.textContent = `${labels[ tabId ] ?? tabId} — COMING SOON`;
 		el.appendChild( text );
 
@@ -1071,8 +1003,8 @@ export class Page16CreateHubView extends PageViewBase {
 		thumb.className = 'page-create-hub__track-thumb';
 		thumb.setAttribute( 'aria-hidden', 'true' );
 
-		const thumbLabel = document.createElement( 'span' );
-		thumbLabel.className = 'page-create-hub__track-thumb-label';
+			const thumbLabel = document.createElement( 'span' );
+			thumbLabel.className = 'page-create-hub__track-thumb-label kk-ui-meta-label';
 		thumbLabel.textContent = 'USER-MADE TRACKS';
 		thumb.appendChild( thumbLabel );
 

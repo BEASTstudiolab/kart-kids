@@ -72,8 +72,11 @@ export class TrackLibraryBrowser {
 				border-radius: 18px;
 				overflow: hidden;
 				border: 1px solid rgba(255,255,255,0.08);
+				background: transparent;
+				--track-minimap-track: rgba(247, 243, 233, 0.94);
 			}
-			.kk-track-library__detail-minimap canvas {
+			.kk-track-library__detail-minimap canvas,
+			.kk-track-library__detail-minimap svg {
 				display: block;
 				width: 100%;
 				height: auto;
@@ -186,8 +189,11 @@ export class TrackLibraryBrowser {
 				border-radius: 14px;
 				overflow: hidden;
 				border: 1px solid rgba(255,255,255,0.08);
+				background: transparent;
+				--track-minimap-track: rgba(247, 243, 233, 0.94);
 			}
-			.kk-track-library__card-minimap canvas {
+			.kk-track-library__card-minimap canvas,
+			.kk-track-library__card-minimap svg {
 				display: block;
 				width: 100%;
 				height: auto;

@@ -75,6 +75,13 @@ export class CTAButton {
         user-select: none;
       }
 
+      .kk-cta-button--hero {
+        font-size: clamp(3rem, 5vw, var(--text-5xl));
+        font-weight: var(--weight-black);
+        line-height: 1;
+        padding: var(--space-6) var(--space-10);
+      }
+
       /* --- Variants --- */
 
       .kk-cta-button--primary {

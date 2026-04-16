@@ -11,7 +11,50 @@ import {
 const COLOR_HEX_RE = /^#[0-9a-f]{6}$/i;
 const SKIN_MATERIAL_NAME = 'Test Skin';
 const ORIGINAL_MATERIAL_KEY = '_kkOriginalMaterial';
+const ORIGINAL_TEXTURES_KEY = '_kkCharacterMaterialOriginalTextures';
 export const DEFAULT_MASK_TINT_COLOR = '#ffffff';
+const FRONT_SIDE = 0;
+const DOUBLE_SIDE = 2;
+const CHARACTER_MATERIAL_MAX_TEXTURE_ANISOTROPY = 16;
+const CHARACTER_MATERIAL_TEXTURE_KEYS = Object.freeze( [
+	'map',
+	'normalMap',
+	'aoMap',
+	'roughnessMap',
+	'metalnessMap',
+	'emissiveMap',
+	'alphaMap',
+] );
+const CHARACTER_MATERIAL_TUNING_PRESETS = Object.freeze( {
+	'Masks Batch': Object.freeze( {
+		textureFidelity: 1,
+		normalStrength: 0.1,
+		color: Object.freeze( { r: 1, g: 1, b: 1 } ),
+		emissive: Object.freeze( { r: 0, g: 0, b: 0 } ),
+		emissiveIntensity: 1,
+		normalScale: Object.freeze( { x: 0.1, y: - 0.1 } ),
+		aoMapIntensity: 1,
+		roughness: 1,
+		metalness: 1,
+		envMapIntensity: 1,
+		opacity: 1,
+		alphaTest: 0,
+		doubleSided: true,
+		wireframe: false,
+		flatShading: false,
+		depthWrite: true,
+		transparent: false,
+		maps: Object.freeze( {
+			map: Object.freeze( { enabled: true } ),
+			normalMap: Object.freeze( { enabled: true } ),
+			aoMap: Object.freeze( { enabled: true } ),
+			roughnessMap: Object.freeze( { enabled: true } ),
+			metalnessMap: Object.freeze( { enabled: true } ),
+			emissiveMap: Object.freeze( { enabled: false } ),
+			alphaMap: Object.freeze( { enabled: false } ),
+		} ),
+	} ),
+} );
 
 export const ACCESSORY_DEFS = CHARACTER_ACCESSORY_DEFS;
 
@@ -160,6 +203,168 @@ function _isMeshNode( child ) {
 
 }
 
+function normalizeMaterialName( value ) {
+
+	return typeof value === 'string' ? value.trim() : '';
+
+}
+
+function _setColorChannels( target, value ) {
+
+	if ( ! target || ! value ) return;
+
+	if ( typeof target.setRGB === 'function' ) {
+
+		target.setRGB( value.r, value.g, value.b );
+		return;
+
+	}
+
+	if ( Object.prototype.hasOwnProperty.call( target, 'r' ) ) target.r = value.r;
+	if ( Object.prototype.hasOwnProperty.call( target, 'g' ) ) target.g = value.g;
+	if ( Object.prototype.hasOwnProperty.call( target, 'b' ) ) target.b = value.b;
+
+}
+
+function _setVector2( target, x, y ) {
+
+	if ( ! target ) return;
+
+	if ( typeof target.set === 'function' ) {
+
+		target.set( x, y );
+		return;
+
+	}
+
+	target.x = x;
+	target.y = y;
+
+}
+
+function _getOriginalMaterialTextures( material ) {
+
+	if ( ! material ) return {};
+	if ( ! Object.prototype.hasOwnProperty.call( material, ORIGINAL_TEXTURES_KEY ) ) {
+
+		material[ ORIGINAL_TEXTURES_KEY ] = {};
+
+	}
+
+	const originalTextures = material[ ORIGINAL_TEXTURES_KEY ];
+	for ( const textureKey of CHARACTER_MATERIAL_TEXTURE_KEYS ) {
+
+		if ( ! Object.prototype.hasOwnProperty.call( originalTextures, textureKey ) ) {
+
+			originalTextures[ textureKey ] = material[ textureKey ] || null;
+
+		}
+
+	}
+
+	return originalTextures;
+
+}
+
+function _applyTextureFidelity( texture, fidelity ) {
+
+	if ( ! texture || ! Object.prototype.hasOwnProperty.call( texture, 'anisotropy' ) ) return;
+
+	texture.anisotropy = Math.min(
+		Math.max( 1, Math.round( Number( fidelity ) || 1 ) ),
+		CHARACTER_MATERIAL_MAX_TEXTURE_ANISOTROPY
+	);
+	texture.needsUpdate = true;
+
+}
+
+function _resolveNormalScale( tuning, material ) {
+
+	if ( tuning?.normalScale ) return tuning.normalScale;
+	if ( ! Number.isFinite( tuning?.normalStrength ) ) return null;
+
+	const xSign = Number( material?.normalScale?.x ) < 0 ? - 1 : 1;
+	const ySign = Number( material?.normalScale?.y ) > 0 ? 1 : - 1;
+	const strength = Math.abs( tuning.normalStrength );
+
+	return {
+		x: strength * xSign,
+		y: strength * ySign,
+	};
+
+}
+
+export function applyCharacterMaterialTuningToMaterial( material ) {
+
+	if ( ! material ) return material;
+
+	const tuning = CHARACTER_MATERIAL_TUNING_PRESETS[ normalizeMaterialName( material.name ) ];
+	if ( ! tuning ) return material;
+
+	const originalTextures = _getOriginalMaterialTextures( material );
+	for ( const textureKey of CHARACTER_MATERIAL_TEXTURE_KEYS ) {
+
+		const originalTexture = originalTextures[ textureKey ];
+		if ( originalTexture ) {
+
+			_applyTextureFidelity( originalTexture, tuning.textureFidelity );
+
+		}
+
+		const mapTuning = tuning.maps?.[ textureKey ];
+		if ( ! mapTuning ) continue;
+		if ( mapTuning.enabled === false ) {
+
+			material[ textureKey ] = null;
+			continue;
+
+		}
+
+		if ( mapTuning.enabled === true ) {
+
+			material[ textureKey ] = originalTexture || null;
+
+		}
+
+	}
+
+	_setColorChannels( material.color, tuning.color );
+	_setColorChannels( material.emissive, tuning.emissive );
+
+	if ( Number.isFinite( tuning.emissiveIntensity ) ) material.emissiveIntensity = tuning.emissiveIntensity;
+	if ( Number.isFinite( tuning.aoMapIntensity ) ) material.aoMapIntensity = tuning.aoMapIntensity;
+	if ( Number.isFinite( tuning.roughness ) ) material.roughness = tuning.roughness;
+	if ( Number.isFinite( tuning.metalness ) ) material.metalness = tuning.metalness;
+	if ( Number.isFinite( tuning.envMapIntensity ) ) material.envMapIntensity = tuning.envMapIntensity;
+	if ( Number.isFinite( tuning.opacity ) ) material.opacity = tuning.opacity;
+	if ( Number.isFinite( tuning.alphaTest ) ) material.alphaTest = tuning.alphaTest;
+
+	const normalScale = _resolveNormalScale( tuning, material );
+	if ( normalScale ) {
+
+		if ( material.normalScale ) {
+
+			_setVector2( material.normalScale, normalScale.x, normalScale.y );
+
+		} else {
+
+			material.normalScale = { x: normalScale.x, y: normalScale.y };
+
+		}
+
+	}
+
+	material.side = tuning.doubleSided ? DOUBLE_SIDE : FRONT_SIDE;
+	material.wireframe = !! tuning.wireframe;
+	material.flatShading = !! tuning.flatShading;
+	material.depthWrite = tuning.depthWrite !== false;
+	material.transparent = !! tuning.transparent || Number( material.opacity ) < 1;
+	material.needsUpdate = true;
+
+	return material;
+
+}
+
 function _getOriginalMaterials( child ) {
 
 	if ( ! Object.prototype.hasOwnProperty.call( child, ORIGINAL_MATERIAL_KEY ) ) {
@@ -281,7 +486,9 @@ export function applyCharacterAppearance( characterRoot, appearance ) {
 
 		_setMaterialFromOriginal( child, ( originalMaterial ) => {
 
-			const materialName = originalMaterial?.name || '';
+			applyCharacterMaterialTuningToMaterial( originalMaterial );
+
+			const materialName = normalizeMaterialName( originalMaterial?.name );
 			const isSkin = materialName === SKIN_MATERIAL_NAME;
 
 			if ( isSkin ) {

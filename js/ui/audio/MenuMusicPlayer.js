@@ -100,7 +100,8 @@ export class MenuMusicPlayer {
 	async activate() {
 
 		this._active = true;
-		return this.play();
+		this._emit();
+		return true;
 
 	}
 

@@ -84,6 +84,14 @@ export class Page04PlayModesView extends PageViewBase {
 				padding: var(--space-6, 1.5rem) var(--page-padding-x, 1.5rem);
 			}
 
+			.page-play-modes__solo-picker {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				width: 100%;
+				max-width: 40rem;
+			}
+
 			/* ------------------------------------------------------------------ */
 			/* Mode buttons container                                              */
 			/* ------------------------------------------------------------------ */
@@ -101,9 +109,6 @@ export class Page04PlayModesView extends PageViewBase {
 			/* ------------------------------------------------------------------ */
 
 			.page-play-modes__mode-btn.kk-cta-button {
-				font-size: var(--text-5xl, 3rem);
-				padding: var(--space-6, 1.5rem) var(--space-10, 2.5rem);
-				line-height: 1;
 				width: 100%;
 				justify-content: center;
 			}
@@ -120,37 +125,8 @@ export class Page04PlayModesView extends PageViewBase {
 				width: 100%;
 			}
 
-			.page-play-modes__sub-back {
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				width: 36px;
-				height: 36px;
-				border: none;
-				background: var(--color-ink-700, #252525);
-				border-radius: var(--radius-md, 0.5rem);
-				color: var(--color-white, #fff);
-				cursor: pointer;
-				flex-shrink: 0;
-				transition: background 0.15s ease;
-			}
-
-			.page-play-modes__sub-back:hover {
-				background: var(--color-ink-600, #404040);
-			}
-
-			.page-play-modes__sub-back:focus-visible {
-				outline: 2px solid var(--color-accent-blue, #3498db);
-				outline-offset: 2px;
-			}
-
 			.page-play-modes__sub-title {
-				font-family: var(--font-display, sans-serif);
-				font-size: var(--text-lg, 1.125rem);
-				font-weight: var(--weight-black, 900);
-				color: var(--color-white, #fff);
-				text-transform: uppercase;
-				letter-spacing: var(--tracking-wide, 0.05em);
+				flex: 1;
 			}
 
 			/* ------------------------------------------------------------------ */
@@ -158,54 +134,9 @@ export class Page04PlayModesView extends PageViewBase {
 			/* ------------------------------------------------------------------ */
 
 			.page-play-modes__track-list {
-				display: flex;
-				flex-direction: column;
-				gap: var(--space-2, 0.5rem);
 				width: 100%;
 				max-width: 480px;
 				margin-bottom: var(--space-4, 1rem);
-			}
-
-			.kk-track-item {
-				display: flex;
-				align-items: center;
-				gap: var(--space-3, 0.75rem);
-				padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
-				background: var(--color-ink-800, #1a1a1a);
-				border: 2px solid var(--color-ink-600, #404040);
-				border-radius: var(--radius-md, 0.5rem);
-				cursor: pointer;
-				transition: border-color 0.15s ease;
-			}
-
-			.kk-track-item:hover {
-				border-color: var(--color-ink-400, #666);
-			}
-
-			.kk-track-item:focus-visible {
-				outline: 2px solid var(--color-accent-blue, #3498db);
-				outline-offset: 2px;
-			}
-
-			.kk-track-item--selected {
-				border-color: var(--color-accent-blue, #3498db);
-				background: rgba(52, 152, 219, 0.1);
-			}
-
-			.kk-track-item__name {
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-base, 1rem);
-				font-weight: var(--weight-bold, 700);
-				color: var(--color-white, #fff);
-				flex: 1;
-			}
-
-			.kk-track-item__difficulty {
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-xs, 0.75rem);
-				color: var(--color-accent-orange, #e67e22);
-				text-transform: uppercase;
-				letter-spacing: var(--tracking-wide, 0.05em);
 			}
 
 			/* ------------------------------------------------------------------ */
@@ -253,6 +184,7 @@ export class Page04PlayModesView extends PageViewBase {
 		// Build panels (only one visible at a time)
 		this._modeSelectionEl = this._buildModeSelection();
 		this._soloPickerEl = document.createElement( 'div' );
+		this._soloPickerEl.className = 'page-play-modes__solo-picker';
 		this._soloPickerEl.hidden = true;
 
 		this._bodyEl.appendChild( this._modeSelectionEl );
@@ -285,7 +217,7 @@ export class Page04PlayModesView extends PageViewBase {
 				variant:  mode.variant,
 				actionId: mode.actionId,
 			} );
-			btn.el.classList.add( 'page-play-modes__mode-btn' );
+			btn.el.classList.add( 'page-play-modes__mode-btn', 'kk-cta-button--hero' );
 			container.appendChild( btn.el );
 			this._modeBtns.push( btn );
 
@@ -340,7 +272,6 @@ export class Page04PlayModesView extends PageViewBase {
 		// Rebuild the solo picker content
 		this._soloPickerEl.innerHTML = '';
 		this._soloPickerEl.hidden = false;
-		this._soloPickerEl.style.cssText = 'display:flex;flex-direction:column;align-items:center;width:100%;max-width:640px;';
 
 		// Sub-header with back
 		const header = document.createElement( 'div' );
@@ -348,14 +279,14 @@ export class Page04PlayModesView extends PageViewBase {
 
 		const backBtn = document.createElement( 'button' );
 		backBtn.type = 'button';
-		backBtn.className = 'page-play-modes__sub-back';
+		backBtn.className = 'page-play-modes__sub-back kk-ui-back-button';
 		backBtn.setAttribute( 'data-action', 'back-to-modes' );
 		backBtn.setAttribute( 'aria-label', 'Back to mode selection' );
 		backBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>';
 		header.appendChild( backBtn );
 
 		const title = document.createElement( 'span' );
-		title.className = 'page-play-modes__sub-title';
+		title.className = 'page-play-modes__sub-title kk-ui-section-title';
 		title.textContent = 'Solo Race';
 		header.appendChild( title );
 
@@ -363,7 +294,7 @@ export class Page04PlayModesView extends PageViewBase {
 
 		// Track list
 		const trackList = document.createElement( 'div' );
-		trackList.className = 'page-play-modes__track-list';
+		trackList.className = 'page-play-modes__track-list kk-ui-selection-list';
 		trackList.setAttribute( 'role', 'listbox' );
 		trackList.setAttribute( 'aria-label', 'Available tracks' );
 
@@ -373,24 +304,24 @@ export class Page04PlayModesView extends PageViewBase {
 
 			const item = document.createElement( 'button' );
 			item.type = 'button';
-			item.className = 'kk-track-item';
+			item.className = 'kk-ui-selection-row';
 			item.setAttribute( 'role', 'option' );
 			item.setAttribute( 'aria-selected', track.id === selectedId ? 'true' : 'false' );
 			item.dataset.trackId = track.id;
 
 			if ( track.id === selectedId ) {
 
-				item.classList.add( 'kk-track-item--selected' );
+				item.classList.add( 'kk-ui-selection-row--selected' );
 
 			}
 
 			const nameEl = document.createElement( 'span' );
-			nameEl.className = 'kk-track-item__name';
+			nameEl.className = 'kk-ui-selection-row__title';
 			nameEl.textContent = track.name;
 			item.appendChild( nameEl );
 
 			const diffEl = document.createElement( 'span' );
-			diffEl.className = 'kk-track-item__difficulty';
+			diffEl.className = 'kk-ui-selection-row__meta';
 			diffEl.textContent = track.difficulty;
 			item.appendChild( diffEl );
 
@@ -399,10 +330,10 @@ export class Page04PlayModesView extends PageViewBase {
 				selectedId = track.id;
 
 				// Update selection visuals
-				trackList.querySelectorAll( '.kk-track-item' ).forEach( ( el ) => {
+				trackList.querySelectorAll( '.kk-ui-selection-row' ).forEach( ( el ) => {
 
 					const isSelected = el.dataset.trackId === selectedId;
-					el.classList.toggle( 'kk-track-item--selected', isSelected );
+					el.classList.toggle( 'kk-ui-selection-row--selected', isSelected );
 					el.setAttribute( 'aria-selected', String( isSelected ) );
 
 				} );
@@ -449,7 +380,7 @@ export class Page04PlayModesView extends PageViewBase {
 		this._soloPickerEl.appendChild( startWrapper );
 
 		// Focus the first track item
-		const firstItem = trackList.querySelector( '.kk-track-item' );
+		const firstItem = trackList.querySelector( '.kk-ui-selection-row' );
 		if ( firstItem ) firstItem.focus( { preventScroll: true } );
 
 	}

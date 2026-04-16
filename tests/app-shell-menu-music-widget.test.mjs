@@ -70,6 +70,12 @@ class FakeElement {
 
 	}
 
+	getAttribute( name ) {
+
+		return this.attributes.has( name ) ? this.attributes.get( name ) : null;
+
+	}
+
 	addEventListener( type, handler ) {
 
 		if ( ! this._listeners.has( type ) ) this._listeners.set( type, [] );
@@ -144,22 +150,19 @@ if ( typeof globalThis.CustomEvent === 'undefined' ) {
 
 }
 
-const { AppShell } = await import( '../js/ui/core/AppShell.js' );
+const { MarginalMusicCard } = await import( '../js/ui/components/MarginalMusicCard.js' );
 
-test( 'AppShell renders persistent menu music widget state and routes controls to the shared player', () => {
-
-	const mount = new FakeElement( 'div' );
-	const shell = new AppShell( mount );
-	shell._buildShell();
+test( 'MarginalMusicCard renders shared player state and routes controls to the shared player', () => {
 
 	let toggleCalls = 0;
 	let nextCalls = 0;
-	shell._menuMusic = {
+	const player = {
 		subscribe( listener ) {
 
 			listener( {
 				canPlay: true,
 				isPlaying: true,
+				active: true,
 				currentTrack: {
 					id: 'track-one',
 					title: 'Electro Breakbeat Nitro',
@@ -182,19 +185,20 @@ test( 'AppShell renders persistent menu music widget state and routes controls t
 		},
 	};
 
-	shell._bindMenuMusic();
+	const card = new MarginalMusicCard( { player } );
 
-	assert.equal( shell._menuMusicTrackEl.textContent, 'Electro Breakbeat Nitro' );
-	assert.equal( shell._menuMusicStatusEl.textContent, 'Now Playing' );
-	assert.equal( shell._menuMusicToggleBtn.textContent, 'Pause' );
-	assert.equal( shell._menuMusicNextBtn.disabled, false );
-	assert.equal( shell._menuMusicDockEl.classList.contains( 'kk-menu-music--playing' ), true );
+	assert.equal( card._trackEl.textContent, 'Electro Breakbeat Nitro' );
+	assert.equal( card._headerLeftEl.textContent, 'Menu music · Now playing' );
+	assert.equal( card._headerRightEl.textContent, '' );
+	assert.equal( card._statusEl.textContent, '' );
+	assert.equal( card._toggleBtn.attributes.get( 'aria-label' ), 'Pause menu music' );
+	assert.equal( card._nextBtn.disabled, false );
+	assert.equal( card.el.classList.contains( 'kk-mv-music-card--playing' ), true );
 
-	shell._menuMusicToggleBtn.dispatchEvent( { type: 'click' } );
-	shell._menuMusicNextBtn.dispatchEvent( { type: 'click' } );
+	card._toggleBtn.dispatchEvent( { type: 'click' } );
+	card._nextBtn.dispatchEvent( { type: 'click' } );
 
 	assert.equal( toggleCalls, 1 );
 	assert.equal( nextCalls, 1 );
-	assert.equal( mount.children.length, 1 );
 
 } );

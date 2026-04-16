@@ -5,6 +5,7 @@ import { EventIds } from '../../enums/EventIds.js';
 import { BALACLAVA_OPTIONS, getBalaclavaOptionById, normalizeSelectedBalaclavaId } from '../../../CharacterCustomization.js';
 import { Settings } from '../../../Settings.js';
 import { DEFAULT_MASK_TINT_COLOR, normalizeAppearanceColor, normalizeMaskTintColor, normalizePlayerAppearance } from '../../../PlayerAppearance.js';
+import { loadCharacterItemThumbnailCatalog } from '../../character/BalaclavaThumbnailRenderer.js';
 
 const DEFAULT_SKIN_COLOR = '#d9a37f';
 const DEFAULT_SUIT_COLOR = '#00d4e8';
@@ -15,6 +16,7 @@ const CAMERA_DEBUG_DEFAULTS = Object.freeze( {
 	cameraOffsetY: 0,
 	cameraOffsetZ: 0,
 } );
+const THUMBNAIL_CATEGORY_IDS = new Set( [ 'masks', 'accessories', 'shirts', 'pants' ] );
 
 const CATEGORY_DEFS = Object.freeze( [
 	Object.freeze( {
@@ -60,6 +62,11 @@ const CATEGORY_DEFS = Object.freeze( [
 ] );
 
 const CATEGORY_BY_ID = new Map( CATEGORY_DEFS.map( ( category ) => [ category.id, category ] ) );
+const THUMBNAIL_ITEM_IDS = Object.freeze(
+	CATEGORY_DEFS.flatMap( ( category ) => THUMBNAIL_CATEGORY_IDS.has( category.id )
+		? category.items.map( ( item ) => item.id )
+		: [] )
+);
 
 export class Page10CharacterSelectController extends PageControllerBase {
 
@@ -76,6 +83,9 @@ export class Page10CharacterSelectController extends PageControllerBase {
 		this._trackPageView = true;
 		this._cameraDebugState = this._createDefaultCameraDebugState();
 		this._isActive = false;
+		this._itemThumbnailState = 'idle';
+		this._itemThumbnailEntries = new Map();
+		this._itemThumbnailLoadPromise = null;
 
 	}
 
@@ -105,8 +115,11 @@ export class Page10CharacterSelectController extends PageControllerBase {
 				showBrandHeader: false,
 				showCameraDebugControls: false,
 				showEmbeddedPreview: false,
-				rootAriaLabel: 'Character tab',
-				sidebarCopy: 'Tune suit, skin, masks, and gear here. Selections apply instantly to your driver.',
+				surfaceVariant: 'customizer',
+				rootAriaLabel: 'Character customization tab',
+				sidebarLabelText: 'Customizer',
+				sidebarTitleText: 'Pilot Style',
+				sidebarCopy: 'Tune suit, skin, masks, and gear here. Garage handles kart paint and performance.',
 			};
 
 		}
@@ -165,6 +178,7 @@ export class Page10CharacterSelectController extends PageControllerBase {
 		this._view.mount( container );
 		this._cameraDebugState = this._createDefaultCameraDebugState();
 		this._applyCameraDebugState();
+		this._ensureItemThumbnails();
 		this._syncView();
 		if ( this._trackPageView ) {
 
@@ -448,23 +462,39 @@ export class Page10CharacterSelectController extends PageControllerBase {
 				if ( category.id === 'masks' ) {
 
 					const active = this._draftAppearance.selectedBalaclavaId === item.id;
+					const thumbnailEntry = this._itemThumbnailEntries.get( item.id ) || null;
+					const thumbnailSrc = typeof thumbnailEntry?.src === 'string' ? thumbnailEntry.src : '';
+					const thumbnailState = thumbnailSrc
+						? 'ready'
+						: ( thumbnailEntry?.state || this._itemThumbnailState );
 
 					return {
 						id: item.id,
 						label: item.label,
 						active,
 						metaText: this._buildItemMeta( category.id, item.id, active, false ),
+						thumbnailSrc,
+						thumbnailState,
 					};
 
 				}
 
 				const active = this._draftAppearance.charAccessories[ item.id ]?.visible !== false;
+				const thumbnailEntry = THUMBNAIL_CATEGORY_IDS.has( category.id )
+					? this._itemThumbnailEntries.get( item.id ) || null
+					: null;
+				const thumbnailSrc = typeof thumbnailEntry?.src === 'string' ? thumbnailEntry.src : '';
+				const thumbnailState = THUMBNAIL_CATEGORY_IDS.has( category.id )
+					? ( thumbnailSrc ? 'ready' : ( thumbnailEntry?.state || this._itemThumbnailState ) )
+					: null;
 
 				return {
 					id: item.id,
 					label: item.label,
 					active,
 					metaText: this._buildItemMeta( category.id, item.id, active, false ),
+					thumbnailSrc,
+					thumbnailState,
 				};
 
 			} ),
@@ -565,16 +595,90 @@ export class Page10CharacterSelectController extends PageControllerBase {
 		const draftAppearance = this._cloneAppearance( this._draftAppearance );
 		const selectedOption = getBalaclavaOptionById( draftAppearance.selectedBalaclavaId );
 		const activeCategory = CATEGORY_BY_ID.get( this._openCategoryId ) || CATEGORY_DEFS[ 0 ];
+		const activeCategorySummary = this._buildCategorySummary( activeCategory );
 
 		this._view.renderCategories( this._buildCategoriesViewModel() );
 		this._view.setSelectionState( {
 			selectedLabel: selectedOption.label,
 			activeCategoryId: this._openCategoryId,
 			activeCategoryLabel: activeCategory.label,
+			activeCategorySummary,
 		} );
 
 		this._syncMenuPreviewFocus();
 		this._applyCameraDebugState();
+
+	}
+
+	_ensureItemThumbnails() {
+
+		if ( this._itemThumbnailState === 'ready' || this._itemThumbnailLoadPromise ) return;
+
+		const loadThumbnails = typeof this._services.loadCharacterItemThumbnails === 'function'
+			? this._services.loadCharacterItemThumbnails
+			: typeof this._services.loadBalaclavaThumbnails === 'function'
+				? this._services.loadBalaclavaThumbnails
+				: loadCharacterItemThumbnailCatalog;
+
+		this._itemThumbnailState = 'loading';
+		this._itemThumbnailLoadPromise = Promise.resolve()
+			.then( () => loadThumbnails( THUMBNAIL_ITEM_IDS ) )
+			.then( ( entries ) => {
+
+				this._itemThumbnailEntries = this._normalizeItemThumbnailEntries( entries );
+				this._itemThumbnailState = 'ready';
+				this._itemThumbnailLoadPromise = null;
+				this._syncView();
+
+			} )
+			.catch( ( error ) => {
+
+				console.warn( '[Page10CharacterSelectController] Failed to load character item thumbnails.', error );
+				this._itemThumbnailState = 'error';
+				this._itemThumbnailLoadPromise = null;
+				this._syncView();
+
+			} );
+
+	}
+
+	_normalizeItemThumbnailEntries( entries ) {
+
+		const normalized = new Map();
+		for ( const itemId of THUMBNAIL_ITEM_IDS ) {
+
+			const rawEntry = entries instanceof Map
+				? entries.get( itemId )
+				: entries?.[ itemId ];
+			if ( typeof rawEntry === 'string' ) {
+
+				normalized.set( itemId, {
+					src: rawEntry,
+					state: rawEntry ? 'ready' : 'fallback',
+				} );
+				continue;
+
+			}
+
+			if ( rawEntry && typeof rawEntry === 'object' ) {
+
+				const src = typeof rawEntry.src === 'string' ? rawEntry.src : '';
+				normalized.set( itemId, {
+					src,
+					state: typeof rawEntry.state === 'string' ? rawEntry.state : ( src ? 'ready' : 'fallback' ),
+				} );
+				continue;
+
+			}
+
+			normalized.set( itemId, {
+				src: '',
+				state: 'fallback',
+			} );
+
+		}
+
+		return normalized;
 
 	}
 

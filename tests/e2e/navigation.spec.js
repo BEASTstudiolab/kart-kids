@@ -1,13 +1,11 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * Navigation E2E tests — menu navigation, routing, and startup behavior.
+ * Navigation E2E tests for the current tab-first shell architecture.
  *
  * Targets the hash-based SPA at http://localhost:3000.
- * Routes use the form /#/path (e.g. /#/home, /#/garage).
  */
 
-// Console warnings we expect and can safely ignore.
 const EXPECTED_WARNINGS = [
 	'[RouterService]',
 	'THREE.WebGLRenderer',
@@ -21,9 +19,6 @@ const EXPECTED_WARNINGS = [
 	'404',
 ];
 
-/**
- * Seed localStorage so the first-run name entry modal does not block tests.
- */
 async function seedSettings( page ) {
 
 	await page.addInitScript( () => {
@@ -34,6 +29,11 @@ async function seedSettings( page ) {
 			controls: {},
 			audio: {},
 			video: {},
+			stats: {
+				totalRaces: 0,
+				wins: 0,
+				bestTimes: {},
+			},
 		};
 		localStorage.setItem( 'kart-kids-settings', JSON.stringify( settings ) );
 
@@ -41,9 +41,12 @@ async function seedSettings( page ) {
 
 }
 
-// ---------------------------------------------------------------------------
-// App loads without console errors
-// ---------------------------------------------------------------------------
+async function waitForShell( page ) {
+
+	await expect( page.locator( '.kk-tab-bar' ) ).toBeVisible( { timeout: 10000 } );
+	await expect.poll( async () => await page.locator( '.kk-loading-overlay' ).count() ).toBe( 0 );
+
+}
 
 test.describe( 'App startup', () => {
 
@@ -58,46 +61,56 @@ test.describe( 'App startup', () => {
 			if ( msg.type() !== 'error' ) return;
 
 			const text = msg.text();
-			const isExpected = EXPECTED_WARNINGS.some( ( w ) => text.includes( w ) );
+			const isExpected = EXPECTED_WARNINGS.some( ( warning ) => text.includes( warning ) );
 			if ( ! isExpected ) errors.push( text );
 
 		} );
 
 		await page.goto( '/' );
-		await page.waitForTimeout( 2000 );
+		await waitForShell( page );
+		await page.waitForTimeout( 1500 );
 
 		expect( errors ).toEqual( [] );
 
 	} );
 
-	test( 'loading overlay fades out on startup', async ( { page } ) => {
+	test( 'reveals the shell chrome with PLAY active by default', async ( { page } ) => {
 
 		await seedSettings( page );
 		await page.goto( '/' );
+		await waitForShell( page );
 
-		// The overlay should either have fade-out class or be removed.
-		await expect( async () => {
+		const tabs = page.locator( '.kk-tab-bar__btn' );
+		await expect( tabs ).toHaveCount( 4 );
 
-			const overlay = page.locator( '#loading-overlay' );
-			const count = await overlay.count();
+		const tabLabels = ( await tabs.allTextContents() ).join( ' ' ).toUpperCase();
+		expect( tabLabels ).toContain( 'PLAY' );
+		expect( tabLabels ).toContain( 'CHARACTER' );
+		expect( tabLabels ).toContain( 'GARAGE' );
+		expect( tabLabels ).toContain( 'TRACKS' );
 
-			if ( count > 0 ) {
+		await expect( page.getByRole( 'tab', { name: 'PLAY' } ) ).toHaveAttribute( 'aria-selected', 'true' );
+		await expect( page.locator( '#kk-panel-race' ) ).toHaveClass( /kk-panel--active/ );
+		await expect( page.locator( '.kk-shell-utility__profile-btn' ) ).toBeVisible();
+		await expect( page.getByRole( 'button', { name: 'Open settings' } ) ).toBeVisible();
 
-				await expect( overlay ).toHaveClass( /fade-out/ );
+	} );
 
-			}
+	test( 'clears the shared loading overlay after bootstrap', async ( { page } ) => {
 
-		} ).toPass( { timeout: 10000 } );
+		await seedSettings( page );
+		await page.goto( '/' );
+		await waitForShell( page );
+
+		const legacyOverlay = page.locator( '#loading-overlay' );
+		await expect( legacyOverlay ).toHaveCount( 0 );
+		await expect.poll( async () => await page.locator( '.kk-loading-overlay' ).count() ).toBe( 0 );
 
 	} );
 
 } );
 
-// ---------------------------------------------------------------------------
-// Title page
-// ---------------------------------------------------------------------------
-
-test.describe( 'Title page', () => {
+test.describe( 'Shell navigation', () => {
 
 	test.beforeEach( async ( { page } ) => {
 
@@ -105,160 +118,70 @@ test.describe( 'Title page', () => {
 
 	} );
 
-	test( 'renders with KART KIDS branding', async ( { page } ) => {
+	test( 'clicking CHARACTER activates the character panel', async ( { page } ) => {
 
 		await page.goto( '/' );
+		await waitForShell( page );
 
-		// The title page has a .page-title root with an h1 containing "KART KIDS".
-		const logo = page.locator( '.page-title__logo' );
-		await expect( logo ).toBeVisible( { timeout: 10000 } );
-		await expect( logo ).toHaveText( 'KART KIDS' );
+		await page.getByRole( 'tab', { name: 'CHARACTER' } ).click();
 
-	} );
-
-	test( 'shows PRESS START button', async ( { page } ) => {
-
-		await page.goto( '/' );
-
-		const pressStart = page.locator( '.page-title__press-start' );
-		await expect( pressStart ).toBeVisible( { timeout: 10000 } );
-		await expect( pressStart ).toContainText( 'PRESS START' );
+		await expect( page.locator( '#kk-panel-character' ) ).toHaveClass( /kk-panel--active/ );
+		await expect( page.getByRole( 'tab', { name: 'CHARACTER' } ) ).toHaveAttribute( 'aria-selected', 'true' );
+		await expect( page.locator( '.page-character-select' ) ).toBeVisible( { timeout: 10000 } );
 
 	} );
 
-	test( 'shows utility rail buttons', async ( { page } ) => {
+	test( 'direct #/garage resolves to the garage panel', async ( { page } ) => {
 
-		await page.goto( '/' );
-
-		const rail = page.locator( '.page-title__utility-rail' );
-		await expect( rail ).toBeVisible( { timeout: 10000 } );
-
-		const buttons = rail.locator( '.kk-cta-button' );
-		await expect( buttons ).toHaveCount( 5 );
-
-	} );
-
-} );
-
-// ---------------------------------------------------------------------------
-// Home page navigation
-// ---------------------------------------------------------------------------
-
-test.describe( 'Home page', () => {
-
-	test.beforeEach( async ( { page } ) => {
-
-		await seedSettings( page );
-
-	} );
-
-	test( 'navigating to #/home shows the home page', async ( { page } ) => {
-
-		await page.goto( '/#/home' );
-
-		const homePage = page.locator( '.page-home' );
-		await expect( homePage ).toBeVisible( { timeout: 10000 } );
-
-	} );
-
-	test( 'TopNav shows nav links', async ( { page } ) => {
-
-		await page.goto( '/#/home' );
-
-		// Target the AppShell placeholder TopNav specifically (the home page
-		// also renders its own .kk-top-nav inside the page container).
-		const topNav = page.locator( '.kk-top-nav--placeholder' );
-		await expect( topNav ).toBeVisible( { timeout: 10000 } );
-
-		// AppShell placeholder TopNav has 4 items: PLAY MODES, GARAGE, CREATE, PROFILE
-		const links = topNav.locator( '.kk-top-nav__link' );
-		const count = await links.count();
-		expect( count ).toBeGreaterThanOrEqual( 4 );
-
-		// Verify key nav labels exist
-		const navText = await topNav.innerText();
-		expect( navText ).toContain( 'PLAY' );
-		expect( navText ).toContain( 'GARAGE' );
-		expect( navText ).toContain( 'CREATE' );
-		expect( navText ).toContain( 'PROFILE' );
-
-	} );
-
-	test( 'clicking GARAGE nav link navigates to #/garage', async ( { page } ) => {
-
-		await page.goto( '/#/home' );
-
-		const topNav = page.locator( '.kk-top-nav--placeholder' );
-		await expect( topNav ).toBeVisible( { timeout: 10000 } );
-
-		const garageLink = topNav.locator( '.kk-top-nav__link', { has: page.locator( 'text=GARAGE' ) } );
-		await garageLink.click();
+		await page.goto( '/#/garage' );
+		await waitForShell( page );
 
 		await expect( page ).toHaveURL( /.*#\/garage/ );
-		const garagePage = page.locator( '.page-garage' );
-		await expect( garagePage ).toBeVisible( { timeout: 10000 } );
+		await expect( page.locator( '#kk-panel-garage' ) ).toHaveClass( /kk-panel--active/ );
+		await expect( page.getByRole( 'tab', { name: 'GARAGE' } ) ).toHaveAttribute( 'aria-selected', 'true' );
 
 	} );
 
-	test( 'clicking PROFILE nav link navigates to #/profile', async ( { page } ) => {
+	test( 'direct #/characters resolves to the character panel', async ( { page } ) => {
 
-		await page.goto( '/#/home' );
+		await page.goto( '/#/characters' );
+		await waitForShell( page );
 
-		const topNav = page.locator( '.kk-top-nav--placeholder' );
-		await expect( topNav ).toBeVisible( { timeout: 10000 } );
-
-		const profileLink = topNav.locator( '.kk-top-nav__link', { has: page.locator( 'text=PROFILE' ) } );
-		await profileLink.click();
-
-		await expect( page ).toHaveURL( /.*#\/profile/ );
-		const profilePage = page.locator( '.page-profile' );
-		await expect( profilePage ).toBeVisible( { timeout: 10000 } );
+		await expect( page ).toHaveURL( /.*#\/characters/ );
+		await expect( page.locator( '#kk-panel-character' ) ).toHaveClass( /kk-panel--active/ );
+		await expect( page.locator( '.page-character-select' ) ).toBeVisible( { timeout: 10000 } );
 
 	} );
 
-	test( 'clicking CREATE nav link navigates to #/create', async ( { page } ) => {
+	test( 'profile utility button opens the profile panel', async ( { page } ) => {
 
-		await page.goto( '/#/home' );
+		await page.goto( '/' );
+		await waitForShell( page );
 
-		const topNav = page.locator( '.kk-top-nav--placeholder' );
-		await expect( topNav ).toBeVisible( { timeout: 10000 } );
+		const profileBtn = page.locator( '.kk-shell-utility__profile-btn' );
+		await profileBtn.click();
 
-		const createLink = topNav.locator( '.kk-top-nav__link', { has: page.locator( 'text=CREATE' ) } );
-		await createLink.click();
-
-		await expect( page ).toHaveURL( /.*#\/create/ );
-
-	} );
-
-	test( 'shows QUICK PLAY CTA button', async ( { page } ) => {
-
-		await page.goto( '/#/home' );
-
-		const quickPlay = page.locator( '.page-home__quick-play' );
-		await expect( quickPlay ).toBeVisible( { timeout: 10000 } );
-		await expect( quickPlay ).toContainText( 'QUICK PLAY' );
+		await expect( page.locator( '#kk-panel-profile' ) ).toHaveClass( /kk-panel--active/ );
+		await expect( profileBtn ).toHaveAttribute( 'aria-current', 'page' );
+		await expect( page.locator( '#kk-panel-profile .kk-profile' ) ).toBeVisible( { timeout: 10000 } );
 
 	} );
 
-	test( 'nav rail shows navigation options', async ( { page } ) => {
+	test( 'settings utility button opens the fullscreen settings route', async ( { page } ) => {
 
-		await page.goto( '/#/home' );
+		await page.goto( '/#/garage' );
+		await waitForShell( page );
 
-		const rail = page.locator( '.page-home__nav-rail' );
-		await expect( rail ).toBeVisible( { timeout: 10000 } );
+		await page.getByRole( 'button', { name: 'Open settings' } ).click();
 
-		// Rail should have items: PLAY MODES, PARTY, GARAGE, CREATE, PROFILE, SHOP, SETTINGS
-		const railBtns = rail.locator( '.kk-cta-button' );
-		const count = await railBtns.count();
-		expect( count ).toBeGreaterThanOrEqual( 5 );
+		await expect( page ).toHaveURL( /.*#\/settings/ );
+		await expect( page.locator( '.page-settings' ) ).toBeVisible( { timeout: 10000 } );
+		await expect( page.locator( '#kk-app-shell' ) ).toHaveClass( /kk-app-shell--settings-route/ );
+		await expect( page.locator( '.kk-shell-chrome' ) ).toBeHidden();
 
 	} );
 
 } );
-
-// ---------------------------------------------------------------------------
-// Cut routes fallback
-// ---------------------------------------------------------------------------
 
 test.describe( 'Cut routes fallback', () => {
 
@@ -268,45 +191,22 @@ test.describe( 'Cut routes fallback', () => {
 
 	} );
 
-	test( '#/party redirects to fallback (title)', async ( { page } ) => {
+	for ( const route of [ 'party', 'events', 'ranked' ] ) {
 
-		await page.goto( '/#/party' );
+		test( `#/${ route } falls back to the current shell tab`, async ( { page } ) => {
 
-		// Cut routes are not registered, so RouterService redirects to fallback '/'.
-		// The page should show either the title page or home page.
-		await page.waitForTimeout( 2000 );
+			await page.goto( `/#/${ route }` );
+			await waitForShell( page );
 
-		const url = page.url();
-		// Should have been redirected away from /party
-		expect( url ).not.toContain( '#/party' );
+			await expect( page.locator( '#kk-panel-race' ) ).toHaveClass( /kk-panel--active/ );
+			await expect( page.getByRole( 'tab', { name: 'PLAY' } ) ).toHaveAttribute( 'aria-selected', 'true' );
+			await expect( page.locator( '.page-settings' ) ).toHaveCount( 0 );
 
-	} );
+		} );
 
-	test( '#/events redirects to fallback', async ( { page } ) => {
-
-		await page.goto( '/#/events' );
-		await page.waitForTimeout( 2000 );
-
-		const url = page.url();
-		expect( url ).not.toContain( '#/events' );
-
-	} );
-
-	test( '#/ranked redirects to fallback', async ( { page } ) => {
-
-		await page.goto( '/#/ranked' );
-		await page.waitForTimeout( 2000 );
-
-		const url = page.url();
-		expect( url ).not.toContain( '#/ranked' );
-
-	} );
+	}
 
 } );
-
-// ---------------------------------------------------------------------------
-// Back navigation
-// ---------------------------------------------------------------------------
 
 test.describe( 'Back navigation', () => {
 
@@ -316,23 +216,21 @@ test.describe( 'Back navigation', () => {
 
 	} );
 
-	test( 'browser back button returns to previous page', async ( { page } ) => {
-
-		// Navigate: title -> home -> garage, then press back.
-		await page.goto( '/' );
-		await page.locator( '.page-title' ).waitFor( { timeout: 10000 } );
-
-		await page.goto( '/#/home' );
-		await page.locator( '.page-home' ).waitFor( { timeout: 10000 } );
+	test( 'browser back returns from settings to the previous tab route', async ( { page } ) => {
 
 		await page.goto( '/#/garage' );
-		await page.locator( '.page-garage' ).waitFor( { timeout: 10000 } );
+		await waitForShell( page );
+		await expect( page.locator( '#kk-panel-garage' ) ).toHaveClass( /kk-panel--active/ );
+
+		await page.getByRole( 'button', { name: 'Open settings' } ).click();
+		await expect( page ).toHaveURL( /.*#\/settings/ );
+		await expect( page.locator( '.page-settings' ) ).toBeVisible( { timeout: 10000 } );
 
 		await page.goBack();
 
-		// Should return to home
-		await expect( page ).toHaveURL( /.*#\/home/ );
-		await expect( page.locator( '.page-home' ) ).toBeVisible( { timeout: 10000 } );
+		await expect( page ).toHaveURL( /.*#\/garage/ );
+		await expect( page.locator( '#kk-panel-garage' ) ).toHaveClass( /kk-panel--active/ );
+		await expect( page.locator( '.page-settings' ) ).toHaveCount( 0 );
 
 	} );
 

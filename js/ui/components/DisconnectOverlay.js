@@ -61,7 +61,10 @@ export class DisconnectOverlay {
 				display: flex;
 				align-items: center;
 				justify-content: center;
-				background: var(--color-panel-overlay);
+				padding: 24px;
+				background:
+					radial-gradient(circle at 22% 18%, rgba(216,44,44,0.18) 0%, rgba(216,44,44,0) 34%),
+					linear-gradient(180deg, rgba(7,8,10,0.9) 0%, rgba(7,8,10,0.96) 100%);
 				backdrop-filter: blur(6px);
 				opacity: 0;
 				pointer-events: none;
@@ -76,17 +79,22 @@ export class DisconnectOverlay {
 			.kk-disconnect-overlay__content {
 				display: flex;
 				flex-direction: column;
-				align-items: center;
+				align-items: flex-start;
 				gap: var(--space-4);
-				padding: var(--space-8);
-				max-width: 24rem;
-				text-align: center;
+				padding: 1rem;
+				width: min(28rem, 100%);
+				text-align: left;
+				background: rgba(247,243,233,0.96);
+				color: #0f1115;
+				border: 1px solid rgba(247,243,233,0.96);
+				box-shadow: 0 28px 80px rgba(0,0,0,0.42);
+				clip-path: polygon(0 0, 100% 0, 100% 92%, 96% 100%, 0 100%);
 			}
 
 			.kk-disconnect-overlay__icon {
 				width: 48px;
 				height: 48px;
-				color: var(--color-warning);
+				color: #d82c2c;
 			}
 
 			.kk-disconnect-overlay__icon svg {
@@ -96,46 +104,48 @@ export class DisconnectOverlay {
 
 			.kk-disconnect-overlay__title {
 				font-family: var(--font-display);
-				font-size: var(--text-2xl);
-				font-weight: var(--weight-black);
+				font-size: clamp(2rem, 6vw, 3.4rem);
+				font-weight: 900;
 				text-transform: uppercase;
-				letter-spacing: var(--tracking-wide);
-				color: var(--color-white);
+				letter-spacing: -0.08em;
+				color: #0f1115;
 				margin: 0;
 			}
 
 			.kk-disconnect-overlay__message {
-				font-family: var(--font-ui);
-				font-size: var(--text-base);
-				color: var(--color-ink-200);
+				font-family: var(--font-editorial-mono, var(--font-mono, monospace));
+				font-size: 0.7rem;
+				color: rgba(15,17,21,0.78);
 				margin: 0;
-				line-height: var(--leading-relaxed);
+				line-height: 1.7;
+				text-transform: uppercase;
+				letter-spacing: 0.14em;
 			}
 
 			.kk-disconnect-overlay__countdown {
 				display: flex;
 				flex-direction: column;
-				align-items: center;
+				align-items: flex-start;
 				gap: var(--space-1);
 				margin-top: var(--space-2);
 			}
 
 			.kk-disconnect-overlay__countdown-label {
-				font-family: var(--font-ui);
-				font-size: var(--text-xs);
-				font-weight: var(--weight-bold);
+				font-family: var(--font-editorial-mono, var(--font-mono, monospace));
+				font-size: 0.62rem;
+				font-weight: 700;
 				text-transform: uppercase;
-				letter-spacing: var(--tracking-wider);
-				color: var(--color-ink-400);
+				letter-spacing: 0.18em;
+				color: rgba(15,17,21,0.62);
 			}
 
 			.kk-disconnect-overlay__countdown-value {
 				font-family: var(--font-display);
-				font-size: var(--text-3xl);
-				font-weight: var(--weight-black);
-				color: var(--color-warning);
+				font-size: clamp(3rem, 8vw, 4.8rem);
+				font-weight: 900;
+				color: #d82c2c;
 				line-height: 1;
-				letter-spacing: var(--tracking-wider);
+				letter-spacing: -0.08em;
 			}
 
 			@media (prefers-reduced-motion: reduce) {

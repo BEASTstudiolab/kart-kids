@@ -2,8 +2,8 @@
  * AppShell — top-level UI orchestrator.
  *
  * Responsibilities:
- *   - Create the shell DOM: bottom tab bar, route-announcement region,
- *     page container with 5 tab panels, toast region.
+ *   - Create the shell DOM: top bar (tabs + profile/settings icons), route-announcement region,
+ *     page container with 5 panels (profile has no tab), toast region.
  *   - Instantiate and wire all core services:
  *       RouterService, NavigationService, ModalService,
  *       NotificationService, AnalyticsService.
@@ -15,7 +15,7 @@
  * Architecture decisions:
  *   - AppShell is a class (not a singleton module) so it can be unit-tested
  *     by constructing a fresh instance with a test container.
- *   - Bottom tab bar (PLAY, CHARACTER, GARAGE, TRACKS, PROFILE) replaces the old TopNav.
+ *   - Top tab bar (PLAY, CHARACTER, GARAGE, TRACKS) centered; profile + settings as icons on the right.
  *     Tab panels are persistent — show/hide via CSS, never destroyed on switch.
  *   - RouterService still handles overlay routes (Pause, Results) but tab
  *     navigation bypasses it entirely via switchTab().
@@ -33,10 +33,12 @@
  *       <div class="kk-panel" data-panel="tracks"></div>
  *       <div class="kk-panel" data-panel="profile"></div>
  *     </main>
- *     <nav class="kk-tab-bar" role="tablist" aria-label="Main navigation">
- *       <button role="tab" ...>RACE</button>
- *       ...
- *     </nav>
+ *     <div class="kk-shell-chrome">
+ *       <div class="kk-shell-topbar">
+ *         <nav class="kk-tab-bar" role="tablist" aria-label="Main navigation">...</nav>
+ *         <div class="kk-shell-utility">...</div>
+ *       </div>
+ *     </div>
  *     <div class="kk-toast-region" role="region"
  *          aria-label="Notifications" aria-live="polite"
  *          aria-atomic="false" aria-relevant="additions"></div>
@@ -57,6 +59,8 @@ import { LobbyScene }         from '../LobbyScene.js';
 import { PartyLobbyScene }    from '../PartyLobbyScene.js';
 import { MenuMusicPlayer }    from '../audio/MenuMusicPlayer.js';
 import { Settings }           from '../../Settings.js';
+import { MarginalMusicCard }  from '../components/MarginalMusicCard.js';
+import { LoadingOverlay }     from '../components/LoadingOverlay.js';
 import { showNameEntryModal } from '../components/NameEntryModal.js';
 import { RacePanel }         from '../panels/RacePanel.js';
 import { CharacterPanel }    from '../panels/CharacterPanel.js';
@@ -71,7 +75,6 @@ const TAB_DEFS = [
 	{ id: 'character', label: 'CHARACTER' },
 	{ id: 'garage',  label: 'GARAGE' },
 	{ id: 'tracks',  label: 'TRACKS' },
-	{ id: 'profile', label: 'PROFILE' },
 ];
 
 // Render mode per tab — lobby for most tabs, idle for opaque TRACKS page.
@@ -89,6 +92,25 @@ const TAB_MENU_PREVIEW_PRESETS = {
 	tracks: 'play',
 	profile: 'play',
 };
+const RENDER_MODE_TARGET_FPS = Object.freeze( {
+	idle: 0,
+	lobby: 45,
+	garage: 45,
+	'party-lobby': 60,
+	race: 0,
+} );
+const BACKGROUND_TAB_TARGET_FPS = 4;
+
+function getRenderIntervalMs( mode ) {
+
+	const isHidden = typeof document !== 'undefined' && document.hidden;
+	const targetFps = isHidden
+		? ( mode === 'race' ? 0 : BACKGROUND_TAB_TARGET_FPS )
+		: ( RENDER_MODE_TARGET_FPS[ mode ] ?? 0 );
+
+	return targetFps > 0 ? ( 1000 / targetFps ) : 0;
+
+}
 
 function shouldExposeKartDebug() {
 
@@ -134,7 +156,11 @@ export class AppShell {
 			analytics:      this._analytics,
 			startRace:      ( raceConfig ) => this.startRace( raceConfig ),
 			endRace:        ( results ) => this.endRace( results ),
+			openSettings:   ( options ) => this._openSettingsRoute( options ),
+			closeSettings:  () => this._closeSettingsRoute(),
 			setRenderMode:  ( mode ) => this.setRenderMode( mode ),
+			getRenderMode:  () => this.getRenderMode(),
+			setSettingsRouteActive: ( active ) => this._setSettingsRouteActive( active ),
 			setMenuPreviewFocus: ( presetId, options ) => this.setMenuPreviewFocus( presetId, options ),
 			setMenuPreviewTuning: ( tuning, options ) => this.setMenuPreviewTuning( tuning, options ),
 			resetMenuPreviewTuning: ( options ) => this.resetMenuPreviewTuning( options ),
@@ -142,6 +168,8 @@ export class AppShell {
 			getMenuPreviewPose: () => this.getMenuPreviewPose(),
 			showPartyLobby: () => this.showPartyLobby(),
 			hidePartyLobby: () => this.hidePartyLobby(),
+			openDebugConsole: () => this.openDebugConsole(),
+			isDebugConsoleAvailable: () => this.isDebugConsoleAvailable(),
 			garagePreview:  null,  // populated in bootstrap() after engine creation
 			menuMusic:      null,
 			selectedMode:   'solo',
@@ -164,8 +192,10 @@ export class AppShell {
 		 * Current render mode.
 		 * 'idle'    — no active rendering (menu browsing, no ambient scene yet)
 		 * 'race'    — GameEngine.update() called each frame
-		 * 'garage'  — GaragePreview.update() called each frame (Unit 5)
-		 * @type {'idle' | 'race' | 'garage'}
+		 * 'garage'  — GaragePreview.update() called each frame
+		 * 'lobby'   — LobbyScene.update() called with menu frame pacing
+		 * 'party-lobby' — fullscreen party scene render
+		 * @type {'idle' | 'race' | 'garage' | 'lobby' | 'party-lobby'}
 		 */
 		this._renderMode = 'idle';
 
@@ -206,23 +236,23 @@ export class AppShell {
 		/** @type {HTMLElement | null} */
 		this._toastRegion = null;
 
-		/** @type {HTMLElement | null} */
-		this._menuMusicDockEl = null;
+		/** @type {import('../components/MarginalMusicCard.js').MarginalMusicCard | null} */
+		this._menuMusicCard = null;
 
 		/** @type {HTMLElement | null} */
-		this._menuMusicTrackEl = null;
-
-		/** @type {HTMLElement | null} */
-		this._menuMusicStatusEl = null;
+		this._debugHostEl = null;
 
 		/** @type {HTMLButtonElement | null} */
-		this._menuMusicToggleBtn = null;
+		this._profileShellBtn = null;
 
 		/** @type {HTMLButtonElement | null} */
-		this._menuMusicNextBtn = null;
+		this._debugShellBtn = null;
 
-		/** @type {Function | null} */
-		this._menuMusicUnsubscribe = null;
+		/** @type {HTMLButtonElement | null} */
+		this._debugToggleBtn = null;
+
+		/** @type {HTMLElement | null} */
+		this._debugPanelEl = null;
 
 		// -----------------------------------------------------------------------
 		// Tab panel state
@@ -236,6 +266,12 @@ export class AppShell {
 
 		/** @type {string} currently active tab id */
 		this._activeTab = 'race';
+
+		/** @type {string} menu tab to restore after route-based pages close */
+		this._routeFallbackTab = 'race';
+
+		/** @type {boolean} */
+		this._settingsRouteActive = false;
 
 		// -----------------------------------------------------------------------
 		// Tab panel controllers (created in bootstrap)
@@ -259,6 +295,9 @@ export class AppShell {
 		/** @type {import('../overlays/ResultsOverlay.js').ResultsOverlay | null} */
 		this._resultsOverlay = null;
 
+		/** @type {import('../components/LoadingOverlay.js').LoadingOverlay | null} */
+		this._raceLoadingOverlay = null;
+
 	}
 
 	// ---------------------------------------------------------------------------
@@ -269,22 +308,48 @@ export class AppShell {
 	 * Build the shell DOM, initialize services, register routes, and start routing.
 	 * This is the single entry point called by main.js / the game page.
 	 */
-	bootstrap() {
+	bootstrap( options = {} ) {
+
+		const reportBootstrap = this._createBootstrapProgressReporter( options.onProgress );
+		reportBootstrap( {
+			phase: 'Booting',
+			message: 'Launching menu',
+			detail: 'Building interface shell',
+			progress: 0.08,
+			determinate: true,
+		} );
 
 		this._buildShell();
 		this._initServices();
+		reportBootstrap( {
+			phase: 'Booting',
+			message: 'Launching menu',
+			detail: 'Wiring menu systems',
+			progress: 0.18,
+			determinate: true,
+		} );
 
 		const settings = new Settings();
 		this._menuMusic = new MenuMusicPlayer();
 		this._menuMusic.setVolume( ( settings.get( 'musicVolume' ) ?? 100 ) / 100 );
 		this._services.menuMusic = this._menuMusic;
-		this._bindMenuMusic();
+		this._menuMusicCard = new MarginalMusicCard( {
+			player: this._menuMusic,
+		} );
+		reportBootstrap( {
+			phase: 'Booting',
+			message: 'Launching menu',
+			detail: 'Mounting panels',
+			progress: 0.32,
+			determinate: true,
+		} );
 
 		// Mount RacePanel into the RACE tab container.
 		const raceContainer = this._panels.get( 'race' );
 		if ( raceContainer ) {
 
 			this._racePanel = new RacePanel( raceContainer, this._services );
+			this._racePanel.attachMenuMusicCard?.( this._menuMusicCard.el );
 
 		}
 
@@ -363,10 +428,29 @@ export class AppShell {
 			const renderer = this._engine.getRenderer();
 			this._garagePreview = new GaragePreview( renderer );
 			this._services.garagePreview = this._garagePreview;
+			reportBootstrap( {
+				phase: 'Loading Menu',
+				message: 'Preparing menu scene',
+				detail: 'Starting lobby renderer',
+				progress: 0.54,
+				determinate: true,
+			} );
 
 			// Create LobbyScene — 3D environment behind all menu tabs.
 			this._lobbyScene = new LobbyScene( renderer );
 			this._services.lobbyScene = this._lobbyScene;
+			this._mountDebugToggle( this._lobbyScene._debugToggleBtn, this._lobbyScene._debugPanel );
+			this._lobbyScene.setLoadingProgressReporter( ( previewState ) => {
+
+				reportBootstrap( {
+					phase: 'Loading Menu',
+					message: 'Loading menu preview',
+					detail: previewState.detail || 'Preparing first reveal',
+					progress: 0.60 + ( ( previewState.progress ?? 0 ) * 0.34 ),
+					determinate: true,
+				} );
+
+			} );
 
 			window.addEventListener( 'settings-changed', ( e ) => {
 
@@ -396,6 +480,13 @@ export class AppShell {
 		}
 
 		this._registerRoutes();
+		reportBootstrap( {
+			phase: 'Loading Menu',
+			message: 'Preparing menu scene',
+			detail: 'Starting navigation',
+			progress: 0.60,
+			determinate: true,
+		} );
 
 		// RouterService render target — used for overlay routes (Pause, Results).
 		this._router.setContainer( this._pageContainer );
@@ -410,16 +501,34 @@ export class AppShell {
 		const trackHash = window.location.hash.slice( 1 );
 		if ( trackHash.startsWith( 'track=v4:' ) ) {
 
+			this._lobbyScene?.setLoadingProgressReporter?.( null );
+			reportBootstrap( {
+				phase: 'Launching Race',
+				message: 'Starting race',
+				detail: 'Handing off to the race loader',
+				progress: 1,
+				determinate: true,
+			} );
 			this._router.start();
-			this.startRace( { mode: 'solo' } );
+			void this.startRace( { mode: 'solo' } );
+			return Promise.resolve();
 
 		} else if ( settings.isFirstRun() ) {
 
 			// First run: show name modal, then land on RACE tab.
 			// Handle first-run BEFORE router.start() to avoid the fallback
 			// firing switchTab('race') before the name modal shows.
-			this._handleFirstRun( settings );
+			this._lobbyScene?.setLoadingProgressReporter?.( null );
+			reportBootstrap( {
+				phase: 'Ready',
+				message: 'Menu Ready',
+				detail: 'Opening pilot profile entry',
+				progress: 1,
+				determinate: true,
+			} );
+			void this._handleFirstRun( settings );
 			this._router.start();
+			return Promise.resolve();
 
 		} else {
 
@@ -429,6 +538,30 @@ export class AppShell {
 			this.switchTab( 'race' );
 			this._router.start();
 			void this._activateMenuMusic();
+			reportBootstrap( {
+				phase: 'Loading Menu',
+				message: 'Loading menu preview',
+				detail: 'Waiting for the first full reveal',
+				progress: 0.72,
+				determinate: true,
+			} );
+			return this._waitForInitialMenuPreview()
+				.then( () => {
+
+					reportBootstrap( {
+						phase: 'Ready',
+						message: 'Menu Ready',
+						detail: 'First menu scene is ready',
+						progress: 1,
+						determinate: true,
+					} );
+
+				} )
+				.finally( () => {
+
+					this._lobbyScene?.setLoadingProgressReporter?.( null );
+
+				} );
 
 		}
 
@@ -448,6 +581,44 @@ export class AppShell {
 		await showNameEntryModal( this._modal, settings );
 		this.switchTab( 'race' );
 		void this._activateMenuMusic();
+
+	}
+
+	_createBootstrapProgressReporter( onProgress ) {
+
+		if ( typeof onProgress !== 'function' ) return () => {};
+
+		return ( nextState = {} ) => {
+
+			const numericProgress = Number( nextState.progress );
+			const progress = Number.isFinite( numericProgress )
+				? Math.max( 0, Math.min( 1, numericProgress ) )
+				: null;
+			const determinate = nextState.determinate !== undefined
+				? !! nextState.determinate
+				: progress !== null;
+			onProgress( {
+				phase: nextState.phase || 'Booting',
+				message: nextState.message || 'Launching menu',
+				detail: nextState.detail || '',
+				progress,
+				determinate,
+				progressText: nextState.progressText ||
+					( determinate && progress !== null ? `${ Math.round( progress * 100 ) }%` : '...' ),
+			} );
+
+		};
+
+	}
+
+	_waitForInitialMenuPreview( timeoutMs = 2500 ) {
+
+		if ( ! this._lobbyScene?.whenInitialRevealReady ) return Promise.resolve();
+
+		return Promise.race( [
+			this._lobbyScene.whenInitialRevealReady(),
+			new Promise( ( resolve ) => setTimeout( resolve, timeoutMs ) ),
+		] ).catch( () => {} );
 
 	}
 
@@ -501,9 +672,9 @@ export class AppShell {
 		this._createTabPanels( pageContainer );
 
 		// Bottom tab bar.
-		const tabBarEl = this._createTabBar();
-		shell.appendChild( tabBarEl );
-		this._tabBarEl = tabBarEl;
+		const chromeEl = this._createTabBar();
+		shell.appendChild( chromeEl );
+		this._tabBarEl = chromeEl;
 
 		// Toast notification region — singleton, lives above tab bar, below modal.
 		const toastRegion = document.createElement( 'div' );
@@ -516,71 +687,9 @@ export class AppShell {
 		shell.appendChild( toastRegion );
 		this._toastRegion = toastRegion;
 
-		const menuMusicDock = this._createMenuMusicDock();
-		shell.appendChild( menuMusicDock );
-		this._menuMusicDockEl = menuMusicDock;
-
 		this._mountEl.appendChild( shell );
 		this._shell = shell;
 		this._services.shell = shell;
-
-	}
-
-	_createMenuMusicDock() {
-
-		const dock = document.createElement( 'aside' );
-		dock.className = 'kk-menu-music';
-		dock.setAttribute( 'role', 'region' );
-		dock.setAttribute( 'aria-label', 'Menu music player' );
-
-		const eyebrow = document.createElement( 'p' );
-		eyebrow.className = 'kk-menu-music__eyebrow';
-		eyebrow.textContent = 'Menu Music';
-		dock.appendChild( eyebrow );
-
-		const track = document.createElement( 'p' );
-		track.className = 'kk-menu-music__track';
-		track.textContent = 'Loading music...';
-		dock.appendChild( track );
-		this._menuMusicTrackEl = track;
-
-		const statusRow = document.createElement( 'div' );
-		statusRow.className = 'kk-menu-music__status-row';
-
-		const statusDot = document.createElement( 'span' );
-		statusDot.className = 'kk-menu-music__status-dot';
-		statusDot.setAttribute( 'aria-hidden', 'true' );
-		statusRow.appendChild( statusDot );
-
-		const status = document.createElement( 'p' );
-		status.className = 'kk-menu-music__status';
-		status.textContent = 'Preparing player';
-		statusRow.appendChild( status );
-		dock.appendChild( statusRow );
-		this._menuMusicStatusEl = status;
-
-		const controls = document.createElement( 'div' );
-		controls.className = 'kk-menu-music__controls';
-
-		const toggleBtn = document.createElement( 'button' );
-		toggleBtn.type = 'button';
-		toggleBtn.className = 'kk-menu-music__btn kk-menu-music__btn--primary';
-		toggleBtn.textContent = 'Play';
-		toggleBtn.addEventListener( 'click', () => this._handleMenuMusicToggle() );
-		controls.appendChild( toggleBtn );
-		this._menuMusicToggleBtn = toggleBtn;
-
-		const nextBtn = document.createElement( 'button' );
-		nextBtn.type = 'button';
-		nextBtn.className = 'kk-menu-music__btn';
-		nextBtn.textContent = 'Next';
-		nextBtn.addEventListener( 'click', () => this._handleMenuMusicNext() );
-		controls.appendChild( nextBtn );
-		this._menuMusicNextBtn = nextBtn;
-
-		dock.appendChild( controls );
-
-		return dock;
 
 	}
 
@@ -589,25 +698,70 @@ export class AppShell {
 	// ---------------------------------------------------------------------------
 
 	/**
-	 * Create the bottom tab bar with PLAY, CHARACTER, GARAGE, TRACKS, PROFILE buttons.
+	 * Create the top bar: centered PLAY/CHARACTER/GARAGE/TRACKS tabs; profile + settings icons on the right.
 	 *
 	 * @returns {HTMLElement}
 	 */
 	_createTabBar() {
+
+		const chrome = document.createElement( 'div' );
+		chrome.className = 'kk-shell-chrome';
 
 		const nav = document.createElement( 'nav' );
 		nav.className = 'kk-tab-bar';
 		nav.setAttribute( 'role', 'tablist' );
 		nav.setAttribute( 'aria-label', 'Main navigation' );
 
-		// Settings gear button — top-left corner.
+		const tabsWrap = document.createElement( 'div' );
+		tabsWrap.className = 'kk-tab-bar__tabs';
+		nav.appendChild( tabsWrap );
+
+		const utility = document.createElement( 'div' );
+		utility.className = 'kk-shell-utility';
+
+		const profileBtn = document.createElement( 'button' );
+		profileBtn.type = 'button';
+		profileBtn.className = 'kk-shell-utility__icon-btn kk-shell-utility__profile-btn';
+		profileBtn.setAttribute( 'aria-label', 'Profile' );
+		profileBtn.setAttribute( 'aria-current', 'false' );
+		profileBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+		profileBtn.addEventListener( 'click', () => this.switchTab( 'profile' ) );
+		utility.appendChild( profileBtn );
+		this._profileShellBtn = profileBtn;
+
+		const debugBtn = document.createElement( 'button' );
+		debugBtn.type = 'button';
+		debugBtn.className = 'kk-shell-utility__debug-btn';
+		debugBtn.textContent = 'Debug';
+		debugBtn.setAttribute( 'aria-label', 'Open debug controls' );
+		debugBtn.addEventListener( 'click', () => {
+
+			if ( ! this.openDebugConsole() ) {
+
+				this._notification?.show( {
+					message: 'Debug controls are not available on this screen yet.',
+					variant: 'info',
+				} );
+
+			}
+
+		} );
+		utility.appendChild( debugBtn );
+		this._debugShellBtn = debugBtn;
+
 		const gearBtn = document.createElement( 'button' );
 		gearBtn.type = 'button';
-		gearBtn.className = 'kk-tab-bar__gear';
+		gearBtn.className = 'kk-tab-bar__gear kk-tab-bar__gear--icon-only';
 		gearBtn.setAttribute( 'aria-label', 'Open settings' );
-		gearBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>';
-		gearBtn.addEventListener( 'click', () => this._openSettingsModal() );
-		nav.appendChild( gearBtn );
+		gearBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>';
+		gearBtn.addEventListener( 'click', () => this._openSettingsRoute() );
+		utility.appendChild( gearBtn );
+
+		const debugHost = document.createElement( 'div' );
+		debugHost.className = 'kk-shell-utility__debug-host';
+		utility.appendChild( debugHost );
+		this._debugHostEl = debugHost;
+		this._syncDebugShellButtonState();
 
 		for ( const tab of TAB_DEFS ) {
 
@@ -638,7 +792,7 @@ export class AppShell {
 
 			} );
 
-			nav.appendChild( btn );
+			tabsWrap.appendChild( btn );
 			this._tabButtons.set( tab.id, btn );
 
 		}
@@ -683,7 +837,48 @@ export class AppShell {
 
 		} );
 
-		return nav;
+		const topSpacer = document.createElement( 'div' );
+		topSpacer.className = 'kk-shell-topbar__spacer';
+		topSpacer.setAttribute( 'aria-hidden', 'true' );
+
+		const topbar = document.createElement( 'div' );
+		topbar.className = 'kk-shell-topbar';
+		topbar.appendChild( topSpacer );
+		topbar.appendChild( nav );
+		topbar.appendChild( utility );
+		chrome.appendChild( topbar );
+
+		return chrome;
+
+	}
+
+	_mountDebugToggle( toggleBtn, debugPanel ) {
+
+		if ( ! toggleBtn ) return;
+
+		this._debugToggleBtn = toggleBtn;
+		this._debugPanelEl = debugPanel ?? null;
+		toggleBtn.style.display = 'none';
+		if ( this._debugHostEl ) this._debugHostEl.replaceChildren();
+		this._syncDebugShellButtonState();
+
+		if ( debugPanel ) {
+
+			debugPanel.style.top = 'calc(env(safe-area-inset-top, 0px) + 5rem)';
+			debugPanel.style.right = '16px';
+
+		}
+
+	}
+
+	_syncDebugShellButtonState() {
+
+		if ( ! this._debugShellBtn ) return;
+
+		const available = this.isDebugConsoleAvailable();
+		this._debugShellBtn.disabled = ! available;
+		this._debugShellBtn.setAttribute( 'aria-disabled', available ? 'false' : 'true' );
+		this._debugShellBtn.title = available ? 'Open debug controls' : 'Debug controls unavailable';
 
 	}
 
@@ -719,6 +914,16 @@ export class AppShell {
 
 		}
 
+		const profilePanel = document.createElement( 'div' );
+		profilePanel.className = 'kk-panel';
+		profilePanel.id = 'kk-panel-profile';
+		profilePanel.setAttribute( 'role', 'region' );
+		profilePanel.setAttribute( 'aria-label', 'Profile' );
+		profilePanel.setAttribute( 'tabindex', '0' );
+		profilePanel.dataset.panel = 'profile';
+		container.appendChild( profilePanel );
+		this._panels.set( 'profile', profilePanel );
+
 	}
 
 	// ---------------------------------------------------------------------------
@@ -729,13 +934,16 @@ export class AppShell {
 	 * Switch to a tab by id. Hides all panels, shows the target, updates
 	 * tab bar active state, render mode, and analytics.
 	 *
-	 * @param {string} name  Tab id: 'race' | 'character' | 'garage' | 'tracks' | 'profile'
+	 * @param {string} name  Panel id: 'race' | 'character' | 'garage' | 'tracks' | 'profile' (profile has no tab)
 	 */
 	switchTab( name ) {
 
 		if ( ! this._panels.has( name ) ) return;
 
+		this._restoreTabPanels();
+		this._setSettingsRouteActive( false );
 		this._activeTab = name;
+		this._routeFallbackTab = name;
 
 		// Update panels: hide all, show target.
 		for ( const [ id, panel ] of this._panels ) {
@@ -752,7 +960,7 @@ export class AppShell {
 
 		}
 
-		// Update tab bar buttons.
+		// Update tab bar buttons (profile uses the shell icon, not a tab).
 		for ( const [ id, btn ] of this._tabButtons ) {
 
 			const isActive = id === name;
@@ -761,6 +969,15 @@ export class AppShell {
 			btn.classList.toggle( 'kk-tab-bar__btn--active', isActive );
 
 		}
+
+		if ( this._profileShellBtn ) {
+
+			const onProfile = name === 'profile';
+			this._profileShellBtn.classList.toggle( 'kk-shell-utility__icon-btn--active', onProfile );
+			this._profileShellBtn.setAttribute( 'aria-current', onProfile ? 'page' : 'false' );
+
+		}
+		this._syncDebugShellButtonState();
 
 		// Notify panel controllers of show/hide.
 		if ( this._racePanel ) {
@@ -859,7 +1076,7 @@ export class AppShell {
 		this._analytics.trackPageView( name );
 
 		// Screen reader announcement.
-		this._announce( `Switched to ${name} tab` );
+		this._announce( name === 'profile' ? 'Switched to profile' : `Switched to ${ name } tab` );
 
 	}
 
@@ -885,7 +1102,7 @@ export class AppShell {
 		this._router.setContainer( this._pageContainer );
 
 		// Catch-all fallback: unknown hashes land on RACE tab.
-		this._router.setFallback( () => this.switchTab( 'race' ) );
+		this._router.setFallback( ( path ) => this._handleRouteFallback( path ) );
 
 	}
 
@@ -928,14 +1145,14 @@ export class AppShell {
 		r.register( RouteIds.PAUSE, async () => {
 
 			const { Page22PauseController } = await import( '../pages/page22-pause/Page22PauseController.js' );
-			return new Page22PauseController( s );
+			return new Page22PauseController( {}, s );
 
 		} );
 
-		r.register( RouteIds.SETTINGS, async () => {
+		r.register( RouteIds.SETTINGS, async ( params ) => {
 
 			const { Page21SettingsController } = await import( '../pages/page21-settings/Page21SettingsController.js' );
-			return new Page21SettingsController( s );
+			return new Page21SettingsController( params, s );
 
 		} );
 
@@ -985,53 +1202,129 @@ export class AppShell {
 	}
 
 	// ---------------------------------------------------------------------------
-	// Settings modal
+	// Settings route
 	// ---------------------------------------------------------------------------
 
 	/**
-	 * Open settings as a modal overlay.
-	 * Uses the same pattern as ProfilePanel._openSettings() — lazy-imports
-	 * the settings controller and renders it inside a ModalService modal.
-	 * This preserves the tab panel DOM (router.navigate would destroy it).
+	 * Open settings as a fullscreen route while preserving the current tab.
+	 *
+	 * @param {{ fragment?: string, returnTab?: string } | string} [options]
 	 */
-	_openSettingsModal() {
+	_openSettingsRoute( options = {} ) {
 
-		const modal = this._modal;
+		const normalizedOptions = typeof options === 'string'
+			? { fragment: options }
+			: ( options || {} );
+		const fragment = typeof normalizedOptions.fragment === 'string'
+			? normalizedOptions.fragment.replace( /^#/, '' ).trim()
+			: '';
+		const returnTab = typeof normalizedOptions.returnTab === 'string' && normalizedOptions.returnTab
+			? normalizedOptions.returnTab
+			: this._activeTab;
+		const targetRoute = fragment
+			? `${RouteIds.SETTINGS}#${fragment}`
+			: RouteIds.SETTINGS;
 
-		if ( ! modal ) return;
-
-		const bodyEl = document.createElement( 'div' );
-		bodyEl.style.cssText = 'min-height:12rem;';
-
-		import( '../pages/page21-settings/Page21SettingsController.js' ).then( ( { Page21SettingsController } ) => {
-
-			const ctrl = new Page21SettingsController( {}, this._services );
-			ctrl.initialize();
-			ctrl.bindEvents();
-			ctrl.loadData().then( () => {
-
-				ctrl.render( bodyEl );
-
-			} );
-
-			handle._settingsCtrl = ctrl;
-
+		this._routeFallbackTab = this._panels.has( returnTab ) ? returnTab : this._activeTab;
+		this._router.navigate( targetRoute, {
+			returnTab: this._routeFallbackTab,
+			origin: 'menu-tab',
 		} );
 
-		const handle = modal.open( {
-			title: 'Settings',
-			body: bodyEl,
-			dismissible: true,
-			onClose: () => {
+	}
 
-				if ( handle._settingsCtrl ) {
+	_closeSettingsRoute() {
 
-					handle._settingsCtrl.dispose();
+		const nextState = this._navigation?.peekState?.() ?? null;
+		if ( typeof nextState?.returnTab === 'string' && this._panels.has( nextState.returnTab ) ) {
 
-				}
+			this._routeFallbackTab = nextState.returnTab;
 
-			},
-		} );
+		}
+
+		if ( this._navigation?.canGoBack?.() ) {
+
+			this._navigation.back();
+			return;
+
+		}
+
+		this._router.replace( RouteIds.TITLE );
+
+	}
+
+	_setSettingsRouteActive( active ) {
+
+		this._settingsRouteActive = !! active;
+		this._shell?.classList.toggle( 'kk-app-shell--settings-route', this._settingsRouteActive );
+
+	}
+
+	_restoreTabPanels() {
+
+		if ( ! this._pageContainer ) return;
+
+		for ( const panel of this._panels.values() ) {
+
+			if ( panel.parentNode !== this._pageContainer ) {
+
+				this._pageContainer.appendChild( panel );
+
+			}
+
+		}
+
+	}
+
+	_handleRouteFallback( _path = RouteIds.TITLE ) {
+
+		this._restoreTabPanels();
+		this._setSettingsRouteActive( false );
+		void _path;
+		this.switchTab( this._routeFallbackTab || 'race' );
+
+	}
+
+	openDebugConsole() {
+
+		if ( this._engine?.isRunning?.() && this._engine.openDebugMenu ) {
+
+			this._engine.openDebugMenu();
+			return true;
+
+		}
+
+		if ( this._debugPanelEl ) {
+
+			this._debugPanelEl.style.display = 'flex';
+			if ( this._debugToggleBtn ) this._debugToggleBtn.style.display = 'none';
+			this._syncDebugShellButtonState();
+			return true;
+
+		}
+
+		return false;
+
+	}
+
+	isDebugConsoleAvailable() {
+
+		return !! ( this._debugPanelEl || this._engine?.isRunning?.() );
+
+	}
+
+	_setDebugVisibility( visible ) {
+
+		if ( ! this._lobbyScene ) return;
+
+		if ( ! visible && this._lobbyScene._debugPanel ) {
+
+			this._lobbyScene._debugPanel.style.display = 'none';
+
+		}
+
+		if ( this._lobbyScene._debugToggleBtn ) this._lobbyScene._debugToggleBtn.style.display = 'none';
+		this._syncDebugShellButtonState();
 
 	}
 
@@ -1041,9 +1334,12 @@ export class AppShell {
 
 	/**
 	 * Start the persistent rAF loop. This loop runs for the lifetime of the app.
+	 * Menu-oriented modes are frame-paced so the background scene does not render
+	 * as fast as the monitor can refresh.
 	 * Depending on _renderMode, it delegates to the appropriate subsystem:
 	 *   - 'race'  → engine.update()
-	 *   - 'garage' → garagePreview.update() (Unit 5)
+	 *   - 'garage' → garagePreview.update()
+	 *   - 'lobby' → lobbyScene.update()
 	 *   - 'idle'  → no rendering (loop still ticks for mode transitions)
 	 */
 	_startRenderLoop() {
@@ -1053,6 +1349,16 @@ export class AppShell {
 		const tick = ( now ) => {
 
 			this._rafId = requestAnimationFrame( tick );
+			const intervalMs = getRenderIntervalMs( this._renderMode );
+
+			if ( intervalMs > 0 && ( now - this._lastFrameTime ) < intervalMs ) {
+
+				return;
+
+			}
+
+			const dt = Math.min( Math.max( ( now - this._lastFrameTime ) / 1000, 0 ), 0.25 );
+			this._lastFrameTime = now;
 
 			if ( this._renderMode === 'race' && this._engine ) {
 
@@ -1060,17 +1366,13 @@ export class AppShell {
 
 			} else if ( this._renderMode === 'garage' && this._garagePreview ) {
 
-				const dt = ( now - this._lastFrameTime ) / 1000;
 				this._garagePreview.update( dt );
 
 			} else if ( this._renderMode === 'party-lobby' && this._partyLobbyScene ) {
 
-				const dt = ( now - this._lastFrameTime ) / 1000;
 				this._partyLobbyScene.update( dt );
 
 			} else if ( this._renderMode === 'lobby' && this._lobbyScene ) {
-
-				const dt = ( now - this._lastFrameTime ) / 1000;
 
 				// Fall back to garage preview while lobby is loading.
 				if ( this._lobbyScene.ready ) {
@@ -1084,8 +1386,6 @@ export class AppShell {
 				}
 
 			}
-
-			this._lastFrameTime = now;
 
 		};
 
@@ -1101,11 +1401,18 @@ export class AppShell {
 	 * Switch the render loop to a different mode.
 	 * Used by page controllers (e.g., Garage) to activate/deactivate 3D previews.
 	 *
-	 * @param {'idle' | 'race' | 'garage' | 'party-lobby'} mode
+	 * @param {'idle' | 'race' | 'garage' | 'lobby' | 'party-lobby'} mode
 	 */
 	setRenderMode( mode ) {
 
 		this._renderMode = mode;
+		this._lastFrameTime = 0;
+
+	}
+
+	getRenderMode() {
+
+		return this._renderMode;
 
 	}
 
@@ -1218,6 +1525,37 @@ export class AppShell {
 	// Race lifecycle
 	// ---------------------------------------------------------------------------
 
+	_getOrCreateRaceLoadingOverlay() {
+
+		if ( this._raceLoadingOverlay ) return this._raceLoadingOverlay;
+
+		this._raceLoadingOverlay = new LoadingOverlay( {
+			message: 'Preparing race',
+			detail: 'Staging the next grid',
+			phase: 'Initializing',
+		} );
+
+		return this._raceLoadingOverlay;
+
+	}
+
+	_showRaceLoadingOverlay( initialState = {} ) {
+
+		const overlay = this._getOrCreateRaceLoadingOverlay();
+		overlay.setState( {
+			phase: 'Initializing',
+			message: 'Preparing race',
+			detail: 'Staging the next grid',
+			progress: 0.02,
+			determinate: false,
+			progressText: '...',
+			...initialState,
+		} );
+		overlay.show();
+		return overlay;
+
+	}
+
 	/**
 	 * Start a race. Hides the menu UI, starts the GameEngine.
 	 *
@@ -1232,6 +1570,8 @@ export class AppShell {
 			return;
 
 		}
+
+		const loadingOverlay = this._showRaceLoadingOverlay();
 
 		try {
 
@@ -1251,15 +1591,25 @@ export class AppShell {
 
 			}
 
-			// Hide the lobby scene debug panel + toggle so they don't overlay the race.
-			if ( this._lobbyScene ) {
+			this._setDebugVisibility( false );
 
-				if ( this._lobbyScene._debugPanel ) this._lobbyScene._debugPanel.style.display = 'none';
-				if ( this._lobbyScene._debugToggleBtn ) this._lobbyScene._debugToggleBtn.style.display = 'none';
+			await this._engine.start( {
+				...config,
+				onLoadingProgress: ( nextState ) => {
 
-			}
+					loadingOverlay.setState( nextState );
 
-			await this._engine.start( config );
+				},
+			} );
+			loadingOverlay.setState( {
+				phase: 'Ready',
+				message: 'Race Ready',
+				detail: 'Dropping into the track',
+				progress: 1,
+				determinate: true,
+				progressText: '100%',
+			} );
+			loadingOverlay.hide();
 			this._renderMode = 'race';
 
 		} catch ( err ) {
@@ -1279,7 +1629,9 @@ export class AppShell {
 
 			}
 
+			this._setDebugVisibility( true );
 			this._renderMode = 'idle';
+			loadingOverlay.hide();
 			void this._activateMenuMusic();
 			this._notification.show( {
 				message: 'Failed to start race: ' + ( err.message || 'Unknown error' ),
@@ -1336,6 +1688,7 @@ export class AppShell {
 
 			}
 
+			this._setDebugVisibility( true );
 			this.switchTab( 'race' );
 
 		};
@@ -1352,6 +1705,7 @@ export class AppShell {
 
 			}
 
+			this._setDebugVisibility( true );
 			// Return to RACE tab and trigger private lobby flow via RacePanel.
 			this.switchTab( 'race' );
 
@@ -1360,90 +1714,6 @@ export class AppShell {
 		this._resultsOverlay = overlay;
 		overlay.show();
 		void this._activateMenuMusic();
-
-	}
-
-	_bindMenuMusic() {
-
-		this._unbindMenuMusic();
-
-		const player = this._menuMusic;
-		if ( ! player ) {
-
-			this._renderMenuMusic( {
-				canPlay: false,
-				isPlaying: false,
-				currentTrack: null,
-				playlistLength: 0,
-				error: 'Menu music is unavailable.',
-			} );
-			return;
-
-		}
-
-		this._menuMusicUnsubscribe = player.subscribe( ( state ) => {
-
-			this._renderMenuMusic( state );
-
-		} );
-
-	}
-
-	_unbindMenuMusic() {
-
-		if ( ! this._menuMusicUnsubscribe ) return;
-		this._menuMusicUnsubscribe();
-		this._menuMusicUnsubscribe = null;
-
-	}
-
-	_renderMenuMusic( state ) {
-
-		if ( ! this._menuMusicTrackEl || ! this._menuMusicStatusEl || ! this._menuMusicToggleBtn || ! this._menuMusicNextBtn || ! this._menuMusicDockEl ) return;
-
-		const currentTrack = state?.currentTrack || null;
-		const canPlay = !! state?.canPlay;
-		const isPlaying = !! state?.isPlaying;
-		const hasError = !! state?.error;
-		const isActive = !! state?.active;
-
-		this._menuMusicTrackEl.textContent = currentTrack?.title || 'Menu music unavailable';
-
-		if ( hasError ) {
-
-			this._menuMusicStatusEl.textContent = state.error;
-
-		} else if ( isPlaying ) {
-
-			this._menuMusicStatusEl.textContent = 'Now Playing';
-
-		} else if ( isActive ) {
-
-			this._menuMusicStatusEl.textContent = 'Paused';
-
-		} else {
-
-			this._menuMusicStatusEl.textContent = 'Ready';
-
-		}
-
-		this._menuMusicDockEl.classList.toggle( 'kk-menu-music--playing', isPlaying );
-		this._menuMusicDockEl.classList.toggle( 'kk-menu-music--error', hasError );
-		this._menuMusicToggleBtn.disabled = ! canPlay;
-		this._menuMusicToggleBtn.textContent = isPlaying ? 'Pause' : 'Play';
-		this._menuMusicNextBtn.disabled = ! canPlay || ( state?.playlistLength ?? 0 ) < 2;
-
-	}
-
-	_handleMenuMusicToggle() {
-
-		void this._menuMusic?.toggle?.();
-
-	}
-
-	_handleMenuMusicNext() {
-
-		void this._menuMusic?.next?.();
 
 	}
 
@@ -1493,26 +1763,19 @@ function _makePlaceholderController( label, services ) {
 			container.innerHTML = '';
 
 			const el = document.createElement( 'div' );
-			el.className = 'kk-page kk-page--placeholder';
+			el.className = 'kk-page kk-page--placeholder kk-ui-placeholder kk-ui-placeholder--muted';
 			el.setAttribute( 'role', 'main' );
-			el.style.cssText = [
-				'display:flex',
-				'align-items:center',
-				'justify-content:center',
-				'min-height:60vh',
-				'padding:2rem',
-			].join( ';' );
 
 			const inner = document.createElement( 'div' );
-			inner.style.cssText = 'text-align:center;opacity:0.5;';
+			inner.className = 'kk-ui-placeholder__inner';
 
 			const title = document.createElement( 'p' );
-			title.style.cssText = 'font-size:1.5rem;font-weight:700;letter-spacing:0.1em;';
+			title.className = 'kk-ui-placeholder__title';
 			title.textContent = label.toUpperCase();
 			inner.appendChild( title );
 
 			const sub = document.createElement( 'p' );
-			sub.style.cssText = 'font-size:0.85rem;margin-top:0.5rem;';
+			sub.className = 'kk-ui-placeholder__copy';
 			sub.textContent = 'Page controller not yet registered.';
 			inner.appendChild( sub );
 
@@ -1570,4 +1833,8 @@ function _makeTabAliasController( tabId, services ) {
  * @property {MenuMusicPlayer | null}   [menuMusic]   Shared menu music service instance (after bootstrap).
  * @property {Function}                 startRace     Start a race — hides menu, calls engine.start(config).
  * @property {Function}                 endRace       End the race — calls engine.stop(), restores menu, navigates to Results.
+ * @property {Function}                 [openSettings]
+ * @property {Function}                 [closeSettings]
+ * @property {Function}                 [getRenderMode]
+ * @property {Function}                 [setSettingsRouteActive]
  */

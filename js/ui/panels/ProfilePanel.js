@@ -1,68 +1,42 @@
-/**
- * ProfilePanel — PROFILE tab content.
- *
- * Displays:
- *   - Player name with avatar color indicator
- *   - Race stats summary: Total Races, Wins, Win Rate, Best Times
- *   - Gear icon button (top-right) that opens Settings as a modal
- *
- * Lifecycle: constructor(container, services), show(), hide(), dispose().
- * Panel is created once in AppShell.bootstrap() and persists across tab switches.
- * show() refreshes stats from Settings (they may have changed since last viewed).
- *
- * Data sources:
- *   - Settings.getDisplayName(), Settings.getStats(), Settings.getAvatarChoice()
- *
- * CSS uses _injectCSS() pattern with BEM naming kk-profile-*.
- */
-
 import { Settings } from '../../Settings.js';
+import { MarginalPanelCard } from '../components/MarginalPanelCard.js';
+import { MarginalPanelHeader } from '../components/MarginalPanelHeader.js';
+import { sanitizePlayerName } from '../utils/sanitize.js';
 
-// ---------------------------------------------------------------------------
-// Default avatar color.
-// ---------------------------------------------------------------------------
+function _formatTime( seconds ) {
 
-const AVATAR_COLOR = '#3498db';
+	if ( typeof seconds !== 'number' || Number.isNaN( seconds ) ) return '--:--.---';
+
+	const mins = Math.floor( seconds / 60 );
+	const secs = seconds % 60;
+	const wholeSecs = Math.floor( secs );
+	const ms = Math.round( ( secs - wholeSecs ) * 1000 );
+
+	return `${ String( mins ).padStart( 2, '0' ) }:${ String( wholeSecs ).padStart( 2, '0' ) }.${ String( ms ).padStart( 3, '0' ) }`;
+
+}
 
 export class ProfilePanel {
 
-	/**
-	 * @param {HTMLElement} container  The #kk-panel-profile div.
-	 * @param {object}      services   AppShell service bag.
-	 */
+	static _cssInjected = false;
+
 	constructor( container, services ) {
 
-		/** @type {HTMLElement} */
 		this._container = container;
-
-		/** @type {object} */
 		this._services = services;
-
-		/** @type {HTMLElement | null} */
 		this._nameEl = null;
-
-		/** @type {HTMLElement | null} */
-		this._avatarEl = null;
-
-		/** @type {HTMLElement | null} */
-		this._statsGridEl = null;
-
-		/** @type {HTMLElement | null} */
-		this._bestTimesEl = null;
-
-		/** @type {Function | null} */
-		this._gearClickHandler = null;
+		this._metaEls = [];
+		this._statusValueEl = null;
+		this._bestTimesListEl = null;
+		this._settingsBtn = null;
+		this._nameInputEl = null;
+		this._nameSaveBtn = null;
 
 		this._injectCSS();
 		this._build();
+		this._container.appendChild( this._root );
 
 	}
-
-	// ---------------------------------------------------------------------------
-	// CSS injection
-	// ---------------------------------------------------------------------------
-
-	static _cssInjected = false;
 
 	_injectCSS() {
 
@@ -71,479 +45,435 @@ export class ProfilePanel {
 
 		const style = document.createElement( 'style' );
 		style.textContent = `
-
-			/* -------------------------------------------------------------- */
-			/* ProfilePanel root                                               */
-			/* -------------------------------------------------------------- */
-
 			.kk-profile {
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				padding: var(--space-6, 1.5rem) var(--space-4, 1rem);
-				max-width: 28rem;
-				margin: 0 auto;
+				--mv-cream: #F7F3E9;
+				--mv-red: #D82C2C;
+				--mv-dark: #0F1115;
+				--mv-font-display: var(--font-editorial-display, var(--font-display, sans-serif));
+				--mv-font-mono: var(--font-editorial-mono, var(--font-mono, monospace));
 				position: relative;
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+				color: var(--mv-cream);
+				font-family: var(--mv-font-mono);
+				text-transform: uppercase;
+				background: unset;
+				background-color: unset;
+				background-image: none;
 			}
 
-			/* -------------------------------------------------------------- */
-			/* Gear button                                                     */
-			/* -------------------------------------------------------------- */
+			.kk-profile,
+			.kk-profile * {
+				cursor: crosshair;
+			}
 
-			.kk-profile__gear-btn {
+			.kk-profile__scanlines,
+			.kk-profile__vignette {
+				display: none;
 				position: absolute;
-				top: var(--space-4, 1rem);
-				right: var(--space-4, 1rem);
-				background: none;
-				border: none;
-				cursor: pointer;
-				padding: var(--space-2, 0.5rem);
-				border-radius: var(--radius-sm, 0.25rem);
-				color: var(--color-ink-300, #94a3b8);
-				transition: color var(--duration-normal, 150ms) var(--ease-standard, ease);
+				inset: 0;
+				pointer-events: none;
 			}
 
-			.kk-profile__gear-btn:hover,
-			.kk-profile__gear-btn:focus-visible {
-				color: var(--color-ink-100, #f1f5f9);
-				outline: 2px solid var(--color-focus, #60a5fa);
-				outline-offset: 2px;
+			.kk-profile__scanlines {
+				z-index: 1;
+				opacity: 0.24;
+				background:
+					linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.08) 50%),
+					linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.008), rgba(0, 0, 255, 0.03));
+				background-size: 100% 3px, 3px 100%;
 			}
 
-			/* -------------------------------------------------------------- */
-			/* Player identity card                                            */
-			/* -------------------------------------------------------------- */
-
-			.kk-profile__identity {
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				gap: var(--space-3, 0.75rem);
-				margin-bottom: var(--space-6, 1.5rem);
+			.kk-profile__vignette {
+				z-index: 2;
+				box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.62);
 			}
 
-			.kk-profile__avatar {
-				width: 4rem;
-				height: 4rem;
-				border-radius: 50%;
-				display: flex;
+			.kk-profile__interface {
+				position: relative;
+				z-index: 3;
+				display: grid;
+				grid-template-rows: auto auto minmax(0, 1fr);
+				width: 100%;
+				height: 100%;
+				padding: 24px 24px calc(24px + var(--kk-shell-nav-clearance, 6.75rem));
+				gap: 20px;
+			}
+
+			.kk-profile__top {
+				display: grid;
+				grid-template-columns: minmax(0, 1fr) minmax(280px, 320px);
+				gap: 20px;
+			}
+
+			.kk-profile__settings-btn {
+				display: inline-flex;
 				align-items: center;
 				justify-content: center;
-				font-size: var(--text-2xl, 1.5rem);
-				font-weight: var(--weight-bold, 700);
-				color: #fff;
+				padding: 10px 16px;
+				border: 1px solid rgba(247, 243, 233, 0.82);
+				background: transparent;
+				color: var(--mv-cream);
+				font-family: var(--font-editorial-mono, var(--font-mono, monospace));
+				font-size: var(--text-editorial-label, 0.625rem);
+				font-weight: 700;
+				letter-spacing: var(--tracking-widest, 0.14em);
 				text-transform: uppercase;
-				user-select: none;
+				transition: background 0.2s ease, transform 0.2s ease;
 			}
 
-			.kk-profile__name {
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-xl, 1.25rem);
-				font-weight: var(--weight-bold, 700);
-				color: var(--color-ink-100, #f1f5f9);
-				letter-spacing: var(--tracking-wide, 0.025em);
-				text-transform: uppercase;
+			.kk-profile__settings-btn:hover {
+				background: rgba(247, 243, 233, 0.12);
+				transform: translateY(-1px);
 			}
 
-			/* -------------------------------------------------------------- */
-			/* Stats grid                                                      */
-			/* -------------------------------------------------------------- */
-
-			.kk-profile__stats-title {
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-sm, 0.875rem);
-				font-weight: var(--weight-bold, 700);
-				color: var(--color-ink-300, #94a3b8);
-				letter-spacing: var(--tracking-wider, 0.05em);
-				text-transform: uppercase;
-				margin-bottom: var(--space-3, 0.75rem);
-				align-self: flex-start;
-				width: 100%;
+			.kk-profile__times .kk-mv-card__body {
+				min-height: 0;
 			}
 
-			.kk-profile__stats-grid {
-				display: grid;
-				grid-template-columns: repeat(3, 1fr);
-				gap: var(--space-3, 0.75rem);
-				width: 100%;
-				margin-bottom: var(--space-6, 1.5rem);
-			}
-
-			.kk-profile__stat-card {
-				background: var(--color-surface-raised, rgba(255,255,255,0.05));
-				border-radius: var(--radius-md, 0.5rem);
-				padding: var(--space-4, 1rem) var(--space-3, 0.75rem);
-				text-align: center;
-			}
-
-			.kk-profile__stat-value {
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-2xl, 1.5rem);
-				font-weight: var(--weight-bold, 700);
-				color: var(--color-ink-100, #f1f5f9);
-				line-height: 1;
-				margin-bottom: var(--space-1, 0.25rem);
-			}
-
-			.kk-profile__stat-label {
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-xs, 0.75rem);
-				font-weight: var(--weight-bold, 700);
-				color: var(--color-ink-300, #94a3b8);
-				letter-spacing: var(--tracking-wider, 0.05em);
-				text-transform: uppercase;
-			}
-
-			/* -------------------------------------------------------------- */
-			/* Best times                                                      */
-			/* -------------------------------------------------------------- */
-
-			.kk-profile__best-times {
-				width: 100%;
-			}
-
-			.kk-profile__best-times-list {
-				list-style: none;
-				margin: 0;
-				padding: 0;
+			.kk-profile__times-list {
 				display: flex;
 				flex-direction: column;
-				gap: var(--space-2, 0.5rem);
+				gap: 8px;
 			}
 
-			.kk-profile__best-time-item {
+			.kk-profile__time-item {
 				display: flex;
-				justify-content: space-between;
 				align-items: center;
-				padding: var(--space-3, 0.75rem);
-				background: var(--color-surface-raised, rgba(255,255,255,0.05));
-				border-radius: var(--radius-md, 0.5rem);
+				justify-content: space-between;
+				gap: 12px;
+				padding: 10px 0;
+				border-bottom: 1px solid rgba(247, 243, 233, 0.14);
+				font-size: var(--text-editorial-data, 0.625rem);
+				letter-spacing: 0.12em;
 			}
 
-			.kk-profile__best-time-track {
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-sm, 0.875rem);
-				color: var(--color-ink-200, #cbd5e1);
+			.kk-profile__time-item:last-child {
+				border-bottom: none;
 			}
 
-			.kk-profile__best-time-value {
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-sm, 0.875rem);
-				font-weight: var(--weight-bold, 700);
-				color: var(--color-cta-primary, #fbbf24);
+			.kk-profile__time-value {
+				font-family: var(--font-editorial-display, var(--font-display, sans-serif));
+				font-size: 1.1rem;
+				font-weight: 900;
+				letter-spacing: -0.02em;
 			}
 
-			.kk-profile__best-times-empty {
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-sm, 0.875rem);
-				color: var(--color-ink-400, #64748b);
-				text-align: center;
-				padding: var(--space-4, 1rem);
+			.kk-profile__times-empty {
+				font-size: var(--text-editorial-data, 0.625rem);
+				letter-spacing: 0.12em;
+				opacity: 0.72;
 			}
 
+			.kk-profile__name-editor {
+				display: grid;
+				grid-template-columns: minmax(0, 1fr) auto;
+				gap: 10px;
+				margin-top: 14px;
+			}
+
+			.kk-profile__name-input {
+				min-height: 44px;
+				border: 1px solid rgba(15, 17, 21, 0.22);
+				background: rgba(15, 17, 21, 0.06);
+				color: var(--mv-dark);
+				padding: 10px 12px;
+				font: inherit;
+				font-size: var(--text-editorial-label, 0.625rem);
+				font-weight: 700;
+				letter-spacing: 0.14em;
+				text-transform: uppercase;
+			}
+
+			.kk-profile__name-input::placeholder {
+				color: rgba(15, 17, 21, 0.35);
+			}
+
+			.kk-profile__name-save {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				min-width: 132px;
+				padding: 10px 14px;
+				border: 1px solid var(--mv-red);
+				background: var(--mv-red);
+				color: var(--mv-cream);
+				font-family: var(--font-editorial-mono, var(--font-mono, monospace));
+				font-size: var(--text-editorial-label, 0.625rem);
+				font-weight: 700;
+				letter-spacing: var(--tracking-widest, 0.14em);
+				text-transform: uppercase;
+				transition: background 0.2s ease, transform 0.2s ease;
+			}
+
+			.kk-profile__name-save:hover {
+				background: #b91f1f;
+				transform: translateY(-1px);
+			}
+
+			@media (max-width: 980px) {
+				.kk-profile {
+					overflow-y: auto;
+				}
+
+				.kk-profile__interface {
+					height: auto;
+					min-height: 100%;
+					padding: 20px 16px calc(20px + var(--kk-shell-nav-clearance, 6.75rem));
+				}
+
+				.kk-profile__top {
+					grid-template-columns: 1fr;
+				}
+
+				.kk-profile__name-editor {
+					grid-template-columns: 1fr;
+				}
+			}
 		`;
 		document.head.appendChild( style );
 
 	}
 
-	// ---------------------------------------------------------------------------
-	// DOM construction
-	// ---------------------------------------------------------------------------
-
 	_build() {
 
-		const root = document.createElement( 'div' );
-		root.className = 'kk-profile';
+		this._root = document.createElement( 'div' );
+		this._root.className = 'kk-profile';
 
-		// Gear button (top-right).
-		const gearBtn = document.createElement( 'button' );
-		gearBtn.className = 'kk-profile__gear-btn';
-		gearBtn.type = 'button';
-		gearBtn.setAttribute( 'aria-label', 'Open settings' );
-		gearBtn.innerHTML = '<svg aria-hidden="true" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>';
-		this._gearClickHandler = () => this._openSettings();
-		gearBtn.addEventListener( 'click', this._gearClickHandler );
-		this._gearBtn = gearBtn;
-		root.appendChild( gearBtn );
+		const scanlines = document.createElement( 'div' );
+		scanlines.className = 'kk-profile__scanlines';
+		this._root.appendChild( scanlines );
 
-		// Player identity.
-		const identity = document.createElement( 'div' );
-		identity.className = 'kk-profile__identity';
+		const vignette = document.createElement( 'div' );
+		vignette.className = 'kk-profile__vignette';
+		this._root.appendChild( vignette );
 
-		const avatar = document.createElement( 'div' );
-		avatar.className = 'kk-profile__avatar';
-		this._avatarEl = avatar;
-		identity.appendChild( avatar );
+		const frame = document.createElement( 'div' );
+		frame.className = 'kk-profile__interface';
+		this._root.appendChild( frame );
 
-		const nameEl = document.createElement( 'div' );
-		nameEl.className = 'kk-profile__name';
-		this._nameEl = nameEl;
-		identity.appendChild( nameEl );
+		frame.appendChild( new MarginalPanelHeader( {
+			title: 'Profile',
+			subtitle: 'Pilot Dossier // Stats, Records, Systems',
+			badge: '',
+		} ).el );
 
-		root.appendChild( identity );
+		const top = document.createElement( 'div' );
+		top.className = 'kk-profile__top';
+		top.appendChild( this._buildIdentityCard() );
+		top.appendChild( this._buildStatusCard() );
+		frame.appendChild( top );
 
-		// Stats section title.
-		const statsTitle = document.createElement( 'div' );
-		statsTitle.className = 'kk-profile__stats-title';
-		statsTitle.textContent = 'RACE STATS';
-		root.appendChild( statsTitle );
-
-		// Stats grid (3 cards: Total Races, Wins, Win Rate).
-		const statsGrid = document.createElement( 'div' );
-		statsGrid.className = 'kk-profile__stats-grid';
-		this._statsGridEl = statsGrid;
-		root.appendChild( statsGrid );
-
-		// Best times section title.
-		const bestTitle = document.createElement( 'div' );
-		bestTitle.className = 'kk-profile__stats-title';
-		bestTitle.textContent = 'BEST TIMES';
-		root.appendChild( bestTitle );
-
-		// Best times list.
-		const bestTimes = document.createElement( 'div' );
-		bestTimes.className = 'kk-profile__best-times';
-		this._bestTimesEl = bestTimes;
-		root.appendChild( bestTimes );
-
-		this._root = root;
-		this._container.appendChild( root );
+		frame.appendChild( this._buildTimesCard() );
 
 	}
 
-	// ---------------------------------------------------------------------------
-	// Data refresh
-	// ---------------------------------------------------------------------------
+	_buildIdentityCard() {
 
-	/**
-	 * Refresh all displayed data from Settings.
-	 * Called on every show() so stats are current.
-	 */
-	_refresh() {
+		const card = new MarginalPanelCard( {
+			headerLeft: 'Pilot Data',
+			headerRight: 'Live',
+		} );
 
-		const settings = new Settings();
-		const displayName = settings.getDisplayName() ?? 'Player';
-		const stats = settings.getStats();
+		const label = document.createElement( 'div' );
+		label.className = 'kk-mv-label';
+		label.textContent = 'Display Name';
+		card.bodyEl.appendChild( label );
 
-		// Avatar color indicator.
-		this._avatarEl.style.background = AVATAR_COLOR;
-		this._avatarEl.textContent = displayName.charAt( 0 );
+		const value = document.createElement( 'div' );
+		value.className = 'kk-mv-value';
+		card.bodyEl.appendChild( value );
+		this._nameEl = value;
 
-		// Player name.
-		this._nameEl.textContent = displayName;
+		const editor = document.createElement( 'div' );
+		editor.className = 'kk-profile__name-editor';
 
-		// Stats grid.
-		const winRate = stats.totalRaces > 0
-			? Math.round( ( stats.wins / stats.totalRaces ) * 100 )
-			: 0;
+		const input = document.createElement( 'input' );
+		input.type = 'text';
+		input.maxLength = 20;
+		input.className = 'kk-profile__name-input';
+		input.placeholder = 'Pilot tag';
+		editor.appendChild( input );
+		this._nameInputEl = input;
 
-		const statItems = [
-			{ label: 'RACES', value: String( stats.totalRaces ) },
-			{ label: 'WINS', value: String( stats.wins ) },
-			{ label: 'WIN RATE', value: `${winRate}%` },
-		];
+		const saveBtn = document.createElement( 'button' );
+		saveBtn.type = 'button';
+		saveBtn.className = 'kk-profile__name-save';
+		saveBtn.textContent = 'Update Tag';
+		saveBtn.addEventListener( 'click', () => this._saveDisplayName() );
+		editor.appendChild( saveBtn );
+		this._nameSaveBtn = saveBtn;
 
-		this._statsGridEl.innerHTML = '';
+		input.addEventListener( 'keydown', ( e ) => {
 
-		for ( const item of statItems ) {
+			if ( e.key === 'Enter' ) {
 
-			const card = document.createElement( 'div' );
-			card.className = 'kk-profile__stat-card';
-
-			const val = document.createElement( 'div' );
-			val.className = 'kk-profile__stat-value';
-			val.textContent = item.value;
-			card.appendChild( val );
-
-			const lbl = document.createElement( 'div' );
-			lbl.className = 'kk-profile__stat-label';
-			lbl.textContent = item.label;
-			card.appendChild( lbl );
-
-			this._statsGridEl.appendChild( card );
-
-		}
-
-		// Best times.
-		this._bestTimesEl.innerHTML = '';
-		const bestTimes = stats.bestTimes || {};
-		const trackNames = Object.keys( bestTimes );
-
-		if ( trackNames.length === 0 ) {
-
-			const empty = document.createElement( 'div' );
-			empty.className = 'kk-profile__best-times-empty';
-			empty.textContent = 'No best times recorded yet. Race to set some!';
-			this._bestTimesEl.appendChild( empty );
-
-		} else {
-
-			const list = document.createElement( 'ul' );
-			list.className = 'kk-profile__best-times-list';
-
-			for ( const track of trackNames ) {
-
-				const li = document.createElement( 'li' );
-				li.className = 'kk-profile__best-time-item';
-
-				const trackLabel = document.createElement( 'span' );
-				trackLabel.className = 'kk-profile__best-time-track';
-				trackLabel.textContent = track;
-				li.appendChild( trackLabel );
-
-				const timeVal = document.createElement( 'span' );
-				timeVal.className = 'kk-profile__best-time-value';
-				timeVal.textContent = _formatTime( bestTimes[ track ] );
-				li.appendChild( timeVal );
-
-				list.appendChild( li );
+				e.preventDefault();
+				this._saveDisplayName();
 
 			}
 
-			this._bestTimesEl.appendChild( list );
+		} );
+
+		card.bodyEl.appendChild( editor );
+
+		const grid = document.createElement( 'div' );
+		grid.className = 'kk-mv-data-grid';
+		for ( let i = 0; i < 4; i ++ ) {
+
+			const item = document.createElement( 'div' );
+			item.className = 'kk-mv-data-item';
+			grid.appendChild( item );
+			this._metaEls.push( item );
 
 		}
+		card.bodyEl.appendChild( grid );
+
+		return card.el;
 
 	}
 
-	// ---------------------------------------------------------------------------
-	// Settings modal
-	// ---------------------------------------------------------------------------
+	_buildStatusCard() {
 
-	_openSettings() {
+		const card = new MarginalPanelCard( {
+			variant: 'red',
+			headerLeft: 'System Control',
+			headerRight: '[SETUP]',
+			sticker: 'Menu: Live',
+		} );
 
-		const modal = this._services.modal;
+		const label = document.createElement( 'div' );
+		label.className = 'kk-mv-label';
+		label.textContent = 'Settings Access';
+		card.bodyEl.appendChild( label );
 
-		if ( ! modal ) {
+		const value = document.createElement( 'div' );
+		value.className = 'kk-mv-value';
+		value.textContent = 'Ready';
+		card.bodyEl.appendChild( value );
+		this._statusValueEl = value;
 
-			// Fallback: navigate to settings route.
-			const nav = this._services.navigation;
-			if ( nav ) nav.push( 'settings' );
+		const copy = document.createElement( 'p' );
+		copy.className = 'kk-mv-copy';
+		copy.textContent = 'Open settings, tune accessibility and controls, then return straight to the grid with your current profile.';
+		card.bodyEl.appendChild( copy );
+
+		const btn = document.createElement( 'button' );
+		btn.type = 'button';
+		btn.className = 'kk-profile__settings-btn';
+		btn.textContent = 'Open Settings';
+		btn.addEventListener( 'click', () => this._services.openSettings?.() );
+		card.bodyEl.appendChild( btn );
+		this._settingsBtn = btn;
+
+		return card.el;
+
+	}
+
+	_buildTimesCard() {
+
+		const card = new MarginalPanelCard( {
+			variant: 'outline',
+			headerLeft: 'Best Times',
+		} );
+		card.el.classList.add( 'kk-profile__times' );
+
+		const list = document.createElement( 'div' );
+		list.className = 'kk-profile__times-list';
+		card.bodyEl.appendChild( list );
+		this._bestTimesListEl = list;
+
+		return card.el;
+
+	}
+
+	_refresh() {
+
+		const settings = new Settings();
+		const displayName = settings.getDisplayName() || 'Pilot';
+		const stats = settings.getStats() || {};
+		const totalRaces = Number( stats.totalRaces || 0 );
+		const wins = Number( stats.wins || 0 );
+		const winRate = totalRaces > 0 ? Math.round( ( wins / totalRaces ) * 100 ) : 0;
+
+		if ( this._nameEl ) this._nameEl.textContent = displayName;
+		if ( this._nameInputEl ) this._nameInputEl.value = displayName;
+
+		const lines = [
+			`Races: ${ totalRaces }`,
+			`Wins: ${ wins }`,
+			`Rate: ${ winRate }%`,
+			`Mode: Active`,
+		];
+		this._metaEls.forEach( ( el, index ) => {
+
+			el.textContent = lines[ index ] || '';
+
+		} );
+
+		if ( this._statusValueEl ) this._statusValueEl.textContent = totalRaces > 0 ? 'Tracked' : 'Ready';
+
+		this._bestTimesListEl.innerHTML = '';
+		const bestTimes = Object.entries( stats.bestTimes || {} )
+			.sort( ( a, b ) => a[ 1 ] - b[ 1 ] );
+
+		if ( bestTimes.length === 0 ) {
+
+			const empty = document.createElement( 'div' );
+			empty.className = 'kk-profile__times-empty';
+			empty.textContent = 'No course records logged yet.';
+			this._bestTimesListEl.appendChild( empty );
 			return;
 
 		}
 
-		// Build settings content body for the modal.
-		const bodyEl = document.createElement( 'div' );
-		bodyEl.style.cssText = 'min-height:12rem;';
+		bestTimes.slice( 0, 6 ).forEach( ( [ trackId, time ] ) => {
 
-		// Lazy-import the settings controller/view and render into the modal body.
-		import( '../pages/page21-settings/Page21SettingsController.js' ).then( ( { Page21SettingsController } ) => {
+			const row = document.createElement( 'div' );
+			row.className = 'kk-profile__time-item';
 
-			const ctrl = new Page21SettingsController( {}, this._services );
-			ctrl.initialize();
-			ctrl.bindEvents();
-			ctrl.loadData().then( () => {
+			const label = document.createElement( 'span' );
+			label.textContent = String( trackId ).replace( /[-_]+/g, ' ' );
+			row.appendChild( label );
 
-				ctrl.render( bodyEl );
+			const value = document.createElement( 'span' );
+			value.className = 'kk-profile__time-value';
+			value.textContent = _formatTime( Number( time ) );
+			row.appendChild( value );
 
-			} );
+			this._bestTimesListEl.appendChild( row );
 
-			// Store ref so we can dispose on close.
-			handle._settingsCtrl = ctrl;
-
-		} );
-
-		const handle = modal.open( {
-			title: 'Settings',
-			body: bodyEl,
-			dismissible: true,
-			onClose: () => {
-
-				// Dispose the settings controller on modal close.
-				if ( handle._settingsCtrl ) {
-
-					handle._settingsCtrl.dispose();
-
-				}
-
-				// Refresh profile stats — settings may have changed display name.
-				this._refresh();
-
-			},
 		} );
 
 	}
 
-	// ---------------------------------------------------------------------------
-	// Panel lifecycle
-	// ---------------------------------------------------------------------------
+	_saveDisplayName() {
 
-	/**
-	 * Show the panel. Refresh stats from Settings (they may have changed).
-	 */
+		if ( ! this._nameInputEl ) return;
+
+		const nextValue = sanitizePlayerName( this._nameInputEl.value || '' ).trim();
+		if ( ! nextValue ) return;
+
+		const settings = new Settings();
+		settings.setDisplayName( nextValue );
+		this._refresh();
+
+	}
+
 	show() {
 
 		this._refresh();
 
 	}
 
-	/**
-	 * Hide the panel. No-op — panel stays in DOM.
-	 */
-	hide() {
+	hide() {}
 
-		// No-op. Panel persists; hidden via CSS by AppShell.
-
-	}
-
-	/**
-	 * Tear down the panel. Remove DOM and event listeners.
-	 */
 	dispose() {
 
-		if ( this._gearBtn && this._gearClickHandler ) {
-
-			this._gearBtn.removeEventListener( 'click', this._gearClickHandler );
-
-		}
-
-		if ( this._root && this._root.parentNode ) {
-
-			this._root.parentNode.removeChild( this._root );
-
-		}
-
-		this._container = null;
-		this._services = null;
+		if ( this._root?.parentNode ) this._root.parentNode.removeChild( this._root );
+		this._root = null;
 
 	}
-
-}
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-/**
- * Format a time in seconds to m:ss.fff display string.
- *
- * @param {number} seconds
- * @returns {string}
- */
-function _formatTime( seconds ) {
-
-	if ( typeof seconds !== 'number' || isNaN( seconds ) ) return '--:--.---';
-
-	let mins = Math.floor( seconds / 60 );
-	const secs = seconds % 60;
-	let whole = Math.floor( secs );
-	let ms = Math.round( ( secs - whole ) * 1000 );
-
-	if ( ms >= 1000 ) {
-
-		ms -= 1000;
-		whole += 1;
-
-	}
-
-	if ( whole >= 60 ) {
-
-		whole -= 60;
-		mins += 1;
-
-	}
-
-	return `${mins}:${String( whole ).padStart( 2, '0' )}.${String( ms ).padStart( 3, '0' )}`;
 
 }

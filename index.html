@@ -62,27 +62,6 @@
 			pointer-events: none;
 		}
 		.kk-toast-region > * { pointer-events: auto; }
-		/* ── Loading overlay ─────────────────────────────────────── */
-		#loading-overlay {
-			position: fixed; inset: 0; z-index: 9999;
-			background: #1a1a2e;
-			display: flex; flex-direction: column;
-			align-items: center; justify-content: center;
-			font-family: sans-serif; color: #fff;
-			transition: opacity 0.4s;
-		}
-		#loading-overlay.fade-out { opacity: 0; pointer-events: none; }
-		#loading-title { font-size: 28px; font-weight: bold; margin-bottom: 24px; letter-spacing: 2px; }
-		#loading-bar-bg {
-			width: min(320px, 70vw); height: 8px;
-			background: rgba(255,255,255,0.15); border-radius: 4px; overflow: hidden;
-		}
-		#loading-bar {
-			height: 100%; width: 0%; border-radius: 4px;
-			background: linear-gradient(90deg, #4fc3f7, #29b6f6);
-			transition: width 0.15s;
-		}
-		#loading-text { margin-top: 12px; font-size: 13px; color: rgba(255,255,255,0.5); }
 	</style>
 	<script type="importmap">
 	{
@@ -98,30 +77,42 @@
 </head>
 <body>
 
-<div id="loading-overlay">
-	<div id="loading-title">KART KIDS</div>
-	<div id="loading-bar-bg"><div id="loading-bar"></div></div>
-	<div id="loading-text">Loading...</div>
-</div>
-
 <div id="canvas-container"></div>
 <div id="app-mount"></div>
 
 <script type="module">
 import { AppShell } from './js/ui/core/AppShell.js';
+import { LoadingOverlay } from './js/ui/components/LoadingOverlay.js';
 
 const mount = document.getElementById( 'app-mount' );
 const canvasContainer = document.getElementById( 'canvas-container' );
-const overlay = document.getElementById( 'loading-overlay' );
+const bootstrapOverlay = new LoadingOverlay( {
+	message: 'Launching menu',
+	detail: 'Building interface shell',
+	phase: 'Booting',
+} );
+bootstrapOverlay.show();
 
 const app = new AppShell( mount, { canvasContainer } );
-app.bootstrap();
+try {
 
-// Fade out loading overlay once AppShell is ready.
-if ( overlay ) {
+	await app.bootstrap( {
+		onProgress: ( nextState ) => bootstrapOverlay.setState( nextState ),
+	} );
+	bootstrapOverlay.setState( {
+		phase: 'Ready',
+		message: 'Menu Ready',
+		detail: 'Startup complete',
+		progress: 1,
+		determinate: true,
+	} );
+	bootstrapOverlay.hide();
 
-	overlay.classList.add( 'fade-out' );
-	overlay.addEventListener( 'transitionend', () => overlay.remove(), { once: true } );
+} catch ( err ) {
+
+	console.error( '[index] App bootstrap failed:', err );
+	bootstrapOverlay.showError( 'Kart Kids failed to start' );
+	throw err;
 
 }
 

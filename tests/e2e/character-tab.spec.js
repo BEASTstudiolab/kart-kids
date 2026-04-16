@@ -42,6 +42,21 @@ test.describe( 'Character tab', () => {
 
 	} );
 
+	test( 'renders the shared customizer shell with a live inspector deck', async ( { page } ) => {
+
+		await page.goto( '/#/characters' );
+
+		const deck = page.locator( '.kk-character-panel__deck' );
+		await expect( deck ).toBeVisible( { timeout: 10000 } );
+		await expect( deck ).toContainText( 'Active Category' );
+		await expect( deck ).toContainText( 'Palette' );
+		await expect( page.getByRole( 'button', { name: 'Open Garage Bay' } ) ).toBeVisible();
+
+		await page.getByRole( 'button', { name: 'Masks tab' } ).click();
+		await expect( deck ).toContainText( 'Masks' );
+
+	} );
+
 	test( 'renders top category tabs and a grid of active options', async ( { page } ) => {
 
 		await page.goto( '/#/characters' );
@@ -72,21 +87,39 @@ test.describe( 'Character tab', () => {
 
 	} );
 
-	test( 'shows live camera tuning sliders in Character tab mode', async ( { page } ) => {
+	test( 'renders balaclava thumbnails in the masks grid', async ( { page } ) => {
 
 		await page.goto( '/#/characters' );
 
-		const cameraDebug = page.locator( '.page-character-select__detail-card', { hasText: 'Camera Tuning' } );
-		await expect( cameraDebug ).toBeVisible( { timeout: 10000 } );
+		const masksTab = page.locator( '.page-character-select__category-tab', { hasText: 'Masks' } );
+		await masksTab.click();
 
-		const sliders = cameraDebug.locator( '.page-character-select__camera-debug-slider' );
-		await expect( sliders ).toHaveCount( 5 );
+		const maskItems = page.locator( '.page-character-select__item--thumbnail' );
+		await expect( maskItems.first() ).toBeVisible( { timeout: 10000 } );
+		expect( await maskItems.count() ).toBeGreaterThan( 8 );
 
-		const readout = cameraDebug.locator( '.page-character-select__camera-debug-readout' );
-		await expect( readout ).toContainText( 'Look X: 0.00' );
+		const images = page.locator( '.page-character-select__item-thumb-image' );
+		await expect( images.first() ).toBeVisible( { timeout: 10000 } );
 
-		await sliders.nth( 0 ).fill( '0.25' );
-		await expect( readout ).toContainText( 'Look X: 0.25' );
+		const pigCard = page.getByRole( 'button', { name: /Balaclava Pig/i } );
+		await pigCard.click();
+		await expect( pigCard ).toHaveClass( /page-character-select__item--active/ );
+
+	} );
+
+	test( 'renders thumbnail pickers for accessories, shirts, and pants too', async ( { page } ) => {
+
+		await page.goto( '/#/characters' );
+
+		for ( const tabName of [ 'Accessories', 'Shirts', 'Pants' ] ) {
+
+			await page.getByRole( 'button', { name: `${ tabName } tab` } ).click();
+			const grid = page.locator( '.page-character-select__option-grid' );
+			await expect( grid ).toBeVisible( { timeout: 10000 } );
+			await expect( grid.locator( '.page-character-select__item--thumbnail' ).first() ).toBeVisible( { timeout: 10000 } );
+			await expect( grid.locator( '.page-character-select__item-thumb-image' ).first() ).toBeVisible( { timeout: 10000 } );
+
+		}
 
 	} );
 

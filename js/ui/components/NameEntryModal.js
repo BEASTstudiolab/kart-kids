@@ -1,39 +1,18 @@
-/**
- * NameEntryModal — First-run onboarding splash page.
- *
- * Shown once on first app launch when Settings.isFirstRun() returns true.
- * Renders a full-screen branded splash with a name input.
- * Collects a display name (max 20 chars, HTML-sanitized via textContent pattern).
- *
- * Saves result to Settings.setDisplayName().
- *
- * DOM structure (appended to document.body):
- *
- *   div.kk-onboarding
- *     div.kk-onboarding__card
- *       h1.kk-onboarding__title  "KART KIDS"
- *       div.kk-onboarding__field
- *         label.kk-onboarding__label
- *         input.kk-onboarding__input
- *         span.kk-onboarding__error (hidden by default)
- *       button.kk-onboarding__btn  "LET'S RACE!"
- */
+import {
+	ensureEditorialRuntimeTheme,
+	createEditorialRuntimeButton,
+	createEditorialRuntimeHeader,
+} from './EditorialRuntimeTheme.js';
 
 const MAX_NAME_LENGTH = 20;
 
 let _cssInjected = false;
 
-/**
- * Show the onboarding splash page.
- *
- * @param {object} _modalService  Unused — kept for API compat with AppShell call.
- * @param {import('../../Settings.js').Settings} settings
- * @returns {Promise<void>}  Resolves when the user completes onboarding.
- */
 export function showNameEntryModal( _modalService, settings ) {
 
 	return new Promise( ( resolve ) => {
 
+		ensureEditorialRuntimeTheme();
 		_injectCSS();
 
 		const page = document.createElement( 'div' );
@@ -41,20 +20,18 @@ export function showNameEntryModal( _modalService, settings ) {
 
 		const card = document.createElement( 'div' );
 		card.className = 'kk-onboarding__card';
+		card.appendChild( createEditorialRuntimeHeader( 'Pilot Registry', 'Live' ) );
 
-		// ----- Branding -----
 		const title = document.createElement( 'h1' );
 		title.className = 'kk-onboarding__title';
-		title.textContent = 'KART KIDS';
+		title.textContent = 'Kart Kids';
 		card.appendChild( title );
 
-		// ----- Subtitle -----
 		const subtitle = document.createElement( 'p' );
 		subtitle.className = 'kk-onboarding__subtitle';
-		subtitle.textContent = 'Enter your name';
+		subtitle.textContent = 'Register your pilot tag before entering the grid.';
 		card.appendChild( subtitle );
 
-		// ----- Name field -----
 		const field = document.createElement( 'div' );
 		field.className = 'kk-onboarding__field';
 
@@ -62,7 +39,7 @@ export function showNameEntryModal( _modalService, settings ) {
 		input.type = 'text';
 		input.id = 'kk-onboarding-input';
 		input.className = 'kk-onboarding__input';
-		input.placeholder = 'Your name...';
+		input.placeholder = 'Enter name';
 		input.maxLength = MAX_NAME_LENGTH;
 		input.autocomplete = 'off';
 		input.setAttribute( 'aria-required', 'true' );
@@ -76,27 +53,16 @@ export function showNameEntryModal( _modalService, settings ) {
 		errorEl.setAttribute( 'role', 'alert' );
 		errorEl.hidden = true;
 		field.appendChild( errorEl );
-
 		card.appendChild( field );
 
-		// ----- Confirm button -----
-		const btn = document.createElement( 'button' );
-		btn.type = 'button';
-		btn.className = 'kk-onboarding__btn';
-
-		const btnLabel = document.createElement( 'span' );
-		btnLabel.textContent = "LET'S RACE!";
-		btn.appendChild( btnLabel );
-
+		const btn = createEditorialRuntimeButton( 'Launch Profile', 'red' );
+		btn.classList.add( 'kk-onboarding__btn' );
 		card.appendChild( btn );
 
 		page.appendChild( card );
 		document.body.appendChild( page );
 
-		// Focus the input after it's in the DOM.
 		requestAnimationFrame( () => input.focus() );
-
-		// ----- Handlers -----
 
 		function confirm() {
 
@@ -113,8 +79,6 @@ export function showNameEntryModal( _modalService, settings ) {
 			}
 
 			settings.setDisplayName( sanitized );
-
-			// Fade out then remove.
 			page.classList.add( 'kk-onboarding--leaving' );
 			page.addEventListener( 'transitionend', () => {
 
@@ -123,7 +87,6 @@ export function showNameEntryModal( _modalService, settings ) {
 
 			}, { once: true } );
 
-			// Fallback if transitionend doesn't fire.
 			setTimeout( () => {
 
 				if ( page.parentNode ) {
@@ -138,7 +101,6 @@ export function showNameEntryModal( _modalService, settings ) {
 		}
 
 		btn.addEventListener( 'click', confirm );
-
 		input.addEventListener( 'keydown', ( e ) => {
 
 			if ( e.key === 'Enter' ) {
@@ -154,10 +116,6 @@ export function showNameEntryModal( _modalService, settings ) {
 
 }
 
-// ---------------------------------------------------------------------------
-// Sanitization
-// ---------------------------------------------------------------------------
-
 function _sanitizeName( raw ) {
 
 	const temp = document.createElement( 'div' );
@@ -167,10 +125,6 @@ function _sanitizeName( raw ) {
 
 }
 
-// ---------------------------------------------------------------------------
-// CSS injection
-// ---------------------------------------------------------------------------
-
 function _injectCSS() {
 
 	if ( _cssInjected ) return;
@@ -178,10 +132,6 @@ function _injectCSS() {
 
 	const style = document.createElement( 'style' );
 	style.textContent = `
-		/* ------------------------------------------------------------------ */
-		/* Onboarding splash page                                              */
-		/* ------------------------------------------------------------------ */
-
 		.kk-onboarding {
 			position: fixed;
 			inset: 0;
@@ -189,9 +139,25 @@ function _injectCSS() {
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			background: radial-gradient(ellipse at 50% 40%, #1a1a2e 0%, #0a0a14 100%);
+			padding: 24px;
+			background:
+				radial-gradient(circle at 20% 20%, rgba(216,44,44,0.18) 0%, rgba(216,44,44,0) 36%),
+				radial-gradient(circle at 78% 18%, rgba(247,243,233,0.12) 0%, rgba(247,243,233,0) 34%),
+				linear-gradient(180deg, #0f1115 0%, #090b0f 100%);
 			opacity: 1;
 			transition: opacity 0.4s ease;
+		}
+
+		.kk-onboarding::before {
+			content: '';
+			position: absolute;
+			inset: 0;
+			background:
+				linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.08) 50%),
+				linear-gradient(90deg, rgba(255,0,0,0.02), rgba(0,255,0,0.008), rgba(0,0,255,0.02));
+			background-size: 100% 3px, 3px 100%;
+			opacity: 0.3;
+			pointer-events: none;
 		}
 
 		.kk-onboarding--leaving {
@@ -199,41 +165,52 @@ function _injectCSS() {
 		}
 
 		.kk-onboarding__card {
+			position: relative;
 			display: flex;
 			flex-direction: column;
-			align-items: center;
-			gap: 1.5rem;
-			padding: 3rem 2.5rem;
-			width: min(400px, 90vw);
+			align-items: stretch;
+			gap: 1rem;
+			padding: 1rem;
+			width: min(520px, 100%);
+			background: rgba(247,243,233,0.96);
+			color: #0f1115;
+			border: 1px solid rgba(247,243,233,0.96);
+			box-shadow: 0 24px 80px rgba(0,0,0,0.45);
+			clip-path: polygon(0 0, 100% 0, 100% 92%, 96% 100%, 0 100%);
 		}
 
-		/* ----- Title / branding ----- */
-
 		.kk-onboarding__title {
-			font-family: var(--font-display, 'Arial Black', sans-serif);
-			font-size: clamp(2.5rem, 8vw, 4rem);
-			font-weight: 900;
-			color: #ffffff;
-			text-transform: uppercase;
-			letter-spacing: 0.08em;
-			text-align: center;
 			margin: 0;
-			text-shadow:
-				0 0 20px rgba(255, 165, 0, 0.6),
-				0 0 40px rgba(255, 165, 0, 0.3),
-				0 2px 4px rgba(0, 0, 0, 0.5);
+			font-family: var(--kk-rt-font-display);
+			font-size: clamp(3rem, 10vw, 5.2rem);
+			font-weight: 900;
+			line-height: 0.9;
+			letter-spacing: -0.08em;
+			text-transform: uppercase;
+			color: #0f1115;
+		}
+
+		.kk-onboarding__title::after {
+			content: 'Pilot Archive';
+			display: block;
+			margin-top: 0.55rem;
+			font-family: var(--kk-rt-font-mono);
+			font-size: 0.68rem;
+			font-weight: 700;
+			letter-spacing: 0.22em;
+			color: rgba(15,17,21,0.54);
+			text-transform: uppercase;
 		}
 
 		.kk-onboarding__subtitle {
-			font-family: var(--font-ui, sans-serif);
-			font-size: var(--text-base, 1rem);
-			color: rgba(255, 255, 255, 0.5);
-			text-transform: uppercase;
-			letter-spacing: 0.12em;
 			margin: 0;
+			font-family: var(--kk-rt-font-mono);
+			font-size: 0.68rem;
+			line-height: 1.7;
+			letter-spacing: 0.14em;
+			text-transform: uppercase;
+			color: rgba(15,17,21,0.74);
 		}
-
-		/* ----- Name field ----- */
 
 		.kk-onboarding__field {
 			display: flex;
@@ -243,70 +220,56 @@ function _injectCSS() {
 		}
 
 		.kk-onboarding__input {
-			font-family: var(--font-ui, sans-serif);
-			font-size: 1.125rem;
-			color: #ffffff;
-			background: rgba(255, 255, 255, 0.08);
-			border: 2px solid rgba(255, 255, 255, 0.15);
-			border-radius: 0.625rem;
-			padding: 0.875rem 1rem;
+			font-family: var(--kk-rt-font-display);
+			font-size: clamp(2rem, 8vw, 3.75rem);
+			font-weight: 900;
+			color: #0f1115;
+			background: rgba(15,17,21,0.06);
+			border: 1px solid rgba(15,17,21,0.22);
+			padding: 1rem 1.1rem;
 			outline: none;
-			text-align: center;
-			transition: border-color 0.2s ease, background 0.2s ease;
+			text-align: left;
+			text-transform: uppercase;
+			letter-spacing: -0.06em;
+			transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
 		}
 
 		.kk-onboarding__input::placeholder {
-			color: rgba(255, 255, 255, 0.3);
+			color: rgba(15,17,21,0.22);
 		}
 
 		.kk-onboarding__input:focus {
-			border-color: rgba(255, 165, 0, 0.6);
-			background: rgba(255, 255, 255, 0.12);
+			border-color: rgba(216,44,44,0.88);
+			background: rgba(15,17,21,0.02);
+			box-shadow: 0 0 0 4px rgba(216,44,44,0.08);
 		}
 
-		.kk-onboarding__input[aria-invalid="true"] {
-			border-color: #e74c3c;
+		.kk-onboarding__input[aria-invalid='true'] {
+			border-color: #d82c2c;
 		}
 
 		.kk-onboarding__error {
-			font-family: var(--font-ui, sans-serif);
-			font-size: 0.75rem;
-			color: #e74c3c;
-			text-align: center;
+			font-family: var(--kk-rt-font-mono);
+			font-size: 0.6rem;
+			color: #d82c2c;
+			text-align: left;
+			text-transform: uppercase;
+			letter-spacing: 0.14em;
 		}
-
-		/* ----- Confirm button ----- */
 
 		.kk-onboarding__btn {
-			font-family: var(--font-ui, sans-serif);
-			font-size: 1.125rem;
-			font-weight: 700;
-			color: #ffffff;
-			background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
-			border: none;
-			border-radius: 0.625rem;
-			padding: 0.875rem 2.5rem;
-			cursor: pointer;
-			text-transform: uppercase;
-			letter-spacing: 0.06em;
-			transition: transform 0.15s ease, box-shadow 0.15s ease;
-			box-shadow: 0 4px 15px rgba(230, 126, 34, 0.4);
 			width: 100%;
+			margin-top: 0.25rem;
 		}
 
-		.kk-onboarding__btn:hover {
-			transform: translateY(-2px);
-			box-shadow: 0 6px 20px rgba(230, 126, 34, 0.6);
-		}
+		@media (max-width: 480px) {
+			.kk-onboarding {
+				padding: 12px;
+			}
 
-		.kk-onboarding__btn:active {
-			transform: translateY(0);
-			box-shadow: 0 2px 10px rgba(230, 126, 34, 0.4);
-		}
-
-		.kk-onboarding__btn:focus-visible {
-			outline: 2px solid #ffffff;
-			outline-offset: 2px;
+			.kk-onboarding__card {
+				padding: 0.85rem;
+			}
 		}
 	`;
 	document.head.appendChild( style );

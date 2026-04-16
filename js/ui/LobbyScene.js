@@ -111,6 +111,30 @@ const DEFAULT_MENU_PREVIEW_TUNING = Object.freeze( {
 	cameraOffsetY: 0,
 	cameraOffsetZ: 0,
 } );
+const MENU_PERF_PROFILES = Object.freeze( {
+	high: Object.freeze( {
+		renderScale: 1.0,
+		useComposer: true,
+		bloom: true,
+	} ),
+	medium: Object.freeze( {
+		renderScale: 0.8,
+		useComposer: true,
+		bloom: true,
+	} ),
+	low: Object.freeze( {
+		renderScale: 0.67,
+		useComposer: false,
+		bloom: false,
+	} ),
+} );
+const MENU_PERF_PROFILE_ORDER = Object.freeze( [ 'low', 'medium', 'high' ] );
+const MENU_PERF_SAMPLE_MS = 1500;
+const MENU_PERF_LOW_FPS = 34;
+const MENU_PERF_HIGH_FPS = 42;
+const MENU_PERF_LOW_STREAK = 2;
+const MENU_PERF_HIGH_STREAK = 3;
+const MENU_PERF_COOLDOWN_MS = 3500;
 
 // Character model — rest armature rides the selected kart using the garage idle loop.
 const CHARACTER_MESH_PATH = CHARACTER_MODEL_PATH;
@@ -145,6 +169,184 @@ const LOBBY_MATERIAL_CONFIGS = Object.freeze( {
 	} ),
 } );
 const LOBBY_MATERIAL_ORDER = Object.freeze( Object.keys( LOBBY_MATERIAL_CONFIGS ) );
+const CHARACTER_DEBUG_TEXTURE_KEYS = Object.freeze( [
+	'map',
+	'normalMap',
+	'aoMap',
+	'roughnessMap',
+	'metalnessMap',
+	'emissiveMap',
+	'alphaMap',
+] );
+
+function normalizeDebugMaterialName( materialName ) {
+
+	return typeof materialName === 'string' ? materialName.trim() : '';
+
+}
+
+function cloneDebugColorState( colorState ) {
+
+	if ( ! colorState ) return null;
+
+	return {
+		r: Number( colorState.r ) || 0,
+		g: Number( colorState.g ) || 0,
+		b: Number( colorState.b ) || 0,
+	};
+
+}
+
+function cloneDebugVector2State( vectorState, fallbackValue = 0 ) {
+
+	if ( ! vectorState ) {
+
+		return { x: fallbackValue, y: fallbackValue };
+
+	}
+
+	return {
+		x: Number( vectorState.x ) || fallbackValue,
+		y: Number( vectorState.y ) || fallbackValue,
+	};
+
+}
+
+function getDebugNormalAxisSign( value, fallbackSign = 1 ) {
+
+	const numericValue = Number( value );
+	if ( numericValue < 0 ) return - 1;
+	if ( numericValue > 0 ) return 1;
+	return fallbackSign < 0 ? - 1 : 1;
+
+}
+
+function getCharacterMaterialNormalStrength( state, baselineState = null ) {
+
+	if ( ! state?.normalScale ) return 1;
+
+	const baselineScale = baselineState?.normalScale || state.normalScale;
+	const ratios = [];
+
+	for ( const axis of [ 'x', 'y' ] ) {
+
+		const baseMagnitude = Math.abs( Number( baselineScale?.[ axis ] ) || 0 );
+		const currentMagnitude = Math.abs( Number( state.normalScale?.[ axis ] ) || 0 );
+		const divisor = baseMagnitude > 0.0001 ? baseMagnitude : 1;
+		ratios.push( currentMagnitude / divisor );
+
+	}
+
+	if ( ratios.length === 0 ) return 1;
+	return ratios.reduce( ( total, ratio ) => total + ratio, 0 ) / ratios.length;
+
+}
+
+function applyCharacterMaterialNormalStrength( state, baselineState = null, nextStrength = 1 ) {
+
+	if ( ! state?.normalScale ) return;
+
+	const baselineScale = baselineState?.normalScale || state.normalScale || { x: 1, y: 1 };
+	const strength = Number.isFinite( nextStrength ) ? nextStrength : 1;
+	const nextScale = { x: 1, y: 1 };
+
+	for ( const axis of [ 'x', 'y' ] ) {
+
+		const baseValue = Number( baselineScale?.[ axis ] ) || 0;
+		const baseMagnitude = Math.abs( baseValue ) > 0.0001 ? Math.abs( baseValue ) : 1;
+		const fallbackSign = axis === 'y' ? - 1 : 1;
+		const axisSign = getDebugNormalAxisSign( baseValue, getDebugNormalAxisSign( state.normalScale?.[ axis ], fallbackSign ) );
+		nextScale[ axis ] = axisSign * baseMagnitude * strength;
+
+	}
+
+	state.normalScale.x = nextScale.x;
+	state.normalScale.y = nextScale.y;
+
+}
+
+function cloneCharacterMaterialDebugState( state ) {
+
+	if ( ! state ) return null;
+
+	return {
+		textureFidelity: Number( state.textureFidelity ) || 1,
+		color: cloneDebugColorState( state.color ),
+		emissive: cloneDebugColorState( state.emissive ),
+		emissiveIntensity: Number( state.emissiveIntensity ) || 0,
+		normalScale: cloneDebugVector2State( state.normalScale, 1 ),
+		aoMapIntensity: Number( state.aoMapIntensity ) || 0,
+		roughness: Number( state.roughness ) || 0,
+		metalness: Number( state.metalness ) || 0,
+		envMapIntensity: Number( state.envMapIntensity ) || 0,
+		opacity: Number( state.opacity ) || 0,
+		alphaTest: Number( state.alphaTest ) || 0,
+		doubleSided: state.doubleSided !== false,
+		wireframe: !! state.wireframe,
+		flatShading: !! state.flatShading,
+		depthWrite: state.depthWrite !== false,
+		transparent: !! state.transparent,
+		mapEnabled: !! state.mapEnabled,
+		normalMapEnabled: !! state.normalMapEnabled,
+		aoMapEnabled: !! state.aoMapEnabled,
+		roughnessMapEnabled: !! state.roughnessMapEnabled,
+		metalnessMapEnabled: !! state.metalnessMapEnabled,
+		emissiveMapEnabled: !! state.emissiveMapEnabled,
+		alphaMapEnabled: !! state.alphaMapEnabled,
+	};
+
+}
+
+function createCharacterMaterialDebugSnapshot( material, maxTextureAnisotropy = 1 ) {
+
+	if ( ! material?.isMaterial ) return null;
+
+	let textureFidelity = 1;
+	for ( const textureKey of CHARACTER_DEBUG_TEXTURE_KEYS ) {
+
+		const texture = material[ textureKey ];
+		if ( ! texture?.isTexture ) continue;
+		textureFidelity = Math.max( textureFidelity, Math.round( Number( texture.anisotropy ) || 1 ) );
+
+	}
+
+	return {
+		textureFidelity: THREE.MathUtils.clamp(
+			textureFidelity,
+			1,
+			Math.max( 1, Math.round( maxTextureAnisotropy ) || 1 )
+		),
+		color: material.color
+			? { r: material.color.r, g: material.color.g, b: material.color.b }
+			: null,
+		emissive: material.emissive
+			? { r: material.emissive.r, g: material.emissive.g, b: material.emissive.b }
+			: null,
+		emissiveIntensity: Number.isFinite( material.emissiveIntensity ) ? material.emissiveIntensity : 0,
+		normalScale: material.normalScale
+			? { x: material.normalScale.x, y: material.normalScale.y }
+			: { x: 1, y: 1 },
+		aoMapIntensity: Number.isFinite( material.aoMapIntensity ) ? material.aoMapIntensity : 1,
+		roughness: Number.isFinite( material.roughness ) ? material.roughness : 1,
+		metalness: Number.isFinite( material.metalness ) ? material.metalness : 0,
+		envMapIntensity: Number.isFinite( material.envMapIntensity ) ? material.envMapIntensity : 1,
+		opacity: Number.isFinite( material.opacity ) ? material.opacity : 1,
+		alphaTest: Number.isFinite( material.alphaTest ) ? material.alphaTest : 0,
+		doubleSided: material.side === THREE.DoubleSide,
+		wireframe: !! material.wireframe,
+		flatShading: !! material.flatShading,
+		depthWrite: material.depthWrite !== false,
+		transparent: !! material.transparent,
+		mapEnabled: !! material.map,
+		normalMapEnabled: !! material.normalMap,
+		aoMapEnabled: !! material.aoMap,
+		roughnessMapEnabled: !! material.roughnessMap,
+		metalnessMapEnabled: !! material.metalnessMap,
+		emissiveMapEnabled: !! material.emissiveMap,
+		alphaMapEnabled: !! material.alphaMap,
+	};
+
+}
 
 function normalizeRotationRadians( radians ) {
 
@@ -167,6 +369,20 @@ function dampAngle( current, target, dt, speed = PREVIEW_POSE_LERP_SPEED ) {
 
 }
 
+function getInitialMenuPerfProfile() {
+
+	if ( typeof window !== 'undefined' && window.matchMedia?.( '(prefers-reduced-motion: reduce)' ).matches ) {
+
+		return 'medium';
+
+	}
+
+	const deviceMemory = typeof navigator !== 'undefined' ? navigator.deviceMemory : undefined;
+	if ( deviceMemory !== undefined && deviceMemory <= 4 ) return 'medium';
+	return 'high';
+
+}
+
 export class LobbyScene {
 
 	/**
@@ -176,9 +392,13 @@ export class LobbyScene {
 
 		/** @type {THREE.WebGLRenderer} */
 		this._renderer = renderer;
+		this._maxTextureAnisotropy = Math.max(
+			1,
+			Math.round( renderer?.capabilities?.getMaxAnisotropy?.() || 1 )
+		);
 
 		/** @type {boolean} */
-		this.ready = true;
+		this.ready = false;
 
 		// ── Scene ────────────────────────────────────────────────────────
 		this._scene = new THREE.Scene();
@@ -230,6 +450,14 @@ export class LobbyScene {
 			LOBBY_BLOOM_THRESHOLD
 		);
 		this._composer.addPass( this._bloomPass );
+		this._menuPerfProfile = getInitialMenuPerfProfile();
+		this._menuPerfAccumMs = 0;
+		this._menuPerfFrames = 0;
+		this._menuPerfLowCount = 0;
+		this._menuPerfHighCount = 0;
+		this._menuPerfLastChangeTime = performance.now();
+		this._useComposer = true;
+		this._applyMenuPerfProfile( this._menuPerfProfile, { force: true } );
 
 		// ── Lobby materials (populated on load) ─────────────────────────
 		/** @type {THREE.MeshStandardMaterial[]} */
@@ -238,21 +466,32 @@ export class LobbyScene {
 		this._lobbyTextureLoader = new THREE.TextureLoader();
 		/** @type {Map<string, Promise<THREE.Texture>>} */
 		this._lobbyOrmTextureCache = new Map();
+		/** @type {Map<string, ReturnType<typeof createCharacterMaterialDebugSnapshot>>} */
+		this._characterMaterialDebugSettings = new Map();
+		/** @type {Map<string, ReturnType<typeof createCharacterMaterialDebugSnapshot>>} */
+		this._characterMaterialDebugBaselines = new Map();
+		/** @type {(() => void) | null} */
+		this._refreshCharacterDebugTab = null;
+		/** @type {string} */
+		this._characterDebugExpandedMaterialName = 'Masks Batch';
 
 		// ── Lobby environment ────────────────────────────────────────────
 		this._loader = new GLTFLoader();
-		this._loader.load( LOBBY_MODEL_PATH, ( gltf ) => {
+		this._environmentReady = false;
+		this._hasPresentedScene = false;
+		this._loadingProgressReporter = null;
+		this._initialLoadSteps = {
+			environment: false,
+			kart: false,
+			character: false,
+			animation: false,
+		};
+		this._initialRevealReady = new Promise( ( resolve ) => {
 
-			const lobbyModel = gltf.scene;
-			this._prepareLobbyEnvironment( lobbyModel );
-
-			this._scene.add( lobbyModel );
-
-		}, undefined, ( err ) => {
-
-			console.error( `[LobbyScene] Failed to load lobby model: ${ LOBBY_MODEL_PATH }`, err );
+			this._resolveInitialRevealReady = resolve;
 
 		} );
+		void this._loadLobbyEnvironment();
 
 		// ── Kart + character container ───────────────────────────────────
 		this._kartGroup = new THREE.Group();
@@ -350,97 +589,292 @@ export class LobbyScene {
 		this._mixer = null;
 		this._syncDriverOffsetDebugControls();
 		const gen = ++ this._loadGen;
+		if ( ! this._hasPresentedScene ) {
 
-		// Clear previous kart + character
-		while ( this._kartGroup.children.length > 0 ) {
-
-			this._kartGroup.remove( this._kartGroup.children[ 0 ] );
+			this._resetInitialLoadSteps();
 
 		}
 
 		const entry = getVehicleById( kartId );
-		if ( ! entry ) return;
+		if ( ! entry ) {
 
-		// Load kart model, then attach character to the seat_anchor node
-		// (same approach as Vehicle.js _attachCharacter).
-		this._loader.load( `models/${ entry.path }`, ( kartGltf ) => {
+			this.clearKart();
+			return;
+
+		}
+
+		void this._loadKartBundle( gen, kartId, entry );
+
+	}
+
+	whenInitialRevealReady() {
+
+		return this._initialRevealReady;
+
+	}
+
+	setLoadingProgressReporter( callback ) {
+
+		this._loadingProgressReporter = typeof callback === 'function' ? callback : null;
+		if ( this._loadingProgressReporter && ! this._hasPresentedScene ) {
+
+			this._emitInitialLoadProgress( 'Preparing first menu scene' );
+
+		}
+
+	}
+
+	async _loadLobbyEnvironment() {
+
+		try {
+
+			const gltf = await this._loadGltf( LOBBY_MODEL_PATH );
+			const lobbyModel = gltf.scene;
+			this._prepareLobbyEnvironment( lobbyModel );
+			this._scene.add( lobbyModel );
+
+		} catch ( err ) {
+
+			console.error( `[LobbyScene] Failed to load lobby model: ${ LOBBY_MODEL_PATH }`, err );
+
+		} finally {
+
+			this._environmentReady = true;
+			this._markInitialLoadStep( 'environment', 'Environment ready' );
+			this._markPreviewReadyIfComplete();
+
+		}
+
+	}
+
+	async _loadKartBundle( gen, kartId, entry ) {
+
+		try {
+
+			const [ kartGltf, meshGltf, animGltf ] = await Promise.all( [
+				this._loadGltf( `models/${ entry.path }` ).then( ( gltf ) => {
+
+					if ( gen === this._loadGen ) this._markInitialLoadStep( 'kart', 'Kart ready' );
+					return gltf;
+
+				} ),
+				this._loadOptionalGltf( `models/${ CHARACTER_MESH_PATH }` ).then( ( gltf ) => {
+
+					if ( gen === this._loadGen ) this._markInitialLoadStep( 'character', gltf?.scene ? 'Driver ready' : 'Driver fallback ready' );
+					return gltf;
+
+				} ),
+				this._loadOptionalGltf( `models/${ CHARACTER_ANIM_PATH }` ).then( ( gltf ) => {
+
+					if ( gen === this._loadGen ) this._markInitialLoadStep( 'animation', gltf?.animations?.length ? 'Animation ready' : 'Animation fallback ready' );
+					return gltf;
+
+				} ),
+			] );
+
+			if ( gen !== this._loadGen ) {
+
+				this._disposeObject3D( kartGltf?.scene );
+				this._disposeObject3D( meshGltf?.scene );
+				return;
+
+			}
+
+			const bundle = this._buildKartBundle( kartId, kartGltf, meshGltf, animGltf );
+			this._applyKartBundle( bundle );
+			this._markPreviewReadyIfComplete();
+
+		} catch ( err ) {
 
 			if ( gen !== this._loadGen ) return;
+			console.error( `[LobbyScene] Failed to load lobby preview bundle for ${ kartId }`, err );
+			this._markPreviewReadyIfComplete();
 
-			const kartModel = kartGltf.scene;
-			kartModel.scale.setScalar( KART_SCALE );
-			this._kartGroup.add( kartModel );
+		}
 
-			// Find seat_anchor node inside the kart model
-			let seatAnchor = null;
-			let bodyNode = null;
-			kartModel.traverse( ( child ) => {
+	}
 
-				const name = ( child.name || '' ).toLowerCase();
-				if ( name === 'seat_anchor' || name.startsWith( 'seat_anchor.' ) ) {
+	_buildKartBundle( kartId, kartGltf, meshGltf, animGltf ) {
 
-					seatAnchor = child;
+		const kartModel = kartGltf.scene;
+		kartModel.scale.setScalar( KART_SCALE );
 
-				} else if ( name === 'body' || name.startsWith( 'body.' ) ) {
+		let seatAnchor = null;
+		let bodyNode = null;
+		kartModel.traverse( ( child ) => {
 
-					bodyNode = child;
+			const name = ( child.name || '' ).toLowerCase();
+			if ( name === 'seat_anchor' || name.startsWith( 'seat_anchor.' ) ) {
 
-				}
+				seatAnchor = child;
 
-			} );
+			} else if ( name === 'body' || name.startsWith( 'body.' ) ) {
 
-			this._currentBodyRoot = bodyNode || kartModel;
-			this._currentCharacterRoot = null;
-			this._applyAppearance();
+				bodyNode = child;
 
-			// Load character mesh and attach to seat anchor
-			this._loader.load( `models/${ CHARACTER_MESH_PATH }`, ( meshGltf ) => {
+			}
 
-				if ( gen !== this._loadGen ) return;
+		} );
 
-				const character = meshGltf.scene;
-				character.scale.setScalar( 1.0 );
-				const offset = this._getResolvedCharacterOffset(
-					kartId,
-					seatAnchor ? DEFAULT_SEAT_OFFSET : DEFAULT_KART_OFFSET
-				);
+		let characterRoot = null;
+		let mixer = null;
+		const fallbackOffset = seatAnchor ? DEFAULT_SEAT_OFFSET : DEFAULT_KART_OFFSET;
+		const offset = this._getResolvedCharacterOffset( kartId, fallbackOffset );
 
-				// Position: use seat_anchor if found, otherwise use characterOffset
-				if ( seatAnchor ) {
+		if ( meshGltf?.scene ) {
 
-					character.position.set( offset.x, offset.y, offset.z );
-					seatAnchor.add( character );
+			characterRoot = meshGltf.scene;
+			characterRoot.scale.setScalar( 1.0 );
+			characterRoot.position.set( offset.x, offset.y, offset.z );
 
-				} else {
+			if ( seatAnchor ) {
 
-					character.position.set( offset.x, offset.y, offset.z );
-					kartModel.add( character );
+				seatAnchor.add( characterRoot );
 
-				}
+			} else {
 
-				this._currentCharacterRoot = character;
-				this._syncDriverOffsetDebugControls( offset );
-				this._applyAppearance();
+				kartModel.add( characterRoot );
 
-				// Apply driving pose animation
-				this._loader.load( `models/${ CHARACTER_ANIM_PATH }`, ( animGltf ) => {
+			}
 
-					if ( gen !== this._loadGen ) return;
+			if ( animGltf?.animations?.length > 0 ) {
 
-					if ( animGltf.animations && animGltf.animations.length > 0 ) {
+				mixer = new THREE.AnimationMixer( characterRoot );
+				const clip = animGltf.animations[ 0 ];
+				const action = mixer.clipAction( clip );
+				action.reset();
+				action.play();
+				mixer.update( 0 );
 
-						this._mixer = new THREE.AnimationMixer( character );
-						const clip = animGltf.animations[ 0 ];
-						const action = this._mixer.clipAction( clip );
-						action.reset();
-						action.play();
-						this._mixer.update( 0 );
+			}
 
-					}
+		}
 
-				} );
+		return {
+			kartModel,
+			bodyRoot: bodyNode || kartModel,
+			characterRoot,
+			mixer,
+			offset,
+		};
 
-			} );
+	}
+
+	_applyKartBundle( bundle ) {
+
+		this._clearKartGroup();
+		this._kartGroup.add( bundle.kartModel );
+		this._currentBodyRoot = bundle.bodyRoot;
+		this._currentCharacterRoot = bundle.characterRoot;
+		this._mixer = bundle.mixer;
+		this._syncDriverOffsetDebugControls( bundle.offset );
+		this._applyAppearance();
+
+	}
+
+	_markPreviewReadyIfComplete() {
+
+		if ( this.ready ) return;
+
+		const hasKartBundle = !! this._currentBodyRoot || ! this._currentKartId;
+		if ( ! this._environmentReady || ! hasKartBundle ) return;
+
+		this.ready = true;
+		if ( ! this._hasPresentedScene ) {
+
+			this._hasPresentedScene = true;
+			this._resolveInitialRevealReady?.();
+			this._resolveInitialRevealReady = null;
+
+		}
+
+	}
+
+	_resetInitialLoadSteps() {
+
+		this._initialLoadSteps.environment = this._environmentReady;
+		this._initialLoadSteps.kart = false;
+		this._initialLoadSteps.character = false;
+		this._initialLoadSteps.animation = false;
+		this._emitInitialLoadProgress( 'Loading selected kart' );
+
+	}
+
+	_markInitialLoadStep( stepKey, detail ) {
+
+		if ( ! Object.prototype.hasOwnProperty.call( this._initialLoadSteps, stepKey ) ) return;
+		if ( this._initialLoadSteps[ stepKey ] ) return;
+		this._initialLoadSteps[ stepKey ] = true;
+		this._emitInitialLoadProgress( detail );
+
+	}
+
+	_emitInitialLoadProgress( detail = 'Loading menu preview' ) {
+
+		if ( ! this._loadingProgressReporter || this._hasPresentedScene ) return;
+
+		const total = Object.keys( this._initialLoadSteps ).length;
+		const loaded = Object.values( this._initialLoadSteps ).filter( Boolean ).length;
+		this._loadingProgressReporter( {
+			progress: total > 0 ? ( loaded / total ) : 1,
+			detail,
+			loaded,
+			total,
+		} );
+
+	}
+
+	_clearKartGroup() {
+
+		while ( this._kartGroup.children.length > 0 ) {
+
+			const child = this._kartGroup.children[ 0 ];
+			this._kartGroup.remove( child );
+			this._disposeObject3D( child );
+
+		}
+
+	}
+
+	_loadGltf( path ) {
+
+		return this._loader.loadAsync( path );
+
+	}
+
+	async _loadOptionalGltf( path ) {
+
+		try {
+
+			return await this._loadGltf( path );
+
+		} catch ( err ) {
+
+			console.warn( `[LobbyScene] Optional preview asset unavailable: ${ path }`, err );
+			return null;
+
+		}
+
+	}
+
+	_disposeObject3D( root ) {
+
+		if ( ! root ) return;
+
+		root.traverse?.( ( child ) => {
+
+			if ( ! child.isMesh ) return;
+			child.geometry?.dispose?.();
+
+			if ( Array.isArray( child.material ) ) {
+
+				for ( const material of child.material ) material?.dispose?.();
+
+			} else {
+
+				child.material?.dispose?.();
+
+			}
 
 		} );
 
@@ -534,17 +968,15 @@ export class LobbyScene {
 	 */
 	clearKart() {
 
+		this._loadGen ++;
 		this._currentKartId = null;
 		this._mixer = null;
 		this._currentBodyRoot = null;
 		this._currentCharacterRoot = null;
 		this._syncDriverOffsetDebugControls( DEFAULT_SEAT_OFFSET );
-
-		while ( this._kartGroup.children.length > 0 ) {
-
-			this._kartGroup.remove( this._kartGroup.children[ 0 ] );
-
-		}
+		this._clearKartGroup();
+		this._markPreviewReadyIfComplete();
+		this._refreshCharacterDebugTab?.();
 
 	}
 
@@ -561,6 +993,268 @@ export class LobbyScene {
 			bodyRoot: this._currentBodyRoot,
 			characterRoot: this._currentCharacterRoot,
 		}, this._appearance );
+		this._captureCharacterMaterialDebugBaselines();
+		this._applyCharacterMaterialDebugOverrides();
+		this._refreshCharacterDebugTab?.();
+
+	}
+
+	_collectCharacterMaterialEntries() {
+
+		if ( ! this._currentCharacterRoot ) return [];
+
+		const entries = [];
+		const seen = new Set();
+		this._currentCharacterRoot.traverse( ( child ) => {
+
+			if ( ! child?.isMesh || ! child.material ) return;
+
+			const materialList = Array.isArray( child.material ) ? child.material : [ child.material ];
+			for ( const material of materialList ) {
+
+				if ( ! material?.isMaterial ) continue;
+				const materialKey = normalizeDebugMaterialName( material.name );
+				if ( ! materialKey || seen.has( materialKey ) ) continue;
+
+				seen.add( materialKey );
+				entries.push( {
+					name: materialKey,
+					material,
+				} );
+
+			}
+
+		} );
+
+		return entries.sort( ( a, b ) => a.name.localeCompare( b.name ) );
+
+	}
+
+	_captureCharacterMaterialDebugBaselines() {
+
+		const entries = this._collectCharacterMaterialEntries();
+		for ( const entry of entries ) {
+
+			const snapshot = createCharacterMaterialDebugSnapshot( entry.material, this._maxTextureAnisotropy );
+			if ( ! snapshot ) continue;
+
+			this._characterMaterialDebugBaselines.set( entry.name, cloneCharacterMaterialDebugState( snapshot ) );
+			if ( ! this._characterMaterialDebugSettings.has( entry.name ) ) {
+
+				this._characterMaterialDebugSettings.set( entry.name, cloneCharacterMaterialDebugState( snapshot ) );
+
+			}
+
+		}
+
+	}
+
+	_getCharacterMaterialDebugState( materialName, material = null ) {
+
+		const materialKey = normalizeDebugMaterialName( materialName );
+		const existingState = this._characterMaterialDebugSettings.get( materialKey );
+		if ( existingState ) return existingState;
+
+		const baselineState = this._characterMaterialDebugBaselines.get( materialKey );
+		if ( baselineState ) {
+
+			const clonedBaseline = cloneCharacterMaterialDebugState( baselineState );
+			this._characterMaterialDebugSettings.set( materialKey, clonedBaseline );
+			return clonedBaseline;
+
+		}
+
+		const nextState = createCharacterMaterialDebugSnapshot( material, this._maxTextureAnisotropy );
+		if ( ! nextState ) return null;
+
+		this._characterMaterialDebugSettings.set( materialKey, nextState );
+		this._characterMaterialDebugBaselines.set( materialKey, cloneCharacterMaterialDebugState( nextState ) );
+		return nextState;
+
+	}
+
+	_resetCharacterMaterialDebugState( materialName ) {
+
+		const materialKey = normalizeDebugMaterialName( materialName );
+		const baselineState = this._characterMaterialDebugBaselines.get( materialKey );
+		if ( ! baselineState ) return;
+
+		this._characterMaterialDebugSettings.set( materialKey, cloneCharacterMaterialDebugState( baselineState ) );
+		this._applyCharacterMaterialDebugOverrides();
+		this._refreshCharacterDebugTab?.();
+
+	}
+
+	_resetAllCharacterMaterialDebugStates() {
+
+		for ( const [ materialName, baselineState ] of this._characterMaterialDebugBaselines ) {
+
+			this._characterMaterialDebugSettings.set( materialName, cloneCharacterMaterialDebugState( baselineState ) );
+
+		}
+
+		this._applyCharacterMaterialDebugOverrides();
+		this._refreshCharacterDebugTab?.();
+
+	}
+
+	_getCharacterMaterialDebugMaterialNames() {
+
+		const names = new Set( [
+			...this._characterMaterialDebugBaselines.keys(),
+			...this._characterMaterialDebugSettings.keys(),
+		] );
+
+		for ( const entry of this._collectCharacterMaterialEntries() ) {
+
+			names.add( entry.name );
+
+		}
+
+		return Array.from( names ).sort( ( a, b ) => a.localeCompare( b ) );
+
+	}
+
+	_getCharacterMaterialDebugExportPayload( materialNames = null ) {
+
+		const targetNames = Array.isArray( materialNames ) && materialNames.length > 0
+			? materialNames
+			: this._getCharacterMaterialDebugMaterialNames();
+		const materials = {};
+
+		for ( const materialName of targetNames ) {
+
+			const materialKey = normalizeDebugMaterialName( materialName );
+			const state = this._characterMaterialDebugSettings.get( materialKey );
+			const baseline = this._characterMaterialDebugBaselines.get( materialKey );
+			if ( ! state ) continue;
+
+			materials[ materialKey ] = {
+				textureFidelity: state.textureFidelity,
+				normalStrength: getCharacterMaterialNormalStrength( state, baseline ),
+				color: cloneDebugColorState( state.color ),
+				emissive: cloneDebugColorState( state.emissive ),
+				emissiveIntensity: state.emissiveIntensity,
+				normalScale: cloneDebugVector2State( state.normalScale, 1 ),
+				aoMapIntensity: state.aoMapIntensity,
+				roughness: state.roughness,
+				metalness: state.metalness,
+				envMapIntensity: state.envMapIntensity,
+				opacity: state.opacity,
+				alphaTest: state.alphaTest,
+				doubleSided: state.doubleSided,
+				wireframe: state.wireframe,
+				flatShading: state.flatShading,
+				depthWrite: state.depthWrite,
+				transparent: state.transparent,
+				maps: {
+					map: { present: !! baseline?.mapEnabled, enabled: !! state.mapEnabled },
+					normalMap: { present: !! baseline?.normalMapEnabled, enabled: !! state.normalMapEnabled },
+					aoMap: { present: !! baseline?.aoMapEnabled, enabled: !! state.aoMapEnabled },
+					roughnessMap: { present: !! baseline?.roughnessMapEnabled, enabled: !! state.roughnessMapEnabled },
+					metalnessMap: { present: !! baseline?.metalnessMapEnabled, enabled: !! state.metalnessMapEnabled },
+					emissiveMap: { present: !! baseline?.emissiveMapEnabled, enabled: !! state.emissiveMapEnabled },
+					alphaMap: { present: !! baseline?.alphaMapEnabled, enabled: !! state.alphaMapEnabled },
+				},
+			};
+
+		}
+
+		return {
+			maxTextureAnisotropy: this._maxTextureAnisotropy,
+			materialCount: Object.keys( materials ).length,
+			materials,
+		};
+
+	}
+
+	_copyCharacterMaterialDebugPayload( materialNames = null ) {
+
+		const payload = this._getCharacterMaterialDebugExportPayload( materialNames );
+		return navigator.clipboard.writeText( JSON.stringify( payload, null, 2 ) );
+
+	}
+
+	_applyCharacterMaterialDebugOverride( materialName, material, state ) {
+
+		if ( ! material?.isMaterial || ! state ) return;
+
+		const originalTextures = material.userData._kkCharacterDebugOriginalTextures || {};
+		material.userData._kkCharacterDebugOriginalTextures = originalTextures;
+
+		for ( const textureKey of CHARACTER_DEBUG_TEXTURE_KEYS ) {
+
+			if ( ! Object.prototype.hasOwnProperty.call( originalTextures, textureKey ) ) {
+
+				originalTextures[ textureKey ] = material[ textureKey ] || null;
+
+			}
+
+			const originalTexture = originalTextures[ textureKey ];
+			if ( originalTexture?.isTexture ) {
+
+				originalTexture.anisotropy = THREE.MathUtils.clamp(
+					Math.round( Number( state.textureFidelity ) || 1 ),
+					1,
+					this._maxTextureAnisotropy
+				);
+				originalTexture.needsUpdate = true;
+
+			}
+
+		}
+
+		if ( material.color && state.color ) {
+
+			material.color.setRGB( state.color.r, state.color.g, state.color.b );
+
+		}
+
+		if ( material.emissive && state.emissive ) {
+
+			material.emissive.setRGB( state.emissive.r, state.emissive.g, state.emissive.b );
+
+		}
+
+		if ( Number.isFinite( state.emissiveIntensity ) ) material.emissiveIntensity = state.emissiveIntensity;
+		if ( Number.isFinite( state.aoMapIntensity ) ) material.aoMapIntensity = state.aoMapIntensity;
+		if ( Number.isFinite( state.roughness ) ) material.roughness = state.roughness;
+		if ( Number.isFinite( state.metalness ) ) material.metalness = state.metalness;
+		if ( Number.isFinite( state.envMapIntensity ) ) material.envMapIntensity = state.envMapIntensity;
+		if ( Number.isFinite( state.opacity ) ) material.opacity = state.opacity;
+		if ( Number.isFinite( state.alphaTest ) ) material.alphaTest = state.alphaTest;
+		material.map = state.mapEnabled ? ( originalTextures.map || null ) : null;
+		material.normalMap = state.normalMapEnabled ? ( originalTextures.normalMap || null ) : null;
+		material.aoMap = state.aoMapEnabled ? ( originalTextures.aoMap || null ) : null;
+		material.roughnessMap = state.roughnessMapEnabled ? ( originalTextures.roughnessMap || null ) : null;
+		material.metalnessMap = state.metalnessMapEnabled ? ( originalTextures.metalnessMap || null ) : null;
+		material.emissiveMap = state.emissiveMapEnabled ? ( originalTextures.emissiveMap || null ) : null;
+		material.alphaMap = state.alphaMapEnabled ? ( originalTextures.alphaMap || null ) : null;
+		if ( material.normalScale?.set ) {
+
+			material.normalScale.set( state.normalScale?.x ?? 1, state.normalScale?.y ?? 1 );
+
+		}
+		material.side = state.doubleSided ? THREE.DoubleSide : THREE.FrontSide;
+		material.wireframe = !! state.wireframe;
+		material.flatShading = !! state.flatShading;
+		material.depthWrite = state.depthWrite !== false;
+		material.transparent = state.transparent || ( Number( state.opacity ) < 1 );
+
+		material.needsUpdate = true;
+
+	}
+
+	_applyCharacterMaterialDebugOverrides() {
+
+		for ( const entry of this._collectCharacterMaterialEntries() ) {
+
+			const state = this._getCharacterMaterialDebugState( entry.name, entry.material );
+			if ( ! state ) continue;
+
+			this._applyCharacterMaterialDebugOverride( entry.name, entry.material, state );
+
+		}
 
 	}
 
@@ -677,14 +1371,129 @@ export class LobbyScene {
 		this._applyPreviewPose();
 
 		// Keep the menu hero static; only the seated rider animation should move.
-		if ( this._mixer ) this._mixer.update( dt );
+		if ( this._mixer ) this._mixer.update( safeDt );
 
 		// Keep debug helpers in sync with slider changes
 		if ( this._dirHelper.visible ) this._dirHelper.update();
 		if ( this._rimHelper.visible ) this._rimHelper.update();
 		if ( this._camHelper.visible ) this._camHelper.update();
 
-		this._composer.render( dt );
+		if ( this._useComposer ) {
+
+			this._composer.render( safeDt );
+
+		} else {
+
+			this._renderer.render( this._scene, this._camera );
+
+		}
+
+		this._sampleMenuPerformance( safeDt );
+
+	}
+
+	_resetMenuPerformanceCounters() {
+
+		this._menuPerfAccumMs = 0;
+		this._menuPerfFrames = 0;
+		this._menuPerfLowCount = 0;
+		this._menuPerfHighCount = 0;
+
+	}
+
+	_applyMenuPerfProfile( profileId, { force = false } = {} ) {
+
+		const nextProfileId = MENU_PERF_PROFILES[ profileId ] ? profileId : 'high';
+		if ( ! force && nextProfileId === this._menuPerfProfile ) return;
+
+		this._menuPerfProfile = nextProfileId;
+		const profile = MENU_PERF_PROFILES[ nextProfileId ];
+		this._useComposer = profile.useComposer;
+
+		if ( this._bloomPass ) {
+
+			this._bloomPass.enabled = profile.bloom;
+
+		}
+
+		if ( this._composer ) {
+
+			this._composer.setPixelRatio( profile.renderScale );
+			this._composer.setSize( window.innerWidth, window.innerHeight );
+
+		}
+
+	}
+
+	_shiftMenuPerfProfile( direction ) {
+
+		const currentIndex = MENU_PERF_PROFILE_ORDER.indexOf( this._menuPerfProfile );
+		if ( currentIndex < 0 ) return;
+
+		const nextIndex = Math.max( 0, Math.min( MENU_PERF_PROFILE_ORDER.length - 1, currentIndex + direction ) );
+		if ( nextIndex === currentIndex ) return;
+
+		this._applyMenuPerfProfile( MENU_PERF_PROFILE_ORDER[ nextIndex ] );
+		this._menuPerfLastChangeTime = performance.now();
+		this._resetMenuPerformanceCounters();
+
+	}
+
+	_sampleMenuPerformance( dt ) {
+
+		if ( typeof document !== 'undefined' && document.hidden ) {
+
+			this._resetMenuPerformanceCounters();
+			return;
+
+		}
+
+		if ( ! Number.isFinite( dt ) || dt <= 0 || dt >= 0.2 ) return;
+
+		this._menuPerfAccumMs += dt * 1000;
+		this._menuPerfFrames ++;
+
+		if ( this._menuPerfAccumMs < MENU_PERF_SAMPLE_MS ) return;
+
+		const fps = ( this._menuPerfFrames * 1000 ) / this._menuPerfAccumMs;
+		this._menuPerfAccumMs = 0;
+		this._menuPerfFrames = 0;
+
+		const now = performance.now();
+		if ( now - this._menuPerfLastChangeTime < MENU_PERF_COOLDOWN_MS ) return;
+
+		if ( fps < MENU_PERF_LOW_FPS ) {
+
+			this._menuPerfLowCount ++;
+			this._menuPerfHighCount = 0;
+
+			if ( this._menuPerfLowCount >= MENU_PERF_LOW_STREAK ) {
+
+				this._shiftMenuPerfProfile( - 1 );
+
+			}
+
+			return;
+
+		}
+
+		if ( fps > MENU_PERF_HIGH_FPS ) {
+
+			this._menuPerfHighCount ++;
+			this._menuPerfLowCount = 0;
+
+			if ( this._menuPerfHighCount >= MENU_PERF_HIGH_STREAK ) {
+
+				this._shiftMenuPerfProfile( 1 );
+
+			}
+
+			return;
+
+		}
+
+		this._menuPerfLowCount = 0;
+		this._menuPerfHighCount = 0;
 
 	}
 
@@ -863,16 +1672,16 @@ export class LobbyScene {
 	_createDebugPanel( ambient, dir, rim ) {
 
 		const panel = document.createElement( 'div' );
-		panel.style.cssText = 'position:fixed;top:10px;left:10px;background:rgba(0,0,0,0.85);color:#fff;padding:0;border-radius:8px;font:12px monospace;z-index:99999;max-height:90vh;overflow:hidden;min-width:280px;display:none;flex-direction:column;';
+		panel.style.cssText = 'position:fixed;top:64px;right:12px;background:rgba(0,0,0,0.88);color:#fff;padding:0;border-radius:8px;font:12px monospace;z-index:99999;max-height:calc(100vh - 76px);overflow:hidden;width:min(18.5rem, calc(100vw - 24px));min-width:0;display:none;flex-direction:column;box-sizing:border-box;';
 
 		const cam = this._camera;
 		const self = this;
 
 		// ── Toggle button (happy face) ──────────────────────────────────
 		const toggleBtn = document.createElement( 'button' );
-		toggleBtn.textContent = '\u{1F60A}';
+		toggleBtn.textContent = 'DBG';
 		toggleBtn.title = 'Lobby Debug';
-		toggleBtn.style.cssText = 'position:fixed;top:12px;left:12px;z-index:99998;background:rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.15);border-radius:8px;font-size:22px;cursor:pointer;padding:4px 7px;line-height:1;transition:transform 0.15s ease,background 0.15s ease;';
+		toggleBtn.style.cssText = 'position:fixed;top:56px;right:12px;z-index:99998;background:rgba(0,0,0,0.72);border:1px solid rgba(255,255,255,0.15);border-radius:6px;color:#fff;font:700 11px monospace;letter-spacing:0.12em;cursor:pointer;padding:9px 10px;line-height:1;transition:transform 0.15s ease,background 0.15s ease;';
 		toggleBtn.addEventListener( 'mouseover', () => { toggleBtn.style.background = 'rgba(0,0,0,0.85)'; toggleBtn.style.transform = 'scale(1.1)'; } );
 		toggleBtn.addEventListener( 'mouseout', () => { toggleBtn.style.background = 'rgba(0,0,0,0.6)'; toggleBtn.style.transform = 'scale(1)'; } );
 		toggleBtn.addEventListener( 'click', () => {
@@ -946,6 +1755,7 @@ export class LobbyScene {
 
 		const sceneTab = createTab( 'SCENE' );
 		const texturesTab = createTab( 'TEXTURES' );
+		const characterTab = createTab( 'CHARACTER' );
 
 		// Activate scene tab by default
 		tabBtns[ 0 ].style.color = '#fff';
@@ -969,7 +1779,7 @@ export class LobbyScene {
 
 			const lbl = document.createElement( 'span' );
 			lbl.textContent = label;
-			lbl.style.cssText = 'width:70px;font-size:11px;';
+			lbl.style.cssText = 'width:60px;flex:0 0 60px;font-size:10px;';
 
 			const input = document.createElement( 'input' );
 			input.type = 'range';
@@ -977,11 +1787,11 @@ export class LobbyScene {
 			input.max = max;
 			input.step = step;
 			input.value = value;
-			input.style.cssText = 'flex:1;height:14px;';
+			input.style.cssText = 'flex:1 1 auto;min-width:0;height:14px;';
 
 			const val = document.createElement( 'span' );
 			val.textContent = Number( value ).toFixed( 2 );
-			val.style.cssText = 'width:45px;text-align:right;font-size:11px;';
+			val.style.cssText = 'width:38px;flex:0 0 38px;text-align:right;font-size:10px;';
 
 			input.addEventListener( 'input', () => {
 
@@ -1017,7 +1827,7 @@ export class LobbyScene {
 			row.style.cssText = 'display:flex;align-items:center;gap:6px;margin:3px 0;';
 
 			const btn = document.createElement( 'button' );
-			let on = initiallyOn;
+			let on = !! initiallyOn;
 			const update = () => {
 
 				btn.textContent = `${ icon } ${ label }: ${ on ? 'ON' : 'OFF' }`;
@@ -1036,6 +1846,28 @@ export class LobbyScene {
 
 			row.appendChild( btn );
 			container.appendChild( row );
+
+			return {
+				row,
+				button: btn,
+				setOn: ( nextValue ) => {
+
+					on = !! nextValue;
+					update();
+
+				},
+			};
+
+		};
+
+		const addActionButton = ( container, label, onClick ) => {
+
+			const button = document.createElement( 'button' );
+			button.textContent = label;
+			button.style.cssText = 'margin-top:8px;width:100%;padding:6px 8px;background:#1d1d1d;color:#fff;border:1px solid #555;border-radius:4px;cursor:pointer;font:11px monospace;letter-spacing:0.06em;line-height:1.25;text-align:left;white-space:normal;overflow-wrap:anywhere;';
+			button.addEventListener( 'click', onClick );
+			container.appendChild( button );
+			return button;
 
 		};
 
@@ -1388,6 +2220,359 @@ export class LobbyScene {
 
 		buildTextureControls();
 
+		// ══════════════════════════════════════════════════════════════════
+		// CHARACTER TAB
+		// ══════════════════════════════════════════════════════════════════
+		const setTemporaryButtonLabel = ( button, label, nextLabel, delay = 1500 ) => {
+
+			if ( ! button ) return;
+			button.textContent = nextLabel;
+			setTimeout( () => { button.textContent = label; }, delay );
+
+		};
+
+		const renderCharacterLab = () => {
+
+			characterTab.replaceChildren();
+			addSection( characterTab, 'CHARACTER MATERIAL LAB' );
+
+			const characterIntro = document.createElement( 'div' );
+			characterIntro.style.cssText = 'color:#bbb;font-size:11px;line-height:1.5;margin:2px 0 10px;';
+			characterIntro.textContent = `Slim inspector rail for live rider tuning. ${ self._maxTextureAnisotropy }x is the current anisotropy cap.`;
+			characterTab.appendChild( characterIntro );
+
+			const materialEntries = self._collectCharacterMaterialEntries();
+			if ( materialEntries.length === 0 ) {
+
+				const waiting = document.createElement( 'div' );
+				waiting.textContent = 'Character preview not ready yet.';
+				waiting.style.cssText = 'color:#888;padding:12px 0;';
+				characterTab.appendChild( waiting );
+				return;
+
+			}
+
+			self._captureCharacterMaterialDebugBaselines();
+
+			const actionGrid = document.createElement( 'div' );
+			actionGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;';
+			characterTab.appendChild( actionGrid );
+
+			const copyAllBtn = addActionButton( actionGrid, 'COPY ALL', () => {
+
+				self._copyCharacterMaterialDebugPayload()
+					.then( () => { setTemporaryButtonLabel( copyAllBtn, 'COPY ALL', 'COPIED!' ); } )
+					.catch( () => { setTemporaryButtonLabel( copyAllBtn, 'COPY ALL', 'FAILED', 2000 ); } );
+
+			} );
+			copyAllBtn.style.marginTop = '0';
+
+			const resetAllBtn = addActionButton( actionGrid, 'RESET ALL', () => {
+
+				self._resetAllCharacterMaterialDebugStates();
+
+			} );
+			resetAllBtn.style.marginTop = '0';
+
+			for ( const entry of materialEntries ) {
+
+				const state = self._getCharacterMaterialDebugState( entry.name, entry.material );
+				const baseline = self._characterMaterialDebugBaselines.get( entry.name );
+				if ( ! state ) continue;
+
+				const block = document.createElement( 'section' );
+				block.style.cssText = 'margin-top:14px;padding-top:10px;border-top:1px solid #444;';
+				characterTab.appendChild( block );
+				const isExpanded = self._characterDebugExpandedMaterialName === entry.name;
+
+				const headerBtn = document.createElement( 'button' );
+				headerBtn.type = 'button';
+				headerBtn.style.cssText = 'width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0;background:transparent;border:none;color:#ff8;cursor:pointer;text-align:left;';
+				headerBtn.addEventListener( 'click', () => {
+
+					self._characterDebugExpandedMaterialName = isExpanded ? '' : entry.name;
+					self._refreshCharacterDebugTab?.();
+
+				} );
+				block.appendChild( headerBtn );
+
+				const headerLabel = document.createElement( 'span' );
+				headerLabel.textContent = `${ isExpanded ? '\u25BE' : '\u25B8' } ${ entry.name.toUpperCase() }`;
+				headerLabel.style.cssText = 'font-weight:bold;color:#ff8;font-size:12px;letter-spacing:0.08em;';
+				headerBtn.appendChild( headerLabel );
+
+				const headerValue = document.createElement( 'span' );
+				headerValue.textContent = `${ state.textureFidelity }x`;
+				headerValue.style.cssText = 'color:#bbb;font-size:10px;';
+				headerBtn.appendChild( headerValue );
+
+				const meta = document.createElement( 'div' );
+				meta.style.cssText = 'color:#8f8f8f;font-size:10px;line-height:1.4;margin:6px 0 4px;';
+				meta.textContent = `B:${ baseline?.mapEnabled ? 'Y' : 'N' } N:${ baseline?.normalMapEnabled ? 'Y' : 'N' } AO:${ baseline?.aoMapEnabled ? 'Y' : 'N' } R:${ baseline?.roughnessMapEnabled ? 'Y' : 'N' } M:${ baseline?.metalnessMapEnabled ? 'Y' : 'N' } E:${ baseline?.emissiveMapEnabled ? 'Y' : 'N' }`;
+				block.appendChild( meta );
+
+				if ( ! isExpanded ) continue;
+
+				addSection( block, 'TEXTURE FIDELITY' );
+				addSlider( block, 'Fidelity', 1, self._maxTextureAnisotropy, 1, state.textureFidelity, ( value ) => {
+
+					state.textureFidelity = THREE.MathUtils.clamp(
+						Math.round( value ),
+						1,
+						self._maxTextureAnisotropy
+					);
+					self._applyCharacterMaterialDebugOverrides();
+
+				} );
+
+				if ( baseline?.mapEnabled ) {
+
+					addToggle( block, 'Base Map', '\u{1F3A8}', state.mapEnabled, ( on ) => {
+
+						state.mapEnabled = on;
+						self._applyCharacterMaterialDebugOverrides();
+
+					} );
+
+				}
+
+				if ( baseline?.normalMapEnabled ) {
+
+					addToggle( block, 'Normal Map', '\u{1F5FA}', state.normalMapEnabled, ( on ) => {
+
+						state.normalMapEnabled = on;
+						self._applyCharacterMaterialDebugOverrides();
+
+					} );
+
+				}
+
+				if ( baseline?.aoMapEnabled ) {
+
+					addToggle( block, 'AO Map', '\u{1F311}', state.aoMapEnabled, ( on ) => {
+
+						state.aoMapEnabled = on;
+						self._applyCharacterMaterialDebugOverrides();
+
+					} );
+
+				}
+
+				if ( baseline?.roughnessMapEnabled ) {
+
+					addToggle( block, 'Rough Map', '\u{1F4CE}', state.roughnessMapEnabled, ( on ) => {
+
+						state.roughnessMapEnabled = on;
+						self._applyCharacterMaterialDebugOverrides();
+
+					} );
+
+				}
+
+				if ( baseline?.metalnessMapEnabled ) {
+
+					addToggle( block, 'Metal Map', '\u{1F529}', state.metalnessMapEnabled, ( on ) => {
+
+						state.metalnessMapEnabled = on;
+						self._applyCharacterMaterialDebugOverrides();
+
+					} );
+
+				}
+
+				if ( baseline?.emissiveMapEnabled ) {
+
+					addToggle( block, 'Emis Map', '\u{1F4A1}', state.emissiveMapEnabled, ( on ) => {
+
+						state.emissiveMapEnabled = on;
+						self._applyCharacterMaterialDebugOverrides();
+
+					} );
+
+				}
+
+				if ( baseline?.alphaMapEnabled ) {
+
+					addToggle( block, 'Alpha Map', '\u{1F3AD}', state.alphaMapEnabled, ( on ) => {
+
+						state.alphaMapEnabled = on;
+						self._applyCharacterMaterialDebugOverrides();
+
+					} );
+
+				}
+
+				addSection( block, 'SURFACE' );
+				addSlider( block, 'Rough', 0, 1, 0.01, state.roughness, ( value ) => {
+
+					state.roughness = value;
+					self._applyCharacterMaterialDebugOverrides();
+
+				} );
+				addSlider( block, 'Metal', 0, 1, 0.01, state.metalness, ( value ) => {
+
+					state.metalness = value;
+					self._applyCharacterMaterialDebugOverrides();
+
+				} );
+				addSlider( block, 'AO Int', 0, 4, 0.05, state.aoMapIntensity, ( value ) => {
+
+					state.aoMapIntensity = value;
+					self._applyCharacterMaterialDebugOverrides();
+
+				} );
+				addSlider( block, 'Env Int', 0, 5, 0.05, state.envMapIntensity, ( value ) => {
+
+					state.envMapIntensity = value;
+					self._applyCharacterMaterialDebugOverrides();
+
+				} );
+				addSlider( block, 'Opacity', 0, 1, 0.01, state.opacity, ( value ) => {
+
+					state.opacity = value;
+					self._applyCharacterMaterialDebugOverrides();
+
+				} );
+				addSlider( block, 'Alpha', 0, 1, 0.01, state.alphaTest, ( value ) => {
+
+					state.alphaTest = value;
+					self._applyCharacterMaterialDebugOverrides();
+
+				} );
+
+				addSection( block, 'NORMALS' );
+				addSlider( block, 'Strength', 0, 4, 0.05, getCharacterMaterialNormalStrength( state, baseline ), ( value ) => {
+
+					applyCharacterMaterialNormalStrength( state, baseline, value );
+					self._applyCharacterMaterialDebugOverrides();
+
+				} );
+				addSlider( block, 'Scale X', - 4, 4, 0.05, state.normalScale.x, ( value ) => {
+
+					state.normalScale.x = value;
+					self._applyCharacterMaterialDebugOverrides();
+
+				} );
+				addSlider( block, 'Scale Y', - 4, 4, 0.05, state.normalScale.y, ( value ) => {
+
+					state.normalScale.y = value;
+					self._applyCharacterMaterialDebugOverrides();
+
+				} );
+
+				if ( state.color ) {
+
+					addSection( block, 'BASE COLOR' );
+					addSlider( block, 'Color R', 0, 1, 0.01, state.color.r, ( value ) => {
+
+						state.color.r = value;
+						self._applyCharacterMaterialDebugOverrides();
+
+					} );
+					addSlider( block, 'Color G', 0, 1, 0.01, state.color.g, ( value ) => {
+
+						state.color.g = value;
+						self._applyCharacterMaterialDebugOverrides();
+
+					} );
+					addSlider( block, 'Color B', 0, 1, 0.01, state.color.b, ( value ) => {
+
+						state.color.b = value;
+						self._applyCharacterMaterialDebugOverrides();
+
+					} );
+
+				}
+
+				if ( state.emissive ) {
+
+					addSection( block, 'EMISSIVE' );
+					addSlider( block, 'Emis Int', 0, 10, 0.05, state.emissiveIntensity, ( value ) => {
+
+						state.emissiveIntensity = value;
+						self._applyCharacterMaterialDebugOverrides();
+
+					} );
+					addSlider( block, 'Emis R', 0, 1, 0.01, state.emissive.r, ( value ) => {
+
+						state.emissive.r = value;
+						self._applyCharacterMaterialDebugOverrides();
+
+					} );
+					addSlider( block, 'Emis G', 0, 1, 0.01, state.emissive.g, ( value ) => {
+
+						state.emissive.g = value;
+						self._applyCharacterMaterialDebugOverrides();
+
+					} );
+					addSlider( block, 'Emis B', 0, 1, 0.01, state.emissive.b, ( value ) => {
+
+						state.emissive.b = value;
+						self._applyCharacterMaterialDebugOverrides();
+
+					} );
+
+				}
+
+				addSection( block, 'MATERIAL' );
+				addToggle( block, '2-Sided', '\u{1F500}', state.doubleSided, ( on ) => {
+
+					state.doubleSided = on;
+					self._applyCharacterMaterialDebugOverrides();
+
+				} );
+				addToggle( block, 'Wireframe', '\u{1F4D0}', state.wireframe, ( on ) => {
+
+					state.wireframe = on;
+					self._applyCharacterMaterialDebugOverrides();
+
+				} );
+				addToggle( block, 'Flat Shade', '\u{25A6}', state.flatShading, ( on ) => {
+
+					state.flatShading = on;
+					self._applyCharacterMaterialDebugOverrides();
+
+				} );
+				addToggle( block, 'Depth', '\u{21A7}', state.depthWrite, ( on ) => {
+
+					state.depthWrite = on;
+					self._applyCharacterMaterialDebugOverrides();
+
+				} );
+				addToggle( block, 'Transp', '\u{25D0}', state.transparent, ( on ) => {
+
+					state.transparent = on;
+					self._applyCharacterMaterialDebugOverrides();
+
+				} );
+
+				const materialActionGrid = document.createElement( 'div' );
+				materialActionGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;';
+				block.appendChild( materialActionGrid );
+
+				const copyMaterialBtn = addActionButton( materialActionGrid, 'COPY', () => {
+
+					self._copyCharacterMaterialDebugPayload( [ entry.name ] )
+						.then( () => { setTemporaryButtonLabel( copyMaterialBtn, 'COPY', 'COPIED!' ); } )
+						.catch( () => { setTemporaryButtonLabel( copyMaterialBtn, 'COPY', 'FAILED', 2000 ); } );
+
+				} );
+				copyMaterialBtn.style.marginTop = '0';
+
+				const resetMaterialBtn = addActionButton( materialActionGrid, 'RESET', () => {
+
+					self._resetCharacterMaterialDebugState( entry.name );
+
+				} );
+				resetMaterialBtn.style.marginTop = '0';
+
+			}
+
+		};
+
+		this._refreshCharacterDebugTab = renderCharacterLab;
+		renderCharacterLab();
+
 		document.body.appendChild( panel );
 		return panel;
 
@@ -1399,6 +2584,7 @@ export class LobbyScene {
 	dispose() {
 
 		window.removeEventListener( 'resize', this._onResize );
+		this._clearKartGroup();
 		for ( const h of this._helpers ) {
 
 			h.removeFromParent();
@@ -1418,6 +2604,7 @@ export class LobbyScene {
 			this._debugPanel = null;
 
 		}
+		this._refreshCharacterDebugTab = null;
 		this._driverOffsetXControl = null;
 		this._driverOffsetYControl = null;
 		this._driverOffsetZControl = null;

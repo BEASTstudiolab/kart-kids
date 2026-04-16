@@ -146,9 +146,6 @@ export class Page02HomeView extends PageViewBase {
 
 			/* QUICK PLAY oversized CTA */
 			.page-home__quick-play.kk-cta-button {
-				font-size: var(--text-5xl, 3rem);
-				padding: var(--space-6) var(--space-10);
-				line-height: 1;
 				width: 100%;
 				justify-content: center;
 			}
@@ -390,17 +387,8 @@ export class Page02HomeView extends PageViewBase {
 
 		// Wallet utility slot — populated in setWallet() after build
 		this._walletUtilityEl = document.createElement( 'div' );
-		this._walletUtilityEl.className = 'page-home__wallet';
+		this._walletUtilityEl.className = 'page-home__wallet kk-ui-inline-row kk-ui-utility-text';
 		this._walletUtilityEl.setAttribute( 'aria-label', 'Wallet' );
-		this._walletUtilityEl.style.cssText = `
-			display: flex;
-			align-items: center;
-			gap: var(--space-3);
-			font-family: var(--font-ui);
-			font-size: var(--text-sm);
-			font-weight: var(--weight-semibold);
-			color: var(--color-ink-200);
-		`;
 		this._topNav.setUtilityContent( this._walletUtilityEl );
 		root.appendChild( this._topNav.el );
 
@@ -437,7 +425,7 @@ export class Page02HomeView extends PageViewBase {
 			variant:  'primary',
 			actionId: ButtonIds.HOME_QUICK_PLAY,
 		} );
-		this._quickPlayBtn.el.classList.add( 'page-home__quick-play' );
+		this._quickPlayBtn.el.classList.add( 'page-home__quick-play', 'kk-cta-button--hero' );
 		centerCol.appendChild( this._quickPlayBtn.el );
 		this._registerSection( 'quickPlay', centerCol );
 

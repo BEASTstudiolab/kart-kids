@@ -20,9 +20,7 @@
 import { getAllVehicles }               from '../../VehicleRegistry.js';
 import { Settings }                      from '../../Settings.js';
 import { ProgressBar }                   from '../components/ProgressBar.js';
-import { CTAButton }                     from '../components/CTAButton.js';
-import { HudButton }                     from '../components/HudButton.js';
-import { HyperText }                     from '../effects/HyperText.js';
+import { MarginalPanelHeader }           from '../components/MarginalPanelHeader.js';
 
 /** Stat definitions — order matches the stats panel top-to-bottom. */
 const STAT_DEFS = [
@@ -65,18 +63,6 @@ export class GaragePanel {
 
 		/** @type {Map<string, ProgressBar>} stat key -> ProgressBar instance */
 		this._statBars = new Map();
-
-		/** @type {HTMLElement|null} */
-		this._kartNameEl = null;
-
-		/** @type {HudButton|null} */
-		this._equipBtn = null;
-
-		/** @type {HyperText|null} */
-		this._kartNameHyper = null;
-
-		/** @type {CTAButton|null} */
-		this._raceBtn = null;
 
 		/** @type {HTMLElement|null} */
 		this._carousel = null;
@@ -136,11 +122,92 @@ export class GaragePanel {
 				position: relative;
 				width: 100%;
 				height: 100%;
+				overflow: hidden;
+				pointer-events: none;
+				--mv-cream: #F7F3E9;
+				--mv-red: #D82C2C;
+				--mv-dark: #0F1115;
+				--mv-font-display: var(--font-editorial-display, var(--font-display, sans-serif));
+				--mv-font-mono: var(--font-editorial-mono, var(--font-mono, monospace));
+				color: var(--mv-cream);
+				font-family: var(--mv-font-mono);
+				text-transform: uppercase;
+				background: unset;
+				background-color: unset;
+				background-image: none;
+			}
+
+			.kk-garage,
+			.kk-garage * {
+				cursor: crosshair;
+			}
+
+			.kk-garage__scanlines,
+			.kk-garage__vignette {
+				display: none;
+				position: absolute;
+				inset: 0;
 				pointer-events: none;
 			}
 
-			.kk-garage > * {
+			.kk-garage__scanlines {
+				z-index: 1;
+				opacity: 0.24;
+				background:
+					linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.08) 50%),
+					linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.008), rgba(0, 0, 255, 0.03));
+				background-size: 100% 3px, 3px 100%;
+			}
+
+			.kk-garage__vignette {
+				z-index: 2;
+				box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.64);
+			}
+
+			.kk-garage__interface {
+				position: relative;
+				z-index: 3;
+				display: grid;
+				grid-template-columns: minmax(0, 1fr) minmax(280px, var(--kk-customizer-deck-width, 20rem));
+				grid-template-rows: auto minmax(0, 1fr);
+				width: 100%;
+				height: 100%;
+				padding: 24px 24px calc(24px + var(--kk-shell-nav-clearance, 6.75rem));
+				gap: 20px;
+			}
+
+			.kk-garage__interface > * {
 				pointer-events: auto;
+			}
+
+			.kk-garage__header {
+				grid-column: 1 / span 2;
+			}
+
+			.kk-garage__header.kk-mv-header {
+				padding-top: 57px;
+			}
+
+			.kk-garage__stage {
+				grid-column: 1 / span 2;
+				grid-row: 2;
+				min-height: 0;
+				position: relative;
+				pointer-events: none;
+			}
+
+			.kk-garage__stage > * {
+				pointer-events: auto;
+			}
+
+			.kk-garage__deck {
+				grid-column: 2;
+				grid-row: 2;
+				align-self: start;
+				display: flex;
+				flex-direction: column;
+				gap: 20px;
+				z-index: 4;
 			}
 
 			/* ===================================================
@@ -149,7 +216,7 @@ export class GaragePanel {
 
 			.kk-garage__carousel-wrap {
 				position: absolute;
-				bottom: 5.5rem;
+				bottom: 0;
 				left: 0;
 				right: 0;
 				z-index: 2;
@@ -180,13 +247,10 @@ export class GaragePanel {
 				height: 72px;
 				scroll-snap-align: center;
 				position: relative;
-				background: rgba( 20, 20, 30, 0.75 );
-				border: var(--border-base, 2px) solid rgba( 255, 255, 255, 0.1 );
+				background: rgba( 15, 17, 21, 0.82 );
+				border: 1px solid rgba( 247, 243, 233, 0.34 );
 				backdrop-filter: blur( 8px );
-				clip-path: polygon(
-					0 8px, 8px 0, 100% 0,
-					100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%
-				);
+				clip-path: polygon( 0 0, 100% 0, 100% 88%, 94% 100%, 0 100% );
 				padding: var(--space-2, 0.5rem);
 				box-sizing: border-box;
 				display: flex;
@@ -202,34 +266,34 @@ export class GaragePanel {
 			}
 
 			.kk-garage__card:hover {
-				border-color: var(--color-accent-orange, #f97316);
-				box-shadow: 0 0 14px rgba( 249, 115, 22, 0.3 );
+				border-color: var(--mv-red );
+				box-shadow: 0 0 18px rgba( 216, 44, 44, 0.2 );
 				transform: scale( 1.04 );
 			}
 
 			/* Previewing state — orange glow */
 
 			.kk-garage__card--previewing {
-				border-color: var(--color-accent-orange, #f97316);
+				border-color: var(--mv-red );
 				box-shadow:
-					0 0 14px rgba( 249, 115, 22, 0.4 ),
-					inset 0 0 14px rgba( 249, 115, 22, 0.06 );
+					0 0 16px rgba( 216, 44, 44, 0.24 ),
+					inset 0 0 14px rgba( 216, 44, 44, 0.08 );
 			}
 
 			/* Equipped state — cyan glow */
 
 			.kk-garage__card--equipped {
-				border-color: var(--color-accent-cyan, #00d4e8);
+				border-color: var(--mv-cream );
 				box-shadow:
-					0 0 16px rgba( 0, 212, 232, 0.4 ),
-					inset 0 0 16px rgba( 0, 212, 232, 0.06 );
+					0 0 18px rgba( 247, 243, 233, 0.18 ),
+					inset 0 0 12px rgba( 247, 243, 233, 0.08 );
 			}
 
 			.kk-garage__card--equipped:hover {
-				border-color: var(--color-accent-cyan, #00d4e8);
+				border-color: var(--mv-cream );
 				box-shadow:
-					0 0 20px rgba( 0, 212, 232, 0.5 ),
-					inset 0 0 16px rgba( 0, 212, 232, 0.08 );
+					0 0 20px rgba( 247, 243, 233, 0.24 ),
+					inset 0 0 16px rgba( 247, 243, 233, 0.1 );
 			}
 
 			/* ===================================================
@@ -237,80 +301,24 @@ export class GaragePanel {
 			   =================================================== */
 
 			.kk-garage__card-name {
-				font-family: var(--font-display, sans-serif);
+				font-family: var(--mv-font-mono );
 				font-size: var(--text-xs, 0.75rem);
 				font-weight: var(--weight-black, 900);
 				text-transform: uppercase;
-				letter-spacing: var(--tracking-wider, 0.1em);
-				color: var(--color-white, #fff);
+				letter-spacing: 0.14em;
+				color: var(--mv-cream );
 				overflow: hidden;
 				text-overflow: ellipsis;
 				white-space: nowrap;
 			}
 
 			.kk-garage__card-stat {
-				font-family: var(--font-mono, monospace);
+				font-family: var(--mv-font-mono );
 				font-size: 0.6rem;
 				font-weight: var(--weight-bold, 700);
-				color: var(--color-accent-orange, #f97316);
+				color: rgba( 247, 243, 233, 0.68 );
 				text-transform: uppercase;
-				letter-spacing: var(--tracking-wider, 0.1em);
-			}
-
-			/* ===================================================
-			   Kart name — centered above carousel
-			   =================================================== */
-
-			.kk-garage__kart-name {
-				position: absolute;
-				bottom: 13.5rem;
-				left: 50%;
-				transform: translateX( -50% );
-				font-family: var(--font-display, sans-serif);
-				font-size: var(--text-3xl, 2.25rem);
-				font-weight: var(--weight-black, 900);
-				text-transform: uppercase;
-				letter-spacing: var(--tracking-widest, 0.14em);
-				color: var(--color-white, #fff);
-				text-align: center;
-				white-space: nowrap;
-				background: linear-gradient( 180deg, #fff 55%, #aaa 100% );
-				-webkit-background-clip: text;
-				-webkit-text-fill-color: transparent;
-				background-clip: text;
-				text-shadow: none;
-				z-index: 1;
-			}
-
-			/* ===================================================
-			   EQUIP button — centered above carousel
-			   =================================================== */
-
-			.kk-garage__equip-wrap {
-				position: absolute;
-				bottom: 10rem;
-				left: 50%;
-				transform: translateX( -50% );
-				z-index: 3;
-			}
-
-			.kk-garage__equip-wrap .kk-cta-button--primary {
-				animation: kk-glow-pulse 2s ease-in-out infinite;
-			}
-
-			.kk-garage__equip-wrap--equipped .kk-cta-button--primary {
-				animation: none;
-				background: var(--color-ink-600, #333);
-				opacity: 0.7;
-			}
-
-			.kk-garage__equip-wrap--equipped .kk-cta-button--primary:hover {
-				box-shadow: none;
-			}
-
-			/* HudButton variant in equip wrap */
-			.kk-garage__equip-wrap--equipped .kk-hud-button {
-				opacity: 0.6;
+				letter-spacing: 0.14em;
 			}
 
 			/* ===================================================
@@ -319,47 +327,48 @@ export class GaragePanel {
 
 			.kk-garage__style {
 				position: absolute;
-				top: var(--space-6, 1.5rem);
-				bottom: 11rem;
-				left: var(--space-6, 1.5rem);
-				width: min( 22rem, calc( 100vw - 3rem ) );
-				background: rgba( 6, 10, 18, 0.72 );
-				border: 1px solid rgba( 255, 255, 255, 0.12 );
-				border-radius: var(--radius-lg, 16px);
+				top: 0;
+				left: 0;
+				width: min( var(--kk-customizer-builder-width, 18rem), calc( 100vw - 3rem ) );
+				background: var(--mv-cream );
+				color: var(--mv-dark );
+				border: none;
+				border-radius: 0;
 				padding: var(--space-4, 1rem);
 				display: flex;
 				flex-direction: column;
 				gap: var(--space-3, 0.75rem);
-				backdrop-filter: blur( 12px );
-				box-shadow: 0 18px 40px rgba( 0, 0, 0, 0.3 );
+				clip-path: polygon( 0 0, 100% 0, 100% 95%, 95% 100%, 0 100% );
+				box-shadow: 0 24px 46px rgba( 0, 0, 0, 0.28 );
 				overflow-y: auto;
 				overscroll-behavior: contain;
-				z-index: 2;
+				z-index: 3;
 			}
 
 			.kk-garage__style-eyebrow {
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-xs, 0.75rem);
+				font-family: var(--mv-font-mono );
+				font-size: var(--text-customizer-eyebrow, var(--text-editorial-label, 0.625rem));
 				font-weight: var(--weight-bold, 700);
 				text-transform: uppercase;
-				letter-spacing: var(--tracking-wider, 0.1em);
-				color: var(--color-accent-cyan, #00d4e8);
+				letter-spacing: 0.18em;
+				color: var(--mv-red );
 			}
 
 			.kk-garage__style-title {
-				font-family: var(--font-display, sans-serif);
-				font-size: var(--text-xl, 1.5rem);
-				font-weight: var(--weight-black, 900);
+				font-family: var(--mv-font-display );
+				font-size: var(--text-customizer-title, var(--text-editorial-panel-title, clamp( 2.35rem, 4.2vw, 3.4rem )));
+				font-weight: 900;
 				text-transform: uppercase;
-				letter-spacing: var(--tracking-wide, 0.08em);
-				color: var(--color-white, #fff);
+				letter-spacing: -0.04em;
+				line-height: 0.9;
+				color: var(--mv-dark );
 			}
 
 			.kk-garage__style-copy {
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-sm, 0.875rem);
-				line-height: 1.4;
-				color: var(--color-ink-200, #d9d9d9);
+				font-family: var(--mv-font-mono );
+				font-size: var(--text-customizer-copy, 0.78rem);
+				line-height: 1.55;
+				color: rgba( 15, 17, 21, 0.78 );
 			}
 
 			.kk-garage__character-page-btn {
@@ -392,12 +401,12 @@ export class GaragePanel {
 			}
 
 			.kk-garage__style-label {
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-xs, 0.75rem);
+				font-family: var(--mv-font-mono );
+				font-size: var(--text-customizer-eyebrow, var(--text-editorial-label, 0.625rem));
 				font-weight: var(--weight-bold, 700);
 				text-transform: uppercase;
-				letter-spacing: var(--tracking-wider, 0.1em);
-				color: var(--color-ink-400, #8f9bb3);
+				letter-spacing: 0.14em;
+				color: rgba( 15, 17, 21, 0.56 );
 			}
 
 			.kk-garage__color-row,
@@ -407,9 +416,9 @@ export class GaragePanel {
 				align-items: center;
 				gap: var(--space-2, 0.5rem);
 				padding: var(--space-2, 0.5rem) var(--space-3, 0.75rem);
-				background: rgba( 255, 255, 255, 0.04 );
-				border: 1px solid rgba( 255, 255, 255, 0.08 );
-				border-radius: var(--radius-md, 12px);
+				background: rgba( 15, 17, 21, 0.04 );
+				border: 1px solid rgba( 15, 17, 21, 0.1 );
+				border-radius: 0;
 			}
 
 			.kk-garage__accessory-row--off {
@@ -424,10 +433,10 @@ export class GaragePanel {
 
 			.kk-garage__color-label,
 			.kk-garage__accessory-label {
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-sm, 0.875rem);
+				font-family: var(--mv-font-mono );
+				font-size: var(--text-customizer-control, var(--text-sm, 0.875rem));
 				font-weight: var(--weight-semibold, 600);
-				color: var(--color-white, #fff);
+				color: var(--mv-dark );
 			}
 
 			.kk-garage__color-input {
@@ -451,12 +460,12 @@ export class GaragePanel {
 
 			.kk-garage__mini-btn,
 			.kk-garage__accessory-toggle {
-				border: 1px solid rgba( 255, 255, 255, 0.14 );
-				border-radius: 999px;
-				background: rgba( 255, 255, 255, 0.06 );
-				color: var(--color-white, #fff);
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-xs, 0.75rem);
+				border: 1px solid rgba( 15, 17, 21, 0.14 );
+				border-radius: 0;
+				background: transparent;
+				color: var(--mv-dark );
+				font-family: var(--mv-font-mono );
+				font-size: var(--text-customizer-action, 0.64rem);
 				font-weight: var(--weight-bold, 700);
 				text-transform: uppercase;
 				letter-spacing: var(--tracking-wider, 0.08em);
@@ -468,9 +477,9 @@ export class GaragePanel {
 			}
 
 			.kk-garage__accessory-toggle--active {
-				border-color: rgba( 0, 212, 232, 0.6 );
-				background: rgba( 0, 212, 232, 0.12 );
-				color: var(--color-accent-cyan, #00d4e8);
+				border-color: var(--mv-dark );
+				background: var(--mv-dark );
+				color: var(--mv-cream );
 			}
 
 			.kk-garage__mini-btn:hover,
@@ -483,25 +492,26 @@ export class GaragePanel {
 				flex-direction: column;
 				gap: 0.25rem;
 				padding: var(--space-3, 0.75rem);
-				border-radius: var(--radius-md, 12px);
-				background: linear-gradient( 135deg, rgba( 249, 115, 22, 0.14 ), rgba( 0, 212, 232, 0.1 ) );
-				border: 1px solid rgba( 255, 255, 255, 0.08 );
+				border-radius: 0;
+				background: rgba( 216, 44, 44, 0.08 );
+				border: 1px solid rgba( 216, 44, 44, 0.22 );
 			}
 
 			.kk-garage__style-summary strong {
-				font-family: var(--font-display, sans-serif);
-				font-size: var(--text-sm, 0.875rem);
-				font-weight: var(--weight-black, 900);
-				letter-spacing: var(--tracking-wide, 0.08em);
+				font-family: var(--mv-font-mono );
+				font-size: var(--text-customizer-eyebrow, var(--text-editorial-label, 0.625rem));
+				font-weight: 700;
+				letter-spacing: 0.18em;
 				text-transform: uppercase;
-				color: var(--color-white, #fff);
+				color: var(--mv-red );
 			}
 
 			.kk-garage__style-summary span {
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-sm, 0.875rem);
-				line-height: 1.4;
-				color: var(--color-ink-100, #f3f3f3);
+				font-family: var(--mv-font-display );
+				font-size: var(--text-customizer-summary, 1rem);
+				font-weight: 900;
+				line-height: 1.1;
+				color: var(--mv-dark );
 			}
 
 			/* ===================================================
@@ -509,29 +519,25 @@ export class GaragePanel {
 			   =================================================== */
 
 			.kk-garage__stats {
-				position: absolute;
-				bottom: var(--space-6, 1.5rem);
-				right: var(--space-6, 1.5rem);
-				width: 14rem;
-				background: rgba( 0, 0, 0, 0.65 );
-				border: var(--border-base, 2px) solid var(--color-panel-border, rgba( 255, 255, 255, 0.12 ));
-				border-radius: var(--radius-md, 4px);
+				background: var(--mv-red );
+				border: none;
+				border-radius: 0;
 				padding: var(--space-3, 0.75rem);
 				display: flex;
 				flex-direction: column;
 				gap: var(--space-2, 0.5rem);
-				backdrop-filter: blur( 8px );
-				z-index: 1;
+				clip-path: polygon( 0 0, 100% 0, 100% 92%, 93% 100%, 0 100% );
+				box-shadow: 0 24px 44px rgba( 0, 0, 0, 0.28 );
 			}
 
 			.kk-garage__stats-label {
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-xs, 0.75rem);
+				font-family: var(--mv-font-mono );
+				font-size: 0.72rem;
 				font-weight: var(--weight-bold, 700);
 				text-transform: uppercase;
-				letter-spacing: var(--tracking-wider, 0.1em);
-				color: var(--color-ink-400, #666);
-				border-bottom: var(--border-thin, 1px) solid var(--color-panel-border, rgba( 255, 255, 255, 0.1 ));
+				letter-spacing: 0.18em;
+				color: rgba( 247, 243, 233, 0.9 );
+				border-bottom: 1px solid rgba( 247, 243, 233, 0.82 );
 				padding-bottom: var(--space-1, 0.25rem);
 			}
 
@@ -549,19 +555,19 @@ export class GaragePanel {
 			}
 
 			.kk-garage__stat-name {
-				font-family: var(--font-ui, sans-serif);
-				font-size: var(--text-xs, 0.75rem);
+				font-family: var(--mv-font-mono );
+				font-size: 0.72rem;
 				font-weight: var(--weight-bold, 700);
 				text-transform: uppercase;
-				letter-spacing: var(--tracking-wider, 0.1em);
-				color: var(--color-ink-200, #ddd);
+				letter-spacing: 0.14em;
+				color: rgba( 247, 243, 233, 0.84 );
 			}
 
 			.kk-garage__stat-score {
-				font-family: var(--font-mono, monospace);
-				font-size: var(--text-xs, 0.75rem);
+				font-family: var(--mv-font-mono );
+				font-size: 0.72rem;
 				font-weight: var(--weight-bold, 700);
-				color: var(--color-accent-orange, #f97316);
+				color: var(--mv-cream );
 				white-space: nowrap;
 				flex-shrink: 0;
 			}
@@ -706,34 +712,12 @@ export class GaragePanel {
 			}
 
 			/* ===================================================
-			   Secondary RACE button — bottom-left corner
-			   =================================================== */
-
-			.kk-garage__race-wrap {
-				position: absolute;
-				bottom: var(--space-6, 1.5rem);
-				left: var(--space-6, 1.5rem);
-				z-index: 1;
-			}
-
-			.kk-garage__race-wrap .kk-cta-button {
-				font-size: var(--text-sm, 0.75rem);
-				min-height: 2.5rem;
-				padding: 0 var(--space-4, 1rem);
-			}
-
-			/* ===================================================
 			   Responsive adjustments
 			   =================================================== */
 
 			@media ( max-width: 480px ) {
 
 				.kk-garage__style {
-					top: var(--space-4, 1rem);
-					bottom: 12rem;
-					left: var(--space-4, 1rem);
-					right: var(--space-4, 1rem);
-					width: auto;
 					padding: var(--space-3, 0.75rem);
 				}
 
@@ -747,19 +731,6 @@ export class GaragePanel {
 					padding: var(--space-2, 0.5rem);
 				}
 
-				.kk-garage__kart-name {
-					font-size: var(--text-2xl, 1.75rem);
-					bottom: 12.5rem;
-				}
-
-				.kk-garage__equip-wrap {
-					bottom: 9rem;
-				}
-
-				.kk-garage__carousel-wrap {
-					bottom: 5rem;
-				}
-
 				.kk-garage__carousel {
 					padding: var(--space-2, 0.5rem) var(--space-4, 1rem);
 				}
@@ -771,15 +742,7 @@ export class GaragePanel {
 				}
 
 				.kk-garage__stats {
-					width: 11rem;
 					padding: var(--space-2, 0.5rem);
-					bottom: var(--space-4, 1rem);
-					right: var(--space-4, 1rem);
-				}
-
-				.kk-garage__race-wrap {
-					bottom: var(--space-4, 1rem);
-					left: var(--space-4, 1rem);
 				}
 			}
 
@@ -793,6 +756,159 @@ export class GaragePanel {
 					transition: none;
 				}
 
+			}
+
+			/* ===================================================
+			   Editorial rebalance
+			   =================================================== */
+
+			.kk-garage__style {
+				max-height: 14.75rem;
+				padding: 0.9rem;
+				gap: 0.72rem;
+			}
+
+			.kk-garage__style-title {
+				font-size: var(--text-customizer-title, var(--text-editorial-panel-title, clamp(2.35rem, 4.2vw, 3.4rem)));
+				line-height: 0.92;
+			}
+
+			.kk-garage__style-copy {
+				font-size: var(--text-customizer-copy, 0.78rem);
+				line-height: var(--leading-relaxed, 1.6);
+			}
+
+			.kk-garage__header .kk-mv-header__title {
+				font-size: var(--text-editorial-panel-title, clamp(2.35rem, 4.2vw, 3.4rem));
+				opacity: 0.94;
+			}
+
+			.kk-garage__header .kk-mv-header__subtitle {
+				font-size: var(--text-editorial-label, 0.625rem);
+				opacity: 0.72;
+			}
+
+			.kk-garage__character-page-btn {
+				border: 1px solid rgba(15,17,21,0.14);
+				background: transparent;
+				color: var(--mv-dark);
+				font-family: var(--mv-font-mono);
+				font-size: var(--text-customizer-action, 0.64rem);
+				font-weight: 700;
+				letter-spacing: 0.16em;
+				text-transform: uppercase;
+				padding: 0.75rem 0.9rem;
+				cursor: pointer;
+				clip-path: polygon(0 0, 100% 0, 100% 88%, 95% 100%, 0 100%);
+			}
+
+			.kk-garage__character-page-btn:hover {
+				background: rgba(15,17,21,0.08);
+				border-color: rgba(15,17,21,0.24);
+				box-shadow: none;
+				transform: translateY(-1px);
+			}
+
+			.kk-garage__carousel-wrap {
+				left: 0;
+				right: 0;
+				bottom: 0;
+				display: grid;
+				grid-template-columns: auto minmax(0, 1fr) auto;
+				align-items: center;
+				gap: 0.8rem;
+				z-index: 4;
+			}
+
+			.kk-garage__carousel {
+				padding: 0.3rem 0;
+			}
+
+			.kk-garage__carousel-arrow {
+				width: 2.8rem;
+				height: 3.6rem;
+				border: 1px solid rgba(247,243,233,0.32);
+				background: rgba(15,17,21,0.8);
+				color: var(--mv-cream);
+				font-family: var(--mv-font-mono);
+				font-size: 1.1rem;
+				cursor: pointer;
+				clip-path: polygon(0 0, 100% 0, 100% 88%, 94% 100%, 0 100%);
+			}
+
+			.kk-garage__carousel-arrow:hover {
+				background: rgba(216,44,44,0.18);
+				border-color: rgba(247,243,233,0.72);
+			}
+
+			.kk-garage__card {
+				flex: 0 0 11rem;
+				min-width: 11rem;
+				height: 5.8rem;
+				padding: 0.7rem;
+			}
+
+			.kk-garage__card-status {
+				position: absolute;
+				top: 0.55rem;
+				right: 0.55rem;
+				font-size: 0.48rem;
+				font-weight: 700;
+				letter-spacing: 0.18em;
+				opacity: 0.76;
+			}
+
+			.kk-garage__card--previewing .kk-garage__card-status,
+			.kk-garage__card--equipped .kk-garage__card-status {
+				color: var(--mv-red);
+			}
+
+			.kk-garage__card--equipped .kk-garage__card-status {
+				color: var(--mv-cream);
+			}
+
+			@media (max-width: 980px) {
+				.kk-garage__interface {
+					grid-template-columns: 1fr;
+					grid-template-rows: auto auto auto;
+					height: auto;
+					min-height: 100%;
+					padding: 20px 16px calc(20px + var(--kk-shell-nav-clearance, 6.75rem));
+					gap: 16px;
+				}
+
+				.kk-garage__header,
+				.kk-garage__stage,
+				.kk-garage__deck {
+					grid-column: auto;
+					grid-row: auto;
+				}
+
+				.kk-garage__deck {
+					padding-bottom: 8px;
+				}
+
+				.kk-garage__carousel-wrap {
+					position: relative;
+					bottom: auto;
+					left: auto;
+					right: auto;
+				}
+			}
+
+			@media (max-width: 720px) {
+				.kk-garage__style {
+					max-height: 15.5rem;
+				}
+
+				.kk-garage__carousel-wrap {
+					gap: 0.45rem;
+				}
+
+				.kk-garage__carousel-arrow {
+					width: 2.2rem;
+					height: 3.1rem;
+				}
 			}
 		`;
 		document.head.appendChild( style );
@@ -810,26 +926,32 @@ export class GaragePanel {
 		root.setAttribute( 'role', 'region' );
 		root.setAttribute( 'aria-label', 'Garage — kart selection' );
 
-		// Kart name
-		this._kartNameEl = document.createElement( 'div' );
-		this._kartNameEl.className = 'kk-garage__kart-name';
-		this._kartNameEl.setAttribute( 'aria-live', 'polite' );
-		root.appendChild( this._kartNameEl );
+		const scanlines = document.createElement( 'div' );
+		scanlines.className = 'kk-garage__scanlines';
+		root.appendChild( scanlines );
 
-		// HyperText scramble on kart name changes.
-		this._kartNameHyper = new HyperText( this._kartNameEl );
+		const vignette = document.createElement( 'div' );
+		vignette.className = 'kk-garage__vignette';
+		root.appendChild( vignette );
 
-		// EQUIP button wrapper — HudButton with scramble effect
-		this._equipWrap = document.createElement( 'div' );
-		this._equipWrap.className = 'kk-garage__equip-wrap';
+		const frame = document.createElement( 'div' );
+		frame.className = 'kk-garage__interface';
+		root.appendChild( frame );
 
-		this._equipBtn = new HudButton( {
-			text:    'EQUIP',
-			color:   '--color-accent-cyan',
-			onClick: () => this._handleEquip(),
-		} );
-		this._equipWrap.appendChild( this._equipBtn.el );
-		root.appendChild( this._equipWrap );
+		frame.appendChild( new MarginalPanelHeader( {
+			title: 'Garage',
+			subtitle: 'Vehicle Index // Paint, Selection, Performance',
+			badge: '',
+			className: 'kk-garage__header',
+		} ).el );
+
+		const stage = document.createElement( 'div' );
+		stage.className = 'kk-garage__stage';
+		frame.appendChild( stage );
+
+		const deck = document.createElement( 'aside' );
+		deck.className = 'kk-garage__deck';
+		frame.appendChild( deck );
 
 		// Kart builder panel
 		const stylePanel = document.createElement( 'section' );
@@ -838,7 +960,7 @@ export class GaragePanel {
 
 		const styleEyebrow = document.createElement( 'div' );
 		styleEyebrow.className = 'kk-garage__style-eyebrow';
-		styleEyebrow.textContent = 'Garage Builder';
+		styleEyebrow.textContent = 'Customizer';
 		stylePanel.appendChild( styleEyebrow );
 
 		const styleTitle = document.createElement( 'div' );
@@ -879,7 +1001,19 @@ export class GaragePanel {
 		this._styleSummaryEl = summaryText;
 
 		stylePanel.appendChild( summary );
-		root.appendChild( stylePanel );
+
+		const characterLinkBtn = document.createElement( 'button' );
+		characterLinkBtn.type = 'button';
+		characterLinkBtn.className = 'kk-garage__character-page-btn';
+		characterLinkBtn.textContent = 'Open Character Lab';
+		characterLinkBtn.addEventListener( 'click', () => {
+
+			this._services.switchTab?.( 'character' );
+
+		} );
+		stylePanel.appendChild( characterLinkBtn );
+
+		stage.appendChild( stylePanel );
 		this._stylePanel = stylePanel;
 
 		// Stats panel
@@ -929,31 +1063,36 @@ export class GaragePanel {
 
 		}
 
-		root.appendChild( statsPanel );
+		deck.appendChild( statsPanel );
 
 		// Kart carousel — horizontal card strip
 		const carouselWrap = document.createElement( 'div' );
 		carouselWrap.className = 'kk-garage__carousel-wrap';
+		carouselWrap.setAttribute( 'aria-label', 'Kart selector rail' );
+
+		const prevBtn = document.createElement( 'button' );
+		prevBtn.type = 'button';
+		prevBtn.className = 'kk-garage__carousel-arrow kk-garage__carousel-arrow--prev';
+		prevBtn.setAttribute( 'aria-label', 'Preview previous kart' );
+		prevBtn.textContent = '<';
+		prevBtn.addEventListener( 'click', () => this._cycleKart( - 1 ) );
+		carouselWrap.appendChild( prevBtn );
 
 		this._carousel = document.createElement( 'div' );
 		this._carousel.className = 'kk-garage__carousel';
 		carouselWrap.appendChild( this._carousel );
-		root.appendChild( carouselWrap );
+
+		const nextBtn = document.createElement( 'button' );
+		nextBtn.type = 'button';
+		nextBtn.className = 'kk-garage__carousel-arrow kk-garage__carousel-arrow--next';
+		nextBtn.setAttribute( 'aria-label', 'Preview next kart' );
+		nextBtn.textContent = '>';
+		nextBtn.addEventListener( 'click', () => this._cycleKart( 1 ) );
+		carouselWrap.appendChild( nextBtn );
+
+		stage.appendChild( carouselWrap );
 
 		this._renderCarousel();
-
-		// Secondary RACE button — bottom-left
-		const raceWrap = document.createElement( 'div' );
-		raceWrap.className = 'kk-garage__race-wrap';
-
-		this._raceBtn = new CTAButton( {
-			label:     'RACE',
-			variant:   'secondary',
-			ariaLabel: 'Start race with selected mode',
-			onClick:   () => this._handleRace(),
-		} );
-		raceWrap.appendChild( this._raceBtn.el );
-		root.appendChild( raceWrap );
 
 		this._root = root;
 
@@ -1050,7 +1189,7 @@ export class GaragePanel {
 		const kartState = this._settings.get( 'vehicleColor' ) ? 'custom paint' : 'factory paint';
 		const kartLabel = this._currentVehicle()?.label || 'Kart';
 
-		this._styleSummaryEl.textContent = `${ kartLabel } with ${ kartState }.`;
+		this._styleSummaryEl.textContent = `${ kartLabel } with ${ kartState }, synced to the current garage loadout.`;
 
 	}
 
@@ -1159,6 +1298,11 @@ export class GaragePanel {
 		if ( isEquipped ) card.classList.add( 'kk-garage__card--equipped' );
 		if ( isPreviewing && ! isEquipped ) card.classList.add( 'kk-garage__card--previewing' );
 
+		const statusEl = document.createElement( 'div' );
+		statusEl.className = 'kk-garage__card-status';
+		statusEl.textContent = isEquipped ? 'Live' : ( isPreviewing ? 'View' : '' );
+		card.appendChild( statusEl );
+
 		// Card name
 		const nameEl = document.createElement( 'div' );
 		nameEl.className = 'kk-garage__card-name';
@@ -1221,7 +1365,7 @@ export class GaragePanel {
 	// ---------------------------------------------------------------------------
 
 	/**
-	 * Sync kart name, stat bars, and equip button to the currently viewed kart.
+	 * Sync stat bars to the currently viewed kart.
 	 */
 	_syncToCurrentKart() {
 
@@ -1229,19 +1373,6 @@ export class GaragePanel {
 		if ( ! vehicle ) return;
 
 		const stats = vehicle.stats;
-		const equippedId = this._settings.getSelectedKartId();
-		const isEquipped = vehicle.id === equippedId;
-
-		// Kart name — scramble to new name.
-		if ( this._kartNameHyper ) {
-
-			this._kartNameHyper.scrambleTo( vehicle.label, 800 );
-
-		} else if ( this._kartNameEl ) {
-
-			this._kartNameEl.textContent = vehicle.label;
-
-		}
 
 		// Stat bars
 		for ( const def of STAT_DEFS ) {
@@ -1261,87 +1392,6 @@ export class GaragePanel {
 				scoreEl.textContent = `${ val } / 10`;
 
 			}
-
-		}
-
-		// Equip button state
-		if ( this._equipBtn ) {
-
-			if ( isEquipped ) {
-
-				this._equipBtn.setText( 'EQUIPPED' );
-				this._equipBtn.setDimmed( true );
-				this._equipWrap.classList.add( 'kk-garage__equip-wrap--equipped' );
-
-			} else {
-
-				this._equipBtn.setText( 'EQUIP' );
-				this._equipBtn.setDimmed( false );
-				this._equipWrap.classList.remove( 'kk-garage__equip-wrap--equipped' );
-
-			}
-
-		}
-
-	}
-
-	// ---------------------------------------------------------------------------
-	// Handlers
-	// ---------------------------------------------------------------------------
-
-	_handleEquip() {
-
-		const vehicle = this._currentVehicle();
-		const equippedId = this._settings.getSelectedKartId();
-
-		if ( vehicle.id === equippedId ) {
-
-			// Already equipped — no-op with feedback.
-			this._services.notification?.show( {
-				message:  'Already equipped!',
-				variant:  'info',
-				duration: 1500,
-			} );
-			return;
-
-		}
-
-		// Persist selection.
-		this._settings.setSelectedKartId( vehicle.id );
-
-		// Update equip button label.
-		this._equipBtn.setText( 'EQUIPPED' );
-		this._equipBtn.setDimmed( true );
-		this._equipWrap.classList.add( 'kk-garage__equip-wrap--equipped' );
-
-		// Re-render carousel to update glow states.
-		this._renderCarousel();
-
-		// Toast confirmation.
-		this._services.notification?.show( {
-			message:  `${ vehicle.label } EQUIPPED`,
-			variant:  'success',
-			duration: 2000,
-		} );
-
-	}
-
-	_handleRace() {
-
-		const mode = this._services.selectedMode || 'solo';
-
-		if ( mode === 'solo' ) {
-
-			this._services.startRace( { mode: 'solo' } );
-
-		} else {
-
-			// For non-solo modes, toast that it's not yet wired.
-			this._services.notification?.show( {
-				message:  `${ mode.toUpperCase() } mode — coming soon`,
-				variant:  'info',
-				duration: 2500,
-			} );
 
 		}
 
@@ -1426,23 +1476,6 @@ export class GaragePanel {
 
 		this._statBars.clear();
 
-		if ( this._equipBtn ) {
-
-			this._equipBtn.dispose();
-			this._equipBtn = null;
-
-		}
-
-		if ( this._kartNameHyper ) {
-
-			this._kartNameHyper.dispose();
-			this._kartNameHyper = null;
-
-		}
-
-		this._raceBtn = null;
-		this._kartNameEl = null;
-		this._equipWrap = null;
 		this._carousel = null;
 
 		if ( this._root && this._root.parentNode ) {
