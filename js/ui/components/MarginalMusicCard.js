@@ -1,6 +1,23 @@
 import { MarginalPanelCard } from './MarginalPanelCard.js';
 import { mvMusic } from './marginalVelocityIcons.js';
 
+const VISUALIZER_BAR_COUNT = 12;
+const VISUALIZER_IDLE_LEVEL = 0.08;
+
+function clampVisualizerLevel( value ) {
+
+	const numeric = Number( value );
+	if ( ! Number.isFinite( numeric ) ) return 0;
+	return Math.min( 1, Math.max( 0, numeric ) );
+
+}
+
+function createIdleVisualizerSamples( count = VISUALIZER_BAR_COUNT ) {
+
+	return Array.from( { length: count }, () => VISUALIZER_IDLE_LEVEL );
+
+}
+
 export class MarginalMusicCard {
 
 	static _cssInjected = false;
@@ -14,6 +31,8 @@ export class MarginalMusicCard {
 		this._statusEl = null;
 		this._headerLeftEl = null;
 		this._headerRightEl = null;
+		this._visualizerEl = null;
+		this._visualizerBarEls = [];
 		this._toggleBtn = null;
 		this._nextBtn = null;
 
@@ -61,6 +80,72 @@ export class MarginalMusicCard {
 				display: flex;
 				align-items: center;
 				gap: 0.45rem;
+			}
+
+			.kk-mv-music-card__visualizer {
+				position: relative;
+				display: grid;
+				grid-template-columns: repeat(12, minmax(0, 1fr));
+				align-items: end;
+				gap: 0.22rem;
+				min-height: 3.2rem;
+				padding: 0.5rem;
+				border: 1px solid rgba(15, 17, 21, 0.14);
+				background:
+					linear-gradient(180deg, rgba(15, 17, 21, 0.08) 0%, rgba(15, 17, 21, 0.02) 100%),
+					repeating-linear-gradient(
+						90deg,
+						rgba(15, 17, 21, 0.03) 0,
+						rgba(15, 17, 21, 0.03) 1px,
+						transparent 1px,
+						transparent calc(100% / 12)
+					);
+				clip-path: polygon(0 0, 100% 0, 100% 90%, 97% 100%, 0 100%);
+				overflow: hidden;
+			}
+
+			.kk-mv-music-card__visualizer::after {
+				content: '';
+				position: absolute;
+				inset: 0;
+				background: linear-gradient(180deg, rgba(247, 243, 233, 0.32) 0%, transparent 60%);
+				pointer-events: none;
+			}
+
+			.kk-mv-music-card__visualizer--active {
+				border-color: rgba(216, 44, 44, 0.28);
+				box-shadow: inset 0 0 0 1px rgba(216, 44, 44, 0.08);
+			}
+
+			.kk-mv-music-card__visualizer--inactive {
+				opacity: 0.78;
+			}
+
+			.kk-mv-music-card__visualizer-bar {
+				position: relative;
+				z-index: 1;
+				align-self: end;
+				width: 100%;
+				min-height: 0.32rem;
+				height: 18%;
+				border-radius: 999px 999px 0 0;
+				background: rgba(15, 17, 21, 0.24);
+				opacity: 0.44;
+				transition:
+					height 140ms var(--ease-standard, ease),
+					background 180ms var(--ease-standard, ease),
+					opacity 180ms var(--ease-standard, ease),
+					box-shadow 180ms var(--ease-standard, ease);
+			}
+
+			.kk-mv-music-card__visualizer--available .kk-mv-music-card__visualizer-bar {
+				background: linear-gradient(180deg, rgba(216, 44, 44, 0.85) 0%, rgba(15, 17, 21, 0.95) 100%);
+				opacity: 0.68;
+			}
+
+			.kk-mv-music-card__visualizer--active .kk-mv-music-card__visualizer-bar {
+				opacity: 1;
+				box-shadow: 0 0 0.8rem rgba(216, 44, 44, 0.16);
 			}
 
 			.kk-mv-music-card__status-dot {
@@ -164,7 +249,7 @@ export class MarginalMusicCard {
 
 		const card = new MarginalPanelCard( {
 			variant: 'cream',
-			headerLeft: 'Menu music · Loading',
+			headerLeft: 'Loading',
 			headerRight: '',
 		} );
 		card.el.classList.add( 'kk-mv-music-card' );
@@ -191,6 +276,13 @@ export class MarginalMusicCard {
 		statusRow.appendChild( status );
 		card.bodyEl.appendChild( statusRow );
 		this._statusEl = status;
+
+		const visualizer = document.createElement( 'div' );
+		visualizer.className = 'kk-mv-music-card__visualizer kk-mv-music-card__visualizer--inactive';
+		visualizer.setAttribute( 'aria-hidden', 'true' );
+		card.bodyEl.appendChild( visualizer );
+		this._visualizerEl = visualizer;
+		this._ensureVisualizerBars( VISUALIZER_BAR_COUNT );
 
 		const controls = document.createElement( 'div' );
 		controls.className = 'kk-mv-music-card__controls';
@@ -259,6 +351,61 @@ export class MarginalMusicCard {
 
 	}
 
+	_ensureVisualizerBars( count ) {
+
+		if ( ! this._visualizerEl ) return;
+		const targetCount = Math.max( 1, count || VISUALIZER_BAR_COUNT );
+		this._visualizerEl.style.gridTemplateColumns = `repeat(${ targetCount }, minmax(0, 1fr))`;
+
+		while ( this._visualizerBarEls.length < targetCount ) {
+
+			const bar = document.createElement( 'span' );
+			bar.className = 'kk-mv-music-card__visualizer-bar';
+			bar.setAttribute( 'aria-hidden', 'true' );
+			this._visualizerEl.appendChild( bar );
+			this._visualizerBarEls.push( bar );
+
+		}
+
+		while ( this._visualizerBarEls.length > targetCount ) {
+
+			const bar = this._visualizerBarEls.pop();
+			this._visualizerEl.removeChild( bar );
+
+		}
+
+	}
+
+	_renderVisualizer( state ) {
+
+		const samples = Array.isArray( state?.visualizerSamples ) && state.visualizerSamples.length > 0
+			? state.visualizerSamples
+			: createIdleVisualizerSamples();
+		const visualizerActive = !! state?.visualizerActive;
+		const visualizerAvailable = !! state?.visualizerAvailable;
+		this._ensureVisualizerBars( samples.length );
+
+		if ( this._visualizerEl ) {
+
+			this._visualizerEl.classList.toggle( 'kk-mv-music-card__visualizer--active', visualizerActive );
+			this._visualizerEl.classList.toggle( 'kk-mv-music-card__visualizer--inactive', ! visualizerActive );
+			this._visualizerEl.classList.toggle( 'kk-mv-music-card__visualizer--available', visualizerAvailable );
+			this._visualizerEl.dataset.mode = visualizerAvailable ? 'reactive' : 'fallback';
+
+		}
+
+		for ( let index = 0; index < this._visualizerBarEls.length; index ++ ) {
+
+			const bar = this._visualizerBarEls[ index ];
+			const level = clampVisualizerLevel( samples[ index ] );
+			const heightPercent = Math.round( 16 + level * 84 );
+			bar.style.height = `${ heightPercent }%`;
+			bar.dataset.level = level.toFixed( 2 );
+
+		}
+
+	}
+
 	_render( state ) {
 
 		const currentTrack = state?.currentTrack || null;
@@ -271,11 +418,11 @@ export class MarginalMusicCard {
 
 		const headerLeft = ( () => {
 
-			if ( hasError ) return 'Menu music · Error';
-			if ( ! canPlay ) return 'Menu music · Unavailable';
-			if ( isPlaying ) return 'Menu music · Now playing';
-			if ( isActive ) return 'Menu music · Paused';
-			return 'Menu music · Ready';
+			if ( hasError ) return 'Error';
+			if ( ! canPlay ) return 'Unavailable';
+			if ( isPlaying ) return 'Now playing';
+			if ( isActive ) return 'Paused';
+			return 'Ready';
 
 		} )();
 
@@ -291,6 +438,8 @@ export class MarginalMusicCard {
 			this._statusEl.textContent = '';
 
 		}
+
+		this._renderVisualizer( state );
 
 		this._el.classList.toggle( 'kk-mv-music-card--playing', isPlaying );
 		this._el.classList.toggle( 'kk-mv-music-card--error', hasError );

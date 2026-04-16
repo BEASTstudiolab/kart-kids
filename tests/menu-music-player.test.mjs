@@ -69,12 +69,127 @@ class FakeAudio {
 
 }
 
+class FakeAudioNode {
+
+	constructor() {
+
+		this.connections = [];
+
+	}
+
+	connect( target ) {
+
+		this.connections.push( target );
+		return target;
+
+	}
+
+}
+
+class FakeAnalyser extends FakeAudioNode {
+
+	constructor( frames = [] ) {
+
+		super();
+		this.frames = frames.map( ( frame ) => Uint8Array.from( frame ) );
+		this.frameIndex = 0;
+		this.frequencyBinCount = this.frames[ 0 ]?.length || 24;
+		this.fftSize = 0;
+		this.smoothingTimeConstant = 0;
+
+	}
+
+	getByteFrequencyData( target ) {
+
+		const frame = this.frames[ Math.min( this.frameIndex, this.frames.length - 1 ) ] || new Uint8Array( target.length );
+		target.fill( 0 );
+		for ( let index = 0; index < target.length && index < frame.length; index ++ ) {
+
+			target[ index ] = frame[ index ];
+
+		}
+		this.frameIndex ++;
+
+	}
+
+}
+
+class FakeAudioContext {
+
+	constructor( { analyserFrames = [] } = {} ) {
+
+		this.state = 'suspended';
+		this.resumeCalls = 0;
+		this.closeCalls = 0;
+		this.destination = new FakeAudioNode();
+		this._sourceNode = new FakeAudioNode();
+		this._analyser = new FakeAnalyser( analyserFrames );
+
+	}
+
+	createMediaElementSource() {
+
+		return this._sourceNode;
+
+	}
+
+	createAnalyser() {
+
+		return this._analyser;
+
+	}
+
+	async resume() {
+
+		this.resumeCalls ++;
+		this.state = 'running';
+
+	}
+
+	async close() {
+
+		this.closeCalls ++;
+		this.state = 'closed';
+
+	}
+
+}
+
+function createFrameScheduler() {
+
+	const queue = [];
+	const cancelled = [];
+
+	return {
+		queue,
+		cancelled,
+		requestFrame: ( callback ) => {
+
+			queue.push( callback );
+			return queue.length;
+
+		},
+		cancelFrame: ( frameId ) => {
+
+			cancelled.push( frameId );
+
+		},
+		runNextFrame: () => {
+
+			const callback = queue.shift();
+			if ( callback ) callback();
+
+		},
+	};
+
+}
+
 const PLAYLIST = [
 	{ id: 'one', title: 'Track One', src: 'audio/music/Track One.ogg' },
 	{ id: 'two', title: 'Track Two', src: 'audio/music/Track Two.ogg' },
 ];
 
-test( 'MenuMusicPlayer activates, toggles, and advances without creating duplicate playback state', async () => {
+test( 'MenuMusicPlayer activates without autoplay, toggles playback, and advances tracks cleanly', async () => {
 
 	const fakeAudio = new FakeAudio();
 	const player = new MenuMusicPlayer( {
@@ -87,7 +202,13 @@ test( 'MenuMusicPlayer activates, toggles, and advances without creating duplica
 
 	assert.equal( player.getState().currentTrack.title, 'Track One' );
 
-	await player.activate();
+	const activated = await player.activate();
+	assert.equal( activated, true );
+	assert.equal( fakeAudio.playCalls, 0 );
+	assert.equal( player.getState().active, true );
+	assert.equal( player.getState().isPlaying, false );
+
+	await player.toggle();
 	assert.equal( fakeAudio.playCalls, 1 );
 	assert.equal( player.getState().isPlaying, true );
 
@@ -102,6 +223,71 @@ test( 'MenuMusicPlayer activates, toggles, and advances without creating duplica
 	unsubscribe();
 	player.destroy();
 	assert.ok( states.length >= 3 );
+
+} );
+
+test( 'MenuMusicPlayer exposes visualizer samples when Web Audio analysis is available', async () => {
+
+	const fakeAudio = new FakeAudio();
+	const fakeAudioContext = new FakeAudioContext( {
+		analyserFrames: [
+			[ 12, 24, 36, 48, 72, 96, 120, 144, 168, 192, 216, 240, 255, 232, 208, 184, 160, 136, 112, 88, 64, 40, 20, 8 ],
+			[ 8, 20, 40, 64, 88, 112, 136, 160, 184, 208, 232, 255, 240, 216, 192, 168, 144, 120, 96, 72, 48, 36, 24, 12 ],
+		],
+	} );
+	const frameScheduler = createFrameScheduler();
+	const player = new MenuMusicPlayer( {
+		playlist: PLAYLIST,
+		createAudio: () => fakeAudio,
+		createAudioContext: () => fakeAudioContext,
+		requestFrame: frameScheduler.requestFrame,
+		cancelFrame: frameScheduler.cancelFrame,
+	} );
+
+	const played = await player.play();
+	assert.equal( played, true );
+	assert.equal( fakeAudioContext.resumeCalls, 1 );
+
+	const initialState = player.getState();
+	assert.equal( initialState.visualizerAvailable, true );
+	assert.equal( initialState.visualizerActive, true );
+	assert.equal( initialState.visualizerSamples.length, 12 );
+	assert.equal( initialState.visualizerSamples.some( ( level ) => level > 0.3 ), true );
+	assert.equal( frameScheduler.queue.length > 0, true );
+
+	const firstFrameSamples = [ ...initialState.visualizerSamples ];
+	frameScheduler.runNextFrame();
+
+	const refreshedState = player.getState();
+	assert.equal( refreshedState.visualizerSamples.every( ( level, index ) => level === firstFrameSamples[ index ] ), false );
+
+	player.pause();
+	const pausedState = player.getState();
+	assert.equal( pausedState.visualizerActive, false );
+	assert.equal( pausedState.visualizerSamples.every( ( level ) => level === 0.08 ), true );
+	assert.equal( frameScheduler.cancelled.length > 0, true );
+
+	player.destroy();
+
+} );
+
+test( 'MenuMusicPlayer falls back to safe idle samples when audio analysis is unavailable', async () => {
+
+	const fakeAudio = new FakeAudio();
+	const player = new MenuMusicPlayer( {
+		playlist: PLAYLIST,
+		createAudio: () => fakeAudio,
+		createAudioContext: () => null,
+	} );
+
+	const played = await player.play();
+
+	assert.equal( played, true );
+	assert.equal( player.getState().visualizerAvailable, false );
+	assert.equal( player.getState().visualizerActive, false );
+	assert.equal( player.getState().visualizerSamples.every( ( level ) => level === 0.08 ), true );
+
+	player.destroy();
 
 } );
 
@@ -164,9 +350,9 @@ test( 'MenuMusicPlayer keeps autoplay blocks recoverable instead of blacklisting
 		createAudio: () => fakeAudio,
 	} );
 
-	const activated = await player.activate();
+	const blockedPlay = await player.play();
 
-	assert.equal( activated, false );
+	assert.equal( blockedPlay, false );
 	assert.equal( player.getState().currentTrack.title, 'Track One' );
 	assert.equal( player.getState().isPlaying, false );
 	assert.equal( player.getState().error, 'Press Play to start music.' );
@@ -191,10 +377,11 @@ test( 'MenuMusicPlayer auto-advances on ended while active', async () => {
 		createAudio: () => fakeAudio,
 	} );
 
-	await player.activate();
+	await player.play();
 	assert.equal( player.getState().currentTrack.title, 'Track One' );
 
 	fakeAudio.dispatch( 'ended' );
+	await Promise.resolve();
 	await Promise.resolve();
 
 	assert.equal( player.getState().currentTrack.title, 'Track Two' );
