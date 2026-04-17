@@ -1255,7 +1255,7 @@ export function createGameEngine( canvasContainer ) {
 		} );
 
 		// Apply saved vehicle selection + character customization
-		const savedVehicle = _settings.get( 'vehicleModel' );
+		const savedVehicle = _settings.getSelectedKartId();
 		if ( savedVehicle && savedVehicle !== 'kart-1' ) {
 
 			_playerManager.swapLocalVehicle( savedVehicle );

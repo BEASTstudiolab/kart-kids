@@ -134,9 +134,26 @@ describe( 'Settings', () => {
 		assert.strictEqual( s.get( 'handedness' ), 'left' );
 		// Profile namespace should exist with defaults
 		assert.strictEqual( s.isFirstRun(), true );
-		assert.strictEqual( s.getSelectedKartId(), 'kart-1' );
+		assert.strictEqual( s.getSelectedKartId(), 'kart-2' );
+		assert.strictEqual( s.get( 'vehicleModel' ), 'kart-2' );
 		assert.strictEqual( s.getSelectedBalaclavaId(), DEFAULT_BALACLAVA_ID );
 		assert.strictEqual( s.getStats().totalRaces, 0 );
+
+	} );
+
+	it( 'schema migration: loadout kart selection backfills legacy vehicleModel', () => {
+
+		mockLocalStorage.setItem( STORAGE_KEY, JSON.stringify( {
+			_version: 3,
+			loadout: {
+				selectedKartId: 'kart-4',
+				selectedTrackId: 'starter-circuit',
+			},
+		} ) );
+
+		const s = new Settings();
+		assert.strictEqual( s.getSelectedKartId(), 'kart-4' );
+		assert.strictEqual( s.get( 'vehicleModel' ), 'kart-4' );
 
 	} );
 
@@ -205,12 +222,36 @@ describe( 'Settings', () => {
 	it( 'setSelectedKartId persists', () => {
 
 		const s = new Settings();
+		dispatchedEvents.length = 0;
 		s.setSelectedKartId( 'kart-2' );
 		assert.strictEqual( s.getSelectedKartId(), 'kart-2' );
+		assert.strictEqual( s.get( 'vehicleModel' ), 'kart-2' );
 
 		// Verify via new instance reading from localStorage
 		const s2 = new Settings();
 		assert.strictEqual( s2.getSelectedKartId(), 'kart-2' );
+		assert.strictEqual( s2.get( 'vehicleModel' ), 'kart-2' );
+
+		const keys = dispatchedEvents.map( ( event ) => event.detail?.key );
+		assert.deepStrictEqual( keys.slice( - 2 ), [ 'loadout.selectedKartId', 'vehicleModel' ] );
+
+	} );
+
+	it( 'set(vehicleModel) keeps selected kart in sync', () => {
+
+		const s = new Settings();
+		dispatchedEvents.length = 0;
+		s.set( 'vehicleModel', 'kart-3' );
+
+		assert.strictEqual( s.get( 'vehicleModel' ), 'kart-3' );
+		assert.strictEqual( s.getSelectedKartId(), 'kart-3' );
+
+		const s2 = new Settings();
+		assert.strictEqual( s2.get( 'vehicleModel' ), 'kart-3' );
+		assert.strictEqual( s2.getSelectedKartId(), 'kart-3' );
+
+		const keys = dispatchedEvents.map( ( event ) => event.detail?.key );
+		assert.deepStrictEqual( keys.slice( - 2 ), [ 'loadout.selectedKartId', 'vehicleModel' ] );
 
 	} );
 

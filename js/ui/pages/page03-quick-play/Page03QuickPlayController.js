@@ -258,7 +258,7 @@ export class Page03QuickPlayController extends PageControllerBase {
 		this._view.actionBar.setPrimaryLoading( true );
 
 		const settings = new Settings();
-		const vehicleId = settings.get( 'vehicleModel' ) ?? 'kart-1';
+		const vehicleId = settings.getSelectedKartId();
 
 		// Attempt multiplayer matchmaking
 		if ( this._network ) {

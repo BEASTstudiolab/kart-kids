@@ -39,6 +39,49 @@ const DEFAULTS = {
 	},
 };
 
+function ensureLoadoutShape( loadout ) {
+
+	return Object.assign( {}, DEFAULTS.loadout, loadout && typeof loadout === 'object' ? loadout : {} );
+
+}
+
+function resolveSelectedKartId( data ) {
+
+	const loadoutKartId = data?.loadout?.selectedKartId;
+	if ( typeof loadoutKartId === 'string' && loadoutKartId ) return loadoutKartId;
+
+	const legacyKartId = data?.vehicleModel;
+	if ( typeof legacyKartId === 'string' && legacyKartId ) return legacyKartId;
+
+	return DEFAULTS.loadout.selectedKartId;
+
+}
+
+function syncSelectedKartState( data ) {
+
+	data.loadout = ensureLoadoutShape( data.loadout );
+
+	const selectedKartId = resolveSelectedKartId( data );
+	data.loadout.selectedKartId = selectedKartId;
+	data.vehicleModel = selectedKartId;
+
+	return selectedKartId;
+
+}
+
+function dispatchSettingsChanged( key, value ) {
+
+	window.dispatchEvent( new CustomEvent( 'settings-changed', { detail: { key, value } } ) );
+
+}
+
+function dispatchSelectedKartChanged( kartId ) {
+
+	dispatchSettingsChanged( 'loadout.selectedKartId', kartId );
+	dispatchSettingsChanged( 'vehicleModel', kartId );
+
+}
+
 export class Settings {
 
 	constructor() {
@@ -79,6 +122,12 @@ export class Settings {
 					parsed.profile = Object.assign( {}, DEFAULTS.profile, parsed.profile );
 					parsed.loadout = Object.assign( {}, DEFAULTS.loadout, parsed.loadout );
 					parsed.stats = Object.assign( {}, DEFAULTS.stats, parsed.stats );
+
+					if ( typeof parsed.vehicleModel === 'string' && parsed.vehicleModel ) {
+
+						parsed.loadout.selectedKartId = parsed.vehicleModel;
+
+					}
 
 				}
 
@@ -131,6 +180,8 @@ export class Settings {
 
 		} catch ( e ) { /* ignore corrupt data */ }
 
+		syncSelectedKartState( this._data );
+
 		// Validate quality tier
 		if ( ! VALID_TIERS.includes( this._data.quality ) ) {
 
@@ -148,9 +199,21 @@ export class Settings {
 
 	set( key, value ) {
 
+		if ( key === 'vehicleModel' ) {
+
+			const selectedKartId = typeof value === 'string' && value ? value : DEFAULTS.loadout.selectedKartId;
+			this._data.vehicleModel = selectedKartId;
+			this._data.loadout = ensureLoadoutShape( this._data.loadout );
+			this._data.loadout.selectedKartId = selectedKartId;
+			this._save();
+			dispatchSelectedKartChanged( selectedKartId );
+			return;
+
+		}
+
 		this._data[ key ] = value;
 		this._save();
-		window.dispatchEvent( new CustomEvent( 'settings-changed', { detail: { key, value } } ) );
+		dispatchSettingsChanged( key, value );
 
 	}
 
@@ -190,15 +253,18 @@ export class Settings {
 
 	getSelectedKartId() {
 
-		return this._data.loadout.selectedKartId;
+		return resolveSelectedKartId( this._data );
 
 	}
 
 	setSelectedKartId( kartId ) {
 
-		this._data.loadout.selectedKartId = kartId;
+		const selectedKartId = typeof kartId === 'string' && kartId ? kartId : DEFAULTS.loadout.selectedKartId;
+		this._data.loadout = ensureLoadoutShape( this._data.loadout );
+		this._data.loadout.selectedKartId = selectedKartId;
+		this._data.vehicleModel = selectedKartId;
 		this._save();
-		window.dispatchEvent( new CustomEvent( 'settings-changed', { detail: { key: 'loadout.selectedKartId', value: kartId } } ) );
+		dispatchSelectedKartChanged( selectedKartId );
 
 	}
 

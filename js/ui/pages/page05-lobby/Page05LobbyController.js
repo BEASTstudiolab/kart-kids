@@ -481,7 +481,7 @@ export class Page05LobbyController extends PageControllerBase {
 		}
 
 		const settings = new Settings();
-		const vehicleId = settings.get( 'vehicleModel' ) ?? 'kart-1';
+		const vehicleId = settings.getSelectedKartId();
 		this._network.setDisplayName( settings.getDisplayName() || '' );
 
 		this._network.joinRoom( code, vehicleId ).then( ( result ) => {
