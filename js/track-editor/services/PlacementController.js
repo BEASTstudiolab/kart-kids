@@ -216,7 +216,7 @@ export class PlacementController {
 			const behindDist = CELL_RAW * 0.8;
 			const arrow1 = new THREE.Mesh( arrowGeo, arrowMat );
 			arrow1.rotation.x = - Math.PI / 2;
-			arrow1.rotation.z = Math.PI - orientRad;
+			arrow1.rotation.z = Math.PI + orientRad;
 			arrow1.position.set(
 				worldX - Math.sin( orientRad ) * behindDist,
 				0.1,
@@ -228,7 +228,7 @@ export class PlacementController {
 			const aheadDist = CELL_RAW * 0.8;
 			const arrow2 = new THREE.Mesh( arrowGeo, arrowMat );
 			arrow2.rotation.x = - Math.PI / 2;
-			arrow2.rotation.z = Math.PI - orientRad;
+			arrow2.rotation.z = Math.PI + orientRad;
 			arrow2.position.set(
 				worldX + Math.sin( orientRad ) * aheadDist,
 				0.1,
