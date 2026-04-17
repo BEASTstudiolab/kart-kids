@@ -1,10 +1,18 @@
 const TWO_PI = Math.PI * 2;
 
 export const DEFAULT_PREVIEW_POSE_TRANSITION_DURATION = 0.32;
+export const MIN_PREVIEW_POSE_TRANSITION_DURATION = 0.32;
+export const MAX_PREVIEW_POSE_TRANSITION_DURATION = 0.72;
 
 function clamp01( value ) {
 
 	return Math.min( 1, Math.max( 0, Number( value ) || 0 ) );
+
+}
+
+function clamp( value, min, max ) {
+
+	return Math.min( max, Math.max( min, value ) );
 
 }
 
@@ -42,6 +50,15 @@ function interpolateScalar( start, target, progress ) {
 
 }
 
+function distance3D( left, right ) {
+
+	const dx = ( Number( right?.x ) || 0 ) - ( Number( left?.x ) || 0 );
+	const dy = ( Number( right?.y ) || 0 ) - ( Number( left?.y ) || 0 );
+	const dz = ( Number( right?.z ) || 0 ) - ( Number( left?.z ) || 0 );
+	return Math.sqrt( ( dx * dx ) + ( dy * dy ) + ( dz * dz ) );
+
+}
+
 function shortestAngleDelta( start, target ) {
 
 	return ( ( ( target - start ) + Math.PI ) % TWO_PI + TWO_PI ) % TWO_PI - Math.PI;
@@ -70,6 +87,28 @@ export function createPreviewPoseSnapshot( pose = {} ) {
 		fov: Number( pose.fov ) || 0,
 		kartRotationY: normalizeRotationRadians( pose.kartRotationY ),
 	};
+
+}
+
+export function computePreviewPoseTransitionDuration( startPose, targetPose ) {
+
+	const start = createPreviewPoseSnapshot( startPose );
+	const target = createPreviewPoseSnapshot( targetPose );
+	const cameraDistance = distance3D( start.cameraPos, target.cameraPos );
+	const lookDistance = distance3D( start.lookAt, target.lookAt );
+	const fovDelta = Math.abs( target.fov - start.fov );
+	const rotationDelta = Math.abs( shortestAngleDelta( start.kartRotationY, target.kartRotationY ) );
+	const weightedDuration = MIN_PREVIEW_POSE_TRANSITION_DURATION +
+		( cameraDistance * 0.12 ) +
+		( lookDistance * 0.06 ) +
+		( ( fovDelta / 90 ) * 0.18 ) +
+		( ( rotationDelta / Math.PI ) * 0.16 );
+
+	return clamp(
+		weightedDuration,
+		MIN_PREVIEW_POSE_TRANSITION_DURATION,
+		MAX_PREVIEW_POSE_TRANSITION_DURATION
+	);
 
 }
 
@@ -116,10 +155,10 @@ export function createPreviewPoseTransition( initialPose, { duration = DEFAULT_P
 
 export function retargetPreviewPoseTransition( transition, nextTargetPose, { immediate = false, duration } = {} ) {
 
-	const nextDuration = normalizeDurationSeconds( duration ?? transition?.duration );
 	const resolvedTargetPose = createPreviewPoseSnapshot( nextTargetPose );
-	const state = transition || createPreviewPoseTransition( resolvedTargetPose, { duration: nextDuration } );
+	const state = transition || createPreviewPoseTransition( resolvedTargetPose );
 	const basePose = createPreviewPoseSnapshot( state.currentPose );
+	const nextDuration = normalizeDurationSeconds( duration ?? computePreviewPoseTransitionDuration( basePose, resolvedTargetPose ) );
 
 	state.duration = nextDuration;
 	copyPreviewPoseSnapshot( state.startPose, basePose );

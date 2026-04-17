@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 
 import {
 	advancePreviewPoseTransition,
+	computePreviewPoseTransitionDuration,
 	createPreviewPoseTransition,
 	retargetPreviewPoseTransition,
 } from '../js/ui/utils/menuPreviewPoseTransition.js';
@@ -43,7 +44,7 @@ test( 'retargetPreviewPoseTransition preserves the live pose when a timed move s
 	const currentPose = retargetPreviewPoseTransition(
 		transition,
 		createPose( { cameraZ: 3, fov: 44 } ),
-		{ immediate: false }
+		{ immediate: false, duration: 0.32 }
 	);
 
 	assert.equal( transition.active, true );
@@ -56,7 +57,7 @@ test( 'retargetPreviewPoseTransition preserves the live pose when a timed move s
 test( 'advancePreviewPoseTransition moves partway to the target before settling exactly', () => {
 
 	const transition = createPreviewPoseTransition( createPose( { cameraZ: 10, fov: 70 } ), { duration: 0.32 } );
-	retargetPreviewPoseTransition( transition, createPose( { cameraZ: 6, fov: 34 } ), { immediate: false } );
+	retargetPreviewPoseTransition( transition, createPose( { cameraZ: 6, fov: 34 } ), { immediate: false, duration: 0.32 } );
 
 	const midPose = advancePreviewPoseTransition( transition, 0.16 );
 	assertClose( midPose.cameraPos.z, 8 );
@@ -73,11 +74,11 @@ test( 'advancePreviewPoseTransition moves partway to the target before settling 
 test( 'retargetPreviewPoseTransition restarts from the current in-flight pose', () => {
 
 	const transition = createPreviewPoseTransition( createPose( { cameraX: 0 } ), { duration: 0.32 } );
-	retargetPreviewPoseTransition( transition, createPose( { cameraX: 10 } ), { immediate: false } );
+	retargetPreviewPoseTransition( transition, createPose( { cameraX: 10 } ), { immediate: false, duration: 0.32 } );
 	advancePreviewPoseTransition( transition, 0.08 );
 
 	const beforeRetargetX = transition.currentPose.cameraPos.x;
-	retargetPreviewPoseTransition( transition, createPose( { cameraX: 20 } ), { immediate: false } );
+	retargetPreviewPoseTransition( transition, createPose( { cameraX: 20 } ), { immediate: false, duration: 0.32 } );
 
 	assertClose( transition.startPose.cameraPos.x, beforeRetargetX );
 	assertClose( transition.currentPose.cameraPos.x, beforeRetargetX );
@@ -111,10 +112,26 @@ test( 'advancePreviewPoseTransition rotates across the shortest angular path', (
 	retargetPreviewPoseTransition(
 		transition,
 		createPose( { kartRotationY: ( 10 * Math.PI ) / 180 } ),
-		{ immediate: false }
+		{ immediate: false, duration: 0.32 }
 	);
 
 	const midPose = advancePreviewPoseTransition( transition, 0.16 );
 	assertClose( midPose.kartRotationY, 0, 1e-5 );
+
+} );
+
+test( 'computePreviewPoseTransitionDuration gives larger preset jumps more travel time', () => {
+
+	const smallMove = computePreviewPoseTransitionDuration(
+		createPose( { cameraZ: 5.0, lookY: 1.0, fov: 40 } ),
+		createPose( { cameraZ: 4.8, lookY: 1.1, fov: 38 } )
+	);
+	const largeMove = computePreviewPoseTransitionDuration(
+		createPose( { cameraX: - 1.5, cameraY: 1.63, cameraZ: 5.82, lookX: - 1.06, lookY: 1.0, fov: 44, kartRotationY: 0 } ),
+		createPose( { cameraX: 0.52, cameraY: 1.95, cameraZ: 4.05, lookX: 0.10, lookY: 0.52, lookZ: 0.72, fov: 52, kartRotationY: Math.PI / 2 } )
+	);
+
+	assert.ok( largeMove > smallMove );
+	assert.ok( largeMove > 0.5 );
 
 } );

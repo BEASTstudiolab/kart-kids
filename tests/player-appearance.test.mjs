@@ -5,6 +5,7 @@ import {
 	ACCESSORY_DEFS,
 	applyCharacterAppearance,
 	applyCharacterMaterialTuningToMaterial,
+	applyVehicleAppearance,
 	createDefaultPlayerAppearance,
 	getVisibleAccessoryLabels,
 	normalizeAppearanceColor,
@@ -129,6 +130,18 @@ function createMockCharacterRoot( child ) {
 
 }
 
+function createMockTraverseRoot( ...children ) {
+
+	return {
+		traverse( visit ) {
+
+			for ( const child of children ) visit( child );
+
+		},
+	};
+
+}
+
 test( 'normalizeAppearanceColor accepts canonical hex colors and rejects invalid values', () => {
 
 	assert.equal( normalizeAppearanceColor( '#ABCDEF' ), '#abcdef' );
@@ -242,6 +255,49 @@ test( 'applyCharacterAppearance no longer uses legacy characterColor as a fallba
 
 	assert.strictEqual( child.material, originalMaterial );
 	assert.equal( child.material.color.value, '#ffffff' );
+
+} );
+
+test( 'applyVehicleAppearance preserves the original texture map while tinting the body material', () => {
+
+	const originalMaterial = createMockMaterial( { name: 'car 1' } );
+	const bodyChild = {
+		isMesh: true,
+		name: 'Body',
+		material: originalMaterial,
+	};
+
+	applyVehicleAppearance( createMockTraverseRoot( bodyChild ), {
+		vehicleColor: '#ff0000',
+	} );
+
+	assert.notStrictEqual( bodyChild.material, originalMaterial );
+	assert.strictEqual( bodyChild.material.map, originalMaterial.map );
+	assert.equal( bodyChild.material.color.value, '#ff0000' );
+
+} );
+
+test( 'applyVehicleAppearance restores the original body material when vehicle tint is cleared', () => {
+
+	const originalMaterial = createMockMaterial( { name: 'car 1' } );
+	const bodyChild = {
+		isMesh: true,
+		name: 'Body',
+		material: originalMaterial,
+	};
+	const root = createMockTraverseRoot( bodyChild );
+
+	applyVehicleAppearance( root, {
+		vehicleColor: '#00ff00',
+	} );
+
+	assert.notStrictEqual( bodyChild.material, originalMaterial );
+
+	applyVehicleAppearance( root, {
+		vehicleColor: '',
+	} );
+
+	assert.strictEqual( bodyChild.material, originalMaterial );
 
 } );
 

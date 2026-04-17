@@ -267,6 +267,35 @@ test( 'LobbyScene exposes a full character material lab in the lobby debug panel
 
 } );
 
+test( 'LobbyScene exposes a full vehicle material lab in the lobby debug panel', () => {
+
+	const source = readText( 'js/ui/LobbyScene.js' );
+
+	assert.ok( source.includes( 'function isObject3DDescendantOf( node, ancestor ) {' ) );
+	assert.ok( source.includes( 'this._vehicleMaterialDebugSettings = new Map();' ) );
+	assert.ok( source.includes( 'this._vehicleMaterialDebugBaselines = new Map();' ) );
+	assert.ok( source.includes( 'this._refreshVehicleDebugTab = null;' ) );
+	assert.ok( source.includes( 'this._captureVehicleMaterialDebugBaselines();' ) );
+	assert.ok( source.includes( 'this._applyVehicleMaterialDebugOverrides();' ) );
+	assert.ok( source.includes( '_collectVehicleMaterialEntries() {' ) );
+	assert.ok( source.includes( 'if ( this._currentCharacterRoot && isObject3DDescendantOf( child, this._currentCharacterRoot ) ) return;' ) );
+	assert.ok( source.includes( '_copyVehicleMaterialDebugPayload( materialNames = null ) {' ) );
+	assert.ok( source.includes( '_applyVehicleMaterialDebugOverride( materialName, material, state ) {' ) );
+	assert.ok( source.includes( 'material.userData._kkVehicleDebugOriginalTextures = originalTextures;' ) );
+	assert.ok( source.includes( "const vehicleTab = createTab( 'VEHICLE' );" ) );
+	assert.ok( source.includes( "addSection( vehicleTab, 'VEHICLE MATERIAL LAB' );" ) );
+	assert.ok( source.includes( 'vehicleIntro.textContent = `Live kart material tuning for paint, metal, and reflections.' ) );
+	assert.ok( source.includes( "waiting.textContent = 'Kart preview not ready yet.';" ) );
+	assert.ok( source.includes( "'COPY ALL'" ) );
+	assert.ok( source.includes( "'RESET ALL'" ) );
+	assert.ok( source.includes( 'self._vehicleDebugExpandedMaterialName === entry.name' ) );
+	assert.ok( source.includes( "addSlider( block, 'Metal', 0, 1, 0.01, state.metalness, ( value ) => {" ) );
+	assert.ok( source.includes( "addSlider( block, 'Env Int', 0, 5, 0.05, state.envMapIntensity, ( value ) => {" ) );
+	assert.ok( source.includes( "self._copyVehicleMaterialDebugPayload( [ entry.name ] )" ) );
+	assert.ok( source.includes( "self._resetVehicleMaterialDebugState( entry.name );" ) );
+
+} );
+
 test( 'Lobby.gltf wires packed ORM textures for both lobby materials', () => {
 
 	const gltf = readJson( 'models/environments/Lobby.gltf' );
