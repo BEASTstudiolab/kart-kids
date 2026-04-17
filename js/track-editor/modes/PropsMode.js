@@ -33,6 +33,7 @@ export class PropsMode extends EditorMode {
 		this._groundPlane = new THREE.Plane( new THREE.Vector3( 0, 1, 0 ), 0 );
 		this._raycaster = new THREE.Raycaster();
 		this._movingProp = null;
+		this._isErasing = false;
 		this._lastHoverWorldPos = null;
 
 		this._conflictMat = new THREE.MeshBasicMaterial( {
@@ -58,6 +59,8 @@ export class PropsMode extends EditorMode {
 	exit() {
 
 		this._state.activeLayer = 'track';
+		this._isErasing = false;
+		this._movingProp = null;
 		this._clearGhost();
 
 	}
@@ -83,6 +86,7 @@ export class PropsMode extends EditorMode {
 
 		} else if ( tool === 'erase-prop' ) {
 
+			this._isErasing = true;
 			this._eraseAtCursor( event );
 
 		} else if ( tool === 'rotate-prop' ) {
@@ -109,6 +113,7 @@ export class PropsMode extends EditorMode {
 	handlePointerUp() {
 
 		this._movingProp = null;
+		this._isErasing = false;
 
 	}
 
@@ -136,6 +141,15 @@ export class PropsMode extends EditorMode {
 
 			}
 
+			return;
+
+		}
+
+		// Erase-prop drag
+		if ( this._isErasing && this._state.tool === 'erase-prop' ) {
+
+			this._eraseAtCursor( event );
+			this._clearGhost();
 			return;
 
 		}

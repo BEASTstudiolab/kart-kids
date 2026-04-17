@@ -14,7 +14,8 @@
       "Bash(py -m pytest*)",
       "Bash(node -e \":*)",
       "Bash(timeout 3 node server.js)",
-      "Bash(npx --yes @gltf-transform/cli inspect models/decoration-empty.glb)"
+      "Bash(npx --yes @gltf-transform/cli inspect models/decoration-empty.glb)",
+      "Bash(find js/track-editor -name \"*.js\" -exec grep -l \"arrow\\\\|direction\\\\|angle\" {} \\\\;)"
     ],
     "deny": [
       "Bash(rm -rf *)",
