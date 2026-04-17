@@ -229,6 +229,60 @@ test( 'character selections persist immediately without a separate save action',
 
 } );
 
+test( 'character tab keeps live color drags from rebuilding the picker mid-preview', () => {
+
+	const settingsCalls = [];
+	let syncCount = 0;
+	const controller = new Page10CharacterSelectController();
+	const appearance = createDefaultPlayerAppearance();
+
+	controller._settings = {
+		set: ( key, value ) => settingsCalls.push( [ key, value ] ),
+		setSelectedBalaclavaId: ( value ) => settingsCalls.push( [ 'selectedBalaclavaId', value ] ),
+	};
+	controller._draftAppearance = controller._cloneAppearance( appearance );
+	controller._savedAppearance = controller._cloneAppearance( appearance );
+	controller._syncView = () => {
+
+		syncCount ++;
+
+	};
+
+	controller._handleColorChange( 'palette', 'charSkinColor', '#CC9966', 'live' );
+
+	assert.equal( controller._draftAppearance.charSkinColor, '#cc9966' );
+	assert.equal( syncCount, 0 );
+	assert.deepEqual( settingsCalls.filter( ( [ key ] ) => key === 'charSkinColor' ), [
+		[ 'charSkinColor', '#cc9966' ],
+	] );
+
+} );
+
+test( 'character tab refreshes sidebar state after committed color picks', () => {
+
+	let syncCount = 0;
+	const controller = new Page10CharacterSelectController();
+	const appearance = createDefaultPlayerAppearance();
+
+	controller._settings = {
+		set: () => {},
+		setSelectedBalaclavaId: () => {},
+	};
+	controller._draftAppearance = controller._cloneAppearance( appearance );
+	controller._savedAppearance = controller._cloneAppearance( appearance );
+	controller._syncView = () => {
+
+		syncCount ++;
+
+	};
+
+	controller._handleColorChange( 'palette', 'charSkinColor', '#CC9966', 'commit' );
+
+	assert.equal( controller._draftAppearance.charSkinColor, '#cc9966' );
+	assert.equal( syncCount, 1 );
+
+} );
+
 test( 'character tab palette exposes only the skin tone control', () => {
 
 	const controller = new Page10CharacterSelectController();

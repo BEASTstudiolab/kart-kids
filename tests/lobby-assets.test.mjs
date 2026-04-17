@@ -184,7 +184,8 @@ test( 'LobbyScene supports contextual menu preview presets', () => {
 	assert.ok( source.includes( 'this._targetFov = preset.fov;' ) );
 	assert.ok( source.includes( 'this._targetKartRotationYDeg = preset.kartRotYDeg;' ) );
 	assert.ok( source.includes( 'this._targetKartRotationY = normalizeRotationRadians( THREE.MathUtils.degToRad( preset.kartRotYDeg ) );' ) );
-	assert.ok( source.includes( 'this._currentKartRotationY = dampAngle( this._currentKartRotationY, this._targetKartRotationY, safeDt );' ) );
+	assert.ok( source.includes( 'retargetPreviewPoseTransition(' ) );
+	assert.ok( source.includes( 'advancePreviewPoseTransition( this._previewPoseTransition, safeDt )' ) );
 
 } );
 

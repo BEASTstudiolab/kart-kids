@@ -990,6 +990,20 @@ export class Page10CharacterSelectView extends PageViewBase {
 
 				const row = document.createElement( 'div' );
 				row.className = 'page-character-select__color-row';
+				const dispatchColorChange = ( updateMode, nextValue ) => {
+
+					this._root.dispatchEvent( new CustomEvent( 'kk:character:color', {
+						bubbles: true,
+						composed: true,
+						detail: {
+							categoryId: activeCategory.id,
+							controlId: control.id,
+							value: nextValue,
+							updateMode,
+						},
+					} ) );
+
+				};
 
 				const copy = document.createElement( 'div' );
 				copy.className = 'page-character-select__color-copy';
@@ -1012,15 +1026,12 @@ export class Page10CharacterSelectView extends PageViewBase {
 				input.setAttribute( 'aria-label', `${ control.label } picker` );
 				input.addEventListener( 'input', () => {
 
-					this._root.dispatchEvent( new CustomEvent( 'kk:character:color', {
-						bubbles: true,
-						composed: true,
-						detail: {
-							categoryId: activeCategory.id,
-							controlId: control.id,
-							value: input.value,
-						},
-					} ) );
+					dispatchColorChange( 'live', input.value );
+
+				} );
+				input.addEventListener( 'change', () => {
+
+					dispatchColorChange( 'commit', input.value );
 
 				} );
 				row.appendChild( input );
@@ -1031,15 +1042,7 @@ export class Page10CharacterSelectView extends PageViewBase {
 				reset.textContent = 'Reset';
 				reset.addEventListener( 'click', () => {
 
-					this._root.dispatchEvent( new CustomEvent( 'kk:character:color', {
-						bubbles: true,
-						composed: true,
-						detail: {
-							categoryId: activeCategory.id,
-							controlId: control.id,
-							value: control.resetValue ?? '',
-						},
-					} ) );
+					dispatchColorChange( 'commit', control.resetValue ?? '' );
 
 				} );
 				row.appendChild( reset );

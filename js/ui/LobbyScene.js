@@ -32,6 +32,13 @@ import {
 	getMenuCharacterMaterialDebugVersion,
 	setMenuCharacterMaterialDebugTuning,
 } from './MenuCharacterMaterialDebug.js';
+import {
+	advancePreviewPoseTransition,
+	createPreviewPoseTransition,
+	DEFAULT_PREVIEW_POSE_TRANSITION_DURATION,
+	normalizeRotationRadians,
+	retargetPreviewPoseTransition,
+} from './utils/menuPreviewPoseTransition.js';
 
 // Camera parameters — tuned from the lobby debug panel.
 const CAM_POS  = new THREE.Vector3( 0.00, 2.30, 5.70 );
@@ -113,8 +120,7 @@ const MENU_PREVIEW_PRESETS = Object.freeze( {
 		kartRotYDeg: 1510,
 	} ),
 } );
-const PREVIEW_POSE_LERP_SPEED = 7.5;
-const TWO_PI = Math.PI * 2;
+const PREVIEW_POSE_TRANSITION_DURATION = DEFAULT_PREVIEW_POSE_TRANSITION_DURATION;
 const DEFAULT_MENU_PREVIEW_TUNING = Object.freeze( {
 	lookTargetX: 0,
 	lookTargetY: 0,
@@ -359,27 +365,6 @@ function createCharacterMaterialDebugSnapshot( material, maxTextureAnisotropy = 
 
 }
 
-function normalizeRotationRadians( radians ) {
-
-	return THREE.MathUtils.euclideanModulo( radians, TWO_PI );
-
-}
-
-function dampScalar( current, target, dt, speed = PREVIEW_POSE_LERP_SPEED ) {
-
-	const alpha = 1 - Math.exp( - speed * Math.max( dt, 0 ) );
-	return THREE.MathUtils.lerp( current, target, alpha );
-
-}
-
-function dampAngle( current, target, dt, speed = PREVIEW_POSE_LERP_SPEED ) {
-
-	const alpha = 1 - Math.exp( - speed * Math.max( dt, 0 ) );
-	const delta = THREE.MathUtils.euclideanModulo( ( target - current ) + Math.PI, TWO_PI ) - Math.PI;
-	return normalizeRotationRadians( current + ( delta * alpha ) );
-
-}
-
 function getInitialMenuPerfProfile() {
 
 	if ( typeof window !== 'undefined' && window.matchMedia?.( '(prefers-reduced-motion: reduce)' ).matches ) {
@@ -448,6 +433,14 @@ export class LobbyScene {
 		this._targetKartRotationYDeg = KART_ROT_Y_DEG;
 		this._currentKartRotationY = normalizeRotationRadians( THREE.MathUtils.degToRad( KART_ROT_Y_DEG ) );
 		this._targetKartRotationY = this._currentKartRotationY;
+		this._previewPoseTransition = createPreviewPoseTransition( {
+			cameraPos: { x: CAM_POS.x, y: CAM_POS.y, z: CAM_POS.z },
+			lookAt: { x: LOOK_AT.x, y: LOOK_AT.y, z: LOOK_AT.z },
+			fov: CAM_FOV,
+			kartRotationY: this._currentKartRotationY,
+		}, {
+			duration: PREVIEW_POSE_TRANSITION_DURATION,
+		} );
 		this._applyPreviewPose();
 
 		// ── Bloom post-processing ────────────────────────────────────────
@@ -901,16 +894,7 @@ export class LobbyScene {
 		const nextPresetId = MENU_PREVIEW_PRESETS[ presetId ] ? presetId : MENU_PREVIEW_PRESET_IDS.PLAY;
 		this._previewPresetId = nextPresetId;
 		this._syncPreviewTargets();
-
-		if ( immediate ) {
-
-			this._currentCameraPos.copy( this._targetCameraPos );
-			this._currentLookAt.copy( this._targetLookAt );
-			this._currentFov = this._targetFov;
-			this._currentKartRotationY = this._targetKartRotationY;
-			this._applyPreviewPose();
-
-		}
+		this._retargetPreviewPose( { immediate } );
 
 	}
 
@@ -926,16 +910,7 @@ export class LobbyScene {
 		}
 
 		this._syncPreviewTargets();
-
-		if ( immediate ) {
-
-			this._currentCameraPos.copy( this._targetCameraPos );
-			this._currentLookAt.copy( this._targetLookAt );
-			this._currentFov = this._targetFov;
-			this._currentKartRotationY = this._targetKartRotationY;
-			this._applyPreviewPose();
-
-		}
+		this._retargetPreviewPose( { immediate } );
 
 	}
 
@@ -976,6 +951,80 @@ export class LobbyScene {
 			kartRotYDeg: this._targetKartRotationYDeg,
 			tuning: this.getPreviewTuning(),
 		};
+
+	}
+
+	_getCurrentPreviewPoseSnapshot() {
+
+		return {
+			cameraPos: {
+				x: this._currentCameraPos.x,
+				y: this._currentCameraPos.y,
+				z: this._currentCameraPos.z,
+			},
+			lookAt: {
+				x: this._currentLookAt.x,
+				y: this._currentLookAt.y,
+				z: this._currentLookAt.z,
+			},
+			fov: this._currentFov,
+			kartRotationY: this._currentKartRotationY,
+		};
+
+	}
+
+	_getTargetPreviewPoseSnapshot() {
+
+		return {
+			cameraPos: {
+				x: this._targetCameraPos.x,
+				y: this._targetCameraPos.y,
+				z: this._targetCameraPos.z,
+			},
+			lookAt: {
+				x: this._targetLookAt.x,
+				y: this._targetLookAt.y,
+				z: this._targetLookAt.z,
+			},
+			fov: this._targetFov,
+			kartRotationY: this._targetKartRotationY,
+		};
+
+	}
+
+	_applyPreviewPoseSnapshot( pose ) {
+
+		if ( ! pose ) return;
+		this._currentCameraPos.set( pose.cameraPos.x, pose.cameraPos.y, pose.cameraPos.z );
+		this._currentLookAt.set( pose.lookAt.x, pose.lookAt.y, pose.lookAt.z );
+		this._currentFov = pose.fov;
+		this._currentKartRotationY = pose.kartRotationY;
+
+	}
+
+	_retargetPreviewPose( { immediate = false } = {} ) {
+
+		if ( ! this._previewPoseTransition ) {
+
+			this._previewPoseTransition = createPreviewPoseTransition(
+				this._getCurrentPreviewPoseSnapshot(),
+				{ duration: PREVIEW_POSE_TRANSITION_DURATION }
+			);
+
+		}
+
+		this._applyPreviewPoseSnapshot(
+			retargetPreviewPoseTransition(
+				this._previewPoseTransition,
+				this._getTargetPreviewPoseSnapshot(),
+				{
+					immediate,
+					duration: PREVIEW_POSE_TRANSITION_DURATION,
+				}
+			)
+		);
+
+		if ( immediate ) this._applyPreviewPose();
 
 	}
 
@@ -1397,10 +1446,7 @@ export class LobbyScene {
 	update( dt ) {
 
 		const safeDt = Math.min( Math.max( dt, 0 ), 0.25 );
-		this._currentCameraPos.lerp( this._targetCameraPos, 1 - Math.exp( - PREVIEW_POSE_LERP_SPEED * safeDt ) );
-		this._currentLookAt.lerp( this._targetLookAt, 1 - Math.exp( - PREVIEW_POSE_LERP_SPEED * safeDt ) );
-		this._currentFov = dampScalar( this._currentFov, this._targetFov, safeDt );
-		this._currentKartRotationY = dampAngle( this._currentKartRotationY, this._targetKartRotationY, safeDt );
+		this._applyPreviewPoseSnapshot( advancePreviewPoseTransition( this._previewPoseTransition, safeDt ) );
 		this._applyPreviewPose();
 
 		// Keep the menu hero static; only the seated rider animation should move.

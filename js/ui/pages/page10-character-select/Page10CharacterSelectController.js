@@ -161,7 +161,12 @@ export class Page10CharacterSelectController extends PageControllerBase {
 		} );
 		this._addListener( this._view.root, 'kk:character:color', ( event ) => {
 
-			this._handleColorChange( event.detail?.categoryId, event.detail?.controlId, event.detail?.value );
+			this._handleColorChange(
+				event.detail?.categoryId,
+				event.detail?.controlId,
+				event.detail?.value,
+				event.detail?.updateMode
+			);
 
 		} );
 		this._addListener( this._view.root, 'kk:character:camera-debug', ( event ) => {
@@ -296,9 +301,18 @@ export class Page10CharacterSelectController extends PageControllerBase {
 
 	}
 
-	_handleColorChange( categoryId, controlId, value ) {
+	_handleColorChange( categoryId, controlId, value, updateMode = 'commit' ) {
 
 		if ( ! categoryId || ! controlId ) return;
+		const shouldResyncView = updateMode !== 'live';
+		const finalizeColorChange = () => {
+
+			this._commitDraftAppearance();
+			// Preserve the active native color picker during drag updates; a full
+			// sidebar rerender here would replace the <input type="color"> node.
+			if ( shouldResyncView ) this._syncView();
+
+		};
 
 		if ( categoryId === 'palette' ) {
 
@@ -312,8 +326,7 @@ export class Page10CharacterSelectController extends PageControllerBase {
 
 			}
 
-			this._commitDraftAppearance();
-			this._syncView();
+			finalizeColorChange();
 			return;
 
 		}
@@ -328,8 +341,7 @@ export class Page10CharacterSelectController extends PageControllerBase {
 
 			this._draftAppearance.maskTintMainColor = normalizeMaskTintColor( value );
 			this._draftAppearance.maskTintSecondaryColor = '';
-			this._commitDraftAppearance();
-			this._syncView();
+			finalizeColorChange();
 			return;
 
 		}
@@ -342,8 +354,7 @@ export class Page10CharacterSelectController extends PageControllerBase {
 				...this._draftAppearance.charAccessories[ controlId ],
 				color: normalizeAppearanceColor( value ),
 			};
-			this._commitDraftAppearance();
-			this._syncView();
+			finalizeColorChange();
 			return;
 
 		}
@@ -357,8 +368,7 @@ export class Page10CharacterSelectController extends PageControllerBase {
 				...this._draftAppearance.charAccessories.Boots,
 				color: normalizeAppearanceColor( value ),
 			};
-			this._commitDraftAppearance();
-			this._syncView();
+			finalizeColorChange();
 			return;
 
 		}
@@ -372,8 +382,7 @@ export class Page10CharacterSelectController extends PageControllerBase {
 			...this._draftAppearance.charAccessories[ itemId ],
 			color: normalizeAppearanceColor( value ),
 		};
-		this._commitDraftAppearance();
-		this._syncView();
+		finalizeColorChange();
 
 	}
 
