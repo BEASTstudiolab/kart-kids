@@ -154,7 +154,7 @@ const LOBBY_MODEL_PATH = 'models/environments/Lobby.gltf';
 const LOBBY_MATERIAL_CONFIGS = Object.freeze( {
 	'Lobby Props': Object.freeze( {
 		debugLabel: 'Lobby Props (Lobby2)',
-		ormPath: 'models/environments/textures/Lobby2_OcclusionRoughnessMetallic.png',
+		ormPath: 'models/environments/textures/Lobby2_OcclusionRoughnessMetallic.webp',
 		emissiveIntensity: 10.0,
 		emissiveColor: Object.freeze( { r: 0.07, g: 0.34, b: 1.00 } ),
 		normalScale: Object.freeze( { x: 0.00, y: 0.00 } ),
@@ -167,7 +167,7 @@ const LOBBY_MATERIAL_CONFIGS = Object.freeze( {
 	} ),
 	'LobbyRoom_Atlas': Object.freeze( {
 		debugLabel: 'LobbyRoom Atlas (Lobby1)',
-		ormPath: 'models/environments/textures/Lobby1_OcclusionRoughnessMetallic.png',
+		ormPath: 'models/environments/textures/Lobby1_OcclusionRoughnessMetallic.webp',
 		emissiveIntensity: 10.0,
 		emissiveColor: Object.freeze( { r: 0.11, g: 0.00, b: 1.00 } ),
 		normalScale: Object.freeze( { x: 3.00, y: 3.00 } ),

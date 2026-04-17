@@ -42,7 +42,7 @@ import { EliminationManager } from './EliminationManager.js';
 import { WrenchPickupManager } from './WrenchPickupManager.js';
 import { Settings } from './Settings.js';
 import { SettingsMenu } from './SettingsMenu.js';
-import { PRESETS, TIER_PIXEL_RATIO, AdaptiveQuality } from './QualityTiers.js';
+import { PRESETS, TIER_PIXEL_RATIO, AdaptiveQuality, detectTier } from './QualityTiers.js';
 import { DraftingSystem } from './DraftingSystem.js';
 import { PLAYER_VEHICLES } from './VehicleRegistry.js';
 import { DraftLines } from './DraftLines.js';
@@ -151,7 +151,9 @@ export function createGameEngine( canvasContainer ) {
 	const dirLight = new THREE.DirectionalLight( 0xffffff, 5 );
 	dirLight.position.set( 11.4, 15, - 5.3 );
 	dirLight.castShadow = true;
-	dirLight.shadow.mapSize.setScalar( 2048 );
+	// Pick initial shadow map size from detected device tier so mobile doesn't
+	// allocate a 2048² shadow on boot. Settings load later and may override.
+	dirLight.shadow.mapSize.setScalar( PRESETS[ detectTier() ].shadowMapSize );
 	dirLight.shadow.camera.near = 0.5;
 	dirLight.shadow.camera.far = 200;
 	scene.add( dirLight );
@@ -304,6 +306,7 @@ export function createGameEngine( canvasContainer ) {
 	// DOM element refs (inside HUD container)
 	let _fpsDisplay = null;
 	let _draftIndicator = null;
+	let _lastDraftPct = -1;
 	let _jitterDisplay = null;
 	let _ghostHudEl = null;
 	let _camToggleBtn = null;
@@ -616,6 +619,7 @@ export function createGameEngine( canvasContainer ) {
 			_prevSwitchView = false;
 			_fpsCapMs = { value: 0 };
 			_draftIndicatorEnabled = { value: false };
+			_lastDraftPct = -1;
 			_loadedModels = null;
 			_trackAppearance = normalizeTrackAppearance();
 			_trackAppearanceAnimated = false;
@@ -1870,6 +1874,7 @@ export function createGameEngine( canvasContainer ) {
 		_timer = null;
 		_fpsDisplay = null;
 		_draftIndicator = null;
+		_lastDraftPct = -1;
 		_jitterDisplay = null;
 		_ghostHudEl = null;
 		_camToggleBtn = null;
@@ -2228,15 +2233,25 @@ export function createGameEngine( canvasContainer ) {
 
 				if ( _vehicle.draftSpeedMultiplier > 1.0 ) {
 
-					const pct = ( ( _vehicle.draftSpeedMultiplier - 1.0 ) * 100 ).toFixed( 0 );
-					_draftIndicator.textContent = 'ACTIVE DRAFT +' + pct + '%';
-					_draftIndicator.style.display = 'block';
+					const pct = Math.round( ( _vehicle.draftSpeedMultiplier - 1.0 ) * 100 );
+					if ( pct !== _lastDraftPct ) {
 
-				} else {
+						_draftIndicator.textContent = 'ACTIVE DRAFT +' + pct + '%';
+						if ( _lastDraftPct < 0 ) _draftIndicator.style.display = 'block';
+						_lastDraftPct = pct;
+
+					}
+
+				} else if ( _lastDraftPct !== -1 ) {
 
 					_draftIndicator.style.display = 'none';
+					_lastDraftPct = -1;
 
 				}
+
+			} else if ( _lastDraftPct !== -1 ) {
+
+				_lastDraftPct = -1;
 
 			}
 

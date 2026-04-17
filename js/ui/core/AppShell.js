@@ -1406,7 +1406,7 @@ export class AppShell {
 	setRenderMode( mode ) {
 
 		this._renderMode = mode;
-		this._lastFrameTime = 0;
+		this._lastFrameTime = performance.now();
 
 	}
 

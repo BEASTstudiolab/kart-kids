@@ -17,7 +17,10 @@
       "Bash(npx --yes @gltf-transform/cli inspect models/decoration-empty.glb)",
       "Bash(find js/track-editor -name \"*.js\" -exec grep -l \"arrow\\\\|direction\\\\|angle\" {} \\\\;)",
       "Bash(node --test tests/finish-arrow-direction.test.mjs tests/track-orientation-regression.test.mjs)",
-      "Bash(node --test tests/)"
+      "Bash(node --test tests/)",
+      "Bash(node -e ' *)",
+      "Bash(node --test tests/ai-profiles.test.mjs)",
+      "Bash(node --test tests/ai-controller-cornering.test.mjs)"
     ],
     "deny": [
       "Bash(rm -rf *)",

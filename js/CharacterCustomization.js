@@ -1,6 +1,5 @@
 export const CHARACTER_MODEL_PATH = 'characters/Kart_Beast_Rest-Armature.gltf';
 export const CHARACTER_GARAGE_IDLE_ANIMATION_PATH = 'animations/Kart_Beast_Garage_idle.glb';
-export const MASK_TINT_TEXTURE_PATH = 'characters/textures/TintMaskRGBA.png';
 
 export const BALACLAVA_OPTIONS = Object.freeze( [
 	Object.freeze( { id: 'balaclava-basic', label: 'Balaclava Basic', meshName: 'Balaclava Basic' } ),

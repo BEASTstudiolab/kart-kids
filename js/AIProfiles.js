@@ -8,12 +8,20 @@ function clamp( value, min, max ) {
 
 }
 
+function lerp( a, b, t ) {
+
+	return a + ( b - a ) * t;
+
+}
+
 export const DEFAULT_PROFILE = Object.freeze( {
 	name: AI_LABEL,
+	skill: 0.6,
+	tier: 'B',
 	steerSensitivity: 3.9,
 	noiseAmplitude: 0,
-	turnThrottleDot: 0.8,
-	turnThrottleMin: 0.24,
+	turnThrottleDot: 0.74,
+	turnThrottleMin: 0.38,
 	lookAheadBlend: 0.35,
 	lookAheadNear: 3,
 	lookAheadFar: 5,
@@ -25,14 +33,14 @@ export const DEFAULT_PROFILE = Object.freeze( {
 	straightLaneOffset: 0.0,
 	cornerEntryWidth: 0.85,
 	cornerApexTightness: 0.5,
-	cornerSpeedFactor: 0.95,
+	cornerSpeedFactor: 0.99,
 	trafficLookAheadDistance: 16,
 	trafficThrottleMin: 0.3,
 	trafficLateralBias: 0.75,
 	aggression: 0.55,
 	overtakeCommitment: 0.58,
 	trafficPatience: 0.5,
-	mistakeRate: 0.3,
+	mistakeRate: 0.22,
 	mistakeSeverity: 0.18,
 	startReactionDelay: 0.08,
 	openingLaneCommit: 0.66,
@@ -45,6 +53,36 @@ export const DEFAULT_PROFILE = Object.freeze( {
 } );
 
 export const CPU_AI_PROFILE = DEFAULT_PROFILE;
+
+// Skill tiers drive corner aggression, mistake frequency, and top-speed pursuit.
+// `skill` [0..1] is the single knob; other fields are starting points the
+// seeded jitter then varies around. See createTieredCPUProfile below.
+export const AI_SKILL_TIERS = Object.freeze( {
+	A: { tier: 'A', skill: 0.92, mistakeRate: 0.10, mistakeSeverity: 0.08, aggression: 0.78 },
+	B: { tier: 'B', skill: 0.62, mistakeRate: 0.26, mistakeSeverity: 0.18, aggression: 0.55 },
+	C: { tier: 'C', skill: 0.35, mistakeRate: 0.46, mistakeSeverity: 0.26, aggression: 0.38 },
+} );
+
+// Recommended tier layout for a given AI field size. Index in the returned
+// array lines up with AI spawn index. Callers typically shuffle this so grid
+// position ≠ tier.
+const AI_TIER_LAYOUTS = Object.freeze( {
+	1: [ 'B' ],
+	2: [ 'A', 'C' ],
+	3: [ 'A', 'B', 'C' ],
+	4: [ 'A', 'B', 'B', 'C' ],
+	5: [ 'A', 'B', 'B', 'B', 'C' ],
+	6: [ 'A', 'A', 'B', 'B', 'C', 'C' ],
+	7: [ 'A', 'A', 'B', 'B', 'B', 'C', 'C' ],
+	8: [ 'A', 'A', 'B', 'B', 'B', 'B', 'C', 'C' ],
+} );
+
+export function getAITierLayout( count ) {
+
+	const n = clamp( Math.round( count ), 0, 8 );
+	return AI_TIER_LAYOUTS[ n ] ? [ ...AI_TIER_LAYOUTS[ n ] ] : [];
+
+}
 
 function seededUnit( seed, channel = 0 ) {
 
@@ -65,66 +103,116 @@ function clampProfileValue( value, min, max ) {
 
 }
 
-export function createSeededCPUProfile( seed = 0, overrides = {} ) {
+export function createTieredCPUProfile( seed = 0, tier = 'B', overrides = {} ) {
+
+	const tierConfig = AI_SKILL_TIERS[ tier ] || AI_SKILL_TIERS.B;
 
 	const base = {
 		...CPU_AI_PROFILE,
+		...tierConfig,
 		...overrides,
 	};
 
+	const skill = clampProfileValue(
+		base.skill + seededRange( seed, 20, - 0.06, 0.06 ),
+		0,
+		1
+	);
+
 	const aggression = clampProfileValue(
-		base.aggression + seededRange( seed, 10, - 0.2, 0.2 ),
-		0.3,
-		0.82
+		base.aggression + seededRange( seed, 10, - 0.15, 0.15 ),
+		0.25,
+		0.95
 	);
 	const overtakeCommitment = clampProfileValue(
-		base.overtakeCommitment + seededRange( seed, 11, - 0.18, 0.2 ),
-		0.32,
-		0.86
+		base.overtakeCommitment + seededRange( seed, 11, - 0.18, 0.2 ) + ( skill - 0.6 ) * 0.25,
+		0.3,
+		0.95
 	);
 	const trafficPatience = clampProfileValue(
 		base.trafficPatience + seededRange( seed, 12, - 0.18, 0.16 ),
-		0.24,
-		0.74
+		0.2,
+		0.78
 	);
 	const mistakeRate = clampProfileValue(
-		base.mistakeRate + seededRange( seed, 13, - 0.1, 0.12 ),
-		0.14,
-		0.52
+		base.mistakeRate + seededRange( seed, 13, - 0.08, 0.08 ),
+		0.05,
+		0.6
 	);
 	const mistakeSeverity = clampProfileValue(
-		base.mistakeSeverity + seededRange( seed, 14, - 0.06, 0.08 ),
-		0.08,
-		0.28
+		base.mistakeSeverity + seededRange( seed, 14, - 0.05, 0.06 ),
+		0.05,
+		0.32
 	);
 	const startReactionDelay = clampProfileValue(
-		base.startReactionDelay + seededRange( seed, 15, - 0.05, 0.14 ) - ( aggression - DEFAULT_PROFILE.aggression ) * 0.1,
+		base.startReactionDelay + seededRange( seed, 15, - 0.04, 0.12 ) - ( skill - 0.6 ) * 0.18,
 		0.0,
-		0.34
+		0.38
 	);
 	const openingLaneCommit = clampProfileValue(
 		base.openingLaneCommit + seededRange( seed, 16, - 0.12, 0.16 ) + ( overtakeCommitment - DEFAULT_PROFILE.overtakeCommitment ) * 0.28,
 		0.28,
-		0.95
+		0.98
 	);
 	const launchAssertiveness = clampProfileValue(
-		base.launchAssertiveness + seededRange( seed, 17, - 0.12, 0.12 ) + ( aggression - DEFAULT_PROFILE.aggression ) * 0.38,
+		base.launchAssertiveness + seededRange( seed, 17, - 0.1, 0.1 ) + ( skill - 0.6 ) * 0.4,
 		0.42,
-		0.96
+		0.99
+	);
+
+	// Skill-coupled corner aggression: top tier holds ~102% of target speed
+	// through corners (ignores the reduction); bottom tier drops to ~90%.
+	const cornerSpeedFactor = clampProfileValue(
+		lerp( 0.93, 1.02, skill ) + seededRange( seed, 7, - 0.025, 0.025 ),
+		0.88,
+		1.04
+	);
+
+	const turnThrottleDot = clampProfileValue(
+		lerp( 0.86, 0.68, skill ) + seededRange( seed, 2, - 0.04, 0.04 ),
+		0.6,
+		0.9
+	);
+
+	const turnThrottleMin = clampProfileValue(
+		lerp( 0.28, 0.52, skill ) + seededRange( seed, 21, - 0.04, 0.04 ),
+		0.22,
+		0.58
+	);
+
+	const boostCommitDot = clampProfileValue(
+		lerp( 0.96, 0.86, skill ) + seededRange( seed, 9, - 0.02, 0.02 ),
+		0.82,
+		0.98
+	);
+
+	const boostEagerness = skill > 0.85;
+
+	// Per-driver line variance is independent of skill — any driver can prefer
+	// wide entries or tight apexes. Widened ranges produce visible differences
+	// between racers running the same corner.
+	const cornerEntryWidth = clampProfileValue(
+		base.cornerEntryWidth + seededRange( seed, 5, - 0.22, 0.22 ),
+		0.45,
+		1.1
+	);
+	const cornerApexTightness = clampProfileValue(
+		base.cornerApexTightness + seededRange( seed, 6, - 0.22, 0.22 ),
+		0.22,
+		0.85
 	);
 
 	return {
 		...base,
+		skill,
+		tier: base.tier || tier,
 		steerSensitivity: clampProfileValue(
-			base.steerSensitivity + seededRange( seed, 1, - 0.18, 0.18 ),
-			3.6,
-			4.2
+			base.steerSensitivity + seededRange( seed, 1, - 0.18, 0.18 ) + ( skill - 0.6 ) * 0.2,
+			3.5,
+			4.3
 		),
-		turnThrottleDot: clampProfileValue(
-			base.turnThrottleDot + seededRange( seed, 2, - 0.05, 0.05 ),
-			0.72,
-			0.88
-		),
+		turnThrottleDot,
+		turnThrottleMin,
 		lookAheadBlend: clampProfileValue(
 			base.lookAheadBlend + seededRange( seed, 3, - 0.06, 0.06 ),
 			0.24,
@@ -135,21 +223,9 @@ export function createSeededCPUProfile( seed = 0, overrides = {} ) {
 			- 0.45,
 			0.45
 		),
-		cornerEntryWidth: clampProfileValue(
-			base.cornerEntryWidth + seededRange( seed, 5, - 0.1, 0.08 ),
-			0.68,
-			0.98
-		),
-		cornerApexTightness: clampProfileValue(
-			base.cornerApexTightness + seededRange( seed, 6, - 0.08, 0.1 ),
-			0.35,
-			0.72
-		),
-		cornerSpeedFactor: clampProfileValue(
-			base.cornerSpeedFactor + seededRange( seed, 7, - 0.04, 0.03 ),
-			0.88,
-			1.0
-		),
+		cornerEntryWidth,
+		cornerApexTightness,
+		cornerSpeedFactor,
 		trafficThrottleMin: clampProfileValue(
 			base.trafficThrottleMin + seededRange( seed, 8, - 0.05, 0.06 ),
 			0.24,
@@ -163,18 +239,24 @@ export function createSeededCPUProfile( seed = 0, overrides = {} ) {
 		startReactionDelay,
 		openingLaneCommit,
 		launchAssertiveness,
-		boostCommitDot: clampProfileValue(
-			base.boostCommitDot + seededRange( seed, 9, - 0.035, 0.03 ),
-			0.88,
-			0.97
-		),
+		boostEagerness,
+		boostCommitDot,
 	};
+
+}
+
+// Backwards-compat shim for any callers still using the pre-tier API.
+export function createSeededCPUProfile( seed = 0, overrides = {} ) {
+
+	return createTieredCPUProfile( seed, 'B', overrides );
 
 }
 
 export function getCPUProfileStyleSummary( profile = {} ) {
 
 	return {
+		tier: profile.tier ?? DEFAULT_PROFILE.tier,
+		skill: Number( ( profile.skill ?? DEFAULT_PROFILE.skill ).toFixed( 3 ) ),
 		steerSensitivity: Number( ( profile.steerSensitivity ?? DEFAULT_PROFILE.steerSensitivity ).toFixed( 3 ) ),
 		lookAheadBlend: Number( ( profile.lookAheadBlend ?? DEFAULT_PROFILE.lookAheadBlend ).toFixed( 3 ) ),
 		straightLaneOffset: Number( ( profile.straightLaneOffset ?? DEFAULT_PROFILE.straightLaneOffset ).toFixed( 3 ) ),
@@ -190,6 +272,7 @@ export function getCPUProfileStyleSummary( profile = {} ) {
 		startReactionDelay: Number( ( profile.startReactionDelay ?? DEFAULT_PROFILE.startReactionDelay ).toFixed( 3 ) ),
 		openingLaneCommit: Number( ( profile.openingLaneCommit ?? DEFAULT_PROFILE.openingLaneCommit ).toFixed( 3 ) ),
 		launchAssertiveness: Number( ( profile.launchAssertiveness ?? DEFAULT_PROFILE.launchAssertiveness ).toFixed( 3 ) ),
+		boostEagerness: !! profile.boostEagerness,
 		boostCommitDot: Number( ( profile.boostCommitDot ?? DEFAULT_PROFILE.boostCommitDot ).toFixed( 3 ) ),
 	};
 

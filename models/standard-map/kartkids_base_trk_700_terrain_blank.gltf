@@ -69,17 +69,17 @@
 		{
 			"mimeType":"image/png",
 			"name":"AtlasAsphalt1_Normal",
-			"uri":"textures/AtlasAsphalt1_Normal.png"
+			"uri":"textures/AtlasAsphalt1_Normal.webp"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"AtlasAsphalt1_BaseColor",
-			"uri":"textures/AtlasAsphalt1_BaseColor.png"
+			"uri":"textures/AtlasAsphalt1_BaseColor.webp"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"AtlasAsphalt1_OcclusionRoughnessMetallic",
-			"uri":"textures/AtlasAsphalt1_OcclusionRoughnessMetallic.png"
+			"uri":"textures/AtlasAsphalt1_OcclusionRoughnessMetallic.webp"
 		}
 	],
 	"accessors":[

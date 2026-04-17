@@ -156,36 +156,36 @@ export class Controls {
 				pointer-events: auto; touch-action: none;
 			}
 			.steer-base {
-				position: absolute; bottom: 32px; ${ steerSide }: 32px;
-				width: 160px; height: 80px; border-radius: 40px;
+				position: absolute; bottom: 22px; ${ steerSide }: 22px;
+				width: 112px; height: 56px; border-radius: 28px;
 				background: rgba(255,255,255,0.06);
 				border: 2px solid rgba(255,255,255,0.25);
 				display: flex; align-items: center; justify-content: center;
 			}
 			.steer-knob {
-				width: 52px; height: 52px; border-radius: 50%;
+				width: 36px; height: 36px; border-radius: 50%;
 				background: rgba(255,255,255,0.15);
 				border: 2px solid rgba(255,255,255,0.4);
 				pointer-events: none; position: relative;
 			}
 			.steer-arrow {
 				position: absolute; top: 50%; transform: translateY(-50%);
-				font-size: 18px; color: rgba(255,255,255,0.3);
+				font-size: 14px; color: rgba(255,255,255,0.3);
 				pointer-events: none; user-select: none;
 			}
-			.steer-arrow-l { left: 12px; }
-			.steer-arrow-r { right: 12px; }
+			.steer-arrow-l { left: 8px; }
+			.steer-arrow-r { right: 8px; }
 			.btn-zone {
 				position: absolute; ${ btnSide }: 0; top: 0; bottom: 0; width: 50%;
 				pointer-events: none; touch-action: none;
 			}
 			.touch-btn {
-				position: absolute; width: 80px; height: 80px; border-radius: 50%;
+				position: absolute; width: 56px; height: 56px; border-radius: 50%;
 				background: rgba(255,255,255,0.06);
 				border: 2px solid rgba(255,255,255,0.3);
 				pointer-events: auto; touch-action: none;
 				display: flex; align-items: center; justify-content: center;
-				font-family: sans-serif; font-size: 13px; font-weight: 700;
+				font-family: sans-serif; font-size: 11px; font-weight: 700;
 				color: rgba(255,255,255,0.5); user-select: none;
 				-webkit-user-select: none;
 				transition: background 0.1s, border-color 0.1s;
@@ -194,17 +194,17 @@ export class Controls {
 				background: rgba(255,255,255,0.18);
 				border-color: rgba(255,255,255,0.6);
 			}
-			.touch-btn-gas { bottom: 32px; ${ btnSide }: 110px; border-color: rgba(100,255,100,0.4); color: rgba(100,255,100,0.6); }
+			.touch-btn-gas { bottom: 22px; ${ btnSide }: 77px; border-color: rgba(100,255,100,0.4); color: rgba(100,255,100,0.6); }
 			.touch-btn-gas.active { background: rgba(100,255,100,0.18); border-color: rgba(100,255,100,0.7); }
-			.touch-btn-brake { bottom: 32px; ${ btnSide }: 20px; border-color: rgba(255,100,100,0.4); color: rgba(255,100,100,0.6); }
+			.touch-btn-brake { bottom: 22px; ${ btnSide }: 14px; border-color: rgba(255,100,100,0.4); color: rgba(255,100,100,0.6); }
 			.touch-btn-brake.active { background: rgba(255,100,100,0.18); border-color: rgba(255,100,100,0.7); }
 			.touch-btn-boost {
-				bottom: 210px; ${ btnSide }: 65px; width: 68px; height: 68px;
+				bottom: 147px; ${ btnSide }: 46px; width: 48px; height: 48px;
 				border-color: rgba(255,200,50,0.4); color: rgba(255,200,50,0.6);
 			}
 			.touch-btn-boost.active { background: rgba(255,200,50,0.18); border-color: rgba(255,200,50,0.7); }
 			.touch-btn-drift {
-				bottom: 124px; ${ btnSide }: 155px; width: 68px; height: 68px;
+				bottom: 87px; ${ btnSide }: 108px; width: 48px; height: 48px;
 				border-color: rgba(100,180,255,0.4); color: rgba(100,180,255,0.6);
 			}
 			.touch-btn-drift.active { background: rgba(100,180,255,0.18); border-color: rgba(100,180,255,0.7); }
@@ -240,7 +240,7 @@ export class Controls {
 		steerZone.appendChild( base );
 		container.appendChild( steerZone );
 
-		const steerRange = 50;
+		const steerRange = 35;
 
 		steerZone.addEventListener( 'pointerdown', ( e ) => {
 
@@ -408,6 +408,7 @@ export class Controls {
 		this._brakePressed = false;
 		this._boostPressed = false;
 		this._itemPressed = false;
+		this._driftPressed = false;
 		this.touchActive = false;
 		this._controlPointers.clear();
 

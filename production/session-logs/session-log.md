@@ -27384,3 +27384,668 @@ js/track-editor/modes/PropsMode.js
 production/session-logs/agent-audit.log
 ---
 
+## Session End: 20260417_055453
+### Commits
+cb6dbaa kart-kids-v0.43-track-editor-updates
+6dc68fe kart-kids-v0.42-track-editor-updates
+---
+
+## Session End: 20260417_055734
+### Commits
+cb6dbaa kart-kids-v0.43-track-editor-updates
+6dc68fe kart-kids-v0.42-track-editor-updates
+### Uncommitted Changes
+production/session-logs/session-log.md
+---
+
+## Session End: 20260417_064521
+### Commits
+cb6dbaa kart-kids-v0.43-track-editor-updates
+6dc68fe kart-kids-v0.42-track-editor-updates
+### Uncommitted Changes
+.claude/settings.json
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Controls.js
+js/track-editor/services/OccupancyGrid.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/ai-profiles.test.mjs
+---
+
+## Session End: 20260417_065658
+### Commits
+cb6dbaa kart-kids-v0.43-track-editor-updates
+6dc68fe kart-kids-v0.42-track-editor-updates
+### Uncommitted Changes
+.claude/settings.json
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Controls.js
+js/track-editor/services/OccupancyGrid.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/ai-profiles.test.mjs
+---
+
+## Session End: 20260417_070145
+### Commits
+cb6dbaa kart-kids-v0.43-track-editor-updates
+6dc68fe kart-kids-v0.42-track-editor-updates
+### Uncommitted Changes
+.claude/settings.json
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Controls.js
+js/track-editor/services/OccupancyGrid.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/ai-profiles.test.mjs
+---
+
+## Session End: 20260417_070908
+### Commits
+cb6dbaa kart-kids-v0.43-track-editor-updates
+6dc68fe kart-kids-v0.42-track-editor-updates
+### Uncommitted Changes
+.claude/settings.json
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Controls.js
+js/track-editor/services/OccupancyGrid.js
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/ai-profiles.test.mjs
+---
+
+## Session End: 20260417_072916
+### Commits
+cb6dbaa kart-kids-v0.43-track-editor-updates
+6dc68fe kart-kids-v0.42-track-editor-updates
+### Uncommitted Changes
+.claude/settings.json
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Controls.js
+js/GameEngine.js
+js/TrackThemeRegistry.js
+js/track-editor/services/OccupancyGrid.js
+js/ui/LobbyScene.js
+models/characters/Kart_Beast_Rest-Armature.gltf
+models/characters/textures/Denim_Normal_1k.png
+models/characters/textures/Masks_BaseColor.png
+models/characters/textures/Masks_Normal.png
+models/characters/textures/Masks_OcclusionRoughnessMetallic.png
+models/environments/Lobby.gltf
+models/environments/textures/Lobby1_BaseColor.png
+models/environments/textures/Lobby1_Emissive.png
+models/environments/textures/Lobby1_Normal.png
+models/environments/textures/Lobby1_OcclusionRoughnessMetallic.png
+models/environments/textures/Lobby2_BaseColor.png
+models/environments/textures/Lobby2_Emissive.png
+models/environments/textures/Lobby2_Normal.png
+models/environments/textures/Lobby2_OcclusionRoughnessMetallic.png
+models/standard-map/kartkids_base_trk_600__Turbo_2x2.gltf
+models/standard-map/kartkids_base_trk_700_terrain_blank.gltf
+models/standard-map/textures/80s Synth Wave Atlas 1/80ssynthwaveAtlas1_BaseColor.png
+models/standard-map/textures/80s Synth Wave Atlas 1/80ssynthwaveAtlas1_Emissive.png
+models/standard-map/textures/80s Synth Wave Atlas 1/80ssynthwaveAtlas1_Normal.png
+models/standard-map/textures/80s Synth Wave Atlas 1/80ssynthwaveAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/80s Synth Wave Atlas 2/80ssynthwaveAtlas2_BaseColor.png
+models/standard-map/textures/80s Synth Wave Atlas 2/80ssynthwaveAtlas2_Emissive.png
+models/standard-map/textures/80s Synth Wave Atlas 2/80ssynthwaveAtlas2_Normal.png
+models/standard-map/textures/80s Synth Wave Atlas 2/80ssynthwaveAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/AtlasAsphalt1_BaseColor.png
+models/standard-map/textures/AtlasAsphalt1_Normal.png
+models/standard-map/textures/AtlasAsphalt1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/AtlasAsphalt2_BaseColor.png
+models/standard-map/textures/AtlasAsphalt2_Normal.png
+models/standard-map/textures/AtlasAsphalt2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Canyon Atlas 1/CanyonAtlas1_BaseColor.png
+models/standard-map/textures/Canyon Atlas 1/CanyonAtlas1_Normal.png
+models/standard-map/textures/Canyon Atlas 1/CanyonAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Canyon Atlas 2/CanyonAtlas2_BaseColor.png
+models/standard-map/textures/Canyon Atlas 2/CanyonAtlas2_Normal.png
+models/standard-map/textures/Canyon Atlas 2/CanyonAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Concrete Atlas 1/ConcreteAtlas1_BaseColor.png
+models/standard-map/textures/Concrete Atlas 1/ConcreteAtlas1_Normal.png
+models/standard-map/textures/Concrete Atlas 1/ConcreteAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Concrete Atlas 2/ConcreteAtlas2_BaseColor.png
+models/standard-map/textures/Concrete Atlas 2/ConcreteAtlas2_Normal.png
+models/standard-map/textures/Concrete Atlas 2/ConcreteAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Dirt Atlas 1/DirtAtlas1_BaseColor.png
+models/standard-map/textures/Dirt Atlas 1/DirtAtlas1_Normal.png
+models/standard-map/textures/Dirt Atlas 1/DirtAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Dirt Atlas 2/DirtAtlas2_BaseColor.png
+models/standard-map/textures/Dirt Atlas 2/DirtAtlas2_Normal.png
+models/standard-map/textures/Dirt Atlas 2/DirtAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Forest Atlas 1/ForestAtlas1_BaseColor.png
+models/standard-map/textures/Forest Atlas 1/ForestAtlas1_Normal.png
+models/standard-map/textures/Forest Atlas 1/ForestAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Forest Atlas 2/ForestAtlas2_BaseColor.png
+models/standard-map/textures/Forest Atlas 2/ForestAtlas2_Normal.png
+models/standard-map/textures/Forest Atlas 2/ForestAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Ice Atlas 1/IceAtlas1_BaseColor.png
+models/standard-map/textures/Ice Atlas 1/IceAtlas1_Normal.png
+models/standard-map/textures/Ice Atlas 1/IceAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Ice Atlas 2/IceAtlas2_BaseColor.png
+models/standard-map/textures/Ice Atlas 2/IceAtlas2_Normal.png
+models/standard-map/textures/Ice Atlas 2/IceAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Lava Atlas 1/LavaAtlas1_BaseColor.png
+models/standard-map/textures/Lava Atlas 1/LavaAtlas1_Emissive.png
+models/standard-map/textures/Lava Atlas 1/LavaAtlas1_Normal.png
+models/standard-map/textures/Lava Atlas 1/LavaAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Lava Atlas 2/LavaAtlas2_BaseColor.png
+models/standard-map/textures/Lava Atlas 2/LavaAtlas2_Emissive.png
+models/standard-map/textures/Lava Atlas 2/LavaAtlas2_Normal.png
+models/standard-map/textures/Lava Atlas 2/LavaAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Moon Atlas 1/MoonAtlas1_BaseColor.png
+models/standard-map/textures/Moon Atlas 1/MoonAtlas1_Normal.png
+models/standard-map/textures/Moon Atlas 1/MoonAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Moon Atlas 2/MoonAtlas2_BaseColor.png
+models/standard-map/textures/Moon Atlas 2/MoonAtlas2_Normal.png
+models/standard-map/textures/Moon Atlas 2/MoonAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Rubber_BaseColor.png
+models/standard-map/textures/Rubber_Emissive.png
+models/standard-map/textures/Rubber_Normal.png
+models/standard-map/textures/Rubber_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Sand Atlas 1/SandAtlas1_BaseColor.png
+models/standard-map/textures/Sand Atlas 1/SandAtlas1_Normal.png
+models/standard-map/textures/Sand Atlas 1/SandAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Sand Atlas 2/SandAtlas2_BaseColor.png
+models/standard-map/textures/Sand Atlas 2/SandAtlas2_Normal.png
+models/standard-map/textures/Sand Atlas 2/SandAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Snow Atlas 1/SnowAtlas1_BaseColor.png
+models/standard-map/textures/Snow Atlas 1/SnowAtlas1_Normal.png
+models/standard-map/textures/Snow Atlas 1/SnowAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Snow Atlas 2/SnowAtlas2_BaseColor.png
+models/standard-map/textures/Snow Atlas 2/SnowAtlas2_Normal.png
+models/standard-map/textures/Snow Atlas 2/SnowAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/TUNNELS_BaseColor.png
+models/standard-map/textures/TUNNELS_Emissive.png
+models/standard-map/textures/TUNNELS_Normal.png
+models/standard-map/textures/TUNNELS_OcclusionRoughnessMetallic.png
+models/standard-map/textures/TurboTileArrow_BaseColor.png
+models/standard-map/textures/TurboTileArrow_Normal.png
+models/standard-map/textures/TurboTileArrow_OcclusionRoughnessMetallic.png
+models/standard-map/textures/TurboTile_BaseColor.png
+models/standard-map/textures/TurboTile_Normal.png
+models/standard-map/textures/TurboTile_OcclusionRoughnessMetallic.png
+models/vehicles/BaseRaceKart1.gltf
+models/vehicles/BaseRaceKart2.gltf
+models/vehicles/BaseRaceKart3.gltf
+models/vehicles/BaseRaceKart4.gltf
+models/vehicles/BaseRaceKart5.gltf
+models/vehicles/BaseRaceKart6.gltf
+models/vehicles/BaseRaceKart7.gltf
+models/vehicles/BaseRaceKart8.gltf
+models/vehicles/textures/cars_car 1_BaseColor.1001.png
+models/vehicles/textures/cars_car 1_Emissive.1001.png
+models/vehicles/textures/cars_car 1_Normal.1001.png
+models/vehicles/textures/cars_car 1_OcclusionRoughnessMetallic.1001.png
+models/vehicles/textures/cars_car 2_BaseColor.1001.png
+models/vehicles/textures/cars_car 2_Emissive.1001.png
+models/vehicles/textures/cars_car 2_Normal.1001.png
+models/vehicles/textures/cars_car 2_OcclusionRoughnessMetallic.1001.png
+models/vehicles/textures/cars_car 3_BaseColor.1001.png
+models/vehicles/textures/cars_car 3_Emissive.1001.png
+models/vehicles/textures/cars_car 3_Normal.1001.png
+models/vehicles/textures/cars_car 3_OcclusionRoughnessMetallic.1001.png
+package-lock.json
+package.json
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/ai-profiles.test.mjs
+tests/lobby-assets.test.mjs
+tests/track-theme-registry.test.mjs
+---
+
+## Session End: 20260417_073017
+### Commits
+cb6dbaa kart-kids-v0.43-track-editor-updates
+6dc68fe kart-kids-v0.42-track-editor-updates
+### Uncommitted Changes
+.claude/settings.json
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/Controls.js
+js/GameEngine.js
+js/TrackThemeRegistry.js
+js/track-editor/services/OccupancyGrid.js
+js/ui/LobbyScene.js
+models/characters/Kart_Beast_Rest-Armature.gltf
+models/characters/textures/Denim_Normal_1k.png
+models/characters/textures/Masks_BaseColor.png
+models/characters/textures/Masks_Normal.png
+models/characters/textures/Masks_OcclusionRoughnessMetallic.png
+models/environments/Lobby.gltf
+models/environments/textures/Lobby1_BaseColor.png
+models/environments/textures/Lobby1_Emissive.png
+models/environments/textures/Lobby1_Normal.png
+models/environments/textures/Lobby1_OcclusionRoughnessMetallic.png
+models/environments/textures/Lobby2_BaseColor.png
+models/environments/textures/Lobby2_Emissive.png
+models/environments/textures/Lobby2_Normal.png
+models/environments/textures/Lobby2_OcclusionRoughnessMetallic.png
+models/standard-map/kartkids_base_trk_600__Turbo_2x2.gltf
+models/standard-map/kartkids_base_trk_700_terrain_blank.gltf
+models/standard-map/textures/80s Synth Wave Atlas 1/80ssynthwaveAtlas1_BaseColor.png
+models/standard-map/textures/80s Synth Wave Atlas 1/80ssynthwaveAtlas1_Emissive.png
+models/standard-map/textures/80s Synth Wave Atlas 1/80ssynthwaveAtlas1_Normal.png
+models/standard-map/textures/80s Synth Wave Atlas 1/80ssynthwaveAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/80s Synth Wave Atlas 2/80ssynthwaveAtlas2_BaseColor.png
+models/standard-map/textures/80s Synth Wave Atlas 2/80ssynthwaveAtlas2_Emissive.png
+models/standard-map/textures/80s Synth Wave Atlas 2/80ssynthwaveAtlas2_Normal.png
+models/standard-map/textures/80s Synth Wave Atlas 2/80ssynthwaveAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/AtlasAsphalt1_BaseColor.png
+models/standard-map/textures/AtlasAsphalt1_Normal.png
+models/standard-map/textures/AtlasAsphalt1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/AtlasAsphalt2_BaseColor.png
+models/standard-map/textures/AtlasAsphalt2_Normal.png
+models/standard-map/textures/AtlasAsphalt2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Canyon Atlas 1/CanyonAtlas1_BaseColor.png
+models/standard-map/textures/Canyon Atlas 1/CanyonAtlas1_Normal.png
+models/standard-map/textures/Canyon Atlas 1/CanyonAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Canyon Atlas 2/CanyonAtlas2_BaseColor.png
+models/standard-map/textures/Canyon Atlas 2/CanyonAtlas2_Normal.png
+models/standard-map/textures/Canyon Atlas 2/CanyonAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Concrete Atlas 1/ConcreteAtlas1_BaseColor.png
+models/standard-map/textures/Concrete Atlas 1/ConcreteAtlas1_Normal.png
+models/standard-map/textures/Concrete Atlas 1/ConcreteAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Concrete Atlas 2/ConcreteAtlas2_BaseColor.png
+models/standard-map/textures/Concrete Atlas 2/ConcreteAtlas2_Normal.png
+models/standard-map/textures/Concrete Atlas 2/ConcreteAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Dirt Atlas 1/DirtAtlas1_BaseColor.png
+models/standard-map/textures/Dirt Atlas 1/DirtAtlas1_Normal.png
+models/standard-map/textures/Dirt Atlas 1/DirtAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Dirt Atlas 2/DirtAtlas2_BaseColor.png
+models/standard-map/textures/Dirt Atlas 2/DirtAtlas2_Normal.png
+models/standard-map/textures/Dirt Atlas 2/DirtAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Forest Atlas 1/ForestAtlas1_BaseColor.png
+models/standard-map/textures/Forest Atlas 1/ForestAtlas1_Normal.png
+models/standard-map/textures/Forest Atlas 1/ForestAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Forest Atlas 2/ForestAtlas2_BaseColor.png
+models/standard-map/textures/Forest Atlas 2/ForestAtlas2_Normal.png
+models/standard-map/textures/Forest Atlas 2/ForestAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Ice Atlas 1/IceAtlas1_BaseColor.png
+models/standard-map/textures/Ice Atlas 1/IceAtlas1_Normal.png
+models/standard-map/textures/Ice Atlas 1/IceAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Ice Atlas 2/IceAtlas2_BaseColor.png
+models/standard-map/textures/Ice Atlas 2/IceAtlas2_Normal.png
+models/standard-map/textures/Ice Atlas 2/IceAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Lava Atlas 1/LavaAtlas1_BaseColor.png
+models/standard-map/textures/Lava Atlas 1/LavaAtlas1_Emissive.png
+models/standard-map/textures/Lava Atlas 1/LavaAtlas1_Normal.png
+models/standard-map/textures/Lava Atlas 1/LavaAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Lava Atlas 2/LavaAtlas2_BaseColor.png
+models/standard-map/textures/Lava Atlas 2/LavaAtlas2_Emissive.png
+models/standard-map/textures/Lava Atlas 2/LavaAtlas2_Normal.png
+models/standard-map/textures/Lava Atlas 2/LavaAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Moon Atlas 1/MoonAtlas1_BaseColor.png
+models/standard-map/textures/Moon Atlas 1/MoonAtlas1_Normal.png
+models/standard-map/textures/Moon Atlas 1/MoonAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Moon Atlas 2/MoonAtlas2_BaseColor.png
+models/standard-map/textures/Moon Atlas 2/MoonAtlas2_Normal.png
+models/standard-map/textures/Moon Atlas 2/MoonAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Rubber_BaseColor.png
+models/standard-map/textures/Rubber_Emissive.png
+models/standard-map/textures/Rubber_Normal.png
+models/standard-map/textures/Rubber_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Sand Atlas 1/SandAtlas1_BaseColor.png
+models/standard-map/textures/Sand Atlas 1/SandAtlas1_Normal.png
+models/standard-map/textures/Sand Atlas 1/SandAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Sand Atlas 2/SandAtlas2_BaseColor.png
+models/standard-map/textures/Sand Atlas 2/SandAtlas2_Normal.png
+models/standard-map/textures/Sand Atlas 2/SandAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Snow Atlas 1/SnowAtlas1_BaseColor.png
+models/standard-map/textures/Snow Atlas 1/SnowAtlas1_Normal.png
+models/standard-map/textures/Snow Atlas 1/SnowAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Snow Atlas 2/SnowAtlas2_BaseColor.png
+models/standard-map/textures/Snow Atlas 2/SnowAtlas2_Normal.png
+models/standard-map/textures/Snow Atlas 2/SnowAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/TUNNELS_BaseColor.png
+models/standard-map/textures/TUNNELS_Emissive.png
+models/standard-map/textures/TUNNELS_Normal.png
+models/standard-map/textures/TUNNELS_OcclusionRoughnessMetallic.png
+models/standard-map/textures/TurboTileArrow_BaseColor.png
+models/standard-map/textures/TurboTileArrow_Normal.png
+models/standard-map/textures/TurboTileArrow_OcclusionRoughnessMetallic.png
+models/standard-map/textures/TurboTile_BaseColor.png
+models/standard-map/textures/TurboTile_Normal.png
+models/standard-map/textures/TurboTile_OcclusionRoughnessMetallic.png
+models/vehicles/BaseRaceKart1.gltf
+models/vehicles/BaseRaceKart2.gltf
+models/vehicles/BaseRaceKart3.gltf
+models/vehicles/BaseRaceKart4.gltf
+models/vehicles/BaseRaceKart5.gltf
+models/vehicles/BaseRaceKart6.gltf
+models/vehicles/BaseRaceKart7.gltf
+models/vehicles/BaseRaceKart8.gltf
+models/vehicles/textures/cars_car 1_BaseColor.1001.png
+models/vehicles/textures/cars_car 1_Emissive.1001.png
+models/vehicles/textures/cars_car 1_Normal.1001.png
+models/vehicles/textures/cars_car 1_OcclusionRoughnessMetallic.1001.png
+models/vehicles/textures/cars_car 2_BaseColor.1001.png
+models/vehicles/textures/cars_car 2_Emissive.1001.png
+models/vehicles/textures/cars_car 2_Normal.1001.png
+models/vehicles/textures/cars_car 2_OcclusionRoughnessMetallic.1001.png
+models/vehicles/textures/cars_car 3_BaseColor.1001.png
+models/vehicles/textures/cars_car 3_Emissive.1001.png
+models/vehicles/textures/cars_car 3_Normal.1001.png
+models/vehicles/textures/cars_car 3_OcclusionRoughnessMetallic.1001.png
+package-lock.json
+package.json
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/ai-profiles.test.mjs
+tests/lobby-assets.test.mjs
+tests/track-theme-registry.test.mjs
+---
+
+## Session End: 20260417_073909
+### Commits
+cb6dbaa kart-kids-v0.43-track-editor-updates
+### Uncommitted Changes
+.claude/settings.json
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/BoostBurst.js
+js/BoostFlame.js
+js/CharacterCustomization.js
+js/Controls.js
+js/DriftSparks.js
+js/GameEngine.js
+js/ItemPickupVFX.js
+js/Particles.js
+js/TrackThemeRegistry.js
+js/WallSparks.js
+js/track-editor/services/OccupancyGrid.js
+js/ui/LobbyScene.js
+models/characters/Kart_Beast_Rest-Armature.gltf
+models/characters/textures/Denim_Normal_1k.png
+models/characters/textures/Masks_BaseColor.png
+models/characters/textures/Masks_Normal.png
+models/characters/textures/Masks_OcclusionRoughnessMetallic.png
+models/environments/Lobby.gltf
+models/environments/textures/Lobby1_BaseColor.png
+models/environments/textures/Lobby1_Emissive.png
+models/environments/textures/Lobby1_Normal.png
+models/environments/textures/Lobby1_OcclusionRoughnessMetallic.png
+models/environments/textures/Lobby2_BaseColor.png
+models/environments/textures/Lobby2_Emissive.png
+models/environments/textures/Lobby2_Normal.png
+models/environments/textures/Lobby2_OcclusionRoughnessMetallic.png
+models/standard-map/kartkids_base_trk_600__Turbo_2x2.gltf
+models/standard-map/kartkids_base_trk_700_terrain_blank.gltf
+models/standard-map/textures/80s Synth Wave Atlas 1/80ssynthwaveAtlas1_BaseColor.png
+models/standard-map/textures/80s Synth Wave Atlas 1/80ssynthwaveAtlas1_Emissive.png
+models/standard-map/textures/80s Synth Wave Atlas 1/80ssynthwaveAtlas1_Normal.png
+models/standard-map/textures/80s Synth Wave Atlas 1/80ssynthwaveAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/80s Synth Wave Atlas 2/80ssynthwaveAtlas2_BaseColor.png
+models/standard-map/textures/80s Synth Wave Atlas 2/80ssynthwaveAtlas2_Emissive.png
+models/standard-map/textures/80s Synth Wave Atlas 2/80ssynthwaveAtlas2_Normal.png
+models/standard-map/textures/80s Synth Wave Atlas 2/80ssynthwaveAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/AtlasAsphalt1_BaseColor.png
+models/standard-map/textures/AtlasAsphalt1_Normal.png
+models/standard-map/textures/AtlasAsphalt1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/AtlasAsphalt2_BaseColor.png
+models/standard-map/textures/AtlasAsphalt2_Normal.png
+models/standard-map/textures/AtlasAsphalt2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Canyon Atlas 1/CanyonAtlas1_BaseColor.png
+models/standard-map/textures/Canyon Atlas 1/CanyonAtlas1_Normal.png
+models/standard-map/textures/Canyon Atlas 1/CanyonAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Canyon Atlas 2/CanyonAtlas2_BaseColor.png
+models/standard-map/textures/Canyon Atlas 2/CanyonAtlas2_Normal.png
+models/standard-map/textures/Canyon Atlas 2/CanyonAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Concrete Atlas 1/ConcreteAtlas1_BaseColor.png
+models/standard-map/textures/Concrete Atlas 1/ConcreteAtlas1_Normal.png
+models/standard-map/textures/Concrete Atlas 1/ConcreteAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Concrete Atlas 2/ConcreteAtlas2_BaseColor.png
+models/standard-map/textures/Concrete Atlas 2/ConcreteAtlas2_Normal.png
+models/standard-map/textures/Concrete Atlas 2/ConcreteAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Dirt Atlas 1/DirtAtlas1_BaseColor.png
+models/standard-map/textures/Dirt Atlas 1/DirtAtlas1_Normal.png
+models/standard-map/textures/Dirt Atlas 1/DirtAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Dirt Atlas 2/DirtAtlas2_BaseColor.png
+models/standard-map/textures/Dirt Atlas 2/DirtAtlas2_Normal.png
+models/standard-map/textures/Dirt Atlas 2/DirtAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Forest Atlas 1/ForestAtlas1_BaseColor.png
+models/standard-map/textures/Forest Atlas 1/ForestAtlas1_Normal.png
+models/standard-map/textures/Forest Atlas 1/ForestAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Forest Atlas 2/ForestAtlas2_BaseColor.png
+models/standard-map/textures/Forest Atlas 2/ForestAtlas2_Normal.png
+models/standard-map/textures/Forest Atlas 2/ForestAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Ice Atlas 1/IceAtlas1_BaseColor.png
+models/standard-map/textures/Ice Atlas 1/IceAtlas1_Normal.png
+models/standard-map/textures/Ice Atlas 1/IceAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Ice Atlas 2/IceAtlas2_BaseColor.png
+models/standard-map/textures/Ice Atlas 2/IceAtlas2_Normal.png
+models/standard-map/textures/Ice Atlas 2/IceAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Lava Atlas 1/LavaAtlas1_BaseColor.png
+models/standard-map/textures/Lava Atlas 1/LavaAtlas1_Emissive.png
+models/standard-map/textures/Lava Atlas 1/LavaAtlas1_Normal.png
+models/standard-map/textures/Lava Atlas 1/LavaAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Lava Atlas 2/LavaAtlas2_BaseColor.png
+models/standard-map/textures/Lava Atlas 2/LavaAtlas2_Emissive.png
+models/standard-map/textures/Lava Atlas 2/LavaAtlas2_Normal.png
+models/standard-map/textures/Lava Atlas 2/LavaAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Moon Atlas 1/MoonAtlas1_BaseColor.png
+models/standard-map/textures/Moon Atlas 1/MoonAtlas1_Normal.png
+models/standard-map/textures/Moon Atlas 1/MoonAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Moon Atlas 2/MoonAtlas2_BaseColor.png
+models/standard-map/textures/Moon Atlas 2/MoonAtlas2_Normal.png
+models/standard-map/textures/Moon Atlas 2/MoonAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Rubber_BaseColor.png
+models/standard-map/textures/Rubber_Emissive.png
+models/standard-map/textures/Rubber_Normal.png
+models/standard-map/textures/Rubber_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Sand Atlas 1/SandAtlas1_BaseColor.png
+models/standard-map/textures/Sand Atlas 1/SandAtlas1_Normal.png
+models/standard-map/textures/Sand Atlas 1/SandAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Sand Atlas 2/SandAtlas2_BaseColor.png
+models/standard-map/textures/Sand Atlas 2/SandAtlas2_Normal.png
+models/standard-map/textures/Sand Atlas 2/SandAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Snow Atlas 1/SnowAtlas1_BaseColor.png
+models/standard-map/textures/Snow Atlas 1/SnowAtlas1_Normal.png
+models/standard-map/textures/Snow Atlas 1/SnowAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Snow Atlas 2/SnowAtlas2_BaseColor.png
+models/standard-map/textures/Snow Atlas 2/SnowAtlas2_Normal.png
+models/standard-map/textures/Snow Atlas 2/SnowAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/TUNNELS_BaseColor.png
+models/standard-map/textures/TUNNELS_Emissive.png
+models/standard-map/textures/TUNNELS_Normal.png
+models/standard-map/textures/TUNNELS_OcclusionRoughnessMetallic.png
+models/standard-map/textures/TurboTileArrow_BaseColor.png
+models/standard-map/textures/TurboTileArrow_Normal.png
+models/standard-map/textures/TurboTileArrow_OcclusionRoughnessMetallic.png
+models/standard-map/textures/TurboTile_BaseColor.png
+models/standard-map/textures/TurboTile_Normal.png
+models/standard-map/textures/TurboTile_OcclusionRoughnessMetallic.png
+models/vehicles/BaseRaceKart1.gltf
+models/vehicles/BaseRaceKart2.gltf
+models/vehicles/BaseRaceKart3.gltf
+models/vehicles/BaseRaceKart4.gltf
+models/vehicles/BaseRaceKart5.gltf
+models/vehicles/BaseRaceKart6.gltf
+models/vehicles/BaseRaceKart7.gltf
+models/vehicles/BaseRaceKart8.gltf
+models/vehicles/textures/cars_car 1_BaseColor.1001.png
+models/vehicles/textures/cars_car 1_Emissive.1001.png
+models/vehicles/textures/cars_car 1_Normal.1001.png
+models/vehicles/textures/cars_car 1_OcclusionRoughnessMetallic.1001.png
+models/vehicles/textures/cars_car 2_BaseColor.1001.png
+models/vehicles/textures/cars_car 2_Emissive.1001.png
+models/vehicles/textures/cars_car 2_Normal.1001.png
+models/vehicles/textures/cars_car 2_OcclusionRoughnessMetallic.1001.png
+models/vehicles/textures/cars_car 3_BaseColor.1001.png
+models/vehicles/textures/cars_car 3_Emissive.1001.png
+models/vehicles/textures/cars_car 3_Normal.1001.png
+models/vehicles/textures/cars_car 3_OcclusionRoughnessMetallic.1001.png
+package-lock.json
+package.json
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/ai-profiles.test.mjs
+tests/character-asset-config.test.mjs
+tests/lobby-assets.test.mjs
+tests/track-theme-registry.test.mjs
+---
+
+## Session End: 20260417_074149
+### Commits
+cb6dbaa kart-kids-v0.43-track-editor-updates
+### Uncommitted Changes
+.claude/settings.json
+js/AIController.js
+js/AIManager.js
+js/AIProfiles.js
+js/BoostBurst.js
+js/BoostFlame.js
+js/CharacterCustomization.js
+js/Controls.js
+js/DriftSparks.js
+js/GameEngine.js
+js/ItemPickupVFX.js
+js/Particles.js
+js/TrackThemeRegistry.js
+js/WallSparks.js
+js/track-editor/services/OccupancyGrid.js
+js/ui/LobbyScene.js
+js/ui/core/AppShell.js
+models/characters/Kart_Beast_Rest-Armature.gltf
+models/characters/textures/Denim_Normal_1k.png
+models/characters/textures/Masks_BaseColor.png
+models/characters/textures/Masks_Normal.png
+models/characters/textures/Masks_OcclusionRoughnessMetallic.png
+models/environments/Lobby.gltf
+models/environments/textures/Lobby1_BaseColor.png
+models/environments/textures/Lobby1_Emissive.png
+models/environments/textures/Lobby1_Normal.png
+models/environments/textures/Lobby1_OcclusionRoughnessMetallic.png
+models/environments/textures/Lobby2_BaseColor.png
+models/environments/textures/Lobby2_Emissive.png
+models/environments/textures/Lobby2_Normal.png
+models/environments/textures/Lobby2_OcclusionRoughnessMetallic.png
+models/standard-map/kartkids_base_trk_600__Turbo_2x2.gltf
+models/standard-map/kartkids_base_trk_700_terrain_blank.gltf
+models/standard-map/textures/80s Synth Wave Atlas 1/80ssynthwaveAtlas1_BaseColor.png
+models/standard-map/textures/80s Synth Wave Atlas 1/80ssynthwaveAtlas1_Emissive.png
+models/standard-map/textures/80s Synth Wave Atlas 1/80ssynthwaveAtlas1_Normal.png
+models/standard-map/textures/80s Synth Wave Atlas 1/80ssynthwaveAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/80s Synth Wave Atlas 2/80ssynthwaveAtlas2_BaseColor.png
+models/standard-map/textures/80s Synth Wave Atlas 2/80ssynthwaveAtlas2_Emissive.png
+models/standard-map/textures/80s Synth Wave Atlas 2/80ssynthwaveAtlas2_Normal.png
+models/standard-map/textures/80s Synth Wave Atlas 2/80ssynthwaveAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/AtlasAsphalt1_BaseColor.png
+models/standard-map/textures/AtlasAsphalt1_Normal.png
+models/standard-map/textures/AtlasAsphalt1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/AtlasAsphalt2_BaseColor.png
+models/standard-map/textures/AtlasAsphalt2_Normal.png
+models/standard-map/textures/AtlasAsphalt2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Canyon Atlas 1/CanyonAtlas1_BaseColor.png
+models/standard-map/textures/Canyon Atlas 1/CanyonAtlas1_Normal.png
+models/standard-map/textures/Canyon Atlas 1/CanyonAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Canyon Atlas 2/CanyonAtlas2_BaseColor.png
+models/standard-map/textures/Canyon Atlas 2/CanyonAtlas2_Normal.png
+models/standard-map/textures/Canyon Atlas 2/CanyonAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Concrete Atlas 1/ConcreteAtlas1_BaseColor.png
+models/standard-map/textures/Concrete Atlas 1/ConcreteAtlas1_Normal.png
+models/standard-map/textures/Concrete Atlas 1/ConcreteAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Concrete Atlas 2/ConcreteAtlas2_BaseColor.png
+models/standard-map/textures/Concrete Atlas 2/ConcreteAtlas2_Normal.png
+models/standard-map/textures/Concrete Atlas 2/ConcreteAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Dirt Atlas 1/DirtAtlas1_BaseColor.png
+models/standard-map/textures/Dirt Atlas 1/DirtAtlas1_Normal.png
+models/standard-map/textures/Dirt Atlas 1/DirtAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Dirt Atlas 2/DirtAtlas2_BaseColor.png
+models/standard-map/textures/Dirt Atlas 2/DirtAtlas2_Normal.png
+models/standard-map/textures/Dirt Atlas 2/DirtAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Forest Atlas 1/ForestAtlas1_BaseColor.png
+models/standard-map/textures/Forest Atlas 1/ForestAtlas1_Normal.png
+models/standard-map/textures/Forest Atlas 1/ForestAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Forest Atlas 2/ForestAtlas2_BaseColor.png
+models/standard-map/textures/Forest Atlas 2/ForestAtlas2_Normal.png
+models/standard-map/textures/Forest Atlas 2/ForestAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Ice Atlas 1/IceAtlas1_BaseColor.png
+models/standard-map/textures/Ice Atlas 1/IceAtlas1_Normal.png
+models/standard-map/textures/Ice Atlas 1/IceAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Ice Atlas 2/IceAtlas2_BaseColor.png
+models/standard-map/textures/Ice Atlas 2/IceAtlas2_Normal.png
+models/standard-map/textures/Ice Atlas 2/IceAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Lava Atlas 1/LavaAtlas1_BaseColor.png
+models/standard-map/textures/Lava Atlas 1/LavaAtlas1_Emissive.png
+models/standard-map/textures/Lava Atlas 1/LavaAtlas1_Normal.png
+models/standard-map/textures/Lava Atlas 1/LavaAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Lava Atlas 2/LavaAtlas2_BaseColor.png
+models/standard-map/textures/Lava Atlas 2/LavaAtlas2_Emissive.png
+models/standard-map/textures/Lava Atlas 2/LavaAtlas2_Normal.png
+models/standard-map/textures/Lava Atlas 2/LavaAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Moon Atlas 1/MoonAtlas1_BaseColor.png
+models/standard-map/textures/Moon Atlas 1/MoonAtlas1_Normal.png
+models/standard-map/textures/Moon Atlas 1/MoonAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Moon Atlas 2/MoonAtlas2_BaseColor.png
+models/standard-map/textures/Moon Atlas 2/MoonAtlas2_Normal.png
+models/standard-map/textures/Moon Atlas 2/MoonAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Rubber_BaseColor.png
+models/standard-map/textures/Rubber_Emissive.png
+models/standard-map/textures/Rubber_Normal.png
+models/standard-map/textures/Rubber_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Sand Atlas 1/SandAtlas1_BaseColor.png
+models/standard-map/textures/Sand Atlas 1/SandAtlas1_Normal.png
+models/standard-map/textures/Sand Atlas 1/SandAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Sand Atlas 2/SandAtlas2_BaseColor.png
+models/standard-map/textures/Sand Atlas 2/SandAtlas2_Normal.png
+models/standard-map/textures/Sand Atlas 2/SandAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Snow Atlas 1/SnowAtlas1_BaseColor.png
+models/standard-map/textures/Snow Atlas 1/SnowAtlas1_Normal.png
+models/standard-map/textures/Snow Atlas 1/SnowAtlas1_OcclusionRoughnessMetallic.png
+models/standard-map/textures/Snow Atlas 2/SnowAtlas2_BaseColor.png
+models/standard-map/textures/Snow Atlas 2/SnowAtlas2_Normal.png
+models/standard-map/textures/Snow Atlas 2/SnowAtlas2_OcclusionRoughnessMetallic.png
+models/standard-map/textures/TUNNELS_BaseColor.png
+models/standard-map/textures/TUNNELS_Emissive.png
+models/standard-map/textures/TUNNELS_Normal.png
+models/standard-map/textures/TUNNELS_OcclusionRoughnessMetallic.png
+models/standard-map/textures/TurboTileArrow_BaseColor.png
+models/standard-map/textures/TurboTileArrow_Normal.png
+models/standard-map/textures/TurboTileArrow_OcclusionRoughnessMetallic.png
+models/standard-map/textures/TurboTile_BaseColor.png
+models/standard-map/textures/TurboTile_Normal.png
+models/standard-map/textures/TurboTile_OcclusionRoughnessMetallic.png
+models/vehicles/BaseRaceKart1.gltf
+models/vehicles/BaseRaceKart2.gltf
+models/vehicles/BaseRaceKart3.gltf
+models/vehicles/BaseRaceKart4.gltf
+models/vehicles/BaseRaceKart5.gltf
+models/vehicles/BaseRaceKart6.gltf
+models/vehicles/BaseRaceKart7.gltf
+models/vehicles/BaseRaceKart8.gltf
+models/vehicles/textures/cars_car 1_BaseColor.1001.png
+models/vehicles/textures/cars_car 1_Emissive.1001.png
+models/vehicles/textures/cars_car 1_Normal.1001.png
+models/vehicles/textures/cars_car 1_OcclusionRoughnessMetallic.1001.png
+models/vehicles/textures/cars_car 2_BaseColor.1001.png
+models/vehicles/textures/cars_car 2_Emissive.1001.png
+models/vehicles/textures/cars_car 2_Normal.1001.png
+models/vehicles/textures/cars_car 2_OcclusionRoughnessMetallic.1001.png
+models/vehicles/textures/cars_car 3_BaseColor.1001.png
+models/vehicles/textures/cars_car 3_Emissive.1001.png
+models/vehicles/textures/cars_car 3_Normal.1001.png
+models/vehicles/textures/cars_car 3_OcclusionRoughnessMetallic.1001.png
+package-lock.json
+package.json
+production/session-logs/agent-audit.log
+production/session-logs/session-log.md
+tests/ai-profiles.test.mjs
+tests/character-asset-config.test.mjs
+tests/lobby-assets.test.mjs
+tests/track-theme-registry.test.mjs
+---
+

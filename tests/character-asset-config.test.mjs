@@ -7,7 +7,6 @@ import {
 	CHARACTER_ACCESSORY_DEFS,
 	CHARACTER_GARAGE_IDLE_ANIMATION_PATH,
 	CHARACTER_MODEL_PATH,
-	MASK_TINT_TEXTURE_PATH,
 } from '../js/CharacterCustomization.js';
 
 function getTextureImageUri( gltf, textureIndex ) {
@@ -71,15 +70,13 @@ test( 'character boots material is authored on the body mesh primitive', async (
 
 } );
 
-test( 'garage idle animation and tint mask assets exist', async () => {
+test( 'garage idle animation asset exists', async () => {
 
-	const [ idleAnimationRaw, tintMaskRaw ] = await Promise.all( [
-		readFile( new URL( `../models/${ CHARACTER_GARAGE_IDLE_ANIMATION_PATH }`, import.meta.url ) ),
-		readFile( new URL( `../models/${ MASK_TINT_TEXTURE_PATH }`, import.meta.url ) ),
-	] );
+	const idleAnimationRaw = await readFile(
+		new URL( `../models/${ CHARACTER_GARAGE_IDLE_ANIMATION_PATH }`, import.meta.url )
+	);
 
 	assert.ok( idleAnimationRaw.byteLength > 0, 'garage idle animation file is empty' );
-	assert.ok( tintMaskRaw.byteLength > 0, 'tint mask texture file is empty' );
 
 } );
 
@@ -101,7 +98,7 @@ test( 'character mask material wires the packed ORM texture for both metal-rough
 	const occlusionUri = getTextureImageUri( gltf, occlusionTextureIndex );
 
 	assert.equal( ormTextureIndex, occlusionTextureIndex, 'character occlusion texture should reuse the ORM texture slot' );
-	assert.equal( ormUri, 'textures/Masks_OcclusionRoughnessMetallic.png' );
+	assert.equal( ormUri, 'textures/Masks_OcclusionRoughnessMetallic.webp' );
 	assert.equal( occlusionUri, ormUri, 'character occlusion texture should resolve to the packed ORM image' );
 
 } );

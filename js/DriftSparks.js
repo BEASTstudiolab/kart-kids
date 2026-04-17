@@ -9,20 +9,33 @@ const SPARK_COLORS = [ 0xffdd33, 0xffaa00, 0xff8800, 0xffee66 ];
 const _worldPos = new THREE.Vector3();
 const _fwdDir = new THREE.Vector3();
 
+let _sharedMaterial = null;
+
+function _getSharedMaterial() {
+
+	if ( ! _sharedMaterial ) {
+
+		_sharedMaterial = new THREE.SpriteMaterial( {
+			map: getSmokeTexture(),
+			transparent: true,
+			depthWrite: false,
+			opacity: 0,
+			blending: THREE.AdditiveBlending,
+		} );
+
+	}
+
+	return _sharedMaterial;
+
+}
+
 export class DriftSparks {
 
 	constructor( scene ) {
 
 		this.particles = [];
 
-		const map = getSmokeTexture();
-		this.material = new THREE.SpriteMaterial( {
-			map,
-			transparent: true,
-			depthWrite: false,
-			opacity: 0,
-			blending: THREE.AdditiveBlending,
-		} );
+		this.material = _getSharedMaterial();
 
 		for ( let i = 0; i < POOL_SIZE; i ++ ) {
 
@@ -207,7 +220,7 @@ export class DriftSparks {
 
 		}
 
-		this.material.dispose();
+		// Shared base material intentionally retained — other racers may still use it.
 
 	}
 

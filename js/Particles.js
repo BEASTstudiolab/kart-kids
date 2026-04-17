@@ -5,20 +5,33 @@ const POOL_SIZE = 32;
 const _worldPos = new THREE.Vector3();
 const DRIFT_STAGE_COLORS = [ 0x888899, 0x4488ff, 0xff8800, 0xaa44ff ];
 
+let _sharedMaterial = null;
+
+function _getSharedMaterial() {
+
+	if ( ! _sharedMaterial ) {
+
+		_sharedMaterial = new THREE.SpriteMaterial( {
+			map: getSmokeTexture(),
+			transparent: true,
+			depthWrite: false,
+			opacity: 0,
+			color: 0x5E5F6B,
+		} );
+
+	}
+
+	return _sharedMaterial;
+
+}
+
 export class SmokeTrails {
 
 	constructor( scene ) {
 
 		this.particles = [];
 
-		const map = getSmokeTexture();
-		this.material = new THREE.SpriteMaterial( {
-			map,
-			transparent: true,
-			depthWrite: false,
-			opacity: 0,
-			color: 0x5E5F6B,
-		} );
+		this.material = _getSharedMaterial();
 
 		for ( let i = 0; i < POOL_SIZE; i ++ ) {
 
@@ -111,7 +124,7 @@ export class SmokeTrails {
 
 		}
 
-		this.material.dispose();
+		// Shared base material intentionally retained — other racers may still use it.
 
 	}
 

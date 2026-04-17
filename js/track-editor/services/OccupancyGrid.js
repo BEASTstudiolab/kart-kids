@@ -83,12 +83,7 @@ export class OccupancyGrid {
 
 		const baseKey = gx + ',' + gz;
 
-		// Check exact elevation
-		if ( this.track.has( this._elevKey( baseKey, elevation ) ) ) return true;
-
-		// Also check if any tile at this cell position exists (regardless of elevation)
-		// This handles the case where we need to know if the cell has ANY content
-		return false;
+		return this.track.has( this._elevKey( baseKey, elevation ) );
 
 	}
 

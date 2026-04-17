@@ -15,8 +15,8 @@ const TRACK_THEMES = [
 		available: true,
 		description: 'Retro neon synthwave track textures',
 		slots: {
-			1: { folder: '80s Synth Wave Atlas 1', prefix: '80ssynthwaveAtlas1', extension: 'png' },
-			2: { folder: '80s Synth Wave Atlas 2', prefix: '80ssynthwaveAtlas2', extension: 'png' },
+			1: { folder: '80s Synth Wave Atlas 1', prefix: '80ssynthwaveAtlas1', extension: 'webp' },
+			2: { folder: '80s Synth Wave Atlas 2', prefix: '80ssynthwaveAtlas2', extension: 'webp' },
 		},
 	},
 	{
@@ -25,8 +25,8 @@ const TRACK_THEMES = [
 		available: true,
 		description: 'Warm sandstone canyon track textures',
 		slots: {
-			1: { folder: 'Canyon Atlas 1', prefix: 'CanyonAtlas1', extension: 'png' },
-			2: { folder: 'Canyon Atlas 2', prefix: 'CanyonAtlas2', extension: 'png' },
+			1: { folder: 'Canyon Atlas 1', prefix: 'CanyonAtlas1', extension: 'webp' },
+			2: { folder: 'Canyon Atlas 2', prefix: 'CanyonAtlas2', extension: 'webp' },
 		},
 	},
 	{
@@ -35,8 +35,8 @@ const TRACK_THEMES = [
 		available: true,
 		description: 'Industrial concrete track textures',
 		slots: {
-			1: { folder: 'Concrete Atlas 1', prefix: 'ConcreteAtlas1', extension: 'png' },
-			2: { folder: 'Concrete Atlas 2', prefix: 'ConcreteAtlas2', extension: 'png' },
+			1: { folder: 'Concrete Atlas 1', prefix: 'ConcreteAtlas1', extension: 'webp' },
+			2: { folder: 'Concrete Atlas 2', prefix: 'ConcreteAtlas2', extension: 'webp' },
 		},
 	},
 	{
@@ -45,8 +45,8 @@ const TRACK_THEMES = [
 		available: true,
 		description: 'Packed dirt track textures',
 		slots: {
-			1: { folder: 'Dirt Atlas 1', prefix: 'DirtAtlas1', extension: 'png' },
-			2: { folder: 'Dirt Atlas 2', prefix: 'DirtAtlas2', extension: 'png' },
+			1: { folder: 'Dirt Atlas 1', prefix: 'DirtAtlas1', extension: 'webp' },
+			2: { folder: 'Dirt Atlas 2', prefix: 'DirtAtlas2', extension: 'webp' },
 		},
 	},
 	{
@@ -55,8 +55,8 @@ const TRACK_THEMES = [
 		available: true,
 		description: 'Forest-floor track textures',
 		slots: {
-			1: { folder: 'Forest Atlas 1', prefix: 'ForestAtlas1', extension: 'png' },
-			2: { folder: 'Forest Atlas 2', prefix: 'ForestAtlas2', extension: 'png' },
+			1: { folder: 'Forest Atlas 1', prefix: 'ForestAtlas1', extension: 'webp' },
+			2: { folder: 'Forest Atlas 2', prefix: 'ForestAtlas2', extension: 'webp' },
 		},
 	},
 	{
@@ -65,8 +65,8 @@ const TRACK_THEMES = [
 		available: true,
 		description: 'Frozen ice track textures',
 		slots: {
-			1: { folder: 'Ice Atlas 1', prefix: 'IceAtlas1', extension: 'png' },
-			2: { folder: 'Ice Atlas 2', prefix: 'IceAtlas2', extension: 'png' },
+			1: { folder: 'Ice Atlas 1', prefix: 'IceAtlas1', extension: 'webp' },
+			2: { folder: 'Ice Atlas 2', prefix: 'IceAtlas2', extension: 'webp' },
 		},
 	},
 	{
@@ -75,8 +75,8 @@ const TRACK_THEMES = [
 		available: true,
 		description: 'Volcanic lava track textures',
 		slots: {
-			1: { folder: 'Lava Atlas 1', prefix: 'LavaAtlas1', extension: 'png' },
-			2: { folder: 'Lava Atlas 2', prefix: 'LavaAtlas2', extension: 'png' },
+			1: { folder: 'Lava Atlas 1', prefix: 'LavaAtlas1', extension: 'webp' },
+			2: { folder: 'Lava Atlas 2', prefix: 'LavaAtlas2', extension: 'webp' },
 		},
 	},
 	{
@@ -85,8 +85,8 @@ const TRACK_THEMES = [
 		available: true,
 		description: 'Dusty lunar track textures',
 		slots: {
-			1: { folder: 'Moon Atlas 1', prefix: 'MoonAtlas1', extension: 'png' },
-			2: { folder: 'Moon Atlas 2', prefix: 'MoonAtlas2', extension: 'png' },
+			1: { folder: 'Moon Atlas 1', prefix: 'MoonAtlas1', extension: 'webp' },
+			2: { folder: 'Moon Atlas 2', prefix: 'MoonAtlas2', extension: 'webp' },
 		},
 	},
 	{
@@ -95,8 +95,8 @@ const TRACK_THEMES = [
 		available: true,
 		description: 'Loose desert sand track textures',
 		slots: {
-			1: { folder: 'Sand Atlas 1', prefix: 'SandAtlas1', extension: 'png' },
-			2: { folder: 'Sand Atlas 2', prefix: 'SandAtlas2', extension: 'png' },
+			1: { folder: 'Sand Atlas 1', prefix: 'SandAtlas1', extension: 'webp' },
+			2: { folder: 'Sand Atlas 2', prefix: 'SandAtlas2', extension: 'webp' },
 		},
 	},
 	{
@@ -105,8 +105,8 @@ const TRACK_THEMES = [
 		available: true,
 		description: 'Snow-packed winter track textures',
 		slots: {
-			1: { folder: 'Snow Atlas 1', prefix: 'SnowAtlas1', extension: 'png' },
-			2: { folder: 'Snow Atlas 2', prefix: 'SnowAtlas2', extension: 'png' },
+			1: { folder: 'Snow Atlas 1', prefix: 'SnowAtlas1', extension: 'webp' },
+			2: { folder: 'Snow Atlas 2', prefix: 'SnowAtlas2', extension: 'webp' },
 		},
 	},
 ];

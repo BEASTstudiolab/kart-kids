@@ -194,7 +194,7 @@ test( 'LobbyScene bakes in the tuned lobby material preset values', () => {
 
 	assertLobbyMaterialConfig( source, 'Lobby Props', [
 		"debugLabel: 'Lobby Props (Lobby2)',",
-		"ormPath: 'models/environments/textures/Lobby2_OcclusionRoughnessMetallic.png',",
+		"ormPath: 'models/environments/textures/Lobby2_OcclusionRoughnessMetallic.webp',",
 		'emissiveIntensity: 10.0,',
 		'emissiveColor: Object.freeze( { r: 0.07, g: 0.34, b: 1.00 } ),',
 		'normalScale: Object.freeze( { x: 0.00, y: 0.00 } ),',
@@ -208,7 +208,7 @@ test( 'LobbyScene bakes in the tuned lobby material preset values', () => {
 
 	assertLobbyMaterialConfig( source, 'LobbyRoom_Atlas', [
 		"debugLabel: 'LobbyRoom Atlas (Lobby1)',",
-		"ormPath: 'models/environments/textures/Lobby1_OcclusionRoughnessMetallic.png',",
+		"ormPath: 'models/environments/textures/Lobby1_OcclusionRoughnessMetallic.webp',",
 		'emissiveIntensity: 10.0,',
 		'emissiveColor: Object.freeze( { r: 0.11, g: 0.00, b: 1.00 } ),',
 		'normalScale: Object.freeze( { x: 3.00, y: 3.00 } ),',
@@ -270,8 +270,8 @@ test( 'Lobby.gltf wires packed ORM textures for both lobby materials', () => {
 
 	const gltf = readJson( 'models/environments/Lobby.gltf' );
 	const expectedMaterials = new Map( [
-		[ 'Lobby Props', 'textures/Lobby2_OcclusionRoughnessMetallic.png' ],
-		[ 'LobbyRoom_Atlas', 'textures/Lobby1_OcclusionRoughnessMetallic.png' ],
+		[ 'Lobby Props', 'textures/Lobby2_OcclusionRoughnessMetallic.webp' ],
+		[ 'LobbyRoom_Atlas', 'textures/Lobby1_OcclusionRoughnessMetallic.webp' ],
 	] );
 
 	for ( const [ materialName, expectedOrmUri ] of expectedMaterials ) {
@@ -298,19 +298,19 @@ test( 'Character balaclava material includes base and normal textures for debug 
 	const normalTextureIndex = balaclavaMaterial.normalTexture?.index;
 	assert.notEqual( baseTextureIndex, undefined, 'Expected a balaclava base color texture' );
 	assert.notEqual( normalTextureIndex, undefined, 'Expected a balaclava normal texture' );
-	assert.equal( getTextureUri( gltf, baseTextureIndex ), 'textures/Masks_BaseColor.png' );
-	assert.equal( getTextureUri( gltf, normalTextureIndex ), 'textures/Masks_Normal.png' );
+	assert.equal( getTextureUri( gltf, baseTextureIndex ), 'textures/Masks_BaseColor.webp' );
+	assert.equal( getTextureUri( gltf, normalTextureIndex ), 'textures/Masks_Normal.webp' );
 
 } );
 
 test( 'Lobby ORM texture files exist on disk', () => {
 
 	assert.equal(
-		existsSync( new URL( '../models/environments/textures/Lobby1_OcclusionRoughnessMetallic.png', import.meta.url ) ),
+		existsSync( new URL( '../models/environments/textures/Lobby1_OcclusionRoughnessMetallic.webp', import.meta.url ) ),
 		true
 	);
 	assert.equal(
-		existsSync( new URL( '../models/environments/textures/Lobby2_OcclusionRoughnessMetallic.png', import.meta.url ) ),
+		existsSync( new URL( '../models/environments/textures/Lobby2_OcclusionRoughnessMetallic.webp', import.meta.url ) ),
 		true
 	);
 

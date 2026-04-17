@@ -6,21 +6,34 @@ import { getSmokeTexture } from './VFXTextures.js';
 
 const POOL_SIZE = 16;
 
-export class BoostBurst {
+let _sharedMaterial = null;
 
-	constructor( scene ) {
+function _getSharedMaterial() {
 
-		this.particles = [];
+	if ( ! _sharedMaterial ) {
 
-		const map = getSmokeTexture();
-		this.material = new THREE.SpriteMaterial( {
-			map,
+		_sharedMaterial = new THREE.SpriteMaterial( {
+			map: getSmokeTexture(),
 			transparent: true,
 			depthWrite: false,
 			opacity: 0,
 			color: 0xffaa00,
 			blending: THREE.AdditiveBlending,
 		} );
+
+	}
+
+	return _sharedMaterial;
+
+}
+
+export class BoostBurst {
+
+	constructor( scene ) {
+
+		this.particles = [];
+
+		this.material = _getSharedMaterial();
 
 		for ( let i = 0; i < POOL_SIZE; i ++ ) {
 
@@ -113,7 +126,7 @@ export class BoostBurst {
 
 		}
 
-		this.material.dispose();
+		// Shared base material intentionally retained — other racers may still use it.
 
 	}
 

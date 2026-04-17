@@ -169,52 +169,52 @@
 		{
 			"mimeType":"image/png",
 			"name":"Rubber_Emissive",
-			"uri":"textures/Rubber_Emissive.png"
+			"uri":"textures/Rubber_Emissive.webp"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"Rubber_Normal",
-			"uri":"textures/Rubber_Normal.png"
+			"uri":"textures/Rubber_Normal.webp"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"Rubber_BaseColor",
-			"uri":"textures/Rubber_BaseColor.png"
+			"uri":"textures/Rubber_BaseColor.webp"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"Rubber_OcclusionRoughnessMetallic",
-			"uri":"textures/Rubber_OcclusionRoughnessMetallic.png"
+			"uri":"textures/Rubber_OcclusionRoughnessMetallic.webp"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"TurboTile_Normal",
-			"uri":"textures/TurboTile_Normal.png"
+			"uri":"textures/TurboTile_Normal.webp"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"TurboTile_BaseColor",
-			"uri":"textures/TurboTile_BaseColor.png"
+			"uri":"textures/TurboTile_BaseColor.webp"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"TurboTile_OcclusionRoughnessMetallic",
-			"uri":"textures/TurboTile_OcclusionRoughnessMetallic.png"
+			"uri":"textures/TurboTile_OcclusionRoughnessMetallic.webp"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"TurboTileArrow_Normal",
-			"uri":"textures/TurboTileArrow_Normal.png"
+			"uri":"textures/TurboTileArrow_Normal.webp"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"TurboTileArrow_BaseColor",
-			"uri":"textures/TurboTileArrow_BaseColor.png"
+			"uri":"textures/TurboTileArrow_BaseColor.webp"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"TurboTileArrow_OcclusionRoughnessMetallic",
-			"uri":"textures/TurboTileArrow_OcclusionRoughnessMetallic.png"
+			"uri":"textures/TurboTileArrow_OcclusionRoughnessMetallic.webp"
 		}
 	],
 	"accessors":[

@@ -163,42 +163,42 @@
 		{
 			"mimeType":"image/png",
 			"name":"Lobby2_Emissive",
-			"uri":"textures/Lobby2_Emissive.png"
+			"uri":"textures/Lobby2_Emissive.webp"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"Lobby2_Normal",
-			"uri":"textures/Lobby2_Normal.png"
+			"uri":"textures/Lobby2_Normal.webp"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"Lobby2_BaseColor",
-			"uri":"textures/Lobby2_BaseColor.png"
+			"uri":"textures/Lobby2_BaseColor.webp"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"Lobby2_OcclusionRoughnessMetallic",
-			"uri":"textures/Lobby2_OcclusionRoughnessMetallic.png"
+			"uri":"textures/Lobby2_OcclusionRoughnessMetallic.webp"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"Lobby1_Emissive",
-			"uri":"textures/Lobby1_Emissive.png"
+			"uri":"textures/Lobby1_Emissive.webp"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"Lobby1_Normal",
-			"uri":"textures/Lobby1_Normal.png"
+			"uri":"textures/Lobby1_Normal.webp"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"Lobby1_BaseColor",
-			"uri":"textures/Lobby1_BaseColor.png"
+			"uri":"textures/Lobby1_BaseColor.webp"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"Lobby1_OcclusionRoughnessMetallic",
-			"uri":"textures/Lobby1_OcclusionRoughnessMetallic.png"
+			"uri":"textures/Lobby1_OcclusionRoughnessMetallic.webp"
 		}
 	],
 	"accessors":[

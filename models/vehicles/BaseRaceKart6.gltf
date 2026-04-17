@@ -309,22 +309,22 @@
 		{
 			"mimeType":"image/png",
 			"name":"cars_car 3_Emissive.1001",
-			"uri":"textures/cars_car%203_Emissive.1001.png"
+			"uri":"textures/cars_car%203_Emissive.1001.webp"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"cars_car 3_Normal.1001",
-			"uri":"textures/cars_car%203_Normal.1001.png"
+			"uri":"textures/cars_car%203_Normal.1001.webp"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"cars_car 3_BaseColor.1001",
-			"uri":"textures/cars_car%203_BaseColor.1001.png"
+			"uri":"textures/cars_car%203_BaseColor.1001.webp"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"cars_car 3_OcclusionRoughnessMetallic.1001",
-			"uri":"textures/cars_car%203_OcclusionRoughnessMetallic.1001.png"
+			"uri":"textures/cars_car%203_OcclusionRoughnessMetallic.1001.webp"
 		}
 	],
 	"accessors":[

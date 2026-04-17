@@ -9,20 +9,33 @@ const POWERUP_COLORS = {
 	star: [ 0xffdd44, 0xffaa00, 0xffee88 ],
 };
 
+let _sharedMaterial = null;
+
+function _getSharedMaterial() {
+
+	if ( ! _sharedMaterial ) {
+
+		_sharedMaterial = new THREE.SpriteMaterial( {
+			map: getSmokeTexture(),
+			transparent: true,
+			depthWrite: false,
+			opacity: 0,
+			blending: THREE.AdditiveBlending,
+		} );
+
+	}
+
+	return _sharedMaterial;
+
+}
+
 export class ItemPickupVFX {
 
 	constructor( scene ) {
 
 		this.particles = [];
 
-		const map = getSmokeTexture();
-		this.material = new THREE.SpriteMaterial( {
-			map,
-			transparent: true,
-			depthWrite: false,
-			opacity: 0,
-			blending: THREE.AdditiveBlending,
-		} );
+		this.material = _getSharedMaterial();
 
 		for ( let i = 0; i < POOL_SIZE; i ++ ) {
 
@@ -114,7 +127,7 @@ export class ItemPickupVFX {
 
 		}
 
-		this.material.dispose();
+		// Shared base material intentionally retained — other racers may still use it.
 
 	}
 

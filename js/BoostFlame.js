@@ -10,21 +10,34 @@ const POOL_SIZE = 32;
 const _worldPos = new THREE.Vector3();
 const _backward = new THREE.Vector3();
 
-export class BoostFlame {
+let _sharedMaterial = null;
 
-	constructor( scene ) {
+function _getSharedMaterial() {
 
-		this.particles = [];
+	if ( ! _sharedMaterial ) {
 
-		const map = getSmokeTexture();
-		this.material = new THREE.SpriteMaterial( {
-			map,
+		_sharedMaterial = new THREE.SpriteMaterial( {
+			map: getSmokeTexture(),
 			transparent: true,
 			depthWrite: false,
 			opacity: 0,
 			color: 0xff4400,
 			blending: THREE.AdditiveBlending,
 		} );
+
+	}
+
+	return _sharedMaterial;
+
+}
+
+export class BoostFlame {
+
+	constructor( scene ) {
+
+		this.particles = [];
+
+		this.material = _getSharedMaterial();
 
 		for ( let i = 0; i < POOL_SIZE; i ++ ) {
 
@@ -129,7 +142,7 @@ export class BoostFlame {
 
 		}
 
-		this.material.dispose();
+		// Shared base material intentionally retained — other racers may still use it.
 
 	}
 

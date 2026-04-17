@@ -129,6 +129,8 @@ export class AIController {
 		this._activeTurnSign = 0;
 		this._exitBlendRemaining = 0;
 		this._exitLaneStart = 0;
+		this._cornerCount = 0;
+		this._cornerNoise = 0;
 		this._overtakeTimer = 0;
 		this._overtakeDirection = 0;
 		this._overtakeTargetId = null;
@@ -169,6 +171,8 @@ export class AIController {
 		this._activeTurnSign = 0;
 		this._exitBlendRemaining = 0;
 		this._exitLaneStart = 0;
+		this._cornerCount = 0;
+		this._cornerNoise = 0;
 		this._overtakeTimer = 0;
 		this._overtakeDirection = 0;
 		this._overtakeTargetId = null;
@@ -209,6 +213,8 @@ export class AIController {
 		this._activeTurnSign = 0;
 		this._exitBlendRemaining = 0;
 		this._exitLaneStart = 0;
+		this._cornerCount = 0;
+		this._cornerNoise = 0;
 		this._clearOvertakePlan();
 		this._deactivateMistake();
 		this._wrenchTarget = null;
@@ -889,14 +895,18 @@ export class AIController {
 			: 0;
 		const steerInput = clamp( cross * p.steerSensitivity + noise, - 1, 1 );
 
+		const skill = clamp( p.skill ?? 0.6, 0, 1 );
+		const skillBias = skill - 0.5;
 		const turnRiskDeg = Math.max( Math.abs( nearAngleDeg ) * 1.35, Math.abs( cornerAngleDeg ) * 0.65 ) * launchTurnRelaxation;
-		let desiredSpeedFactor = clamp( 1 - turnRiskDeg / 85, 0.32, 1 ) * ( p.cornerSpeedFactor ?? 1 );
-		desiredSpeedFactor = clamp( desiredSpeedFactor, 0.25, 1.0 );
+		let desiredSpeedFactor = clamp( 1 - turnRiskDeg / 110, 0.4, 1 ) * ( p.cornerSpeedFactor ?? 1 );
+		desiredSpeedFactor = clamp( desiredSpeedFactor, 0.3, 1.04 );
 		let throttle = desiredSpeedFactor;
 
-		if ( speed > desiredSpeedFactor + 0.08 && Math.abs( cornerAngleDeg ) >= BEND_TURN_DEG ) {
+		// High-skill AI brakes later and for sharper bends only.
+		const brakeBendDeg = BEND_TURN_DEG + skillBias * 8;
+		if ( speed > desiredSpeedFactor + 0.16 && Math.abs( cornerAngleDeg ) >= brakeBendDeg ) {
 
-			throttle = - clamp( ( speed - desiredSpeedFactor ) / 0.2, 0.35, 1.0 );
+			throttle = - clamp( ( speed - desiredSpeedFactor ) / 0.2, 0.25, 0.9 );
 
 		} else if ( dot < p.turnThrottleDot ) {
 
@@ -957,10 +967,11 @@ export class AIController {
 		}
 
 		let boost = false;
+		const boostBendDeg = BEND_TURN_DEG + skillBias * 6;
 		if (
 			! this._recovering &&
 			vehicle.boostMeter >= 1.0 &&
-			Math.abs( cornerAngleDeg ) < BEND_TURN_DEG &&
+			Math.abs( cornerAngleDeg ) < boostBendDeg &&
 			Math.abs( routeProjection.lateralOffset - lanePlan.laneOffset ) < 0.75 &&
 			wallPressure < 0.5 &&
 			traffic.occupancy <= 0.3 &&
@@ -1098,8 +1109,23 @@ export class AIController {
 		const absNearAngle = Math.abs( nearAngleDeg );
 		const turnSign = Math.sign( cornerAngleDeg ) || this._activeTurnSign || Math.sign( nearAngleDeg ) || 0;
 		const seededBaseLane = clamp( baseLane + this._laneSpread, - MAX_SEED_LANE_SPREAD, MAX_SEED_LANE_SPREAD );
-		const entryLane = seededBaseLane - turnSign * MAX_LANE_BIAS * profile.cornerEntryWidth;
-		const apexLane = seededBaseLane + turnSign * MAX_LANE_BIAS * profile.cornerApexTightness;
+
+		// Regenerate per-corner noise the first frame we commit to a new turn,
+		// so the same driver takes visibly different widths at different corners
+		// without losing their overall personality from the profile.
+		if ( absCornerAngle >= BEND_TURN_DEG && turnSign !== 0 && this._activeTurnSign === 0 ) {
+
+			this._cornerCount += 1;
+			this._cornerNoise = ( seededUnit( this._seed + this._cornerCount * 17 ) - 0.5 ) * 2;
+
+		}
+
+		const cornerNoise = this._cornerNoise;
+		const entryWidth = clamp( profile.cornerEntryWidth + cornerNoise * 0.18, 0.35, 1.15 );
+		const apexTightness = clamp( profile.cornerApexTightness - cornerNoise * 0.18, 0.18, 0.9 );
+
+		const entryLane = seededBaseLane - turnSign * MAX_LANE_BIAS * entryWidth;
+		const apexLane = seededBaseLane + turnSign * MAX_LANE_BIAS * apexTightness;
 
 		if ( this._recovering ) {
 

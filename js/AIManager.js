@@ -7,7 +7,7 @@ import { BoostFlame } from './BoostFlame.js';
 import { TireMarks } from './TireMarks.js';
 import { FinishLine } from './FinishLine.js';
 import { AIController } from './AIController.js';
-import { AI_LABEL, createSeededCPUProfile, getCPUProfileStyleSummary } from './AIProfiles.js';
+import { AI_LABEL, createTieredCPUProfile, getAITierLayout, getCPUProfileStyleSummary } from './AIProfiles.js';
 import { ItemSlotManager } from './ItemSlotManager.js';
 import { PLAYER_VEHICLES, PLAYER_CHARACTER_ID } from './VehicleRegistry.js';
 import { getRandomBalaclavaId } from './CharacterCustomization.js';
@@ -66,7 +66,7 @@ export class AIManager {
 
 		this.totalLaps = 3;
 		this.playerModelIndex = 0;
-		this.rubberBandIntensity = 0.5;
+		this.rubberBandIntensity = 0.25;
 
 		this._racers = [];
 		this._activeVehiclesCache = [];
@@ -74,6 +74,7 @@ export class AIManager {
 		this._debugDataCache = [];
 		this._aiColors = generateAIColors( 8 );
 		this._shuffledKarts = shuffleArray( PLAYER_VEHICLES );
+		this._tierAssignments = [];
 
 	}
 
@@ -84,6 +85,11 @@ export class AIManager {
 		console.log( `[AIManager] setCount(${count}), trackIntel=${!!this.trackIntel}, current racers=${this._racers.length}` );
 
 		count = clamp( Math.round( count ), 0, 8 );
+
+		// Pick tier distribution (e.g. ['A','A','B','B','B','B','C','C'] for 8)
+		// and shuffle so grid index doesn't correlate with tier.
+		this._tierAssignments = shuffleArray( getAITierLayout( count ) );
+		console.log( `[AIManager] Tier distribution: ${this._tierAssignments.join( ',' )}` );
 
 		// Spawn new
 		while ( this._racers.length < count ) {
@@ -147,7 +153,8 @@ export class AIManager {
 
 		this.scene.add( vehicle.container );
 
-		const profile = createSeededCPUProfile( index );
+		const tier = this._tierAssignments[ index ] || 'B';
+		const profile = createTieredCPUProfile( index, tier );
 		vehicle.weight = profile.weight || 5;
 		vehicle.itemSlot = new ItemSlotManager( vehicle );
 		const controller = new AIController( this.trackIntel, index, profile );
@@ -281,11 +288,11 @@ export class AIManager {
 		let multiplier;
 		if ( t >= 0 ) {
 
-			multiplier = lerp( 1.0, 1.3, t ); // behind: speed up
+			multiplier = lerp( 1.0, 1.15, t ); // behind: gentle catch-up
 
 		} else {
 
-			multiplier = lerp( 1.0, 0.75, - t ); // ahead: slow down
+			multiplier = lerp( 1.0, 0.88, - t ); // ahead: mild hold-back
 
 		}
 

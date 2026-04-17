@@ -36,11 +36,11 @@ test( 'track theme registry resolves special 80s synth wave filenames and classi
 
 	assert.equal(
 		resolveTrackThemeTexturePath( '80s-synth-wave', 2, 'Emissive' ),
-		'models/standard-map/textures/80s Synth Wave Atlas 2/80ssynthwaveAtlas2_Emissive.png'
+		'models/standard-map/textures/80s Synth Wave Atlas 2/80ssynthwaveAtlas2_Emissive.webp'
 	);
 	assert.equal(
 		resolveTrackThemeTexturePath( 'snow', 1, 'BaseColor' ),
-		'models/standard-map/textures/Snow Atlas 1/SnowAtlas1_BaseColor.png'
+		'models/standard-map/textures/Snow Atlas 1/SnowAtlas1_BaseColor.webp'
 	);
 	assert.equal(
 		resolveTrackThemeTexturePath( 'classic-asphalt', 1, 'Normal' ),
