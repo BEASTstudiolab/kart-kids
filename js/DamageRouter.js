@@ -52,7 +52,7 @@ export function resolveQuadrant( attackerPos, defenderVehicle ) {
  * @param {THREE.Vector3} localDir - normalized direction in vehicle local space
  * @returns {number} QUADRANT enum value
  */
-export function resolveQuadrantFromLocal( localDir ) {
+function resolveQuadrantFromLocal( localDir ) {
 
 	const isFront = localDir.z > 0;
 	const isLeft = localDir.x < 0;
