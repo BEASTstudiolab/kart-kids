@@ -224,7 +224,6 @@ export class ProjectileManager {
 
 		const p = this._active[ index ];
 		p.mesh.removeFromParent();
-		if ( p.mesh.geometry ) p.mesh.geometry.dispose();
 		if ( p.mesh.material ) p.mesh.material.dispose();
 		this._active.splice( index, 1 );
 
