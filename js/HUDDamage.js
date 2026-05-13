@@ -93,7 +93,6 @@ export class HUDDamage {
 		document.body.appendChild( this._elimWarning );
 
 		this._flashTimer = 0;
-		this._visible = true;
 
 	}
 
@@ -104,7 +103,7 @@ export class HUDDamage {
 	 */
 	update( health, heldItemId, dt ) {
 
-		if ( ! health || ! this._visible ) return;
+		if ( ! health ) return;
 
 		// Update quadrant colors
 		for ( let i = 0; i < 4; i ++ ) {
@@ -148,21 +147,6 @@ export class HUDDamage {
 			this._flashTimer = 0;
 
 		}
-
-	}
-
-	show() {
-
-		this._visible = true;
-		this._root.style.display = 'flex';
-
-	}
-
-	hide() {
-
-		this._visible = false;
-		this._root.style.display = 'none';
-		this._elimWarning.style.borderColor = 'transparent';
 
 	}
 
