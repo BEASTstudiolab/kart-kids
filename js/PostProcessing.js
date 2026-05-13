@@ -279,6 +279,8 @@ export class PostProcessing {
 			{ name: 'screenShake',         pass: screenShakePass,  enabled: false },
 		];
 
+		this._effectMap = new Map( this.effects.map( e => [ e.name, e ] ) );
+
 		this.rebuildEffects();
 
 	}
@@ -365,7 +367,7 @@ export class PostProcessing {
 	/** Return the full effect entry { name, pass, enabled }. */
 	getEffect( name ) {
 
-		return this.effects.find( e => e.name === name ) ?? null;
+		return this._effectMap.get( name ) ?? null;
 
 	}
 
