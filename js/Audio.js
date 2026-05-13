@@ -1,5 +1,33 @@
 import * as THREE from 'three';
 
+/**
+ * Stepped pitch curve simulating gear shifts.
+ * Each gear ramps pitch up, then drops on the "shift" to the next gear.
+ */
+const GEARS = [
+	{ from: 0.00, to: 0.30, pitchLow: 0.25, pitchHigh: 1.2 },  // 1st gear
+	{ from: 0.30, to: 0.60, pitchLow: 0.8,  pitchHigh: 1.8 },  // 2nd gear
+	{ from: 0.60, to: 0.85, pitchLow: 1.3,  pitchHigh: 2.4 },  // 3rd gear
+	{ from: 0.85, to: 1.00, pitchLow: 1.8,  pitchHigh: 3.0 },  // 4th gear
+];
+
+function gearShiftPitch( speedFactor ) {
+
+	for ( const g of GEARS ) {
+
+		if ( speedFactor <= g.to ) {
+
+			const t = ( speedFactor - g.from ) / ( g.to - g.from );
+			return g.pitchLow + t * ( g.pitchHigh - g.pitchLow );
+
+		}
+
+	}
+
+	return 3.0;
+
+}
+
 function remap( value, inMin, inMax, outMin, outMax ) {
 
 	return outMin + ( outMax - outMin ) * ( ( value - inMin ) / ( inMax - inMin ) );
@@ -234,7 +262,7 @@ export class GameAudio {
 		const currentVol = this.engineSound.getVolume();
 		this.engineSound.setVolume( THREE.MathUtils.lerp( currentVol, targetVol, dt * 5 ) );
 
-		let targetPitch = remap( speedFactor, 0, 1, 0.25, 3 );
+		let targetPitch = gearShiftPitch( speedFactor );
 		if ( throttleFactor > 0.1 ) targetPitch += 0.2;
 		const currentPitch = this.engineSound.getPlaybackRate();
 		this.engineSound.setPlaybackRate( THREE.MathUtils.lerp( currentPitch, targetPitch, dt * 2 ) );
